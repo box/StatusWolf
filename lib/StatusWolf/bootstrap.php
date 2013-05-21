@@ -29,7 +29,7 @@ if (! $auth_options['sessionName'] = SWConfig::read_values('auth.sessionName'))
 // Base login function, prints the login form if no active auth session exists
 function login($username = null, $status = null, &$auth = null)
 {
-  echo "<form method=\"post\" action=\"index.php\">";
+  echo "<form method=\"post\" action=\"/StatusWolf/\">";
   echo "<input type=\"text\" name=\"username\">";
   echo "<input type=\"password\" name=\"password\">";
   echo "<input type=\"submit\">";
@@ -45,6 +45,16 @@ function login_failed($user = null, &$auth = null)
 // Create authentication object
 $sw_auth = new Auth($auth_method, $auth_options, 'login');
 
+
+// Set the function to use on failed login attempts
+$sw_auth->setFailedLoginCallback('login_failed');
+
+// Start the new auth session
+$sw_auth->start();
+spl_autoload_register(array('SWAutoLoader', 'sw_autoloader'));
+spl_autoload_register();
+spl_autoload_extensions('.php');
+
 if (array_key_exists('enableLogging', $auth_options) && $auth_options['enableLogging'])
 {
   require_once "Log.php";
@@ -52,12 +62,6 @@ if (array_key_exists('enableLogging', $auth_options) && $auth_options['enableLog
   $debug_log_observer = new SWAuthLogObserver(PEAR_LOG_DEBUG);
   $sw_auth->attachLogObserver($debug_log_observer);
 }
-
-// Set the function to use on failed login attempts
-$sw_auth->setFailedLoginCallback('login_failed');
-
-// Start the new auth session
-$sw_auth->start();
 
 // Logout the user, restart the session and present a login form
 if (array_key_exists('action', $_GET))
@@ -74,7 +78,7 @@ if ($sw_auth->checkAuth())
 {
   $usersession = &$_SESSION[$auth_options['sessionName']];
   print "User " . $usersession['username'] . " is logged in!\n";
-
+  $bootstrap = true;
 }
 
 if (array_key_exists('enableLogging', $auth_options) && $auth_options['enableLogging'])
@@ -88,5 +92,3 @@ if (array_key_exists('enableLogging', $auth_options) && $auth_options['enableLog
   print_r($_SESSION);
   print "</pre>";
 }
-
-$bootstrap = true;
