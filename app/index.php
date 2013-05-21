@@ -9,19 +9,20 @@
  * Created: 20 May 2013
  */
 
-# Load the app constants
+// Load the app constants
 require(dirname(dirname(__FILE__)) . '/conf/constants.php');
-//require APPLIB . 'SWConfig.php';
-//require APPLIB . 'Error/SWException.php';
 
+// Add app directories to the include_path to enable auto loading of classes
 if (function_exists('ini_set'))
 {
-  ini_set('include_path', APPLIB . PATH_SEPARATOR . APPLIB . 'Error' . PATH_SEPARATOR . ini_get('include_path'));
-//  print ini_get('include_path') . "\n";
+  ini_set('include_path', APPLIB . 'Error' . PATH_SEPARATOR . ini_get('include_path'));
+  ini_set('include_path', APPLIB . 'Util' . PATH_SEPARATOR . ini_get('include_path'));
+  ini_set('include_path', APPLIB . PATH_SEPARATOR . ini_get('include_path'));
 }
 spl_autoload_register();
 spl_autoload_extensions('.php');
 
+// Bootstrap the app
 if (!include(APPLIB . 'bootstrap.php'))
 {
   $bootstrap = false;
