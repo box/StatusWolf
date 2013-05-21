@@ -1,6 +1,6 @@
 # Refactor code to rename project to StatusWolf
 
-* Create new git repository for StatusWolf (github.com/box private repo?)
+* &check; <del>Create new git repository for StatusWolf (github.com/box private repo?)</del>
 * Move files to StatusWolf project as classes are implemented
 	* Change file names
 	* Change directory structure
@@ -11,7 +11,7 @@
 
 ## 1a: Implement basic session management
 
-* http://scache.nanona.fi/introduction.html
+* <span style="color: red;">&otimes;</span> <del>http://scache.nanona.fi/introduction.html</del>
 * Integrate config class with session management
 * Implement session config caching via Redis
 	* Possible to implement db clustering for use with multiple dashboard servers? e.g. each dashboard also has a
@@ -20,9 +20,9 @@
 * Add authentication classes - LDAP, local, MySQL, Redis
 	* App will require Redis for caching, so default auth db should probably be in Redis as well.
 
-## 1b: Add class autoloader
+## &check; <del>1b: Add class autoloader</del>
 
-* look at ops-php-anthology, Bart, Cake, etc. - implement best method
+* <del>look at ops-php-anthology, Bart, Cake, etc. - implement best method</del>
 
 ## 1c: Build Router class to parse URL path
 
