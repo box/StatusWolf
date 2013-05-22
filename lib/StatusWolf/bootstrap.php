@@ -11,9 +11,13 @@
 // Load the PEAR::Auth module for authenticated sessions
 require_once "Auth.php";
 
-// Load datasource config and authentication config
+// Load app config, datasource config and authentication config
+SWConfig::load_config('statuswolf.conf');
 SWConfig::load_config('datasource.conf');
 SWConfig::load_config('auth.conf');
+
+// App config, general config for StatusWolf
+$app_config = SWConfig::read_values('statuswolf');
 
 // Auth method - which backend are we using for authentication?
 $auth_method = SWConfig::read_values('auth.method');
@@ -26,6 +30,27 @@ $auth_options = SWConfig::read_values('auth.' . $auth_method);
 if (! $auth_options['sessionName'] = SWConfig::read_values('auth.sessionName'))
 {
   $auth_options['sessionName'] = '_sw_authsession';
+}
+
+if (array_key_exists('debug', $app_config) && $app_config['debug'])
+{
+  $auth_options['enableLogging'] = true;
+}
+
+if (array_key_exists('session_handler', $app_config))
+{
+  $session_config = SWConfig::read_values('statuswolf.session_handler');
+  $handler_type = ucfirst($session_config['handler']) . 'SessionHandler';
+  require_once APPLIB . 'Util' . DS . 'Session' . DS . $handler_type . '.php';
+  if ($session_handler = new $handler_type($session_config))
+  {
+    session_set_save_handler(array($session_handler, 'open')
+                             ,array($session_handler, 'close')
+                             ,array($session_handler, 'read')
+                             ,array($session_handler, 'write')
+                             ,array($session_handler, 'destroy')
+                             ,array($session_handler, 'gc'));
+  }
 }
 
 // Base login function, prints the login form if no active auth session exists
@@ -44,7 +69,14 @@ function login($username = null, $status = null, &$auth = null)
 // Function to deal with failed user login attempts
 function login_failed($user = null, &$auth = null)
 {
-  print "User " . $user . " failed to login: " . $auth->getStatus() . "\n";
+  if ($auth->getStatus() == '-3')
+  {
+    $_SESSION['_auth_fail'] = "Username or password are incorrect";
+  }
+  else
+  {
+    $_SESSION['_auth_fail'] = "Login failed";
+  }
 }
 
 // Create authentication object
@@ -61,6 +93,10 @@ $sw_auth->start();
 spl_autoload_register(array('SWAutoLoader', 'sw_autoloader'));
 spl_autoload_register();
 spl_autoload_extensions('.php');
+if (array_key_exists('debug', $app_config) && $app_config['debug'])
+{
+  $_SESSION['debug'] = array();
+}
 
 if (array_key_exists('enableLogging', $auth_options) && $auth_options['enableLogging'])
 {
@@ -90,12 +126,10 @@ if ($sw_auth->checkAuth())
 
 if (array_key_exists('enableLogging', $auth_options) && $auth_options['enableLogging'])
 {
-  print "<h3>Auth Log:\n</h3>\n";
+  $auth_log = array();
   foreach ($debug_log_observer->auth_log_messages as $debug_event)
   {
-    print $debug_event['priority'] . ": " . $debug_event['message'] . "<br>\n";
+    $auth_log[] = $debug_event['priority'] . ": " . $debug_event['message'];
   }
-  print "<pre>\n";
-  print_r($_SESSION);
-  print "</pre>";
+  $_SESSION['debug']['auth_log'] = $auth_log;
 }

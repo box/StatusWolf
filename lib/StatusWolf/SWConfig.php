@@ -16,9 +16,7 @@ class SWConfig {
    *
    * @var array
    */
-  protected static $_config_values = array(
-    'debug' => 0
-  );
+  protected static $_config_values = array();
 
   /**
    * Reads an INI-formatted config file and stores it in the $_config_values array
