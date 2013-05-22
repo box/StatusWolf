@@ -17,7 +17,7 @@ if (!defined('DS'))
 
 if (!defined('ROOT'))
 {
-	define('ROOT', dirname(dirname(__FILE__)) . DS);
+	define('ROOT', dirname(dirname(dirname(__FILE__))) . DS);
 }
 
 if (!defined('LIB'))
@@ -59,7 +59,12 @@ if (!defined('URL'))
   if (strpos($_SERVER['SCRIPT_NAME'], '/') !== false)
   {
     $dir_parts = explode('/', $_SERVER['SCRIPT_NAME']);
+    // Drop the script file from the url
     array_pop($dir_parts);
+    if ($dir_parts[count($dir_parts)-1] === "app")
+    {
+      array_pop($dir_parts);
+    }
     if (count($dir_parts) > 1)
     {
       $dir = implode('/', $dir_parts);

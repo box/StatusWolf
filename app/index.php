@@ -10,7 +10,7 @@
  */
 
 // Load the app constants
-require(dirname(dirname(__FILE__)) . '/conf/constants.php');
+require(dirname(dirname(__FILE__)) . '/lib/StatusWolf/constants.php');
 require(dirname(dirname(__FILE__)) . '/lib/StatusWolf/Util/SWAutoLoader.php');
 require(dirname(dirname(__FILE__)) . '/lib/StatusWolf/SWConfig.php');
 
@@ -26,11 +26,16 @@ if (!include(APPLIB . 'bootstrap.php'))
 }
 
 
-//if (!$bootstrap)
-//{
-//  print "Unable to bootstrap StatusWolf!\n";
-//}
-//else
-//{
-//  print "App bootstrap complete\n";
-//}
+if (!$bootstrap)
+{
+  print "Unable to bootstrap StatusWolf!\n";
+}
+else
+{
+  print "App bootstrap complete\n";
+  print "<br>\n";
+  print "<pre>\n";
+  print $_SERVER['SCRIPT_NAME'] . "\n";
+  print_r(get_defined_constants(true));
+  print "</pre>\n";
+}

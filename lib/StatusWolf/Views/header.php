@@ -24,11 +24,11 @@
     <meta name="description" content="">
     <meta name="author" content="Mark Troyer <disco@box.com">
 
-    <link href="<?php echo URL; ?>/css/statuswolf_base.css?v=1" rel="stylesheet">
+    <link href="<?php echo URL; ?>/app/css/statuswolf_base.css?v=1" rel="stylesheet">
 
-    <script type="text/javascript" src="<?php echo URL; ?>/js/lib/dygraph-combined.js"></script>
-    <script type="text/javascript" src="<?php echo URL; ?>/js/lib/jquery.js"></script>
-    <script type="text/javascript" src="<?php echo URL; ?>/js/lib/bootstrap.js"></script>
+    <script type="text/javascript" src="<?php echo URL; ?>/app/js/lib/dygraph-combined.js"></script>
+    <script type="text/javascript" src="<?php echo URL; ?>/app/js/lib/jquery.js"></script>
+    <script type="text/javascript" src="<?php echo URL; ?>/app/js/lib/bootstrap.js"></script>
 
   </head>
 
