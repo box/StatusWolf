@@ -14,6 +14,11 @@ require(dirname(dirname(__FILE__)) . '/conf/constants.php');
 require(dirname(dirname(__FILE__)) . '/lib/StatusWolf/Util/SWAutoLoader.php');
 require(dirname(dirname(__FILE__)) . '/lib/StatusWolf/SWConfig.php');
 
+if (function_exists('ini_set'))
+{
+  ini_set('include_path', VIEWS . PATH_SEPARATOR . ini_get('include_path'));
+}
+
 // Bootstrap the app
 if (!include(APPLIB . 'bootstrap.php'))
 {
