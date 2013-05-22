@@ -1,0 +1,198 @@
+@charset "utf-8";
+
+/*
+ * ====================
+ * HTML Tag Definitions
+ * ====================
+ */
+
+html, body {
+    height: 100%;
+}
+
+body {
+    background-color: rgb(59, 59, 59);
+    background-size: 100%;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: rgba(205, 205, 205, 0.75);
+    margin: 5px 0;
+}
+
+/*
+ * =======================
+ * Basic class definitions
+ * =======================
+ */
+
+.container {
+    width: 90%;
+    height: 99%;
+    margin: 40px auto;
+}
+
+
+/*
+ * ==========================
+ * Default styles for widgets
+ * ==========================
+ */
+
+.widget-container {
+    -webkit-perspective: 1000;
+    -moz-perspective: 1000;
+    perspective: 1000;
+    width: 100%;
+    height: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0;
+    border-top-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border: 1px solid rgba(234, 234, 234, .75);
+}
+
+.widget {
+    -webkit-transition: 0.6s;
+    -webkit-transform-style: preserve-3d;
+    -moz-transition: 0.6s;
+    -moz-transform-style: preserve-3d;
+    transition: 0.6s;
+    transform-style: preserve-3d;
+    color: rgba(205, 205, 205, .6);
+    height: 100%;
+    width: 99.9%;
+}
+
+.widget-front, .widget-back {
+    width: 100%;
+    height: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0;
+    -webkit-backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    backface-visibility: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: rgb(24, 24, 24);
+    border-top-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+}
+
+.widget-front {
+    z-index: 2;
+}
+
+.widget-title {
+    border-bottom: 1px solid rgba(205, 205, 205, 0.1);
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-top-right-radius: 3px;
+    box-shadow: 0 1px 0 rgb(5, 5, 5);
+    height: 35px;
+}
+
+.widget-title h4 {
+    margin: 0 10px;
+    vertical-align: bottom;
+    font-size: .8em;
+    line-height: 3em;
+    height: 100%;
+}
+
+.widget-footer {
+    border-top: 1px solid rgba(205, 205, 205, 0.1);
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    box-shadow: 0 -1px 0 rgb(5, 5, 5);
+    height: 30px;
+}
+
+.widget-footer-btn {
+    height: 100%;
+    padding: 0 10px;
+    font-size: .8em;
+    line-height: 1.9em;
+    border-right: 1px groove rgba(234, 234, 234, 0.1);
+    border-left: 1px groove rgba(234, 234, 234, 0.1);
+    box-shadow: inset -1px 0 0 rgba(5, 5, 5, 0.25);
+}
+
+.widget-footer-btn:hover, .widget-footer-btn.hover {
+    cursor: pointer;
+    background-color: rgb(37, 37, 37);
+    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+.widget-title, .widget-footer {
+    background-color: rgb(40, 40, 40);
+    width: 100%;
+}
+
+.widget-title-head {
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+}
+
+.widget-main {
+    width: 100%;
+    height: 82%;
+    position: absolute;
+    left: 0;
+    top: 35px;
+    padding: 0;
+}
+
+.widget-back {
+    -webkit-transform: rotateY(180deg);
+    -moz-transform: rotateY(180deg);
+    transform: rotateY(180deg);
+    opacity: 0.8;
+}
+
+/*
+ *
+ * login widget style overrides
+ *
+ */
+
+.widget-container {
+    width: 500px;
+    height: 40%;
+    margin: 20% auto auto auto;
+}
+
+.login-logo {
+    width: 225px;
+    height: 100%;
+    display: inline-block;
+    background: url('../img/error.png') no-repeat;
+    background-size: 200px;
+    background-position: center;
+}
+
+.login-form {
+    display: inline-block;
+    position: absolute;
+    bottom: 35%;
+    right: 10%;
+}
+
+#login-submit {
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    box-shadow: -1px 0 0 0 rgba(5, 5, 5, 0.25), inset 1px 0 0 0 rgba(5, 5, 5, 0.25);
+}
