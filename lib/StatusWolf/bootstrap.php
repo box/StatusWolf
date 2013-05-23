@@ -35,6 +35,10 @@ if (! $auth_options['sessionName'] = SWConfig::read_values('auth.sessionName'))
 if (array_key_exists('debug', $app_config) && $app_config['debug'])
 {
   $auth_options['enableLogging'] = true;
+  print "<pre>\n";
+  print "Method: " . $auth_method . "\n";
+  print_r($auth_options);
+  print "</pre>\n";
 }
 
 if (array_key_exists('session_handler', $app_config))
@@ -119,8 +123,14 @@ if (array_key_exists('action', $_GET))
 // Check for a logged in session
 if ($sw_auth->checkAuth())
 {
-  $usersession = &$_SESSION[$auth_options['sessionName']];
-  print "User " . $usersession['username'] . " is logged in!\n";
+  if (array_key_exists('name_key', $auth_options) && array_key_exists($auth_options['name_key'], $_SESSION[$auth_options['sessionName']]['data']))
+  {
+    $_SESSION[$auth_options['sessionName']]['friendly_name'] = $_SESSION[$auth_options['sessionName']]['data'][$auth_options['name_key']];
+  }
+  else
+  {
+    $_SESSION[$auth_options['sessionName']]['friendly_name'] = $_SESSION[$auth_options['sessionName']]['username'];
+  }
   $bootstrap = true;
 }
 
@@ -132,4 +142,7 @@ if (array_key_exists('enableLogging', $auth_options) && $auth_options['enableLog
     $auth_log[] = $debug_event['priority'] . ": " . $debug_event['message'];
   }
   $_SESSION['debug']['auth_log'] = $auth_log;
+  print "<pre>\n";
+  print_r($auth_log);
+  print "</pre>\n";
 }

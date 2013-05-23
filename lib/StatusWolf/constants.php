@@ -70,6 +70,7 @@ if (!defined('URL'))
       $dir = implode('/', $dir_parts);
     }
   }
+  define('BASE_URI', $dir);
   define('URL', $proto . $_SERVER['HTTP_HOST'] . $dir);
 }
 
