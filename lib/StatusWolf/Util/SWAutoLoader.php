@@ -72,7 +72,7 @@ class SWAutoLoader {
     }
     else
     {
-      SWAutoLoader::build_path_cache(LIB);
+      self::build_path_cache(LIB);
       $path_cache = unserialize($_SESSION['_path_cache']);
     }
 
@@ -94,9 +94,15 @@ class SWAutoLoader {
         {
           $class_cache[$class_file] = $lib_dir . DS . $class_file;
           $_SESSION['_class_cache'] = serialize($class_cache);
+          $cached = true;
           require_once $class_cache[$class_file];
           break;
         }
+      }
+      if (!$cached)
+      {
+        self::build_path_cache(LIB);
+        self::sw_autoloader($class);
       }
     }
 
