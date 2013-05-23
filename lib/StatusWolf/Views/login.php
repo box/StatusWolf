@@ -19,7 +19,7 @@
           <div class="widget-front" id="login-widget-front">
             <div class="widget-title">
               <div class="widget-title-head">
-                <h4>StatusWolf Login</h4>
+                <h4 style="width: 40%;">StatusWolf Login</h4>
               </div>
             </div>
             <div class="widget-main">
@@ -45,6 +45,20 @@
     <script type="text/javascript">
       var main_height = $('.widget').height() - ($('.widget-title').height() + $('.widget-footer').height());
       $('.widget-main').css('height', main_height);
+
+      if (navigator.userAgent.search("Chrome") > 0)
+      {
+        $('.widget-container').css('border-bottom-width', '2px');
+      }
+
+      auth_fail = "<?php echo $_SESSION['_auth_fail']; ?>";
+      if (auth_fail.length > 0)
+      {
+        $('#statuswolf-login').prepend('<div id="login-fail" style="text-align: center;"></div>');
+        $('#login-fail').append('<h6 style="display: inline-block; color: red;">' + auth_fail + '</h6>');
+      }
+      <?php unset($_SESSION['_auth_fail']); ?>
+
       $(document).keypress(function(e)
       {
         if (e.which == 13)
