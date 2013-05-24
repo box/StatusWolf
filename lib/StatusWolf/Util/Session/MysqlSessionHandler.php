@@ -11,6 +11,14 @@
  * destroy
  * gc
  *
+ * Session handler database structure:
+ * CREATE TABLE `session_handler` (
+ * `id` varchar(32) NOT NULL,
+ * `data` mediumtext NOT NULL,
+ * `timestamp` int(255) NOT NULL,
+ * PRIMARY KEY (`id`)
+ * ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+ *
  * Author: Mark Troyer <disco@box.com>
  * Date Created: 22 May 2013
  *
