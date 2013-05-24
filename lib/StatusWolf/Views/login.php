@@ -26,7 +26,7 @@
               <div class="login-logo"></div>
               <div class="login-form" id="statuswolf-login">
                 <div class="login-label"><h4 style="display: inline-block;">Username </h4>
-                  <input type="text" id="login-username" name="username">
+                  <input type="text" id="login-username" name="username" <?php if (!is_null($username)) { echo 'value="' . $username . '"'; } ?>>
                 </div>
                 <div class="login-label"><h4 style="display: inline-block;">Password </h4>
                   <input type="password" id="login-password" name="password">
@@ -51,7 +51,7 @@
         $('.widget-container').css('border-bottom-width', '2px');
       }
 
-      auth_fail = "<?php echo $_SESSION['_auth_fail']; ?>";
+      auth_fail = "<?php if (array_key_exists('_auth_fail', $_SESSION)) { echo $_SESSION['_auth_fail']; }?>";
       if (auth_fail.length > 0)
       {
         $('#statuswolf-login').prepend('<div id="login-fail" style="text-align: center;"></div>');

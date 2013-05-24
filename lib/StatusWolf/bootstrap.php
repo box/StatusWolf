@@ -86,6 +86,19 @@ function login_failed($user = null, &$auth = null)
 // Create authentication object
 $sw_auth = new Auth($auth_method, $auth_options, 'login');
 
+// Register the autoload method now that we have a session to cache to
+spl_autoload_register(array('SWAutoLoader', 'sw_autoloader'));
+spl_autoload_register();
+spl_autoload_extensions('.php');
+
+if (array_key_exists('enableLogging', $auth_options) && $auth_options['enableLogging'])
+{
+  require_once "Log.php";
+  require_once "Log/observer.php";
+  $debug_log_observer = new SWAuthLogObserver(AUTH_LOG_DEBUG);
+  $sw_auth->attachLogObserver($debug_log_observer);
+  $sw_auth->logger->setBacktraceDepth(2);
+}
 
 // Set the function to use on failed login attempts
 $sw_auth->setFailedLoginCallback('login_failed');
@@ -93,21 +106,9 @@ $sw_auth->setFailedLoginCallback('login_failed');
 // Start the new auth session
 $sw_auth->start();
 
-// Register the autoload method now that we have a session to cache to
-spl_autoload_register(array('SWAutoLoader', 'sw_autoloader'));
-spl_autoload_register();
-spl_autoload_extensions('.php');
 if (array_key_exists('debug', $app_config) && $app_config['debug'])
 {
   $_SESSION['debug'] = array();
-}
-
-if (array_key_exists('enableLogging', $auth_options) && $auth_options['enableLogging'])
-{
-  require_once "Log.php";
-  require_once "Log/observer.php";
-  $debug_log_observer = new SWAuthLogObserver(PEAR_LOG_DEBUG);
-  $sw_auth->attachLogObserver($debug_log_observer);
 }
 
 // Logout the user, restart the session and present a login form

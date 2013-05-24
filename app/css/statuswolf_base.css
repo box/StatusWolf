@@ -175,7 +175,7 @@ h1, h2, h3, h4, h5, h6 {
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
     box-shadow: 0 -1px 0 rgb(5, 5, 5);
-    height: 30px;
+    height: 25px;
 }
 
 .widget-footer-btn {
