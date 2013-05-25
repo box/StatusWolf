@@ -1,0 +1,9 @@
+#user-menu-options {
+    min-width: 85px;
+    margin-top: 5px;
+}
+
+#user-menu-options li span {
+    text-align: right;
+    margin-right: 8px;
+}

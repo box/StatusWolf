@@ -16,7 +16,14 @@ class SWController
 
   public function __construct()
   {
-    $this->usersession = &$_SESSION[SWConfig::read_values('auth.sessionName')];
+    if ($_SESSION['authenticated'])
+    {
+      $this->usersession = &$_SESSION[SWConfig::read_values('auth.sessionName')];
+    }
+    else
+    {
+      $this->usersession = &$_SESSION['_sw_session'];
+    }
   }
 
 }
