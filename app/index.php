@@ -26,7 +26,7 @@ if (!include(APPLIB . 'bootstrap.php'))
 }
 
 
-if ($bootstrap)
+if (!empty($bootstrap) && $bootstrap)
 {
   $router = new SWRouter($_SERVER['REQUEST_URI']);
 }
