@@ -33,7 +33,12 @@ class SWRouter {
     // means the home controller
     if (count($url_path == 1) && strlen($url_path[0]) == 0)
     {
-      $controller = new HomeController();
+      $controller_object = new HomeController();
+    }
+    else
+    {
+      $controller = ucfirst(array_shift($url_path)) . 'Controller';
+      $controller_object = new $controller($url_path);
     }
   }
 
