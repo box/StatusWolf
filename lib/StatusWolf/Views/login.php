@@ -12,9 +12,10 @@
  */
 ?>
 
-    <div class="container">
-      <form id="statuswolf-login-form" method="post" action="<?php echo URL; ?>" style="height: 100%;">
+    <link href="<?php echo URL; ?>/app/css/login.css" rel="stylesheet">
+    <div class="container" id="login-container">
       <div class="widget-container" id="login-widget-container">
+        <form id="statuswolf-login-form" method="post" action="<?php echo URL; ?>" style="height: 100%;">
         <div class="widget" id="login-widget">
           <div class="widget-front" id="login-widget-front">
             <div class="widget-title">
@@ -38,9 +39,12 @@
             </div>
           </div>
         </div>
+        </form>
       </div>
-    </form>
     </div>
+
+    <script type="text/javascript" src="<?php echo URL; ?>/app/js/lib/jquery.js"></script>
+    <script type="text/javascript" src="<?php echo URL; ?>/app/js/lib/bootstrap.js"></script>
 
     <script type="text/javascript">
       var main_height = $('.widget').height() - ($('.widget-title').height() + $('.widget-footer').height());
@@ -61,7 +65,7 @@
 
       $(document).keypress(function(e)
       {
-        if (e.which == 13)
+        if (e.which === 13)
         {
           $('#statuswolf-login-form').submit();
         }
