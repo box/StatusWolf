@@ -20,18 +20,7 @@ class HomeController extends SWController {
     {
       include 'navbar.php';
     }
-    print '<div class="container">' . "\n";
-    print "<pre>\n";
-    if ($_SESSION['authenticated'])
-    {
-      print "User " . $this->usersession['friendly_name'] . ' (' . $this->usersession['username'] . ") logged in\n";
-    }
-    print "App bootstrap complete\n";
-    print $_SERVER['SCRIPT_NAME'] . "\n";
-    print "session id: " . session_id() . "\n";
-    print_r($_SESSION);
-    print "</pre>\n";
-    print "</div>\n";
+    include 'home.php';
     include 'footer.php';
   }
 
