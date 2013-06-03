@@ -1,3 +1,9 @@
+#user-menu {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
 #user-menu-options {
     min-width: 85px;
     margin-top: 5px;
