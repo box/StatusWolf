@@ -1,0 +1,29 @@
+.table {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.table tr {
+    border: 0;
+}
+
+.table tr td:first-child, .table tr th:first-child {
+    padding-left: 0;
+}
+
+.table th, .table td {
+    border: 0;
+    padding: 8px;
+}
+
+.table th {
+    text-align: left;
+    padding-bottom: 0;
+}
+
+.table td {
+    vertical-align: top;
+}
+.table thead th {
+    vertical-align: bottom;
+}
