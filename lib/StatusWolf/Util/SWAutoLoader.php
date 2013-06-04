@@ -98,6 +98,10 @@ class SWAutoLoader {
           require_once $class_cache[$class_file];
           break;
         }
+        else
+        {
+          $cached = false;
+        }
       }
       if (!$cached)
       {
