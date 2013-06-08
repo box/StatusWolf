@@ -12,15 +12,42 @@
 
 class AdhocController extends SWController
 {
-  public function __construct()
+  public function __construct($url_path)
   {
     parent::__construct();
-    include 'header.php';
-    if ($_SESSION['authenticated'])
+
+    if (!empty($url_path[0]))
     {
-      include 'navbar.php';
+      $_adhoc_function = array_shift($url_path);
+      if ($_adhoc_function === "search")
+      {
+        if ($_adhoc_datasource = array_shift($url_path))
+        {
+//          echo json_encode(array($_SERVER['REQUEST_URI'], $_POST));
+          $_search_object = new $_adhoc_datasource();
+          $_search_object->get_raw_data($_POST);
+          $raw_data = $_search_object->read();
+          echo json_encode($raw_data);
+        }
+        else
+        {
+          throw new SWException ('No datasource specified for Ad-Hoc search');
+        }
+      }
+      else
+      {
+        throw new SWException ('Unknown Ad-Hoc search function: ' . $_adhoc_function);
+      }
     }
-    include 'adhoc.php';
-    include 'footer.php';
+    else
+    {
+      include 'header.php';
+      if ($_SESSION['authenticated'])
+      {
+        include 'navbar.php';
+      }
+      include 'adhoc.php';
+      include 'footer.php';
+    }
   }
 }
