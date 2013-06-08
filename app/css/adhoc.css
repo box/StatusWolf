@@ -58,11 +58,6 @@
     -webkit-box-flex: 1;
 }
 
-.flexy {
-    display: -webkit-box;
-    -webkit-box-orient: horizontal;
-}
-
 .section-off {
     visibility: hidden;
     opacity: 0;
@@ -166,6 +161,10 @@
     margin-top: 4px;
 }
 
+#ad-hoc-time-span .ad-hoc-button {
+    margin-top: 4px;
+}
+
 #downsample-interval-button {
     min-width: 80px;
 }
@@ -180,10 +179,6 @@
     -webkit-box-flex: 2;
 }
 
-#time-span-options {
-    font-size: .8em;
-}
-
 #metric-search-table {
     padding-left: 0;
 }
@@ -192,3 +187,10 @@
     margin-top: 4px;
     margin-right: 30px;
 }
+
+#action-buttons {
+    -webkit-box-flex: 1;
+    -webkit-box-pack: end;
+    margin-right: 30px;
+}
+
