@@ -15,7 +15,7 @@
     <link href="<?php echo URL; ?>/app/css/login.css" rel="stylesheet">
     <div class="container" id="login-container">
       <div class="widget-container" id="login-widget-container">
-        <form id="statuswolf-login-form" method="post" action="<?php echo URL; ?>" style="height: 100%;">
+        <form id="statuswolf-login-form" method="post" action="<?php echo URL . $_SERVER['REQUEST_URI']; ?>" style="height: 100%;">
         <div class="widget" id="login-widget">
           <div class="widget-front" id="login-widget-front">
             <div class="widget-title">
