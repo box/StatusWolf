@@ -53,6 +53,7 @@
 
     <script type="text/javascript" src="<?php echo URL; ?>/app/js/lib/jquery.js"></script>
     <script type="text/javascript" src="<?php echo URL; ?>/app/js/lib/bootstrap.js"></script>
+    <script type="text/javascript" src="<?php echo URL; ?>/app/js/lib/date.js"></script>
 
     <script type="text/javascript">
 
