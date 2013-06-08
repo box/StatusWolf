@@ -41,8 +41,10 @@
             <div class="widget-main">
               <div id="ad-hoc-search-form"></div>
             </div>
-            <div class="widget-footer">
+            <div class="flexy widget-footer">
               <div class="widget-footer-btn" id="query-cancel" onClick="$(this).parents('.widget').removeClass('flipped')"><span class="iconic iconic-x-alt"> Cancel</span></div>
+              <div class="glue1"></div>
+              <div class="widget-footer-btn" id="go-button" onClick="go_click_handler(event)"><span class="iconic iconic-bolt"> Go</span></div>
             </div>
           </div>
         </div>
