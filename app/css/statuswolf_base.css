@@ -54,6 +54,11 @@ ul, ol {
     transform: rotate(90deg);
 }
 
+.flexy {
+    display: -webkit-box;
+    -webkit-box-orient: horizontal;
+}
+
 .glue1 {
     -webkit-box-flex: 1;
 }
@@ -75,6 +80,10 @@ ul, ol {
 
 .glue6 {
     -webkit-box-flex: 6;
+}
+
+.highlight-error {
+    background-color: red;
 }
 
 input[type="text"],
@@ -487,6 +496,14 @@ select {
     box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
+#go-button {
+    background-color: rgba(40, 55, 40, 0.95);
+}
+
+#go-button:hover {
+    background-color: rgba(40, 55, 40, 0.5);
+}
+
 .widget-title, .widget-footer {
     background-color: rgb(40, 40, 40);
     width: 100%;
@@ -604,6 +621,10 @@ select {
 
 .iconic-arrow-down-alt:before {
     content: '\e016';
+}
+
+.iconic-bolt:before {
+    content: '\26a1';
 }
 
 .iconic-calendar-alt:before {

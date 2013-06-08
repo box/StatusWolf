@@ -22,7 +22,7 @@
               <div id="legend"></div>
             </div>
             <div class="widget-main">
-              <div id="graphdiv" style="height: 95%; width: 99%;"></div>
+              <div id="graphdiv" style="height: 99%; width: 99%;"></div>
             </div>
             <div class="widget-footer">
               <div class="widget-footer-btn" id="ad-hoc-edit" onClick="$(this).parents('.widget').addClass('flipped')"><span class="iconic iconic-pen-alt2"></span> Edit search parameters</div>
@@ -75,5 +75,9 @@
           }
         });
       }
+
+      $(document).ready(function() {
+        $('.widget-main').css('height', ($('.widget').innerHeight() - ($('.widget-title').height() + $('.widget-footer').height())));
+      });
 
     </script>
