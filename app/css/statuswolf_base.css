@@ -42,9 +42,9 @@ ul, ol {
 }
 
 .container {
-    width: 90%;
+    width: 95%;
     height: 90%;
-    margin: 40px auto;
+    margin: 40px auto 20px auto;
     display: -webkit-box;
 }
 
@@ -228,6 +228,7 @@ select {
     position: fixed;
     top: 0;
     left: 0;
+    z-index: 9999;
 }
 
 .navbar h4 {
@@ -453,6 +454,20 @@ select {
     height: 100%;
 }
 
+.widget-title #legend {
+    display: inline-block;
+    height: 100%;
+    margin-right: 15px;
+    overflow: hidden;
+    position: absolute;
+    vertical-align: bottom;
+    font-size: .8em;
+    line-height: 2.5em;
+    color: rgba(205, 205, 205, .75);
+    right: 0;
+    text-align: right;
+}
+
 .widget-title-button {
     height: 100%;
     padding: 0 10px;
@@ -523,6 +538,20 @@ select {
     -moz-transform: rotateY(180deg);
     transform: rotateY(180deg);
     opacity: 0.8;
+}
+
+#graph-legend {
+    height: 70px;
+    overflow: hidden;
+    font-size: .8em;
+    line-height: 1.2em;
+    color: rgba(205, 205, 205, .75);
+    background-color: rgb(24, 24, 24);
+    padding: 0px 20px;
+}
+
+#graph-legend span {
+    margin-left: 15px;
 }
 
 /*

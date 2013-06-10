@@ -22,7 +22,8 @@
               <div id="legend"></div>
             </div>
             <div class="widget-main">
-              <div id="graphdiv" style="height: 99%; width: 99%;"></div>
+              <div id="graphdiv" style="width: 99%; height: 99%;"></div>
+<!--              <div id="graph-legend"></div>-->
             </div>
             <div class="widget-footer">
               <div class="widget-footer-btn" id="ad-hoc-edit" onClick="$(this).parents('.widget').addClass('flipped')"><span class="iconic iconic-pen-alt2"></span> Edit search parameters</div>
@@ -51,9 +52,11 @@
       </div>
     </div>
 
+    <script type="text/javascript" src="<?php echo URL; ?>/app/js/lib/dygraph-combined.js"></script>
     <script type="text/javascript" src="<?php echo URL; ?>/app/js/lib/jquery.js"></script>
     <script type="text/javascript" src="<?php echo URL; ?>/app/js/lib/bootstrap.js"></script>
     <script type="text/javascript" src="<?php echo URL; ?>/app/js/lib/date.js"></script>
+    <script type="text/javascript" src="<?php echo URL; ?>/app/js/status_wolf_colors.js"></script>
 
     <script type="text/javascript">
 
@@ -81,6 +84,7 @@
 
       $(document).ready(function() {
         $('.widget-main').css('height', ($('.widget').innerHeight() - ($('.widget-title').height() + $('.widget-footer').height())));
+//        $('#graphdiv').css('height', ($('#graphdiv').parents('.widget-main').innerHeight() - $('#graph-legend').height()));
       });
 
     </script>
