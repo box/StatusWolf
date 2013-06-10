@@ -272,13 +272,23 @@ class OpenTSDB extends TimeSeriesData {
       $metric = array_shift($fields);
       $timestamp = array_shift($fields);
       $value = array_shift($fields);
-      if (!empty($fields))
+      if ($query_bits['history-graph'] === "no")
       {
-        $tag_key = implode(' ', $fields);
+        if (!empty($fields))
+        {
+          $tag_key = implode(' ', $fields);
+        }
+        else
+        {
+          $tag_key = 'NONE';
+        }
       }
       else
       {
-        $tag_key = 'NONE';
+        if (array_key_exists('tags', $query_bits['metrics'][0]))
+        {
+          $tag_key = implode(' ', $query_bits['metrics'][0]['tags']);
+        }
       }
       $series_key = $metric . ' ' . $tag_key;
       if (($timestamp < $this->_start_timestamp) || ($timestamp > $this->_end_timestamp))
@@ -294,6 +304,12 @@ class OpenTSDB extends TimeSeriesData {
 
     foreach ($graph_data as $series => $data)
     {
+      foreach ($data as $key => $row)
+      {
+        $timestamp[$key] = $row['timestamp'];
+        $value[$key] = $row['value'];
+      }
+      array_multisort($timestamp, SORT_ASC, $value, SORT_ASC, $data);
       $downsampler = new TimeSeriesDownsample($this->downsample_interval, $this->downsample_type);
       $downsampler->ts_object = @$this;
       $graph_data[$series] = $downsampler->downsample($data, $this->_start_timestamp, $this->_end_timestamp);
@@ -303,97 +319,6 @@ class OpenTSDB extends TimeSeriesData {
     $this->ts_data['query_url'] = $this->tsdb_query_url;
     $this->ts_data['start'] = $this->start_time;
     $this->ts_data['end'] = $this->end_time;
-
-//    $labels = array();
-//    $graph_buckets = array();
-//    $interval = $this->downsample_interval * 60;
-//
-//    for ($i = $this->start_time; $i <= $this->end_time; $i += $interval)
-//    {
-//      $graph_buckets[$i] = array();
-//    }
-//    foreach ($graph_data as $series => $series_data)
-//    {
-//      if ($query_bits['history-graph'] == "anomaly")
-//      {
-//        $accuracy_margin = 0;
-//        $anomalies = array();
-//        $data_count = count($series_data);
-//
-//        if (array_key_exists('cache_key', $query_bits))
-//        {
-//          $cache_key = $query_bits['cache_key'];
-//          $new_cache = false;
-//        }
-//        else
-//        {
-//          $remote_client = apache_getenv("HTTP_X_FORWARDED_FOR");
-//          $cache_key = md5($series . $remote_client);
-//          $new_cache = true;
-//        }
-//        $model_cache = CACHE . 'anomaly_model' . DS . $cache_key . '.cache';
-//        if (file_exists($model_cache))
-//        {
-//          $anomaly_data = file_get_contents($model_cache);
-//          $anomaly_data = unserialize($anomaly_data);
-//        }
-//        else
-//        {
-//          $anomaly_model = new OpenTSDBAnomalyModel();
-//          $anomaly_tags = array();
-//          $a_tags = explode(' ', $series);
-//          foreach ($a_tags as $t)
-//          {
-//            list($tname, $tvalue) = explode('=', $t);
-//            $anomaly_tags[$tname] = $tvalue;
-//          }
-//          $anomaly_model->generate(array('metric' => $query_bits['metrics'][0]['name'], 'tags' => $anomaly_tags, 'agg' => $this->aggregation_type, 'ds' => $this->downsample_type, 'ds-int' => $this->downsample_interval));
-//          $anomaly_data = $anomaly_model->read();
-//        }
-//        array_push($labels[0], $series . '-Projected');
-//        array_push($labels[0], $series);
-//        $anomaly_graph = new TimeSeriesAnomaly();
-//        $anomaly_graph->build_series($series_data, $anomaly_data['model']);
-//      }
-//      else
-//      {
-//        array_push($labels, $series);
-//        $data = $series_data;
-//      }
-//      $data_holder = array();
-//      foreach ($data as $entry)
-//      {
-//        $data_holder[$entry['timestamp']] = $entry['value'];
-//      }
-//      foreach ($graph_buckets as $time => $bucket_data)
-//      {
-//        if (array_key_exists($time, $data_holder))
-//        {
-//          array_push($graph_buckets[$time], $data_holder[$time]);
-//        }
-//        else
-//        {
-//          array_push($graph_buckets[$time], null);
-//        }
-//      }
-//    }
-//
-//    $this->ts_data['data'] = array();
-//    foreach ($graph_buckets as $time => $data)
-//    {
-//      $this->ts_data['data'][$time] = $data;
-//    }
-//    $this->ts_data['labels'] = $labels;
-//    if ($query_bits['history-graph'] == "anomaly")
-//    {
-//      $this->ts_data['anomalies'] = $anomalies;
-//    }
-//    $this->ts_data['query'] = $query_bits;
-//    if (!empty($cache_key))
-//    {
-//      $this->ts_data['cache_key'] = $cache_key;
-//    }
-//    $this->ts_data['query_url'] = $this->tsdb_query_url;
 
   }
 
