@@ -19,6 +19,9 @@
 .table th {
     text-align: left;
     padding-bottom: 0;
+    vertical-align: bottom;
+    font-size: 0.8em;
+    line-height: 1.2em;
 }
 
 .table td {
@@ -26,4 +29,6 @@
 }
 .table thead th {
     vertical-align: bottom;
+    font-size: 0.8em;
+    line-height: 1.2em;
 }
