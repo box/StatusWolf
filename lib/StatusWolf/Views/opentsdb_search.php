@@ -677,7 +677,7 @@
         build_metric.agg_type = $('#active-aggregation-type1').text().toLowerCase();
         build_metric.ds_type = $('#active-downsample-type1').text().toLowerCase();
         build_metric.ds_interval = $('#active-downsample-interval1').attr('data-value');
-        query_data['downsample_master_interval'] = build_metrics.ds_interval;
+        query_data['downsample_master_interval'] = build_metric.ds_interval;
 
         if ($('#rate-button1').prop('checked'))
         {
