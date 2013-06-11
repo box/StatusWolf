@@ -66,4 +66,34 @@ class ApiController extends SWController
     echo json_encode($data);
   }
 
+  protected function opentsdb_anomaly_model($path)
+  {
+    $query_bits = $_POST;
+    $metric = $query_bits['metrics'][0]['name'];
+    if (array_key_exists('tags', $query_bits['metrics'][0]))
+    {
+      $tag_key = implode(' ', $query_bits['metrics'][0]['tags']);
+    }
+    else
+    {
+      $tag_key = 'NONE';
+    }
+    $series = $metric . ' ' . $tag_key;
+    $model_cache = CACHE . 'anomaly_model' . DS . md5($series) . '.model';
+    if (file_exists($model_cache))
+    {
+      $anomaly_data = file_get_contents($model_cache);
+      $anomaly_data = unserialize($anomaly_data);
+    }
+    else
+    {
+      $anomaly = new OpenTSDBAnomalyModel();
+      $anomaly->generate($query_bits);
+      $anomaly_data = $anomaly->read();
+    }
+
+    echo json_encode($anomaly_data);
+
+  }
+
 }

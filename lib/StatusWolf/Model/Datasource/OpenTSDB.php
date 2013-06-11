@@ -194,6 +194,9 @@ class OpenTSDB extends TimeSeriesData {
     }
     else
     {
+      ini_set('memory_limit', '2G');
+      set_time_limit(120);
+
       // Make sure we have a metric name to search on and build the metric
       // string with downsampler, aggregator, rate & interpolation info
       if (array_key_exists('metrics', $query_bits))
@@ -288,6 +291,10 @@ class OpenTSDB extends TimeSeriesData {
         if (array_key_exists('tags', $query_bits['metrics'][0]))
         {
           $tag_key = implode(' ', $query_bits['metrics'][0]['tags']);
+        }
+        else
+        {
+          $tag_key = 'NONE';
         }
       }
       $series_key = $metric . ' ' . $tag_key;
