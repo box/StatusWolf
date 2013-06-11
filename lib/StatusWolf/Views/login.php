@@ -20,7 +20,7 @@
           <div class="widget-front" id="login-widget-front">
             <div class="widget-title">
               <div class="widget-title-head">
-                <h4 style="width: 40%;">StatusWolf Login</h4>
+                <h4>StatusWolf Login</h4>
               </div>
             </div>
             <div class="widget-main">
