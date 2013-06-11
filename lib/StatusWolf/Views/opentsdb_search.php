@@ -36,7 +36,7 @@
       </div>
     </div>
     <div class="flexy section section-off" id="ad-hoc-time-span">
-      <div class="ad-hoc-form-item menu-label">
+      <div class="ad-hoc-form-item menu-label" style="margin-right: 0;">
         <h4>Show Me The Past</h4>
       </div>
       <div class="dropdown ad-hoc-button">
@@ -549,6 +549,7 @@
     // Validate the input before we do anything else
 
     // Date range validation
+    var start, end;
     if ($('input:radio[name=date-span]:checked').val() == 'date-search')
     {
       if ($('input:text[name=start-time]').val().length < 1)
@@ -562,8 +563,11 @@
         alert("You must specify an end time");
       }
 
-      var start = Date.parse($('input:text[name=start-time]').val()).getTime();
-      var end = Date.parse($('input:text[name=end-time]').val()).getTime();
+      start = Date.parse($('input:text[name=start-time]').val()).getTime();
+      start = start / 1000;
+      end = Date.parse($('input:text[name=end-time]').val()).getTime();
+      end = end / 1000;
+      alert('start: ' + start + ', end: ' + end);
       if (start >= end)
       {
         alert('Start time must come before end time');
@@ -572,10 +576,14 @@
     }
     else
     {
-      var end = new Date.now().getTime();
-      var span = $('#time-span').attr('data-ms');
+      end = new Date.now().getTime();
       end = parseInt(end / 1000);
-      var start = end - span;
+      var span = parseInt($('#time-span').attr('data-ms'));
+      start = (end - span);
+      var jstart = new Date(start * 1000).toString('yyyy/MM/dd hh:mm:ss');
+      var jend = new Date(end * 1000).toString('yyyy/MM/dd hh:mm:ss');
+      $('input[name=start-time]').val(jstart).change();
+      $('input[name=end-time]').val(jend).change();
     }
     query_data['start_time'] = start;
     query_data['end_time'] = end;
