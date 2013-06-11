@@ -710,185 +710,286 @@
       $('#graphdiv').empty();
       $('#graphdiv').append('<div id="bowlG"><div id="bowl_ringG"><div class="ball_holderG"><div class="ballG"></div></div></div></div>');
       $('.widget').removeClass('flipped');
-      $('#graphdiv').append('<div id="status-message" style="width: 100%; text-align: center;"><p>Loading Metric Data</p></div>');
+      $('#graphdiv').append('<div id="status-message" style="width: 100%; text-align: center;">');
 
-      console.log('Fetching data from OpenTSDB, options:');
-//      console.log(query_data);
-
-      $.ajax({
-        url: "<?php echo URL; ?>/adhoc/search/OpenTSDB"
-        ,type: 'POST'
-        ,data: query_data
-        ,data_type: 'json'
-        ,timeout: 120000
-        ,success: process_graph_data(query_data)
-        ,complete: function(request, status) {
-          if ((status == "error") || (status == "timeout"))
-          {
-            error_image(request);
-          }
-        }
-      });
-
-    }
-
-    function error_image(request)
-    {
-      $('#graphdiv').empty();
-      $('#graphdiv').html('<div id="error-box" style="height: 100%; width: 100%; text-align: center;"></div>');
-      $('#error-box').append('<img src="/app/img/error.png" height="60px" width="120px" style="margin: 10% auto">');
-      $('#error-box').append('<p class="error-message" style="margin-left: auto; margin-right: auto;">' + request.status + ': ' + request.statusText);
-    }
-
-    function process_graph_data(query_data)
-    {
-      return function(result)
+      if (query_data['history-graph'] == "anomaly")
       {
-        var data = eval ('(' + result + ')');
-        var labels = ['Timestamp'];
-        var buckets = {};
-        var bucket_interval = parseInt(query_data['downsample_master_interval'] * 60);
-        var start = parseInt(data.start);
-        var end = parseInt(data.end);
-        var query_url = data.query_url;
-        delete data.start;
-        delete data.end;
-        delete data.query_url;
-
-        console.log('Metric data recieved from ' + query_url);
-        $('#status-message').html('<p>Parsing Metric Data</p>');
-
-        for (var i = start; i <= end; i = i + bucket_interval)
-        {
-          buckets[i] = [];
-        }
-
-        for (var series in data) {
-          if (data.hasOwnProperty(series))
-          {
-            labels.push(series);
-
-            var data_holder = [];
-            data[series].forEach(function(series_data, index) {
-              data_holder[series_data.timestamp] = series_data.value;
-            });
-
-            for (var timestamp in buckets)
-            {
-              if (buckets.hasOwnProperty(timestamp))
-              {
-                if (data_holder[timestamp] != undefined)
-                {
-                  buckets[timestamp].push(data_holder[timestamp]);
-                }
-                else
-                {
-                  buckets[timestamp].push(null);
-                }
-              }
-            }
-
-          }
-
-        }
-
-        var graph_data = {};
-        graph_data.labels = labels;
-        graph_data.data = buckets;
-
-        build_graph(graph_data, query_data['metrics']);
-
+        $('#status-message').html('<p>Anomaly Modeling Is Currently Disabled...</p>');
+        setTimeout(function() {
+          get_metric_data(query_data)
+        }, 3000);
+//        $('#status-message').html('<p>Building Anomaly Model (this may take a few minutes)</p>');
+//        get_anomaly_model(query_data);
+      }
+      else if (query_data['history-graph'] == "wow")
+      {
+        get_metric_data_wow(query_data);
+      }
+      else
+      {
+        get_metric_data(query_data);
       }
     }
+  }
 
-    function build_graph(data, options)
-    {
+  function get_anomaly_model(query_data)
+  {
+    var anomaly_query = $.extend(true, {}, query_data);
+    delete anomaly_query.start_time;
+    delete anomaly_query.end_time;
+    console.log('Building anomaly model');
+    console.log(anomaly_query);
+    console.log(query_data);
 
-//      console.log(data);
-      var graph_data = data.data;
-      var graph_labels = data.labels;
-      var dygraph_format = new Array();
-      $.each(graph_data, function(time, values) {
-        time = new Date(parseInt(time * 1000));
-        values.unshift(time)
-        dygraph_format.push(values);
-      });
-      var labels_map = {};
-      $.each(graph_labels, function(index, label) {
-        var label_bits = label.split(' ');
-        labels_map[label_bits[0]] = label;
-      });
+    $.ajax({
+      url: "<?php echo URL; ?>/api/opentsdb_anomaly_model"
+      ,type: 'POST'
+      ,data: anomaly_query
+      ,data_type: 'json'
+      ,timeout: 120000
+      ,success: function(data, status, jqhxr) {
+        get_metric_data(query_data, anomaly_model);
+      }
+      ,error: get_metric_data(query_data)
+    });
+  }
 
-      var x_space = $('#graphdiv').width() / 12;
-      var y_space = $('#graphdiv').height() / 12;
-      var g_width = $('#graphdiv').innerWidth() * .95;
+  function get_metric_data(query_data, anomaly_model)
+  {
+    $('#status-message').html('<p>Loading Metric Data</p>');
 
-      g = new Dygraph(
-          document.getElementById('graphdiv')
-          ,dygraph_format
-          ,{
-            labels: graph_labels
-            ,labelsDiv: 'legend'
-            ,axisLabelsFontSize: 13
-            ,labelsKMB: true
-            ,labelsDivWidth: g_width
-            ,labelsSeparateLines: true
-            ,rangeSelectorHeight: 10
-            ,animatedZooms: true
-            ,labelsDivStyles: {
-              fontFamily: 'Arial'
-              ,fontWeight: 'bold'
-              ,color: 'rgba(234, 234, 234, 0.75)'
-              ,backgroundColor: 'rgb(24, 24, 24)'
-              ,textAlign: 'right'
-            }
-            ,strokeWidth: 2
-            ,gridLineColor: 'rgba(234, 234, 234, 0.15)'
-            ,axisLabelColor: 'rgba(234, 234, 234, 0.75)'
-            ,colors: swcolors.Wheel[5]
-//            ,axes: {
-//              x: {
-//                pixelsPerLabel: x_space
-//                ,axisLineColor: 'rgba(234, 234, 234, 0.15)'
-//              }
-//              ,y: {
-//                pixelsPerLabel: y_space
-//                ,axisLineColor: 'rgba(234, 234, 234, 0.15)'
-//              }
-//            }
-            ,highlightSeriesOpts: { strokeWidth: 3 }
-            ,highlightSeriesBackgroundAlpha: 1
-            ,connectSeparatedPoints: true
-          }
-      );
-      var right_axis = '';
-//      console.log(options);
-      $.each(options, function(index, option_values) {
-        if (option_values.y2 == true)
+    console.log('Fetching data from OpenTSDB');
+    console.log(query_data);
+
+    $.ajax({
+      url: "<?php echo URL; ?>/adhoc/search/OpenTSDB"
+      ,type: 'POST'
+      ,data: query_data
+      ,data_type: 'json'
+      ,timeout: 120000
+      ,success: function(data, status, jqhxr) {
+        metric_data = eval('(' + data + ')');
+        process_graph_data(metric_data, query_data);
+      }
+      ,complete: function(request, status) {
+        if ((status == "error") || (status == "timeout"))
         {
-          var axis_bits = {};
-          console.log('adding ' + option_values.name + ' to right axis');
-          if (right_axis.length < 1)
-          {
-            axis_bits = {};
-            axis_bits[labels_map[option_values.name]] = {};
-            axis_bits[labels_map[option_values.name]]['axis'] = {};
-            right_axis = labels_map[option_values.name];
-            g.updateOptions(axis_bits);
-          }
-          else
-          {
-            axis_bits = {};
-            axis_bits[labels_map[option_values.name]] = {};
-            axis_bits[labels_map[option_values.name]]['axis'] = right_axis;
-            g.updateOptions(axis_bits);
-            }
+          error_image(request);
         }
+      }
       });
-//      console.log(g);
-      $('.dygraph-xlabel').parent().css('top', '40%');
+  }
+
+  function get_metric_data_wow(query_data)
+  {
+    $('#status-message').html('<p>Loading Metric Data</p>');
+
+    console.log('Fetching Week-Over-Week data from OpenTSDB');
+    console.log(query_data);
+    var metric_data = {};
+
+    var current_request = $.ajax({
+      url: "<?php echo URL; ?>/adhoc/search/OpenTSDB"
+      ,type: 'POST'
+      ,data: query_data
+      ,data_type: 'json'
+      ,timeout: 120000
+    })
+    ,chained = current_request.then(function(data) {
+      metric_data[0] = eval('(' + data + ')');
+      metric_data.start = metric_data[0]['start'];
+      delete metric_data[0]['start'];
+      metric_data.end = metric_data[0]['end'];
+      delete metric_data[0]['end'];
+      metric_data.query_url = metric_data[0]['query_url'];
+      delete metric_data[0]['query_url'];
+      current_keys = Object.keys(metric_data[0]);
+      current_key = current_keys[0] + ' Current';
+      metric_data[current_key] = metric_data[0][current_keys[0]];
+      delete metric_data[0];
+      var past_query = $.extend(true, {}, query_data);
+      var query_span = parseInt(query_data.end_time) - parseInt(query_data.start_time);
+      past_query.end_time = parseInt(query_data.end_time - <?php echo WEEK; ?>);
+      past_query.start_time = past_query.end_time - query_span;
+      console.log(past_query);
+      return $.ajax({
+        url: "<?php echo URL; ?>/adhoc/search/OpenTSDB"
+        ,type: 'POST'
+        ,data: past_query
+        ,data_type: 'json'
+        ,timeout: 120000
+      });
+    });
+    chained.done(function(data) {
+      metric_data[1] = eval('(' + data + ')');
+      delete metric_data[1].start;
+      delete metric_data[1].end;
+      delete metric_data[1].query_url;
+      past_keys = Object.keys(metric_data[1]);
+      past_key = past_keys[0] + ' Previous';
+      metric_data[past_key] = metric_data[1][past_keys[0]];
+      delete metric_data[1];
+      $.each(metric_data[past_key], function(index, entry) {
+        entry.timestamp = parseInt(entry.timestamp + <?php echo WEEK; ?>);
+      });
+      process_graph_data(metric_data, query_data);
+    });
+  }
+
+  function error_image(request)
+  {
+    $('#graphdiv').empty();
+    $('#graphdiv').html('<div id="error-box" style="height: 100%; width: 100%; text-align: center;"></div>');
+    $('#error-box').append('<img src="/app/img/error.png" height="60px" width="120px" style="margin: 10% auto">');
+    $('#error-box').append('<p class="error-message" style="margin-left: auto; margin-right: auto;">' + request.status + ': ' + request.statusText);
+  }
+
+  function process_graph_data(data, query_data)
+  {
+    var labels = ['Timestamp'];
+    var buckets = {};
+    var bucket_interval = parseInt(query_data['downsample_master_interval'] * 60);
+    var start = parseInt(data.start);
+    var end = parseInt(data.end);
+    var query_url = data.query_url;
+    delete data.start;
+    delete data.end;
+    delete data.query_url;
+
+    console.log('Metric data recieved from ' + query_url);
+    $('#status-message').html('<p>Parsing Metric Data</p>');
+
+    for (var i = start; i <= end; i = i + bucket_interval)
+    {
+      buckets[i] = [];
+    }
+
+    for (var series in data) {
+      if (data.hasOwnProperty(series))
+      {
+        labels.push(series);
+
+        var data_holder = {};
+        data[series].forEach(function(series_data, index) {
+          data_holder[series_data['timestamp']] = series_data['value'];
+        });
+
+        for (var timestamp in buckets)
+        {
+          if (buckets.hasOwnProperty(timestamp))
+          {
+            if (data_holder[timestamp] != undefined)
+            {
+              buckets[timestamp].push(data_holder[timestamp]);
+            }
+            else
+            {
+              buckets[timestamp].push(null);
+            }
+          }
+        }
+
+      }
+
+      var graph_data = {};
+      graph_data.labels = labels;
+      graph_data.data = buckets;
+
+      build_graph(graph_data, query_data['metrics']);
 
     }
+  }
+
+  function build_graph(data, options)
+  {
+
+    var graph_data = data.data;
+    var graph_labels = data.labels;
+    var dygraph_format = [];
+    for (var time in graph_data) {
+      if (graph_data.hasOwnProperty(time))
+      {
+        jtime = new Date(parseInt(time * 1000));
+        values = [jtime];
+        values = values.concat(graph_data[time]);
+        dygraph_format.push(values);
+      }
+    }
+    var labels_map = {};
+    $.each(graph_labels, function(index, label) {
+      var label_bits = label.split(' ');
+      labels_map[label_bits[0]] = label;
+    });
+
+    var x_space = $('#graphdiv').width() / 12;
+    var y_space = $('#graphdiv').height() / 12;
+    var g_width = $('#graphdiv').innerWidth() * .95;
+
+    g = new Dygraph(
+        document.getElementById('graphdiv')
+        ,dygraph_format
+        ,{
+          labels: graph_labels
+          ,labelsDiv: 'legend'
+          ,axisLabelsFontSize: 13
+          ,labelsKMB: true
+          ,labelsDivWidth: g_width
+          ,labelsSeparateLines: true
+          ,rangeSelectorHeight: 10
+          ,animatedZooms: true
+          ,labelsDivStyles: {
+            fontFamily: 'Arial'
+            ,fontWeight: 'bold'
+            ,color: 'rgba(234, 234, 234, 0.75)'
+            ,backgroundColor: 'rgb(24, 24, 24)'
+            ,textAlign: 'right'
+          }
+          ,strokeWidth: 2
+          ,gridLineColor: 'rgba(234, 234, 234, 0.15)'
+          ,axisLabelColor: 'rgba(234, 234, 234, 0.75)'
+          ,colors: swcolors.Wheel[5]
+            ,axes: {
+              x: {
+                pixelsPerLabel: x_space
+                ,axisLineColor: 'rgba(234, 234, 234, 0.15)'
+              }
+              ,y: {
+                pixelsPerLabel: y_space
+                ,axisLineColor: 'rgba(234, 234, 234, 0.15)'
+              }
+            }
+          ,highlightSeriesOpts: { strokeWidth: 3 }
+          ,highlightSeriesBackgroundAlpha: 1
+          ,connectSeparatedPoints: true
+        }
+    );
+    var right_axis = '';
+//      console.log(options);
+    $.each(options, function(index, option_values) {
+      if (option_values.y2 == true)
+      {
+        var axis_bits = {};
+        console.log('adding ' + option_values.name + ' to right axis');
+        if (right_axis.length < 1)
+        {
+          axis_bits = {};
+          axis_bits[labels_map[option_values.name]] = {};
+          axis_bits[labels_map[option_values.name]]['axis'] = {};
+          right_axis = labels_map[option_values.name];
+          g.updateOptions(axis_bits);
+        }
+        else
+        {
+          axis_bits = {};
+          axis_bits[labels_map[option_values.name]] = {};
+          axis_bits[labels_map[option_values.name]]['axis'] = right_axis;
+          g.updateOptions(axis_bits);
+          }
+      }
+    });
+//      console.log(g);
+    $('.dygraph-xlabel').parent().css('top', '40%');
+
   }
 
 </script>
