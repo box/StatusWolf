@@ -61,15 +61,15 @@
 .section-off {
     visibility: hidden;
     opacity: 0;
-    -webkit-transition: visibility 0s linear 0.5s, opacity 0.5s linear;
-    transition: visibility 0s linear 0.5s, opacity 0.5s linear;
+    -webkit-transition: visibility 0s linear 0.5s, opacity 0.25s linear;
+    transition: visibility 0s linear 0.25s, opacity 0.25s linear;
 }
 
 .section-on {
     visibility: visible;
     opacity: 1;
-    -webkit-transition: visibility 0s linear, opacity 0.5s linear;
-    transition: visibility 0s linear, opacity 0.5s linear;
+    -webkit-transition: visibility 0s linear, opacity 0.25s linear;
+    transition: visibility 0s linear, opacity 0.25s linear;
 }
 
 .metric-line, .metric-input {
