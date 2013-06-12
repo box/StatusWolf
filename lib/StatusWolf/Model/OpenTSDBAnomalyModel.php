@@ -2,7 +2,7 @@
 /**
  * OpenTSDBAnomalyModel
  *
- * AKA QuAD - Queisser Anomaly Detection
+ * A component of QuAD - Queisser Anomaly Detection
  *
  * Pulls time series data from OpenTSDB and returns a data model
  * that can be used for anomaly detection. Data is stored in an
@@ -21,75 +21,207 @@
 
 class OpenTSDBAnomalyModel {
 
-//  private $_model_start = 1362985200;
-  private $_model_start = 1364799600;
-
+  /**
+   * Number of weeks worth of data to collect in order to build
+   * the anomaly model, default is 6
+   *
+   * @var int
+   */
   private $_model_weeks = 6;
 
+  private $_model_cache;
+
+  /**
+   * Container for the anomaly model data
+   *
+   * @var array
+   */
   public $reference_model = array();
 
+  /**
+   * OpenTSDBAnomalyModel->generate()
+   *
+   * Checks for the existence of a cached anomaly model and returns it
+   * if found, otherwise starts two weeks in the past and then moves
+   * backward, week-by-week, until it collects six weeks worth of data,
+   * which is then used to build the anomaly model.
+   *
+   * @param array $query_bits
+   * @throws SWException
+   */
   public function generate(array $query_bits)
   {
 
-    if (isset($query_bits['start_time']))
+    if (empty($query_bits))
     {
-      $this->_model_start = $query_bits['start_time'];
-      unset($query_bits['start_time']);
+      throw new SWException('No query data found');
     }
 
-    if (isset($query_bits['weeks']))
-    {
-      $this->_model_weeks = $query_bits['weeks'];
-      unset($query_bits['weeks']);
-    }
+    $loggy = "/tmp/sw_log.txt";
 
-    if (date('N H:i:s', $this->_model_start) != '1 00:00:00')
+    if (array_key_exists('metrics', $query_bits))
     {
-      throw new SWException('FATAL - model period does not begin on a Monday at 00:00:00');
-    }
+      $qkey = '';
+      $metric = $query_bits['metrics'][0];
 
-    $training_data = new OpenTSDB();
-    $all_weeks = array();
-    $week_heads = array();
-
-    for ($i = $this->_model_start, $j = 0; $j < $this->_model_weeks; $i += WEEK, $j++)
-    {
-      $query_bits['start_time'] = $i;
-      $query_bits['end_time'] = $i + WEEK - 1;
-      $training_data->get_raw_data($query_bits);
-      $week_heads[$j] = strtolower(date('M_j', $i));
-      $all_weeks[$j] = $training_data->read();
-      $training_data->flush_data();
-    }
-    for ($w = 0; $w < $this->_model_weeks; $w++)
-    {
-      foreach($all_weeks[$w] as $week_data)
+      if (array_key_exists('agg_type', $metric))
       {
-        unset($week_data['query_url']);
-        unset($week_data['start_time']);
-        unset($week_data['end_time']);
+        $qkey .= $metric['agg_type'] . ':';
+      }
 
-        if (!isset($series))
+      if (array_key_exists('ds_interval', $metric))
+      {
+        $qkey .= $metric['ds_interval'] . 'm-';
+      }
+
+      if (array_key_exists('ds_type', $metric))
+      {
+        $qkey .= $metric['ds_type'] . ':';
+      }
+
+      if (array_key_exists('rate', $metric) && $metric['rate'])
+      {
+        $qkey .= 'rate:';
+      }
+
+      if (!array_key_exists('lerp', $metric) || (!$metric['lerp']))
+      {
+        $qkey .= 'nointerpolation:';
+      }
+
+      $qkey .= $metric['name'];
+
+      if (array_key_exists('tags', $metric) && is_array($metric['tags']))
+      {
+        $qkey .= '{';
+        foreach ($metric['tags'] as $tag)
         {
-          $series = key($week_data);
+          $qkey .= $tag . ',';
         }
-        $all_weeks[$w] = $week_data[$series];
+        $qkey = rtrim($qkey, ',');
+        $qkey .= '}';
       }
+
     }
 
-    for ($i = 0; $i < (WEEK / 60); $i++)
+    $this->_model_cache = CACHE . 'anomaly_model' . DS . md5($qkey) . '.model';
+    if (file_exists($this->_model_cache))
     {
-      for ($j = 0; $j < $this->_model_weeks; $j++)
+      $log_handle = fopen($loggy, "a");
+      fwrite($log_handle, "\n\nCached model data found, loading\n");
+      fclose($log_handle);
+      $anomaly_data = file_get_contents($this->_model_cache);
+      $anomaly_data = unserialize($anomaly_data);
+      $this->reference_model = $anomaly_data;
+    }
+    else
+    {
+      $training_data = new OpenTSDB;
+      $all_weeks = array();
+      $week_heads = array();
+      $start_date = new DateTime();
+      while($start_date->format('D') != 'Mon')
       {
-        $this->reference_model[$week_heads][$j][$i] = $all_weeks[$j][$i]['value'];
+        $start_date->modify('-1 day');
+      }
+      $start_date->modify('-1 week');
+      $start_date->setTime(0, 0, 0);
+      if ($start_date->format('N H:i:s') != '1 00:00:00')
+      {
+        throw new SWException('Missed it by that much: ' . $start_date->format('Y/m/d H:i:s'));
+      }
+      $log_handle = fopen($loggy, "a");
+      fwrite($log_handle, "\n\nStarting build of anomaly model for " . $qkey . "\n");
+      fclose($log_handle);
+
+      $weeks_modelled = 0;
+      $bad_weeks = 0;
+      while($weeks_modelled < $this->_model_weeks)
+      {
+        if($bad_weeks >= 10)
+        {
+          $log_handle = fopen($loggy, "a");
+          fwrite($log_handle, "Too many bad weeks encountered, bailing out\n");
+          fclose($log_handle);
+          $weeks_modelled = 6;
+        }
+        else
+        {
+          $query_bits['start_time'] = $start_date->format('U');
+          $query_bits['end_time'] = $query_bits['start_time'] + WEEK;
+          $log_handle = fopen($loggy, "a");
+          fwrite($log_handle, "calling opentsdb model to fetch data for week beginning " . $start_date->format('Y/m/d-H:i:s') . "\n");
+          fclose($log_handle);
+          $training_data->get_raw_data($query_bits);
+          $start_date->modify('-1 week');
+          if($week_data = $training_data->read())
+          {
+            $training_data->flush_data();
+            unset($week_data['query_url']);
+            unset($week_data['start']);
+            unset($week_data['end']);
+            if ($series = key($week_data))
+            {
+              if (count($week_data[$series]) < 1000)
+              {
+                $log_handle = fopen($loggy, "a");
+                fwrite($log_handle, "Sparse data found (" . count($week_data[$series]) . " records), skipping week\n");
+                fclose($log_handle);
+                $training_data->flush_data();
+                $bad_weeks++;
+                continue;
+              }
+              else
+              {
+                $week_heads[$weeks_modelled] = strtolower($start_date->format('M_j'));
+                $all_weeks[$weeks_modelled] = $week_data[$series];
+                $weeks_modelled++;
+                $log_handle = fopen($loggy, "a");
+                fwrite($log_handle, "Weeks currently collected for modelling: " . $weeks_modelled . "\n");
+                fclose($log_handle);
+              }
+            }
+            else
+            {
+              $log_handle = fopen($loggy, "a");
+              fwrite($log_handle, "No data collected, skipping week\n");
+              fclose($log_handle);
+              $training_data->flush_data();
+              $bad_weeks++;
+              continue;
+            }
+          }
+          else
+          {
+            $training_data->flush_data();
+            $bad_weeks++;
+            continue;
+          }
+        }
+      }
+      $tempy = fopen('/tmp/sw_temp.txt', "w");
+      fwrite($tempy, json_encode($week_heads));
+      fwrite($tempy, json_encode($all_weeks));
+      fclose($tempy);
+
+      if (count($all_weeks) >= 4)
+      {
+        $log_handle = fopen($loggy, "a");
+        fwrite($log_handle, "Calculating reference model\n");
+        $this->reference_model['key'] = $qkey;
+        $this->reference_model['model'] = $this->_calculate_reference($all_weeks);
+        fwrite($log_handle, "Saving reference model to cache file " . $this->_model_cache . "\n");
+        file_put_contents($this->_model_cache, serialize($this->reference_model));
+        fclose($log_handle);
+      }
+      else
+      {
+        $log_handle = fopen($loggy, "a");
+        fwrite($log_handle, "Not enough data was gathered, can't build anomaly model\n");
+        fclose($log_handle);
+        $this->reference_model = null;
       }
     }
-
-    $this->reference_model['model'] = $this->_calculate_reference($all_weeks);
-
-    $cache_file = CACHE . 'anomaly_model' . DS . md5($series) . '.model';
-    file_put_contents($cache_file, serialize($this->reference_model));
-
   }
 
   private function _calculate_reference(array $all_weeks)
@@ -100,13 +232,23 @@ class OpenTSDBAnomalyModel {
     for ($i = 0; $i < (WEEK / 60); $i++)
     {
       $minute_line = array();
-      for ($j = 0; $j < $this->_model_weeks; $j++)
+      for ($j = 0; $j < count($all_weeks); $j++)
       {
-        $minute_line[] = $all_weeks[$j][$i]['value'];
+        if (array_key_exists($i, $all_weeks[$j]))
+        {
+          $minute_line[] = $all_weeks[$j][$i]['value'];
+        }
       }
-      $points = $this->_get_points($minute_line);
-      $points = $this->_moving_average($points, 50);
-      $model[$i] = $points;
+      if (count($minute_line) > 0)
+      {
+        $points = $this->_get_points($minute_line);
+        $points = $this->_moving_average($points, 50);
+        $model[$i] = $points;
+      }
+      else
+      {
+        $model[$i] = null;
+      }
     }
 
     return $model;
@@ -189,6 +331,18 @@ class OpenTSDBAnomalyModel {
       return null;
     }
 
+  }
+
+  public function get_cache_file()
+  {
+    if (!empty($this->_model_cache))
+    {
+      return($this->_model_cache);
+    }
+    else
+    {
+      return null;
+    }
   }
 
 }
