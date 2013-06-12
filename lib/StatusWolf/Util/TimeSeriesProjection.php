@@ -30,15 +30,15 @@ class TimeSeriesProjection {
     $start_time = $actual[0]['timestamp'];
     $this->_model_point_offset = $this->_get_model_point($start_time);
 
-    $loggy = fopen('/tmp/sw_log.txt', "a");
-    fwrite($loggy, "Generating coefficients for projection\n");
+//    $loggy = fopen('/tmp/sw_log.txt', "a");
+//    fwrite($loggy, "Generating coefficients for projection\n");
     bcscale(10);
     $coefficients = $this->_regression($actual, $model);
-    fwrite ($loggy, "Coefficents are: " . json_encode($coefficients) . "\n");
+//    fwrite ($loggy, "Coefficents are: " . json_encode($coefficients) . "\n");
     $base_coefficient = round(floatval($coefficients[0]), 4);
     $model_coefficient = round(floatval($coefficients[1]), 4);
-    fwrite($loggy, "Base: " . $base_coefficient . ", Model: ". $model_coefficient . "\n");
-    fclose($loggy);
+//    fwrite($loggy, "Base: " . $base_coefficient . ", Model: ". $model_coefficient . "\n");
+//    fclose($loggy);
 
     $projected = $this->_projection(count($actual), $model, $base_coefficient, $model_coefficient);
 
@@ -55,7 +55,7 @@ class TimeSeriesProjection {
 
     $regression = new PolynomialRegression(2);
 
-    $loggy = fopen('/tmp/sw_log.txt', "a");
+//    $loggy = fopen('/tmp/sw_log.txt', "a");
     for ($i = 0; $i < count($actual); $i++)
     {
       $model_point = $i + $this->_model_point_offset;
@@ -63,10 +63,10 @@ class TimeSeriesProjection {
       {
         $model_point -= 10080;
       }
-      fwrite($loggy, "model point: " . $model[$model_point] . ", actual point: " . $actual[$i]['value'] . "\n");
+//      fwrite($loggy, "model point: " . $model[$model_point] . ", actual point: " . $actual[$i]['value'] . "\n");
       $regression->addData($model[$model_point], $actual[$i]['value']);
     }
-    fclose($loggy);
+//    fclose($loggy);
 
     return $regression->getCoefficients();
   }
