@@ -258,8 +258,8 @@ class OpenTSDB extends TimeSeriesData {
 
     $query_url = $this->_build_url($query_bits);
     $curl = new Curl($query_url);
-    $loggy = "/tmp/sw_log.txt";
-    $log_handle = fopen($loggy, "a");
+//    $loggy = "/tmp/sw_log.txt";
+//    $log_handle = fopen($loggy, "a");
     $data_pull_start = time();
     try
     {
@@ -268,15 +268,15 @@ class OpenTSDB extends TimeSeriesData {
     catch(SWException $e)
     {
 //      throw new SWException('Failed to retrieve metrics from OpenTSDB: ' . $e->getMessage());
-      fwrite($log_handle, "Failed to retrieve metrics from OpenTSDB, start time was: " . $this->_query_start . "\n");
-      fwrite($log_handle, substr($e->getMessage(), 0, 200) . "\n");
-      fclose($log_handle);
+//      fwrite($log_handle, "Failed to retrieve metrics from OpenTSDB, start time was: " . $this->_query_start . "\n");
+//      fwrite($log_handle, substr($e->getMessage(), 0, 200) . "\n");
+//      fclose($log_handle);
       return null;
     }
     $data_pull_end = time();
     $pull_time = $data_pull_end - $data_pull_start;
-    fwrite($log_handle, "Retrieved metrics from OpenTSDB, total execution time: " . $pull_time . " seconds\n");
-    fclose($log_handle);
+//    fwrite($log_handle, "Retrieved metrics from OpenTSDB, total execution time: " . $pull_time . " seconds\n");
+//    fclose($log_handle);
     $data = explode("\n", $raw_data);
 
     $this->num_points = count($data);
