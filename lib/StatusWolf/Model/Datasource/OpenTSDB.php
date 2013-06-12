@@ -201,6 +201,7 @@ class OpenTSDB extends TimeSeriesData {
       // string with downsampler, aggregator, rate & interpolation info
       if (array_key_exists('metrics', $query_bits))
       {
+        $query_bits['key'] = '';
         foreach($query_bits['metrics'] as $metric)
         {
           $qkey = '&m=';
@@ -257,17 +258,29 @@ class OpenTSDB extends TimeSeriesData {
 
     $query_url = $this->_build_url($query_bits);
     $curl = new Curl($query_url);
+    $loggy = "/tmp/sw_log.txt";
+    $log_handle = fopen($loggy, "a");
+    $data_pull_start = time();
     try
     {
       $raw_data = $curl->request();
     }
     catch(SWException $e)
     {
-      throw new SWException('Failed to retrieve metrics from OpenTSDB: ' . $e->getMessage());
+//      throw new SWException('Failed to retrieve metrics from OpenTSDB: ' . $e->getMessage());
+      fwrite($log_handle, "Failed to retrieve metrics from OpenTSDB, start time was: " . $this->_query_start . "\n");
+      fwrite($log_handle, substr($e->getMessage(), 0, 200) . "\n");
+      fclose($log_handle);
+      return null;
     }
+    $data_pull_end = time();
+    $pull_time = $data_pull_end - $data_pull_start;
+    fwrite($log_handle, "Retrieved metrics from OpenTSDB, total execution time: " . $pull_time . " seconds\n");
+    fclose($log_handle);
     $data = explode("\n", $raw_data);
 
     $this->num_points = count($data);
+    $graph_data = array();
 
     foreach ($data as $line)
     {
