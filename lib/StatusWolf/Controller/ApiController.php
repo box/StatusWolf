@@ -69,31 +69,57 @@ class ApiController extends SWController
   protected function opentsdb_anomaly_model($path)
   {
     $query_bits = $_POST;
-    $metric = $query_bits['metrics'][0]['name'];
-    if (array_key_exists('tags', $query_bits['metrics'][0]))
-    {
-      $tag_key = implode(' ', $query_bits['metrics'][0]['tags']);
-    }
-    else
-    {
-      $tag_key = 'NONE';
-    }
-    $series = $metric . ' ' . $tag_key;
-    $model_cache = CACHE . 'anomaly_model' . DS . md5($series) . '.model';
-    if (file_exists($model_cache))
-    {
-      $anomaly_data = file_get_contents($model_cache);
-      $anomaly_data = unserialize($anomaly_data);
-    }
-    else
-    {
-      $anomaly = new OpenTSDBAnomalyModel();
-      $anomaly->generate($query_bits);
-      $anomaly_data = $anomaly->read();
-    }
+
+    $build_start = time();
+    $anomaly = new OpenTSDBAnomalyModel();
+    $anomaly->generate($query_bits);
+    $anomaly_data = $anomaly->get_cache_file();
+
+    $loggy = fopen('/tmp/sw_log.txt', "a");
+    fwrite($loggy, "Anomaly model build complete, returning cache file location:\n");
+    fwrite($loggy, $anomaly_data . "\n");
+    $build_end = time();
+    $build_time = $build_end - $build_start;
+    fwrite($loggy, "Total execution time for anomaly build: " . $build_time . " seconds\n");
+    fclose($loggy);
 
     echo json_encode($anomaly_data);
 
+  }
+
+  protected function time_series_projection($path)
+  {
+    $data = $_POST;
+
+    $projection_start = time();
+    $loggy = fopen('/tmp/sw_log.txt', "a");
+    if (file_exists($data['model_cache']))
+    {
+      fwrite($loggy, "Loading cached model data\n");
+      $model_data = file_get_contents($data['model_cache']);
+      $model_data = unserialize($model_data);
+      $data['model'] = $model_data['model'];
+      unset($model_data);
+    }
+
+    fwrite($loggy, "Building projection\n");
+    fclose($loggy);
+    $anomaly_graph = new TimeSeriesProjection();
+    $anomaly_graph->build_series($data['actual'], $data['model']);
+    $anomaly_data = array('projection' => $anomaly_graph->read());
+    $loggy = fopen('/tmp/sw_log.txt', "a");
+    fwrite($loggy, "Detecting anomolies in current metric data\n");
+    fclose($loggy);
+    $anomaly_finder = new DetectTimeSeriesAnomaly();
+    $anomaly_data['anomalies'] = array();
+    $anomaly_data['anomalies'] = $anomaly_finder->detect_anomaly($anomaly_data['projection'], $anomaly_graph->get_accuracy_margin());
+    $projection_end = time();
+    $projection_time = $projection_end - $projection_start;
+    $loggy = fopen('/tmp/sw_log.txt', "a");
+    fwrite($loggy, "Projection and anomaly detection complete, total execution time: " . $projection_time . " seconds\n");
+    fclose($loggy);
+
+    echo json_encode($anomaly_data);
   }
 
 }
