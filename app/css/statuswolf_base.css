@@ -332,7 +332,6 @@ select {
     left: auto;
     border-radius: 3px;
     border-top-right-radius: 0;
-    text-align: right;
 }
 
 .menu-left li span {
