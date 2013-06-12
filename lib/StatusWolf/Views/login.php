@@ -10,6 +10,13 @@
  *
  * @package StatusWolf.Views
  */
+
+$uri = $_SERVER['REQUEST_URI'];
+if (strpos($uri, BASE_URI) !== false)
+{
+  $uri = substr_replace($uri, '', 0, strlen(BASE_URI));
+}
+
 ?>
 
     <link href="<?php echo URL; ?>/app/css/login.css" rel="stylesheet">
