@@ -682,8 +682,10 @@
         {
           build_metric.tags = metric_bits;
         }
-        build_metric.agg_type = $('#active-aggregation-type1').text().toLowerCase();
-        build_metric.ds_type = $('#active-downsample-type1').text().toLowerCase();
+        var agg_type = $('#active-aggregation-type1').text().toLowerCase();
+        var ds_type = $('#active-downsample-type1').text().toLowerCase();
+        build_metric.agg_type = methods[agg_type];
+        build_metric.ds_type = methods[ds_type];
         build_metric.ds_interval = $('#active-downsample-interval1').attr('data-value');
         query_data['downsample_master_interval'] = build_metric.ds_interval;
 
@@ -714,12 +716,12 @@
 
       if (query_data['history-graph'] == "anomaly")
       {
-        $('#status-message').html('<p>Anomaly Modeling Is Currently Disabled...</p>');
-        setTimeout(function() {
-          get_metric_data(query_data)
-        }, 3000);
-//        $('#status-message').html('<p>Building Anomaly Model (this may take a few minutes)</p>');
-//        get_anomaly_model(query_data);
+//        $('#status-message').html('<p>Anomaly Modeling Is Currently Disabled...</p>');
+//        setTimeout(function() {
+//          get_metric_data(query_data)
+//        }, 3000);
+        $('#status-message').html('<p>Building Anomaly Model (this may take a few minutes)</p>');
+        get_metric_data_anomaly(query_data);
       }
       else if (query_data['history-graph'] == "wow")
       {
@@ -732,29 +734,7 @@
     }
   }
 
-  function get_anomaly_model(query_data)
-  {
-    var anomaly_query = $.extend(true, {}, query_data);
-    delete anomaly_query.start_time;
-    delete anomaly_query.end_time;
-    console.log('Building anomaly model');
-    console.log(anomaly_query);
-    console.log(query_data);
-
-    $.ajax({
-      url: "<?php echo URL; ?>/api/opentsdb_anomaly_model"
-      ,type: 'POST'
-      ,data: anomaly_query
-      ,data_type: 'json'
-      ,timeout: 120000
-      ,success: function(data, status, jqhxr) {
-        get_metric_data(query_data, anomaly_model);
-      }
-      ,error: get_metric_data(query_data)
-    });
-  }
-
-  function get_metric_data(query_data, anomaly_model)
+  function get_metric_data(query_data)
   {
     $('#status-message').html('<p>Loading Metric Data</p>');
 
@@ -836,6 +816,69 @@
     });
   }
 
+  function get_metric_data_anomaly(query_data)
+  {
+    console.log('Building anomaly model');
+    loadScript("<?php echo URL; ?>/app/js/lib/jquery.icndb.js", function(){});
+    $('#status-message').append('<p id=chuck style="margin: 0 25px"></p>');
+    var chuck_timer = setInterval(function() {
+      var chuck = $.icndb;
+      chuck.getRandomJoke(function(data) { $('#chuck').addClass('section-off'); $('#chuck').text(data.joke); $('#chuck').addClass('section-on'); } );
+    }, 15000);
+
+    var metric_data = {};
+    var anomaly_request = $.ajax({
+      url: "<?php echo URL; ?>/api/opentsdb_anomaly_model"
+      ,type: 'POST'
+      ,data: query_data
+      ,data_type: 'json'
+    })
+    ,chained = anomaly_request.then(function(data) {
+      clearInterval(chuck_timer);
+      model_data_cache = eval('(' + data + ')');
+      console.log(model_data_cache);
+      $('#status-message').html('<p>Fetching Metric Data</p>');
+      return $.ajax({
+        url: "<?php echo URL; ?>/adhoc/search/OpenTSDB"
+        ,type: 'POST'
+        ,data: query_data
+        ,data_type: 'json'
+        ,timeout: 120000
+      });
+    })
+    ,chained_two = chained.then(function(data) {
+      live_data = eval('(' + data + ')');
+      metric_data['start'] = live_data['start'];
+      metric_data['end'] = live_data['end'];
+      metric_data['query_url'] = live_data['query_url'];
+      delete live_data['start'];
+      delete live_data['end'];
+      delete live_data['query_url'];
+      live_keys = Object.keys(live_data);
+      live_key = live_keys[0];
+      metric_data[live_key] = live_data[live_key];
+      delete live_data;
+      console.log(metric_data[live_key]);
+      $('#status-message').html('<p>Building Projection</p>');
+      return $.ajax({
+        url: "<?php echo URL; ?>/api/time_series_projection"
+        ,type: 'POST'
+        ,data: {model_cache: model_data_cache, actual: metric_data[live_key]}
+        ,data_type: 'json'
+        ,timeout: 120000
+      });
+    });
+    chained_two.done(function(data) {
+      console.log('Fetching projected data');
+      var projection_data = eval('(' + data + ')');
+      console.log(projection_data);
+      metric_data[live_key] = projection_data['projection'];
+      metric_data['anomalies'] = projection_data['anomalies'];
+      console.log(metric_data);
+      process_graph_data(metric_data, query_data);
+    });
+  }
+
   function error_image(request)
   {
     $('#graphdiv').empty();
@@ -855,6 +898,11 @@
     delete data.start;
     delete data.end;
     delete data.query_url;
+    if (query_data['history-graph'] == "anomaly")
+    {
+      var anomalies = data.anomalies;
+      delete data.anomalies;
+    }
 
     console.log('Metric data recieved from ' + query_url);
     $('#status-message').html('<p>Parsing Metric Data</p>');
@@ -867,6 +915,11 @@
     for (var series in data) {
       if (data.hasOwnProperty(series))
       {
+        if (query_data['history-graph'] == "anomaly")
+        {
+          labels.push(series + ' Projected');
+          query_data.metrics[0]['history_graph'] = "anomaly";
+        }
         labels.push(series);
 
         var data_holder = {};
@@ -894,8 +947,12 @@
       var graph_data = {};
       graph_data.labels = labels;
       graph_data.data = buckets;
+      if (query_data['history-graph'] == "anomaly")
+      {
+        graph_data.anomalies = anomalies;
+      }
 
-      build_graph(graph_data, query_data['metrics']);
+      build_graph(graph_data, query_data['metrics'][0]);
 
     }
   }
@@ -903,6 +960,7 @@
   function build_graph(data, options)
   {
 
+    console.log(options);
     var graph_data = data.data;
     var graph_labels = data.labels;
     var dygraph_format = [];
@@ -911,10 +969,32 @@
       {
         jtime = new Date(parseInt(time * 1000));
         values = [jtime];
-        values = values.concat(graph_data[time]);
+        if (options['history_graph'] == 'anomaly')
+        {
+          var value_bucket = new Array();
+          $.each(graph_data[time], function(k, d) {
+            if (d == null)
+            {
+              value_bucket.push([null,null,null]);
+              value_bucket.push([null,null,null]);
+            }
+            else
+            {
+              $.each(d, function(kk, dd) {
+                value_bucket.push(dd);
+              });
+            }
+          });
+          values = values.concat(value_bucket);
+        }
+        else
+        {
+          values = values.concat(graph_data[time]);
+        }
         dygraph_format.push(values);
       }
     }
+    console.log(dygraph_format);
     var labels_map = {};
     $.each(graph_labels, function(index, label) {
       var label_bits = label.split(' ');
@@ -965,28 +1045,71 @@
     );
     var right_axis = '';
 //      console.log(options);
-    $.each(options, function(index, option_values) {
-      if (option_values.y2 == true)
+    if (options.y2 == true)
+    {
+      var axis_bits = {};
+      console.log('adding ' + option_values.name + ' to right axis');
+      if (right_axis.length < 1)
       {
-        var axis_bits = {};
-        console.log('adding ' + option_values.name + ' to right axis');
-        if (right_axis.length < 1)
-        {
-          axis_bits = {};
-          axis_bits[labels_map[option_values.name]] = {};
-          axis_bits[labels_map[option_values.name]]['axis'] = {};
-          right_axis = labels_map[option_values.name];
-          g.updateOptions(axis_bits);
-        }
-        else
-        {
-          axis_bits = {};
-          axis_bits[labels_map[option_values.name]] = {};
-          axis_bits[labels_map[option_values.name]]['axis'] = right_axis;
-          g.updateOptions(axis_bits);
-          }
+        axis_bits = {};
+        axis_bits[labels_map[option_values.name]] = {};
+        axis_bits[labels_map[option_values.name]]['axis'] = {};
+        right_axis = labels_map[option_values.name];
+        g.updateOptions(axis_bits);
       }
-    });
+      else
+      {
+        axis_bits = {};
+        axis_bits[labels_map[option_values.name]] = {};
+        axis_bits[labels_map[option_values.name]]['axis'] = right_axis;
+        g.updateOptions(axis_bits);
+        }
+    }
+    if (options.history_graph == "anomaly")
+    {
+      anomalies = data.anomalies;
+      g.updateOptions({
+        customBars: true
+        ,underlayCallback: function(canvas, area, g) {
+          function highlight_period(x_start, x_end, color) {
+            if (color == "light") {
+              canvas.fillStyle = "rgba(219, 219, 11, 0.25)";
+            }
+            else if (color == "dark") {
+              canvas.fillStyle = "rgba(219, 54, 9, 0.25)";
+            }
+            var canvas_left_x = g.toDomXCoord(x_start);
+            var canvas_right_x = g.toDomXCoord(x_end);
+            var canvas_width = canvas_right_x - canvas_left_x;
+            canvas.fillRect(canvas_left_x, area.y, canvas_width, area.h);
+          }
+          $.each(anomalies, function(i, d) {
+            var current_anomaly = new Array()
+            switch(d.anomaly_type)
+            {
+              case 'DROPOFF':
+              // fall through
+              case 'SPIKE_UP':
+                color = 'dark';
+                break;
+              case 'OVERAGE':
+              // fall through
+              case 'UNDERAGE':
+                color = 'light';
+                break;
+            }
+            delete d.anomaly_type;
+            $.each(d, function(ts, data) {
+              current_anomaly.push(new Array(ts, data));
+            });
+            var anomaly_start = new Date(parseInt(current_anomaly[0][0] * 1000));
+            var anomaly_end = new Date(parseInt(current_anomaly.pop()[0] * 1000));
+
+            highlight_period(anomaly_start, anomaly_end, color);
+          });
+        }
+      })
+    }
 //      console.log(g);
     $('.dygraph-xlabel').parent().css('top', '40%');
 
