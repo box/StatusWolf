@@ -736,7 +736,7 @@
 
   function get_metric_data(query_data)
   {
-    $('#status-message').html('<p>Loading Metric Data</p>');
+    $('#status-message').html('<p>Fetching Metric Data</p>');
 
     console.log('Fetching data from OpenTSDB');
     console.log(query_data);
@@ -762,7 +762,7 @@
 
   function get_metric_data_wow(query_data)
   {
-    $('#status-message').html('<p>Loading Metric Data</p>');
+    $('#status-message').html('<p>Fetching Metric Data</p>');
 
     console.log('Fetching Week-Over-Week data from OpenTSDB');
     console.log(query_data);
@@ -951,15 +951,16 @@
       {
         graph_data.anomalies = anomalies;
       }
-
-      build_graph(graph_data, query_data['metrics'][0]);
-
     }
+
+    build_graph(graph_data, query_data['metrics'][0]);
+
   }
 
   function build_graph(data, options)
   {
 
+    console.log('Building metric graph');
     console.log(options);
     var graph_data = data.data;
     var graph_labels = data.labels;
@@ -994,7 +995,6 @@
         dygraph_format.push(values);
       }
     }
-    console.log(dygraph_format);
     var labels_map = {};
     $.each(graph_labels, function(index, label) {
       var label_bits = label.split(' ');
@@ -1048,7 +1048,7 @@
     if (options.y2 == true)
     {
       var axis_bits = {};
-      console.log('adding ' + option_values.name + ' to right axis');
+//      console.log('adding ' + option_values.name + ' to right axis');
       if (right_axis.length < 1)
       {
         axis_bits = {};
