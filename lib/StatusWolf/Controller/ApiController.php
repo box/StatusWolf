@@ -81,7 +81,7 @@ class ApiController extends SWController
     $build_end = time();
     $build_time = $build_end - $build_start;
 //    fwrite($loggy, "Total execution time for anomaly build: " . $build_time . " seconds\n");
-    fclose($loggy);
+//    fclose($loggy);
 
     echo json_encode($anomaly_data);
 
