@@ -12,11 +12,11 @@
 class DetectTimeSeriesAnomaly {
   public function detect_anomaly($graph_data, $accuracy_margin)
   {
-    $anomalies = array();
-    $violation = array();
+    $violations = array();
     $in_violation = false;
-    $violation_score_threshold = 2;
-    $point_count = 6;
+    $start_violation = null;
+    $violation_score = 0;
+    $violation_score_threshold = 7;
 
     foreach ($graph_data as $entry)
     {
@@ -24,91 +24,48 @@ class DetectTimeSeriesAnomaly {
       $actual = $entry['value'][1][1];
       list($low_value, $projected_value, $high_value) = $entry['value'][0];
 
-      if ($actual < $low_value || $actual > $high_value)
+      $is_violation = ($actual < $low_value || $actual > $high_value);
+
+      if ($is_violation)
       {
-        $anomaly_unit = (float) $accuracy_margin * (int) $projected_value;
+        $score_of_one = $accuracy_margin * $projected_value;
 
         if ($actual < $low_value)
         {
-          $violation[$timestamp] = ($actual - $low_value) / $anomaly_unit;
+          $violation_score += ($low_value - $actual) / $score_of_one;
         }
         else
         {
-          $violation[$timestamp] = ($actual - $high_value) / $anomaly_unit;
+          $violation_score += ($actual - $high_value) / $score_of_one;
         }
-        $is_violation = true;
-      }
-      else
-      {
-        $is_violation = false;
       }
 
       if ($is_violation && $in_violation)
       {
-        if (($point_count + 1) >= count($graph_data))
-        {
-          if ($this->_abs_total_violation_score($violation) >= $violation_score_threshold)
-          {
-            $possible_anomaly = $this->_classify_anomaly($violation);
-            if ($possible_anomaly)
-            {
-              $anomalies[] = $possible_anomaly;
-            }
-          }
-          else
-          {
-            $in_violation = false;
-            $violation = array();
-          }
-        }
-        else
-        {
 
-        }
       }
       else if ($is_violation && !$in_violation)
       {
-        if (($point_count + 1) >= count($graph_data))
-        {
-          if ($this->_abs_total_violation_score($violation) >= $violation_score_threshold)
-          {
-            $possible_anomaly = $this->_classify_anomaly($violation);
-            if ($possible_anomaly)
-            {
-              $anomalies[] = $possible_anomaly;
-            }
-          }
-          else
-          {
-            $violation = array();
-          }
-        }
-        else
-        {
-          $in_violation = true;
-        }
+        $start_violation = $timestamp;
+        $in_violation = true;
       }
       else if (!$is_violation && $in_violation)
       {
-        if ($this->_abs_total_violation_score($violation) >= $violation_score_threshold)
+        if ($violation_score >= $violation_score_threshold)
         {
-          $possible_anomaly = $this->_classify_anomaly($violation);
-          if ($possible_anomaly)
-          {
-            $anomalies[] = $possible_anomaly;
-          }
+          $violations[] = array('start' => $start_violation, 'end' => $timestamp);
         }
+        $start_violation = null;
         $in_violation = false;
-        $violations = array();
+        $violation_score = 0;
       }
       else if (!$is_violation && !$in_violation)
       {
 
       }
-      $point_count++;
     }
 
-    return $anomalies;
+    return $violations;
   }
 
   private function _abs_total_violation_score($violation)
