@@ -72,10 +72,6 @@ function authenticate_session($app_config) {
   if (array_key_exists('debug', $app_config) && $app_config['debug'])
   {
     $auth_options['enableLogging'] = true;
-    print "<pre>\n";
-    print "Method: " . $auth_method . "\n";
-    print_r($auth_options);
-    print "</pre>\n";
   }
 
 // Create authentication object
@@ -135,9 +131,6 @@ function authenticate_session($app_config) {
       $auth_log[] = $debug_event['priority'] . ": " . $debug_event['message'];
     }
     $_SESSION['debug']['auth_log'] = $auth_log;
-    print "<pre>\n";
-    print_r($auth_log);
-    print "</pre>\n";
   }
 
 }
