@@ -10,24 +10,28 @@
  * @package StatusWolf.Controller
  */
 
+
 class ApiController extends SWController
 {
 
   public function __construct($url_path)
   {
+
+    if(SWConfig::read_values('statuswolf.debug'))
+    {
+      $this->loggy = new KLogger(ROOT . 'app/log/', KLogger::DEBUG);
+    }
+    else
+    {
+      $this->loggy = new KLogger(ROOT . 'app/log/', KLogger::INFO);
+    }
+
     parent::__construct();
+    ini_set('max_input_vars', 5000);
     if (!empty($url_path[0]))
     {
       $_api_function = array_shift($url_path);
       $this->$_api_function($url_path);
-//      if (function_exists("$this->_api_function"))
-//      {
-//        $this->$this->_api_function($url_path);
-//      }
-//      else
-//      {
-//        throw new SWException('Unknown API call: ' . $this->_api_function);
-//      }
     }
     else
     {
@@ -75,13 +79,11 @@ class ApiController extends SWController
     $anomaly->generate($query_bits);
     $anomaly_data = $anomaly->get_cache_file();
 
-//    $loggy = fopen('/tmp/sw_log.txt', "a");
-//    fwrite($loggy, "Anomaly model build complete, returning cache file location:\n");
-//    fwrite($loggy, $anomaly_data . "\n");
+    $this->loggy->logDebug('Anomaly model build complete, returning cache file location:');
+    $this->loggy->logDebug($anomaly_data);
     $build_end = time();
     $build_time = $build_end - $build_start;
-//    fwrite($loggy, "Total execution time for anomaly build: " . $build_time . " seconds\n");
-//    fclose($loggy);
+    $this->loggy->logInfo("Total execution time for anomaly build: $build_time seconds");
 
     echo json_encode($anomaly_data);
 
@@ -92,32 +94,29 @@ class ApiController extends SWController
     $data = $_POST;
 
     $projection_start = time();
-//    $loggy = fopen('/tmp/sw_log.txt', "a");
     if (file_exists($data['model_cache']))
     {
-//      fwrite($loggy, "Loading cached model data\n");
+      $this->loggy->logDebug('Loading cached model data');
       $model_data = file_get_contents($data['model_cache']);
       $model_data = unserialize($model_data);
       $data['model'] = $model_data['model'];
       unset($model_data);
     }
 
-//    fwrite($loggy, "Building projection\n");
-//    fclose($loggy);
+    $this->loggy->logDebug('Building projection');
+
     $anomaly_graph = new TimeSeriesProjection();
     $anomaly_graph->build_series($data['actual'], $data['model']);
     $anomaly_data = array('projection' => $anomaly_graph->read());
-//    $loggy = fopen('/tmp/sw_log.txt', "a");
-//    fwrite($loggy, "Detecting anomolies in current metric data\n");
-//    fclose($loggy);
+
+    $this->loggy->logDebug('Detecting anomolies in current metric data');
+
     $anomaly_finder = new DetectTimeSeriesAnomaly();
     $anomaly_data['anomalies'] = array();
     $anomaly_data['anomalies'] = $anomaly_finder->detect_anomaly($anomaly_data['projection'], $anomaly_graph->get_accuracy_margin());
-//    $projection_end = time();
-//    $projection_time = $projection_end - $projection_start;
-//    $loggy = fopen('/tmp/sw_log.txt', "a");
-//    fwrite($loggy, "Projection and anomaly detection complete, total execution time: " . $projection_time . " seconds\n");
-//    fclose($loggy);
+    $projection_end = time();
+    $projection_time = $projection_end - $projection_start;
+    $this->loggy->logInfo("Projection and anomaly detection complete, total execution time: $projection_time seconds");
 
     echo json_encode($anomaly_data);
   }

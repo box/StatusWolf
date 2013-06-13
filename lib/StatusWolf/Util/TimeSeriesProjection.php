@@ -17,6 +17,18 @@ class TimeSeriesProjection {
 
   private $_anomaly_data;
 
+  public function __construct()
+  {
+    if(SWConfig::read_values('statuswolf.debug'))
+    {
+      $this->loggy = new KLogger(ROOT . 'app/log/', KLogger::DEBUG);
+    }
+    else
+    {
+      $this->loggy = new KLogger(ROOT . 'app/log/', KLogger::INFO);
+    }
+  }
+
   public function build_series(array $actual, array $model, $accuracy_margin = 0.15)
   {
 
@@ -30,15 +42,11 @@ class TimeSeriesProjection {
     $start_time = $actual[0]['timestamp'];
     $this->_model_point_offset = $this->_get_model_point($start_time);
 
-//    $loggy = fopen('/tmp/sw_log.txt', "a");
-//    fwrite($loggy, "Generating coefficients for projection\n");
+    $this->loggy->logDebug("Generating coefficients for projection");
     bcscale(10);
     $coefficients = $this->_regression($actual, $model);
-//    fwrite ($loggy, "Coefficents are: " . json_encode($coefficients) . "\n");
     $base_coefficient = round(floatval($coefficients[0]), 4);
     $model_coefficient = round(floatval($coefficients[1]), 4);
-//    fwrite($loggy, "Base: " . $base_coefficient . ", Model: ". $model_coefficient . "\n");
-//    fclose($loggy);
 
     $projected = $this->_projection(count($actual), $model, $base_coefficient, $model_coefficient);
 
@@ -55,7 +63,6 @@ class TimeSeriesProjection {
 
     $regression = new PolynomialRegression(2);
 
-//    $loggy = fopen('/tmp/sw_log.txt', "a");
     for ($i = 0; $i < count($actual); $i++)
     {
       $model_point = $i + $this->_model_point_offset;
@@ -63,10 +70,8 @@ class TimeSeriesProjection {
       {
         $model_point -= 10080;
       }
-//      fwrite($loggy, "model point: " . $model[$model_point] . ", actual point: " . $actual[$i]['value'] . "\n");
       $regression->addData($model[$model_point], $actual[$i]['value']);
     }
-//    fclose($loggy);
 
     return $regression->getCoefficients();
   }
