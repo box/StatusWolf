@@ -740,6 +740,12 @@
 
     console.log('Fetching data from OpenTSDB');
     console.log(query_data);
+    loadScript("<?php echo URL; ?>/app/js/lib/jquery.icndb.js", function(){});
+    $('#status-message').append('<p id=chuck style="margin: 0 25px"></p>');
+    var chuck_timer = setInterval(function() {
+      var chuck = $.icndb;
+      chuck.getRandomJoke(function(data) { $('#chuck').addClass('section-off'); $('#chuck').text(data.joke); $('#chuck').addClass('section-on'); } );
+    }, 15000);
 
     $.ajax({
       url: "<?php echo URL; ?>/adhoc/search/OpenTSDB"
@@ -752,6 +758,7 @@
         process_graph_data(metric_data, query_data);
       }
       ,complete: function(request, status) {
+        clearInterval(chuck_timer);
         if ((status == "error") || (status == "timeout"))
         {
           error_image(request);
@@ -767,6 +774,12 @@
     console.log('Fetching Week-Over-Week data from OpenTSDB');
     console.log(query_data);
     var metric_data = {};
+    loadScript("<?php echo URL; ?>/app/js/lib/jquery.icndb.js", function(){});
+    $('#status-message').append('<p id=chuck style="margin: 0 25px"></p>');
+    var chuck_timer = setInterval(function() {
+      var chuck = $.icndb;
+      chuck.getRandomJoke(function(data) { $('#chuck').addClass('section-off'); $('#chuck').text(data.joke); $('#chuck').addClass('section-on'); } );
+    }, 15000);
 
     var current_request = $.ajax({
       url: "<?php echo URL; ?>/adhoc/search/OpenTSDB"
@@ -784,7 +797,7 @@
       metric_data.query_url = metric_data[0]['query_url'];
       delete metric_data[0]['query_url'];
       current_keys = Object.keys(metric_data[0]);
-      current_key = current_keys[0] + ' Current';
+      current_key = 'Current - ' + current_keys[0];
       metric_data[current_key] = metric_data[0][current_keys[0]];
       delete metric_data[0];
       var past_query = $.extend(true, {}, query_data);
@@ -801,12 +814,13 @@
       });
     });
     chained.done(function(data) {
+      clearInterval(chuck_timer);
       metric_data[1] = eval('(' + data + ')');
       delete metric_data[1].start;
       delete metric_data[1].end;
       delete metric_data[1].query_url;
       past_keys = Object.keys(metric_data[1]);
-      past_key = past_keys[0] + ' Previous';
+      past_key = 'Previous - ' + past_keys[0];
       metric_data[past_key] = metric_data[1][past_keys[0]];
       delete metric_data[1];
       $.each(metric_data[past_key], function(index, entry) {
@@ -834,7 +848,6 @@
       ,data_type: 'json'
     })
     ,chained = anomaly_request.then(function(data) {
-      clearInterval(chuck_timer);
       model_data_cache = eval('(' + data + ')');
       console.log(model_data_cache);
       $('#status-message').html('<p>Fetching Metric Data</p>');
@@ -858,8 +871,10 @@
       live_key = live_keys[0];
       metric_data[live_key] = live_data[live_key];
       delete live_data;
+      console.log('loaded ' + metric_data[live_key].length + ' metric data points');
       console.log(metric_data[live_key]);
       $('#status-message').html('<p>Building Projection</p>');
+      console.log('Fetching projected data');
       return $.ajax({
         url: "<?php echo URL; ?>/api/time_series_projection"
         ,type: 'POST'
@@ -869,8 +884,9 @@
       });
     });
     chained_two.done(function(data) {
-      console.log('Fetching projected data');
+      clearInterval(chuck_timer);
       var projection_data = eval('(' + data + ')');
+      console.log('projection data for ' + projection_data['projection'].length + ' metric data points');
       console.log(projection_data);
       metric_data[live_key] = projection_data['projection'];
       metric_data['anomalies'] = projection_data['anomalies'];
