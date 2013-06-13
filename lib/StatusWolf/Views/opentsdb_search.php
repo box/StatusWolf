@@ -1071,41 +1071,15 @@
       g.updateOptions({
         customBars: true
         ,underlayCallback: function(canvas, area, g) {
-          function highlight_period(x_start, x_end, color) {
-            if (color == "light") {
-              canvas.fillStyle = "rgba(219, 219, 11, 0.25)";
-            }
-            else if (color == "dark") {
-              canvas.fillStyle = "rgba(219, 54, 9, 0.25)";
-            }
+          canvas.fillStyle = "rgba(219, 54, 9, 0.25)";
+          function highlight_period(x_start, x_end) {
             var canvas_left_x = g.toDomXCoord(x_start);
             var canvas_right_x = g.toDomXCoord(x_end);
             var canvas_width = canvas_right_x - canvas_left_x;
             canvas.fillRect(canvas_left_x, area.y, canvas_width, area.h);
           }
           $.each(anomalies, function(i, d) {
-            var current_anomaly = new Array()
-            switch(d.anomaly_type)
-            {
-              case 'DROPOFF':
-              // fall through
-              case 'SPIKE_UP':
-                color = 'dark';
-                break;
-              case 'OVERAGE':
-              // fall through
-              case 'UNDERAGE':
-                color = 'light';
-                break;
-            }
-            delete d.anomaly_type;
-            $.each(d, function(ts, data) {
-              current_anomaly.push(new Array(ts, data));
-            });
-            var anomaly_start = new Date(parseInt(current_anomaly[0][0] * 1000));
-            var anomaly_end = new Date(parseInt(current_anomaly.pop()[0] * 1000));
-
-            highlight_period(anomaly_start, anomaly_end, color);
+            highlight_period(new Date(parseInt(d.start * 1000)), new Date(parseInt(d.end * 1000)));
           });
         }
       })
