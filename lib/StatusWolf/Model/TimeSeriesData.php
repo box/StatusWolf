@@ -93,6 +93,13 @@ class TimeSeriesData {
    */
   public $end_time = null;
 
+  /**
+   * Cache file to store the returned query data in
+   *
+   * @var string
+   */
+  protected $_query_cache = null;
+
 
   /**
    * TimeSeriesData::read()
@@ -180,6 +187,25 @@ class TimeSeriesData {
         }
       }
       return $output;
+    }
+    else
+    {
+      return null;
+    }
+  }
+
+  /**
+   * TimeSeriesData::get_cache_file()
+   *
+   * Get the name of the file where the query results are cached
+   *
+   * @return null|string
+   */
+  public function get_cache_file()
+  {
+    if (!empty($this->_query_cache))
+    {
+      return $this->_query_cache;
     }
     else
     {

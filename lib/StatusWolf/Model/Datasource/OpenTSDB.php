@@ -204,7 +204,6 @@ class OpenTSDB extends TimeSeriesData {
     else
     {
       ini_set('memory_limit', '2G');
-      set_time_limit(120);
 
       // Make sure we have a metric name to search on and build the metric
       // string with downsampler, aggregator, rate & interpolation info
@@ -263,7 +262,18 @@ class OpenTSDB extends TimeSeriesData {
       }
     }
 
+    if (array_key_exists('cache_key', $query_bits))
+    {
+      $cache_key = $query_bits['cache_key'];
+      $new_cache = false;
+    }
+    else
+    {
+      $cache_key = md5($query_bits['key'] . apache_getenv("HTTP_X_FORWARDED_FOR"));
+      $new_cache = true;
+    }
 
+    $this->_query_cache = CACHE . 'query_cache' . DS . $cache_key . '.cache';
 
     $query_url = $this->_build_url($query_bits);
     $curl = new Curl($query_url);
@@ -341,7 +351,26 @@ class OpenTSDB extends TimeSeriesData {
       $graph_data[$series] = $downsampler->downsample($data, $this->_start_timestamp, $this->_end_timestamp);
     }
 
+    if ($new_cache)
+    {
+      file_put_contents($this->_query_cache, serialize($graph_data));
+    }
+    else
+    {
+      $cached_query_data = file_get_contents($this->_query_cache);
+      $cached_query_data = unserialize($cached_query_data);
+      foreach($cached_query_data as $series => $series_data)
+      {
+        array_splice($series_data, 0, $this->num_points);
+        $series_data = array_merge($series_data, $graph_data[$series]);
+        $graph_data[$series] = $series_data;
+      }
+      file_put_contents($this->_query_cache, serialize($graph_data));
+    }
+
     $this->ts_data = $graph_data;
+    $this->ts_data['cache_key'] = $cache_key;
+    $this->ts_data['query_cache'] = $this->_query_cache;
     $this->ts_data['query_url'] = $this->tsdb_query_url;
     $this->ts_data['start'] = $this->start_time;
     $this->ts_data['end'] = $this->end_time;
