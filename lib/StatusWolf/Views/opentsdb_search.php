@@ -522,11 +522,35 @@
     {
       $('.optional-metric').removeClass('section-on');
       $('.optional-metric').addClass('section-off');
+      $('#time-span-options').html('<li><span data-ms="<?php echo (MINUTE * 10); ?>">10 minutes</span></li>')
+          .append('<li><span data-ms="<?php echo (MINUTE * 30); ?>">30 Minutes</span></li>')
+          .append('<li><span data-ms="<?php echo HOUR ?>">1 hour</span></li>')
+          .append('<li><span data-ms="<?php echo (HOUR * 2) ?>;">2 hours</span></li>')
+          .append('<li><span data-ms="<?php echo (HOUR * 4) ?>">4 hours</span></li>')
+          .append('<li><span data-ms="<?php echo (HOUR * 8) ?>">8 hours</span></li>')
+          .append('<li><span data-ms="<?php echo (HOUR * 12) ?>">12 hours</span></li>')
+          .append('<li><span data-ms="<?php echo DAY ?>">1 day</span></li>')
+          .append('<li><span data-ms="<?php echo WEEK ?>">1 week</span></li>');
+      if ($('#time-span').attr('data-ms') > <?php echo WEEK; ?>)
+      {
+        $('#time-span').text('1 week').attr('data-ms', <?php echo WEEK; ?>);
+      }
     }
     else if ($(this).attr('data-target') == 'ad-hoc-no')
     {
       $('.optional-metric').removeClass('section-off');
       $('.optional-metric').addClass('section-on');
+      $('#time-span-options').html('<li><span data-ms="<?php echo (MINUTE * 10); ?>">10 minutes</span></li>')
+          .append('<li><span data-ms="<?php echo (MINUTE * 30); ?>">30 Minutes</span></li>')
+          .append('<li><span data-ms="<?php echo HOUR ?>">1 hour</span></li>')
+          .append('<li><span data-ms="<?php echo (HOUR * 2) ?>;">2 hours</span></li>')
+          .append('<li><span data-ms="<?php echo (HOUR * 4) ?>">4 hours</span></li>')
+          .append('<li><span data-ms="<?php echo (HOUR * 8) ?>">8 hours</span></li>')
+          .append('<li><span data-ms="<?php echo (HOUR * 12) ?>">12 hours</span></li>')
+          .append('<li><span data-ms="<?php echo DAY ?>">1 day</span></li>')
+          .append('<li><span data-ms="<?php echo WEEK ?>">1 week</span></li>')
+          .append('<li><span data-ms="<?php echo (WEEK * 2) ?>">2 weeks</span></li>')
+          .append('<li><span data-ms="<?php echo MONTH ?>">1 month</span></li>');
     }
   });
 
@@ -534,7 +558,7 @@
     $('input[name="time-span"]').attr('value', ($(this).text()));
   });
 
-  $('li').click(function() {
+  $('ul.dropdown-menu').on('click', 'li', function() {
     var button = $(this).parents('.ad-hoc-button').children('span');
     $(button).children('.ad-hoc-button-label').text($(this).text());
     if ($(button).children('#time-span'))
