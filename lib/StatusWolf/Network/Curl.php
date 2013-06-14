@@ -21,7 +21,7 @@ class Curl
 	 *
 	 * @var string
 	 */
-	protected static $_proxy = null;
+	public static $_proxy = null;
 
 	public function __construct($url)
 	{
