@@ -140,4 +140,22 @@ class ApiController extends SWController
     echo json_encode($anomaly_data);
   }
 
+  protected function fortune($path)
+  {
+    $arguments = array();
+    if (!empty($path[0]))
+    {
+      $arguments['source'] = $path[0];
+    }
+    if (!empty($path[1]))
+    {
+      $arguments['category'] = $path[1];
+    }
+
+    $fortune = new Fortune();
+    $my_fortune = $fortune->get_fortune($arguments);
+    echo json_encode($my_fortune);
+
+  }
+
 }

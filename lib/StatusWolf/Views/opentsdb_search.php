@@ -795,11 +795,6 @@
   {
     var query_object = new $.Deferred();
 
-    if (sw_conf.waiting.source == "chuck")
-    {
-      loadScript("<?php echo URL; ?>/app/js/lib/jquery.icndb.js", function(){});
-    }
-
     console.log('Fetching data from OpenTSDB');
     console.log(query_data);
     setInterval(function() {
@@ -807,25 +802,27 @@
       {
         if(sw_conf.waiting.source == "chuck")
         {
-          var chuck = $.icndb;
-          chuck.getRandomJoke(function(data) { query_object.notify(data.joke) } );
+          url = "<?php echo URL; ?>/api/fortune/chuck";
         }
         else
         {
-          var source_url = 'http://www.iheartquotes.com/api/v1/random';
-          if ((typeof sw_conf.waiting.source != undefined) && (sw_conf.waiting.source != "random"))
+          if (typeof sw_conf.waiting.category != 'undefined')
           {
-            source_url = source_url + '&' + sw_conf.waiting.source;
+            url = "<?php echo URL; ?>/api/fortune/quotes/" + sw_conf.waiting.category;
           }
-          $.ajax({
-            url: source_url
-            ,type: 'GET'
-            ,data_type: 'json'
-            ,success: function(data) {
-              query_object.notify(data.quote);
-            }
-          });
+          else
+          {
+            url = "<?php echo URL; ?>/api/fortune/quotes/random";
+          }
         }
+        $.ajax({
+          url: url
+          ,type: 'GET'
+          ,dataType: 'json'
+          ,success: function(data) {
+            query_object.notify(data);
+          }
+        })
       }
     }, 15000);
 
