@@ -364,13 +364,15 @@ class OpenTSDB extends TimeSeriesData {
       $cached_query_data = unserialize($cached_query_data);
       foreach($cached_query_data as $series => $series_data)
       {
-        array_splice($series_data, 0, $this->num_points);
-        $series_data = array_merge($series_data, $graph_data[$series]);
-        $graph_data[$series] = $series_data;
         $this->loggy->logDebug($this->log_tag . 'Updating data for series ' . $series);
         $this->loggy->logDebug($this->log_tag . 'Trimming ' . count($graph_data[$series]) . ' points from cached data');
+        array_splice($series_data, 0, count($graph_data[$series]));
+        $new_series_data = array_merge($series_data, $graph_data[$series]);
+        $graph_data[$series] = $new_series_data;
       }
       file_put_contents($this->_query_cache, serialize($graph_data));
+      $cached_keys = array_keys($graph_data);
+      $new_start_time = $graph_data[$cached_keys[0]][0]['timestamp'];
     }
 
     $this->ts_data = $graph_data;
