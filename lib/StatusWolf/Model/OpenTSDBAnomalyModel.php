@@ -48,6 +48,7 @@ class OpenTSDBAnomalyModel {
     {
       $this->loggy = new KLogger(ROOT . 'app/log/', KLogger::INFO);
     }
+    $this->log_tag = '(' . $_SESSION['_sw_authsession']['username'] . '|' . $_SESSION['_sw_authsession']['sessionip'] . ') ';
   }
 
   /**
@@ -117,7 +118,7 @@ class OpenTSDBAnomalyModel {
     $this->_model_cache = CACHE . 'anomaly_model' . DS . md5($qkey) . '.model';
     if (file_exists($this->_model_cache))
     {
-      $this->loggy->logDebug("Cached model data found, loading");
+      $this->loggy->logDebug($this->log_tag . "Cached model data found, loading");
       $anomaly_data = file_get_contents($this->_model_cache);
       $anomaly_data = unserialize($anomaly_data);
       $this->reference_model = $anomaly_data;
@@ -138,7 +139,7 @@ class OpenTSDBAnomalyModel {
       {
         throw new SWException('Missed it by that much: ' . $start_date->format('Y/m/d H:i:s'));
       }
-      $this->loggy->logDebug("Starting build of anomaly model for $qkey");
+      $this->loggy->logDebug($this->log_tag . "Starting build of anomaly model for $qkey");
 
       $weeks_modelled = 0;
       $bad_weeks = 0;
@@ -146,14 +147,14 @@ class OpenTSDBAnomalyModel {
       {
         if($bad_weeks >= 10)
         {
-          $this->loggy->logDebug("Too many bad weeks encountered, bailing out");
+          $this->loggy->logDebug($this->log_tag . "Too many bad weeks encountered, bailing out");
           $weeks_modelled = 6;
         }
         else
         {
           $query_bits['start_time'] = $start_date->format('U');
           $query_bits['end_time'] = $query_bits['start_time'] + WEEK;
-          $this->loggy->logDebug("Calling opentsdb model to fetch data for week beginning " . $start_date->format('Y/m/d-H:i:s'));
+          $this->loggy->logDebug($this->log_tag . "Calling opentsdb model to fetch data for week beginning " . $start_date->format('Y/m/d-H:i:s'));
           $training_data->get_raw_data($query_bits);
           $start_date->modify('-1 week');
           if($week_data = $training_data->read())
@@ -166,7 +167,7 @@ class OpenTSDBAnomalyModel {
             {
               if (count($week_data[$series]) < 1000)
               {
-                $this->loggy->logDebug("Sparse data found (count($week_data[$series]) records), skipping week");
+                $this->loggy->logDebug($this->log_tag . "Sparse data found (count($week_data[$series]) records), skipping week");
                 $training_data->flush_data();
                 $bad_weeks++;
                 continue;
@@ -176,12 +177,12 @@ class OpenTSDBAnomalyModel {
                 $week_heads[$weeks_modelled] = strtolower($start_date->format('M_j'));
                 $all_weeks[$weeks_modelled] = $week_data[$series];
                 $weeks_modelled++;
-                $this->loggy->logDebug("Weeks currently collected for modelling: $weeks_modelled");
+                $this->loggy->logDebug($this->log_tag . "Weeks currently collected for modelling: $weeks_modelled");
               }
             }
             else
             {
-              $this->loggy->logDebug("No data collected, skipping week");
+              $this->loggy->logDebug($this->log_tag . "No data collected, skipping week");
               $training_data->flush_data();
               $bad_weeks++;
               continue;
@@ -198,15 +199,15 @@ class OpenTSDBAnomalyModel {
 
       if (count($all_weeks) >= 4)
       {
-        $this->loggy->logDebug("Calculating reference model");
+        $this->loggy->logDebug($this->log_tag . "Calculating reference model");
         $this->reference_model['key'] = $qkey;
         $this->reference_model['model'] = $this->_calculate_reference($all_weeks);
-        $this->loggy->logDebug("Saving reference model to cache file $this->_model_cache");
+        $this->loggy->logDebug($this->log_tag . "Saving reference model to cache file $this->_model_cache");
         file_put_contents($this->_model_cache, serialize($this->reference_model));
       }
       else
       {
-        $this->loggy->logDebug("Not enough data was gathered, can't build anomaly model");
+        $this->loggy->logDebug($this->log_tag . "Not enough data was gathered, can't build anomaly model");
         $this->reference_model = null;
       }
     }

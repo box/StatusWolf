@@ -27,6 +27,7 @@ class TimeSeriesProjection {
     {
       $this->loggy = new KLogger(ROOT . 'app/log/', KLogger::INFO);
     }
+    $this->log_tag = '(' . $_SESSION['_sw_authsession']['username'] . '|' . $_SESSION['_sw_authsession']['sessionip'] . ') ';
   }
 
   public function build_series(array $actual, array $model, $accuracy_margin = 0.15)
@@ -42,7 +43,7 @@ class TimeSeriesProjection {
     $start_time = $actual[0]['timestamp'];
     $this->_model_point_offset = $this->_get_model_point($start_time);
 
-    $this->loggy->logDebug("Generating coefficients for projection");
+    $this->loggy->logDebug($this->log_tag . "Generating coefficients for projection");
     bcscale(10);
     $coefficients = $this->_regression($actual, $model);
     $base_coefficient = round(floatval($coefficients[0]), 4);

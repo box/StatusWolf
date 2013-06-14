@@ -93,6 +93,7 @@ class OpenTSDB extends TimeSeriesData {
     {
       $this->loggy = new KLogger(ROOT . 'app/log/', KLogger::INFO);
     }
+    $this->log_tag = '(' . $_SESSION['_sw_authsession']['username'] . '|' . $_SESSION['_sw_authsession']['sessionip'] . ') ';
 
     // Check for an OpenTSDB host provided to the constructor
     if ($host)
@@ -286,13 +287,13 @@ class OpenTSDB extends TimeSeriesData {
     catch(SWException $e)
     {
 //      throw new SWException('Failed to retrieve metrics from OpenTSDB: ' . $e->getMessage());
-      $this->loggy->logError("Failed to retrieve metrics from OpenTSDB, start time was: $this->_query_start");
-      $this->loggy->logError(substr($e->getMessage(), 0, 256));
+      $this->loggy->logError($this->log_tag . "Failed to retrieve metrics from OpenTSDB, start time was: $this->_query_start");
+      $this->loggy->logError($this->log_tag . substr($e->getMessage(), 0, 256));
       return null;
     }
     $data_pull_end = time();
     $pull_time = $data_pull_end - $data_pull_start;
-    $this->loggy->logInfo("Retrieved metrics from OpenTSDB, total execution time: $pull_time seconds");
+    $this->loggy->logInfo($this->log_tag . "Retrieved metrics from OpenTSDB, total execution time: $pull_time seconds");
     $data = explode("\n", $raw_data);
 
     $this->num_points = count($data);
@@ -353,10 +354,12 @@ class OpenTSDB extends TimeSeriesData {
 
     if ($new_cache)
     {
+      $this->loggy->logDebug($this->log_tag . 'Saving data to cache file');
       file_put_contents($this->_query_cache, serialize($graph_data));
     }
     else
     {
+      $this->loggy->logDebug($this->log_tag . 'Merging new data with cached data');
       $cached_query_data = file_get_contents($this->_query_cache);
       $cached_query_data = unserialize($cached_query_data);
       foreach($cached_query_data as $series => $series_data)
@@ -364,6 +367,8 @@ class OpenTSDB extends TimeSeriesData {
         array_splice($series_data, 0, $this->num_points);
         $series_data = array_merge($series_data, $graph_data[$series]);
         $graph_data[$series] = $series_data;
+        $this->loggy->logDebug($this->log_tag . 'Updating data for series ' . $series);
+        $this->loggy->logDebug($this->log_tag . 'Trimming ' . count($graph_data[$series]) . ' points from cached data');
       }
       file_put_contents($this->_query_cache, serialize($graph_data));
     }

@@ -25,6 +25,7 @@ class ApiController extends SWController
     {
       $this->loggy = new KLogger(ROOT . 'app/log/', KLogger::INFO);
     }
+    $this->log_tag = '(' . $_SESSION['_sw_authsession']['username'] . '|' . $_SESSION['_sw_authsession']['sessionip'] . ') ';
 
     parent::__construct();
     ini_set('max_input_vars', 5000);
@@ -79,11 +80,11 @@ class ApiController extends SWController
     $anomaly->generate($query_bits);
     $anomaly_data = $anomaly->get_cache_file();
 
-    $this->loggy->logDebug('Anomaly model build complete, returning cache file location:');
-    $this->loggy->logDebug($anomaly_data);
+    $this->loggy->logDebug($this->log_tag . 'Anomaly model build complete, returning cache file location:');
+    $this->loggy->logDebug($this->log_tag . $anomaly_data);
     $build_end = time();
     $build_time = $build_end - $build_start;
-    $this->loggy->logInfo("Total execution time for anomaly build: $build_time seconds");
+    $this->loggy->logInfo($this->log_tag . "Total execution time for anomaly build: $build_time seconds");
 
     echo json_encode($anomaly_data);
 
@@ -97,7 +98,7 @@ class ApiController extends SWController
     $series = $data['key'];
     if (file_exists($data['model_cache']))
     {
-      $this->loggy->logDebug('Loading cached model data');
+      $this->loggy->logDebug($this->log_tag . 'Loading cached model data');
       $model_data = file_get_contents($data['model_cache']);
       $model_data = unserialize($model_data);
       $data['model'] = $model_data['model'];
@@ -105,36 +106,36 @@ class ApiController extends SWController
     }
     else
     {
-      $this->loggy->logCrit('No cached model data found');
+      $this->loggy->logCrit($this->log_tag . 'No cached model data found');
       return null;
     }
     if (file_exists($data['query_cache']))
     {
-      $this->loggy->logDebug('Loading current data');
+      $this->loggy->logDebug($this->log_tag . 'Loading current data');
       $current_data = file_get_contents($data['query_cache']);
       $current_data = unserialize($current_data);
       $data['actual'] = $current_data[$series];
     }
     else
     {
-      $this->loggy->logDebug('No query cache data found');
+      $this->loggy->logDebug($this->log_tag . 'No query cache data found');
       return null;
     }
 
-    $this->loggy->logDebug('Building projection');
+    $this->loggy->logDebug($this->log_tag . 'Building projection');
 
     $anomaly_graph = new TimeSeriesProjection();
     $anomaly_graph->build_series($data['actual'], $data['model']);
     $anomaly_data = array('projection' => $anomaly_graph->read());
 
-    $this->loggy->logDebug('Detecting anomolies in current metric data');
+    $this->loggy->logDebug($this->log_tag . 'Detecting anomolies in current metric data');
 
     $anomaly_finder = new DetectTimeSeriesAnomaly();
     $anomaly_data['anomalies'] = array();
     $anomaly_data['anomalies'] = $anomaly_finder->detect_anomaly($anomaly_data['projection'], $anomaly_graph->get_accuracy_margin());
     $projection_end = time();
     $projection_time = $projection_end - $projection_start;
-    $this->loggy->logInfo("Projection and anomaly detection complete, total execution time: $projection_time seconds");
+    $this->loggy->logInfo($this->log_tag . "Projection and anomaly detection complete, total execution time: $projection_time seconds");
 
     echo json_encode($anomaly_data);
   }
