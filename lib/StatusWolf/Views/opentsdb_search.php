@@ -568,6 +568,10 @@
     $(button).children('div.ds-interval').attr('data-value', $(this).children('span').attr('data-value'));
   });
 
+  $(document).ready(function() {
+    $('.widget').addClass('flipped');
+  });
+
   function go_click_handler(event)
   {
 
