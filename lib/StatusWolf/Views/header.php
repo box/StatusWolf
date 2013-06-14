@@ -24,8 +24,8 @@
     <meta name="description" content="">
     <meta name="author" content="Mark Troyer <disco@box.com">
 
-    <link href="<?php echo URL; ?>/app/css/statuswolf_base.css?v=1" rel="stylesheet">
-    <link rel="icon" href="<?php echo URL; ?>/app/img/favicon-96.png">
+    <link href="<?php echo URL; ?>app/css/statuswolf_base.css?v=1" rel="stylesheet">
+    <link rel="icon" href="<?php echo URL; ?>app/img/favicon-96.png">
 
   </head>
 

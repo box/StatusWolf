@@ -19,7 +19,7 @@ if (strpos($uri, BASE_URI) !== false)
 
 ?>
 
-    <link href="<?php echo URL; ?>/app/css/login.css" rel="stylesheet">
+    <link href="<?php echo URL; ?>app/css/login.css" rel="stylesheet">
     <div class="container" id="login-container">
       <div class="widget-container" id="login-widget-container">
         <form id="statuswolf-login-form" method="post" action="<?php echo URL . $_SERVER['REQUEST_URI']; ?>" style="height: 100%;">
@@ -50,8 +50,8 @@ if (strpos($uri, BASE_URI) !== false)
       </div>
     </div>
 
-    <script type="text/javascript" src="<?php echo URL; ?>/app/js/lib/jquery.js"></script>
-    <script type="text/javascript" src="<?php echo URL; ?>/app/js/lib/bootstrap.js"></script>
+    <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/jquery.js"></script>
+    <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/bootstrap.js"></script>
 
     <script type="text/javascript">
       var main_height = $('.widget').height() - ($('.widget-title').height() + $('.widget-footer').height());

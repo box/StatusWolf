@@ -17,18 +17,18 @@
       </div>
       <div class="home-menu">
       	<div class="home-menu-item btn" id="ad-hoc">
-          <a href="<?php echo URL; ?>/adhoc/">Ad-Hoc Search</a>
+          <a href="<?php echo URL; ?>adhoc/">Ad-Hoc Search</a>
         </div>
         <div class="home-menu-item btn disabled" id="shared-dashboards">
-          <a href="<?php echo URL; ?>/dashboard/shared/">Shared Dashboards</a>
+          <a href="<?php echo URL; ?>dashboard/shared/">Shared Dashboards</a>
         </div>
         <div class="home-menu-item btn disabled" id="my-dashboards">
-          <a href="<?php echo URL; ?>/dashboard/my/">My Dashboards</a>
+          <a href="<?php echo URL; ?>dashboard/my/">My Dashboards</a>
         </div>
       </div>
       <div class="right-column"></div>
     </div>
 
-    <script type="text/javascript" src="<?php echo URL; ?>/app/js/lib/jquery.js"></script>
-    <script type="text/javascript" src="<?php echo URL; ?>/app/js/lib/bootstrap.js"></script>
+    <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/jquery.js"></script>
+    <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/bootstrap.js"></script>
 

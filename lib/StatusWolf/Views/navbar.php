@@ -12,7 +12,7 @@
 ?>
 
     <div class="navbar">
-      <link href="<?php echo URL; ?>/app/css/nav.css?v=1" rel="stylesheet">
+      <link href="<?php echo URL; ?>app/css/nav.css?v=1" rel="stylesheet">
       <div class="brand"><h4>StatusWolf</h4></div>
       <div class="user-menu dropdown menu-btn" id="user-menu">
         <form id="logout" method="post" action="<?php echo URL; ?>">
