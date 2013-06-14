@@ -570,7 +570,13 @@
 
   $(document).ready(function() {
     $('.widget').addClass('flipped');
+  }).keypress(function(e) {
+    if (e.which === 13)
+    {
+      go_click_handler(e);
+    }
   });
+
 
   function go_click_handler(event)
   {
