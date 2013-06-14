@@ -1,3 +1,5 @@
+<?php $sw_conf = SWConfig::read_values('statuswolf'); ?>
+
 <div class="ad-hoc-form-row" id="row1">
   <div id="auto-update">
     <div class="push-button">
@@ -487,6 +489,10 @@
 
 <script type="text/javascript">
 
+  var sw_conf = '<?php echo json_encode($sw_conf); ?>';
+  sw_conf = eval('(' + sw_conf + ')');
+  console.log(sw_conf);
+
   $('head').append('<link href="/app/css/datetimepicker.css" rel="stylesheet">')
       .append('<link href="/app/css/toggle-buttons.css" rel="stylesheet">')
       .append('<link href="/app/css/push-button.css" rel="stylesheet">')
@@ -591,11 +597,11 @@
     // Check for auto-update flag
     if ('input:checkbox[name=auto-update]:checked')
     {
-      var auto_update = 1;
+      query_data['auto_update'] = true;
     }
     else
     {
-      var auto_update = 0;
+      query_data['auto_update'] = true;
     }
 
     // Check for history display options
@@ -709,112 +715,192 @@
 
     if (input_error == false)
     {
-      $('#graphdiv').empty();
-      $('#graphdiv').append('<div id="bowlG"><div id="bowl_ringG"><div class="ball_holderG"><div class="ballG"></div></div></div></div>');
+      var graph_element = $('#graphdiv');
+      graph_element.empty();
+      graph_element.append('<div id="bowlG"><div id="bowl_ringG"><div class="ball_holderG"><div class="ballG"></div></div></div></div>');
       $('.widget').removeClass('flipped');
-      $('#graphdiv').append('<div id="status-message" style="width: 100%; text-align: center;">');
+      graph_element.append('<div id="status-box" style="width: 100%; text-align: center;"><p id="status-message"></p></div>');
+      $('#status-box').append('<p id=chuck style="margin: 0 25px"></p>');
 
-      if (query_data['history-graph'] == "anomaly")
-      {
-//        $('#status-message').html('<p>Anomaly Modeling Is Currently Disabled...</p>');
-//        setTimeout(function() {
-//          get_metric_data(query_data)
-//        }, 3000);
-        $('#status-message').html('<p>Building Anomaly Model (this may take a few minutes)</p>');
-        get_metric_data_anomaly(query_data);
-      }
-      else if (query_data['history-graph'] == "wow")
-      {
-        get_metric_data_wow(query_data);
-      }
-      else
-      {
-        get_metric_data(query_data);
-      }
+      $.when(opentsdb_search(query_data)).then(
+          function(data)
+          {
+            console.log(data);
+            console.log('raw data recieved');
+            $.when(process_graph_data(data, query_data)).then(
+                function(data)
+                {
+                  console.log('parsed data received');
+                  build_graph(data.graphdata, data.querydata);
+                }
+                ,function(status)
+                {
+                  $('#bowlG').html('<img src="<?php echo URL; ?>app/img/error.png" style="height: 60px; width: 30px;">');
+                  $('#chuck').removeClass('section-on').addClass('section-off');
+                  $('#status-message').text(status);
+                }
+                ,function(status)
+                {
+                  $('#chuck').removeClass('section-on').addClass('section-off');
+                  $('#chuck').text(status);
+                  $('#chuck').removeClass('section-off').addClass('section-on');
+                }
+            );
+          }
+          ,function(status)
+          {
+            $('#bowlG').html('<img src="<?php echo URL; ?>app/img/error.png" style="height: 60px; width: 30px;">');
+            $('#chuck').addClass('section-off');
+            $('#status-message').text(status);
+          }
+          ,function(status)
+          {
+            $('#chuck').removeClass('section-on').addClass('section-off');
+            $('#chuck').text(status);
+            $('#chuck').removeClass('section-off').addClass('section-on');
+          }
+      );
     }
+  }
+
+  function opentsdb_search(query_data)
+  {
+    var query_object = new $.Deferred();
+
+    if (sw_conf.waiting.source == "chuck")
+    {
+      loadScript("<?php echo URL; ?>/app/js/lib/jquery.icndb.js", function(){});
+    }
+
+    console.log('Fetching data from OpenTSDB');
+    console.log(query_data);
+    setInterval(function() {
+      if (query_object.state() === "pending")
+      {
+        if(sw_conf.waiting.source == "chuck")
+        {
+          var chuck = $.icndb;
+          chuck.getRandomJoke(function(data) { query_object.notify(data.joke) } );
+        }
+        else
+        {
+          var source_url = 'http://www.iheartquotes.com/api/v1/random';
+          if ((typeof sw_conf.waiting.source != undefined) && (sw_conf.waiting.source != "random"))
+          {
+            source_url = source_url + '&' + sw_conf.waiting.source;
+          }
+          $.ajax({
+            url: source_url
+            ,type: 'GET'
+            ,data_type: 'json'
+            ,success: function(data) {
+              query_object.notify(data.quote);
+            }
+          });
+        }
+      }
+    }, 15000);
+
+    if (query_data['history-graph'] == "anomaly")
+    {
+      $('#status-message').html('<p>Building Anomaly Model (this may take a few minutes)</p>');
+      $.when(get_metric_data_anomaly(query_data).then(
+          function(data) {
+            query_object.resolve(data);
+          })
+      );
+    }
+    else if (query_data['history-graph'] == "wow")
+    {
+      $('<#status-message').html('<p>Fetching Week-Over-Week Data</p>');
+      $.when(get_metric_data_wow(query_data).then(
+          function(data) {
+            query_object.resolve(data);
+          })
+      );
+    }
+    else
+    {
+      $('#status-message').html('<p>Fetching Metric Data</p>');
+      $.when(get_metric_data(query_data).then(
+          function(data) {
+            query_object.resolve(data);
+          })
+      );
+    }
+
+    return query_object.promise();
+
   }
 
   function get_metric_data(query_data)
   {
-    $('#status-message').html('<p>Fetching Metric Data</p>');
+    ajax_object = new $.Deferred();
 
-    console.log('Fetching data from OpenTSDB');
-    console.log(query_data);
-    loadScript("<?php echo URL; ?>/app/js/lib/jquery.icndb.js", function(){});
-    $('#status-message').append('<p id=chuck style="margin: 0 25px"></p>');
-    var chuck_timer = setInterval(function() {
-      var chuck = $.icndb;
-      chuck.getRandomJoke(function(data) { $('#chuck').addClass('section-off'); $('#chuck').text(data.joke); $('#chuck').addClass('section-on'); } );
-    }, 15000);
+    var ajax_request = $.ajax({
+          url: "<?php echo URL; ?>/adhoc/search/OpenTSDB"
+          ,type: 'POST'
+          ,data: query_data
+          ,data_type: 'json'
+          ,timeout: 120000
+        })
+        ,chain = ajax_request.then(function(data) {
+          data_object = eval('(' + data + ')');
+          return(data_object);
+        });
 
-    $.ajax({
-      url: "<?php echo URL; ?>/adhoc/search/OpenTSDB"
-      ,type: 'POST'
-      ,data: query_data
-      ,data_type: 'json'
-      ,timeout: 120000
-      ,success: function(data, status, jqhxr) {
-        metric_data = eval('(' + data + ')');
-        process_graph_data(metric_data, query_data);
-      }
-      ,complete: function(request, status) {
-        clearInterval(chuck_timer);
-        if ((status == "error") || (status == "timeout"))
-        {
-          error_image(request);
-        }
-      }
-      });
+    chain.done(function(data) {
+          ajax_object.resolve(data);
+    });
+
+    return ajax_object.promise();
+
   }
 
   function get_metric_data_wow(query_data)
   {
+
+    var ajax_object = new $.Deferred();
+
     $('#status-message').html('<p>Fetching Metric Data</p>');
 
     console.log('Fetching Week-Over-Week data from OpenTSDB');
     console.log(query_data);
     var metric_data = {};
-    loadScript("<?php echo URL; ?>/app/js/lib/jquery.icndb.js", function(){});
-    $('#status-message').append('<p id=chuck style="margin: 0 25px"></p>');
-    var chuck_timer = setInterval(function() {
-      var chuck = $.icndb;
-      chuck.getRandomJoke(function(data) { $('#chuck').addClass('section-off'); $('#chuck').text(data.joke); $('#chuck').addClass('section-on'); } );
-    }, 15000);
 
     var current_request = $.ajax({
-      url: "<?php echo URL; ?>/adhoc/search/OpenTSDB"
-      ,type: 'POST'
-      ,data: query_data
-      ,data_type: 'json'
-      ,timeout: 120000
-    })
-    ,chained = current_request.then(function(data) {
-      metric_data[0] = eval('(' + data + ')');
-      metric_data.start = metric_data[0]['start'];
-      delete metric_data[0]['start'];
-      metric_data.end = metric_data[0]['end'];
-      delete metric_data[0]['end'];
-      metric_data.query_url = metric_data[0]['query_url'];
-      delete metric_data[0]['query_url'];
-      current_keys = Object.keys(metric_data[0]);
-      current_key = 'Current - ' + current_keys[0];
-      metric_data[current_key] = metric_data[0][current_keys[0]];
-      delete metric_data[0];
-      var past_query = $.extend(true, {}, query_data);
-      var query_span = parseInt(query_data.end_time) - parseInt(query_data.start_time);
-      past_query.end_time = parseInt(query_data.end_time - <?php echo WEEK; ?>);
-      past_query.start_time = past_query.end_time - query_span;
-      console.log(past_query);
-      return $.ajax({
-        url: "<?php echo URL; ?>/adhoc/search/OpenTSDB"
-        ,type: 'POST'
-        ,data: past_query
-        ,data_type: 'json'
-        ,timeout: 120000
-      });
-    });
+          url: "<?php echo URL; ?>/adhoc/search/OpenTSDB"
+          ,type: 'POST'
+          ,data: query_data
+          ,data_type: 'json'
+          ,timeout: 120000
+        })
+        ,chained = current_request.then(function(data) {
+          metric_data[0] = eval('(' + data + ')');
+          metric_data.start = metric_data[0]['start'];
+          delete metric_data[0]['start'];
+          metric_data.end = metric_data[0]['end'];
+          delete metric_data[0]['end'];
+          metric_data.query_url = metric_data[0]['query_url'];
+          delete metric_data[0]['query_url'];
+          current_keys = Object.keys(metric_data[0]);
+          current_key = 'Current - ' + current_keys[0];
+          metric_data[current_key] = metric_data[0][current_keys[0]];
+          delete metric_data[0];
+          var past_query = $.extend(true, {}, query_data);
+          var query_span = parseInt(query_data.end_time) - parseInt(query_data.start_time);
+          past_query.end_time = parseInt(query_data.end_time - <?php echo WEEK; ?>);
+          past_query.start_time = past_query.end_time - query_span;
+          console.log(past_query);
+          return $.ajax({
+            url: "<?php echo URL; ?>/adhoc/search/OpenTSDB"
+            ,type: 'POST'
+            ,data: past_query
+            ,data_type: 'json'
+            ,timeout: 120000
+          });
+        });
     chained.done(function(data) {
-      clearInterval(chuck_timer);
       metric_data[1] = eval('(' + data + ')');
       delete metric_data[1].start;
       delete metric_data[1].end;
@@ -826,94 +912,96 @@
       $.each(metric_data[past_key], function(index, entry) {
         entry.timestamp = parseInt(entry.timestamp + <?php echo WEEK; ?>);
       });
-      process_graph_data(metric_data, query_data);
+      ajax_object.resolve(metric_data);
     });
+
+    return ajax_object.promise();
   }
 
   function get_metric_data_anomaly(query_data)
   {
+
+    var ajax_object = new $.Deferred();
+
     console.log('Building anomaly model');
-    loadScript("<?php echo URL; ?>/app/js/lib/jquery.icndb.js", function(){});
-    $('#status-message').append('<p id=chuck style="margin: 0 25px"></p>');
-    var chuck_timer = setInterval(function() {
-      var chuck = $.icndb;
-      chuck.getRandomJoke(function(data) { $('#chuck').addClass('section-off'); $('#chuck').text(data.joke); $('#chuck').addClass('section-on'); } );
-    }, 15000);
 
     var metric_data = {};
     var anomaly_request = $.ajax({
-      url: "<?php echo URL; ?>/api/opentsdb_anomaly_model"
-      ,type: 'POST'
-      ,data: query_data
-      ,data_type: 'json'
-    })
-    ,chained = anomaly_request.then(function(data) {
-      model_data_cache = eval('(' + data + ')');
-      console.log(model_data_cache);
-      $('#status-message').html('<p>Fetching Metric Data</p>');
-      return $.ajax({
-        url: "<?php echo URL; ?>/adhoc/search/OpenTSDB"
-        ,type: 'POST'
-        ,data: query_data
-        ,data_type: 'json'
-        ,timeout: 120000
-      });
-    })
-    ,chained_two = chained.then(function(data) {
-      live_data = eval('(' + data + ')');
-      metric_data['start'] = live_data['start'];
-      metric_data['end'] = live_data['end'];
-      metric_data['query_url'] = live_data['query_url'];
-      delete live_data['start'];
-      delete live_data['end'];
-      delete live_data['query_url'];
-      live_keys = Object.keys(live_data);
-      live_key = live_keys[0];
-      metric_data[live_key] = live_data[live_key];
-      delete live_data;
-      console.log('loaded ' + metric_data[live_key].length + ' metric data points');
-      console.log(metric_data[live_key]);
-      $('#status-message').html('<p>Building Projection</p>');
-      console.log('Fetching projected data');
-      return $.ajax({
-        url: "<?php echo URL; ?>/api/time_series_projection"
-        ,type: 'POST'
-        ,data: {model_cache: model_data_cache, actual: metric_data[live_key]}
-        ,data_type: 'json'
-        ,timeout: 120000
-      });
-    });
+          url: "<?php echo URL; ?>/api/opentsdb_anomaly_model"
+          ,type: 'POST'
+          ,data: query_data
+          ,data_type: 'json'
+        })
+        ,chained = anomaly_request.then(function(data) {
+          model_data_cache = eval('(' + data + ')');
+          console.log(model_data_cache);
+          $('#status-message').html('<p>Fetching Metric Data</p>');
+          return $.ajax({
+            url: "<?php echo URL; ?>/adhoc/search/OpenTSDB"
+            ,type: 'POST'
+            ,data: query_data
+            ,data_type: 'json'
+            ,timeout: 120000
+          });
+        })
+        ,chained_two = chained.then(function(data) {
+          live_data = eval('(' + data + ')');
+          metric_data['start'] = live_data['start'];
+          metric_data['end'] = live_data['end'];
+          metric_data['query_url'] = live_data['query_url'];
+          metric_data['cache_key'] = live_data['cache_key'];
+          metric_data['query_cache'] = live_data['query_cache'];
+          delete live_data['start'];
+          delete live_data['end'];
+          delete live_data['query_url'];
+          delete live_data['cache_key'];
+          delete live_data['query_cache'];
+          live_keys = Object.keys(live_data);
+          live_key = live_keys[0];
+          metric_data[live_key] = live_data[live_key];
+          delete live_data;
+          console.log('loaded ' + metric_data[live_key].length + ' metric data points');
+          console.log(metric_data[live_key]);
+          $('#status-message').html('<p>Building Projection</p>');
+          console.log('Fetching projected data');
+          return $.ajax({
+            url: "<?php echo URL; ?>/api/time_series_projection"
+            ,type: 'POST'
+            ,data: {model_cache: model_data_cache, query_cache: metric_data['query_cache'], key: live_key}
+            ,data_type: 'json'
+            ,timeout: 120000
+          });
+        });
     chained_two.done(function(data) {
-      clearInterval(chuck_timer);
       var projection_data = eval('(' + data + ')');
       console.log('projection data for ' + projection_data['projection'].length + ' metric data points');
       console.log(projection_data);
       metric_data[live_key] = projection_data['projection'];
       metric_data['anomalies'] = projection_data['anomalies'];
       console.log(metric_data);
-      process_graph_data(metric_data, query_data);
+      ajax_object.resolve(metric_data);
     });
-  }
 
-  function error_image(request)
-  {
-    $('#graphdiv').empty();
-    $('#graphdiv').html('<div id="error-box" style="height: 100%; width: 100%; text-align: center;"></div>');
-    $('#error-box').append('<img src="/app/img/error.png" height="60px" width="120px" style="margin: 10% auto">');
-    $('#error-box').append('<p class="error-message" style="margin-left: auto; margin-right: auto;">' + request.status + ': ' + request.statusText);
+    return ajax_object.promise();
   }
 
   function process_graph_data(data, query_data)
   {
+    var parse_object = new $.Deferred();
+
+    console.log('Parsing');
     var labels = ['Timestamp'];
     var buckets = {};
     var bucket_interval = parseInt(query_data['downsample_master_interval'] * 60);
     var start = parseInt(data.start);
     var end = parseInt(data.end);
     var query_url = data.query_url;
+    query_data.cache_key = data.cache_key;
     delete data.start;
     delete data.end;
     delete data.query_url;
+    delete data.cache_key;
+    delete data.query_cache;
     if (query_data['history-graph'] == "anomaly")
     {
       var anomalies = data.anomalies;
@@ -969,27 +1057,36 @@
       }
     }
 
-    build_graph(graph_data, query_data['metrics'][0]);
+    var parsed_data = {graphdata: graph_data, querydata: query_data};
+    console.log(parsed_data);
+
+    parse_object.resolve(parsed_data);
+
+    return parse_object.promise();
 
   }
 
-  function build_graph(data, options)
+  function build_graph(data, query_data)
   {
 
+    options = query_data['metrics'][0];
     console.log('Building metric graph');
+    console.log(query_data);
     console.log(options);
     var graph_data = data.data;
     var graph_labels = data.labels;
     var dygraph_format = [];
-    for (var time in graph_data) {
-      if (graph_data.hasOwnProperty(time))
+    var series_times = [];
+    for (var timestamp in graph_data) {
+      if (graph_data.hasOwnProperty(timestamp))
       {
-        jtime = new Date(parseInt(time * 1000));
+        series_times.push(timestamp);
+        jtime = new Date(parseInt(timestamp * 1000));
         values = [jtime];
         if (options['history_graph'] == 'anomaly')
         {
           var value_bucket = new Array();
-          $.each(graph_data[time], function(k, d) {
+          $.each(graph_data[timestamp], function(k, d) {
             if (d == null)
             {
               value_bucket.push([null,null,null]);
@@ -1006,11 +1103,16 @@
         }
         else
         {
-          values = values.concat(graph_data[time]);
+          values = values.concat(graph_data[timestamp]);
         }
         dygraph_format.push(values);
       }
     }
+
+    series_times = series_times.splice(-4, 4);
+    console.log(series_times);
+    console.log('last timestamp: ' + series_times[3]);
+
     var labels_map = {};
     $.each(graph_labels, function(index, label) {
       var label_bits = label.split(' ');
@@ -1044,16 +1146,16 @@
           ,gridLineColor: 'rgba(234, 234, 234, 0.15)'
           ,axisLabelColor: 'rgba(234, 234, 234, 0.75)'
           ,colors: swcolors.Wheel[5]
-            ,axes: {
-              x: {
-                pixelsPerLabel: x_space
-                ,axisLineColor: 'rgba(234, 234, 234, 0.15)'
-              }
-              ,y: {
-                pixelsPerLabel: y_space
-                ,axisLineColor: 'rgba(234, 234, 234, 0.15)'
-              }
+          ,axes: {
+            x: {
+              pixelsPerLabel: x_space
+              ,axisLineColor: 'rgba(234, 234, 234, 0.15)'
             }
+            ,y: {
+              pixelsPerLabel: y_space
+              ,axisLineColor: 'rgba(234, 234, 234, 0.15)'
+            }
+          }
           ,highlightSeriesOpts: { strokeWidth: 3 }
           ,highlightSeriesBackgroundAlpha: 1
           ,connectSeparatedPoints: true
@@ -1079,7 +1181,7 @@
         axis_bits[labels_map[option_values.name]] = {};
         axis_bits[labels_map[option_values.name]]['axis'] = right_axis;
         g.updateOptions(axis_bits);
-        }
+      }
     }
     if (options.history_graph == "anomaly")
     {
@@ -1103,6 +1205,67 @@
 //      console.log(g);
     $('.dygraph-xlabel').parent().css('top', '40%');
 
+    if (query_data['auto_update'])
+    {
+      setInterval(function() {
+        console.log('Updating graph data');
+        var new_start = series_times[0];
+        var new_end = new Date.now().getTime();
+        new_end = parseInt(new_end / 1000);
+        query_data.start_time = new_start;
+        query_data.end_time = new_end;
+        $.when(opentsdb_search(query_data)).then(
+            function(data)
+            {
+              console.log(data);
+              console.log('raw data recieved');
+              $.when(process_graph_data(data, query_data)).then(
+                  function(data)
+                  {
+                    graph_data = data.data;
+                    for (var timestamp in graph_data) {
+                      if (graph_data.hasOwnProperty(timestamp))
+                      {
+                        series_times.push(timestamp);
+                        jtime = new Date(parseInt(timestamp * 1000));
+                        values = [jtime];
+                        if (options['history_graph'] == 'anomaly')
+                        {
+                          var value_bucket = new Array();
+                          $.each(graph_data[timestamp], function(k, d) {
+                            if (d == null)
+                            {
+                              value_bucket.push([null,null,null]);
+                              value_bucket.push([null,null,null]);
+                            }
+                            else
+                            {
+                              $.each(d, function(kk, dd) {
+                                value_bucket.push(dd);
+                              });
+                            }
+                          });
+                          values = values.concat(value_bucket);
+                        }
+                        else
+                        {
+                          values = values.concat(graph_data[timestamp]);
+                        }
+                        dygraph_format.push(values);
+                      }
+                    }
+
+                    series_times = series_times.splice(-4, 4);
+                    console.log(series_times);
+                    console.log('last timestamp: ' + series_times[3]);
+                  }
+              );
+            }
+        );
+      }, 300 * 1000);
+    }
+
   }
+
 
 </script>

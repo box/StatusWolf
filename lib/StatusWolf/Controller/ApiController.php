@@ -94,6 +94,7 @@ class ApiController extends SWController
     $data = $_POST;
 
     $projection_start = time();
+    $series = $data['key'];
     if (file_exists($data['model_cache']))
     {
       $this->loggy->logDebug('Loading cached model data');
@@ -101,6 +102,23 @@ class ApiController extends SWController
       $model_data = unserialize($model_data);
       $data['model'] = $model_data['model'];
       unset($model_data);
+    }
+    else
+    {
+      $this->loggy->logCrit('No cached model data found');
+      return null;
+    }
+    if (file_exists($data['query_cache']))
+    {
+      $this->loggy->logDebug('Loading current data');
+      $current_data = file_get_contents($data['query_cache']);
+      $current_data = unserialize($current_data);
+      $data['actual'] = $current_data[$series];
+    }
+    else
+    {
+      $this->loggy->logDebug('No query cache data found');
+      return null;
     }
 
     $this->loggy->logDebug('Building projection');
