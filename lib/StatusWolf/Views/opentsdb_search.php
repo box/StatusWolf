@@ -499,17 +499,17 @@
       .append('<link href="/app/css/table.css" rel="stylesheet">')
       .append('<link href="/app/css/loader.css" rel="stylesheet">');
 
-  loadScript("<?php echo URL; ?>/app/js/lib/bootstrap-datetimepicker.js", function() {
+  loadScript("<?php echo URL; ?>app/js/lib/bootstrap-datetimepicker.js", function() {
     $('#start-time').datetimepicker({collapse: false});
     $('#end-time').datetimepicker({collapse: false});
   });
 
-  loadScript("<?php echo URL; ?>/app/js/toggle-buttons.js", function(){});
-  loadScript("<?php echo URL; ?>/app/js/push-button.js", function(){});
-  loadScript("<?php echo URL; ?>/app/js/lib/jquery.autocomplete.js", function(){
+  loadScript("<?php echo URL; ?>app/js/toggle-buttons.js", function(){});
+  loadScript("<?php echo URL; ?>app/js/push-button.js", function(){});
+  loadScript("<?php echo URL; ?>app/js/lib/jquery.autocomplete.js", function(){
     $(".metric-autocomplete").autocomplete({
       minChars: 2
-      ,serviceUrl: '/api/tsdb_metric_list/'
+      ,serviceUrl: '<?php echo URL; ?>api/tsdb_metric_list/'
       ,containerClass: 'autocomplete-suggestions dropdown-menu'
       ,zIndex: ''
       ,maxHeight: ''
@@ -802,17 +802,17 @@
       {
         if(sw_conf.waiting.source == "chuck")
         {
-          url = "<?php echo URL; ?>/api/fortune/chuck";
+          url = "<?php echo URL; ?>api/fortune/chuck";
         }
         else
         {
           if (typeof sw_conf.waiting.category != 'undefined')
           {
-            url = "<?php echo URL; ?>/api/fortune/quotes/" + sw_conf.waiting.category;
+            url = "<?php echo URL; ?>api/fortune/quotes/" + sw_conf.waiting.category;
           }
           else
           {
-            url = "<?php echo URL; ?>/api/fortune/quotes/random";
+            url = "<?php echo URL; ?>api/fortune/quotes/random";
           }
         }
         $.ajax({
@@ -863,7 +863,7 @@
     ajax_object = new $.Deferred();
 
     var ajax_request = $.ajax({
-          url: "<?php echo URL; ?>/adhoc/search/OpenTSDB"
+          url: "<?php echo URL; ?>adhoc/search/OpenTSDB"
           ,type: 'POST'
           ,data: query_data
           ,data_type: 'json'
@@ -894,7 +894,7 @@
     var metric_data = {};
 
     var current_request = $.ajax({
-          url: "<?php echo URL; ?>/adhoc/search/OpenTSDB"
+          url: "<?php echo URL; ?>adhoc/search/OpenTSDB"
           ,type: 'POST'
           ,data: query_data
           ,data_type: 'json'
@@ -918,7 +918,7 @@
           past_query.start_time = past_query.end_time - query_span;
           console.log(past_query);
           return $.ajax({
-            url: "<?php echo URL; ?>/adhoc/search/OpenTSDB"
+            url: "<?php echo URL; ?>adhoc/search/OpenTSDB"
             ,type: 'POST'
             ,data: past_query
             ,data_type: 'json'
@@ -952,7 +952,7 @@
 
     var metric_data = {};
     var anomaly_request = $.ajax({
-          url: "<?php echo URL; ?>/api/opentsdb_anomaly_model"
+          url: "<?php echo URL; ?>api/opentsdb_anomaly_model"
           ,type: 'POST'
           ,data: query_data
           ,data_type: 'json'
@@ -962,7 +962,7 @@
           console.log(model_data_cache);
           $('#status-message').html('<p>Fetching Metric Data</p>');
           return $.ajax({
-            url: "<?php echo URL; ?>/adhoc/search/OpenTSDB"
+            url: "<?php echo URL; ?>adhoc/search/OpenTSDB"
             ,type: 'POST'
             ,data: query_data
             ,data_type: 'json'
@@ -990,7 +990,7 @@
           $('#status-message').html('<p>Building Projection</p>');
           console.log('Fetching projected data');
           return $.ajax({
-            url: "<?php echo URL; ?>/api/time_series_projection"
+            url: "<?php echo URL; ?>api/time_series_projection"
             ,type: 'POST'
             ,data: {model_cache: model_data_cache, query_cache: metric_data['query_cache'], key: live_key}
             ,data_type: 'json'

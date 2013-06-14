@@ -12,7 +12,7 @@
 
 ?>
 
-    <link href="<?php echo URL; ?>/app/css/adhoc.css?v=1.0" rel="stylesheet">
+    <link href="<?php echo URL; ?>app/css/adhoc.css?v=1.0" rel="stylesheet">
     <div class="container">
       <div class="widget-container" id="ad-hoc-widget">
         <div class="widget">
@@ -52,11 +52,11 @@
       </div>
     </div>
 
-    <script type="text/javascript" src="<?php echo URL; ?>/app/js/lib/dygraph-combined.js"></script>
-    <script type="text/javascript" src="<?php echo URL; ?>/app/js/lib/jquery.js"></script>
-    <script type="text/javascript" src="<?php echo URL; ?>/app/js/lib/bootstrap.js"></script>
-    <script type="text/javascript" src="<?php echo URL; ?>/app/js/lib/date.js"></script>
-    <script type="text/javascript" src="<?php echo URL; ?>/app/js/status_wolf_colors.js"></script>
+    <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/dygraph-combined.js"></script>
+    <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/jquery.js"></script>
+    <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/bootstrap.js"></script>
+    <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/date.js"></script>
+    <script type="text/javascript" src="<?php echo URL; ?>app/js/status_wolf_colors.js"></script>
 
     <script type="text/javascript">
 
@@ -71,7 +71,7 @@
 
       function show_datasource_form(datasource)
       {
-        var view_url = "<?php echo URL; ?>/api/datasource_form/" + datasource;
+        var view_url = "<?php echo URL; ?>api/datasource_form/" + datasource;
         $.ajax({
           url: view_url
           ,method: 'GET'

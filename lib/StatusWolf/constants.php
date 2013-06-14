@@ -71,7 +71,7 @@ if (!defined('URL'))
     }
   }
   define('BASE_URI', $dir);
-  define('URL', $proto . $_SERVER['HTTP_HOST'] . $dir);
+  define('URL', $proto . $_SERVER['HTTP_HOST'] . $dir . DS);
 }
 
 /**
