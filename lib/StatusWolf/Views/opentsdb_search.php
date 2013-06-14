@@ -1246,7 +1246,10 @@
               $.when(process_graph_data(data, query_data)).then(
                   function(data)
                   {
-                    graph_data = data.data;
+                    console.log('graph data updates:');
+                    console.log(data);
+                    var dygraph_update = new Array();
+                    graph_data = data.graphdata.data;
                     for (var timestamp in graph_data) {
                       if (graph_data.hasOwnProperty(timestamp))
                       {
@@ -1275,10 +1278,15 @@
                         {
                           values = values.concat(graph_data[timestamp]);
                         }
-                        dygraph_format.push(values);
+                        dygraph_update.push(values);
                       }
                     }
-
+                    console.log(dygraph_update);
+                    dygraph_format.splice(0, (dygraph_update.length - 2));
+                    dygraph_format.splice(-2, 2);
+                    dygraph_format = dygraph_format.concat(dygraph_update);
+                    console.log(dygraph_format);
+                    g.updateOptions({'file': dygraph_format});
                     series_times = series_times.splice(-4, 4);
                     console.log(series_times);
                     console.log('last timestamp: ' + series_times[3]);
