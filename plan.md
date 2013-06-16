@@ -29,7 +29,7 @@
 
 * &#10003; <del>Document path-to-Controller mapping</del>
 * &#10003; <del>Create Router class to implement that mapping</del>
-* &#10003 <del>index.php exists solely to hand off to the Router</del>
+* &#10003; <del>index.php exists solely to hand off to the Router</del>
 * Check session data in index.php or at Router to load constants and base config?
 
 ## 1d: Ad-hoc search widget, week-over-week or anomaly graphs
