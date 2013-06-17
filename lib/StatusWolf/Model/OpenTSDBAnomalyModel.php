@@ -29,6 +29,11 @@ class OpenTSDBAnomalyModel {
    */
   private $_model_weeks = 6;
 
+  /**
+   * The name of the cache file for model data
+   *
+   * @var string
+   */
   private $_model_cache;
 
   /**
@@ -40,6 +45,7 @@ class OpenTSDBAnomalyModel {
 
   public function __construct()
   {
+    // Init logging for the class
     if(SWConfig::read_values('statuswolf.debug'))
     {
       $this->loggy = new KLogger(ROOT . 'app/log/', KLogger::DEBUG);
@@ -52,12 +58,14 @@ class OpenTSDBAnomalyModel {
   }
 
   /**
-   * OpenTSDBAnomalyModel->generate()
+   * OpenTSDBAnomalyModel::generate()
    *
    * Checks for the existence of a cached anomaly model and returns it
    * if found, otherwise starts two weeks in the past and then moves
-   * backward, week-by-week, until it collects six weeks worth of data,
-   * which is then used to build the anomaly model.
+   * backward, week-by-week, until it collects either six weeks worth
+   * of data or hits 10 weeks where it wasn't able to get good data. It then
+   * determines if there were at least four weeks of good data gathered, which
+   * are then used to build the anomaly model.
    *
    * @param array $query_bits
    * @throws SWException
@@ -70,6 +78,8 @@ class OpenTSDBAnomalyModel {
       throw new SWException('No query data found');
     }
 
+    // Build the query key string in the form of
+    // agg:downsample:rate:nointerpolation:metric_name{tags}
     if (array_key_exists('metrics', $query_bits))
     {
       $qkey = '';
@@ -129,6 +139,8 @@ class OpenTSDBAnomalyModel {
       $all_weeks = array();
       $week_heads = array();
       $start_date = new DateTime();
+
+      // Find midnight on Monday from the previous week
       while($start_date->format('D') != 'Mon')
       {
         $start_date->modify('-1 day');
@@ -141,6 +153,11 @@ class OpenTSDBAnomalyModel {
       }
       $this->loggy->logDebug($this->log_tag . "Starting build of anomaly model for $qkey");
 
+      // Track the number of weeks of model data found, and also
+      // the number of weeks where it was not possible to build model
+      // data - this prevents an infinite series of queries moving back
+      // into the past in the case of metric data that doesn't have six
+      // weeks of good data in OpenTSDB
       $weeks_modelled = 0;
       $bad_weeks = 0;
       while($weeks_modelled < $this->_model_weeks)
@@ -197,6 +214,7 @@ class OpenTSDBAnomalyModel {
         }
       }
 
+      // If there are four weeks of good data build the model
       if (count($all_weeks) >= 4)
       {
         $this->loggy->logDebug($this->log_tag . "Calculating reference model");
@@ -213,6 +231,15 @@ class OpenTSDBAnomalyModel {
     }
   }
 
+  /**
+   * OpenTSDBAnomalyModel::_calculate_reference()
+   *
+   * Uses the data gathered for all weeks and generates a reference model
+   * for each minute of the week (1 week == 10080 minutes)
+   *
+   * @param array $all_weeks
+   * @return array
+   */
   private function _calculate_reference(array $all_weeks)
   {
 
@@ -244,6 +271,16 @@ class OpenTSDBAnomalyModel {
 
   }
 
+  /**
+   * OpenTSDBAnomalyModel::_get_points()
+   *
+   * Takes the data gathered in per-minute increments and generates the
+   * reference point for that minute
+   *
+   * @param $minute_line - metric data for a particular minute from each
+   *                       week of gathered data
+   * @return float|int
+   */
   private function _get_points($minute_line)
   {
 
@@ -277,6 +314,15 @@ class OpenTSDBAnomalyModel {
 
   }
 
+  /**
+   * OpenTSDBAnomalyModel::_standard_deviation()
+   *
+   * Returns the standard deviation for the set of data points of a
+   * particular minute
+   *
+   * @param $set
+   * @return number
+   */
   private function _standard_deviation($set)
   {
 
@@ -292,6 +338,15 @@ class OpenTSDBAnomalyModel {
     return pow(array_sum($difference) / $amount, 0.5);
   }
 
+  /**
+   * OpenTSDBAnomalyModel::_moving_average()
+   *
+   * Find the moving average for a model data point
+   *
+   * @param $point
+   * @param $window_size
+   * @return float
+   */
   private function _moving_average($point, $window_size)
   {
 
@@ -308,6 +363,13 @@ class OpenTSDBAnomalyModel {
 
   }
 
+  /**
+   * OpenTSDBAnomalyModel::read()
+   *
+   * Returns the full generated model data
+   *
+   * @return array|null
+   */
   public function read()
   {
 
@@ -322,6 +384,13 @@ class OpenTSDBAnomalyModel {
 
   }
 
+  /**
+   * OpenTSDBAnomalyModel::get_cache_file()
+   *
+   * Returns the name of the cache file where the model data is saved
+   *
+   * @return null|string
+   */
   public function get_cache_file()
   {
     if (!empty($this->_model_cache))
