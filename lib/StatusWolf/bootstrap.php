@@ -19,6 +19,9 @@ SWConfig::load_config('auth.conf');
 // App config, general config for StatusWolf
 $app_config = SWConfig::read_values('statuswolf');
 
+// Set up the session handler, if configured
+// Default PHP session handling uses the filesystem, options can include
+// database-backed sessions
 if (array_key_exists('session_handler', $app_config))
 {
   $session_config = SWConfig::read_values('statuswolf.session_handler');
@@ -40,7 +43,8 @@ spl_autoload_register(array('SWAutoLoader', 'sw_autoloader'));
 spl_autoload_register();
 spl_autoload_extensions('.php');
 
-if (array_key_exists('authentication', $app_config) && !$app_config['authentication'])
+// Check to see whether we're configured for authentication
+if (!array_key_exists('authentication', $app_config) || (array_key_exists('authentication', $app_config) && !$app_config['authentication']))
 {
 
   session_name('_sw_session');
@@ -54,6 +58,7 @@ else
   $bootstrap = authenticate_session($app_config);
 }
 
+// Initialize app authentication, uses the Pear Auth module
 function authenticate_session($app_config) {
 
 // Auth method - which backend are we using for authentication?
@@ -141,11 +146,6 @@ function login($username = null, $status = null, &$auth = null)
   include 'header.php';
   include 'login.php';
   include 'footer.php';
-//  echo "<form method=\"post\" action=\"/StatusWolf/\">";
-//  echo "<input type=\"text\" name=\"username\">";
-//  echo "<input type=\"password\" name=\"password\">";
-//  echo "<input type=\"submit\">";
-//  echo "</form>";
   return false;
 }
 

@@ -14,6 +14,8 @@ require(dirname(dirname(__FILE__)) . '/lib/StatusWolf/constants.php');
 require(dirname(dirname(__FILE__)) . '/lib/StatusWolf/Util/SWAutoLoader.php');
 require(dirname(dirname(__FILE__)) . '/lib/StatusWolf/SWConfig.php');
 
+// Add the Views directory to the include path to get things going before 
+// autoloading is initialized
 if (function_exists('ini_set'))
 {
   ini_set('include_path', VIEWS . PATH_SEPARATOR . ini_get('include_path'));
@@ -25,7 +27,7 @@ if (!include(APPLIB . 'bootstrap.php'))
   $bootstrap = false;
 }
 
-
+// Hand off the bootstrapped app to the Router
 if (!empty($bootstrap) && $bootstrap)
 {
   $router = new SWRouter($_SERVER['REQUEST_URI']);
