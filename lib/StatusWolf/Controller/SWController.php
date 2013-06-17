@@ -12,6 +12,7 @@
 class SWController
 {
 
+  // Holds the user session info
   protected $usersession;
 
   public function __construct()
