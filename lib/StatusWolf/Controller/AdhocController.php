@@ -23,7 +23,6 @@ class AdhocController extends SWController
       {
         if ($_adhoc_datasource = array_shift($url_path))
         {
-//          echo json_encode(array($_SERVER['REQUEST_URI'], $_POST));
           $_search_object = new $_adhoc_datasource();
           $_search_object->get_raw_data($_POST);
           $raw_data = $_search_object->read();
