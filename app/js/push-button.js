@@ -1,3 +1,4 @@
+// Toggles the on-off push-buttons for StatusWolf
 $('label').click(function() {
 	if ($(this).parent('div').hasClass('push-button'))
 	{
