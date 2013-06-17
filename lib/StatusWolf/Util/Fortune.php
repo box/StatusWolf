@@ -14,11 +14,20 @@
  */
 class Fortune {
 
+  /**
+   * The list of URLs for possible quote sources
+   * @var array
+   */
   private $_urls = array(
     'chuck' =>'http://api.icndb.com/jokes/random/1'
     ,'quotes' => 'http://www.iheartquotes.com/api/v1/random/?format=json'
   );
 
+  /**
+   * Group categories for iheartquotes.com
+   *
+   * @var array
+   */
   private $_quote_groups = array(
     'geek' => 'esr+humorix_misc+humorix_stories+joel_on_software+macintosh+math+mav_flame+osp_rules+paul_graham+prog_style+subversion'
     ,'general' => '1811_dictionary_of_the_vulgar_tongue+codehappy+fortune+liberty+literature+misc+murphy+oneliners+riddles+rkba+shlomif+shlomif_fav+stephen_wright'
@@ -27,6 +36,11 @@ class Fortune {
     ,'sci-fi' => 'cryptonomicon+discworld+dune+hitchhiker'
   );
 
+  /**
+   * Key for the actual quote in the returned data
+   *
+   * @var array
+   */
   private $_quote_key = array(
     'chuck' => 'joke'
     ,'quotes' => 'quote'
@@ -34,6 +48,7 @@ class Fortune {
 
   public function __construct()
   {
+    // Init logging for the class
     if(SWConfig::read_values('statuswolf.debug'))
     {
       $this->loggy = new KLogger(ROOT . 'app/log/', KLogger::DEBUG);
@@ -45,6 +60,15 @@ class Fortune {
     $this->log_tag = '(' . $_SESSION['_sw_authsession']['username'] . '|' . $_SESSION['_sw_authsession']['sessionip'] . ') ';
   }
 
+  /**
+   * Fortune::get_fortune()
+   *
+   * Connect to the remote quote server and query for a quote based on the
+   * configured options
+   *
+   * @param array $args
+   * @return array|string
+   */
   public function get_fortune(array $args)
   {
 

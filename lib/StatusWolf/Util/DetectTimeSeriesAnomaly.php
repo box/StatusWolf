@@ -10,6 +10,18 @@
  * @package StatusWolf.Util
  */
 class DetectTimeSeriesAnomaly {
+
+  /**
+   * DetectTimeSeriesAnomaly::detect_anomaly()
+   *
+   * Uses projected data, current data and an accuracy margin
+   * to determine periods where the current data is out of
+   * range for the projection
+   *
+   * @param array $graph_data
+   * @param float $accuracy_margin
+   * @return array
+   */
   public function detect_anomaly($graph_data, $accuracy_margin)
   {
     $violations = array();
@@ -68,52 +80,4 @@ class DetectTimeSeriesAnomaly {
     return $violations;
   }
 
-  private function _abs_total_violation_score($violation)
-  {
-    $violation_score = 0;
-
-    foreach ($violation as $v)
-    {
-      $violation_score += abs($v);
-    }
-
-    return $violation_score;
-  }
-
-  private function _classify_anomaly($anomaly)
-  {
-    $anomaly_type = null;
-    $spike_threshold = 1;
-
-    foreach ($anomaly as $a)
-    {
-      if ($a <= -$spike_threshold)
-      {
-        $anomaly_type = 'DROPOFF';
-        break;
-      }
-      else if ($a >= $spike_threshold)
-      {
-        $anomaly_type = 'SPIKE_UP';
-        break;
-      }
-    }
-
-    if (is_null($anomaly_type))
-    {
-      $average = array_sum($anomaly_type) / count($anomaly);
-      if ($average > 0)
-      {
-        $anomaly_type = 'OVERAGE';
-      }
-      else
-      {
-        $anomaly_type = 'UNDERAGE';
-      }
-    }
-
-    $anomaly['anomaly_type'] = $anomaly_type;
-
-    return $anomaly;
-  }
 }

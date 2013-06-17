@@ -11,14 +11,30 @@
  */
 class TimeSeriesProjection {
 
+  /**
+   * Offset of the current metric point from 0, which is 00:00:00 on Monday
+   *
+   * @var int
+   */
   private $_model_point_offset = 0;
 
+  /**
+   * The accuracy margin for the projection
+   *
+   * @var float
+   */
   private $_accuracy_margin;
 
-  private $_anomaly_data;
+  /**
+   * The generated projection data
+   *
+   * @var array
+   */
+  private $_projection_data;
 
   public function __construct()
   {
+    // Init logging for the class
     if(SWConfig::read_values('statuswolf.debug'))
     {
       $this->loggy = new KLogger(ROOT . 'app/log/', KLogger::DEBUG);
@@ -30,6 +46,17 @@ class TimeSeriesProjection {
     $this->log_tag = '(' . $_SESSION['_sw_authsession']['username'] . '|' . $_SESSION['_sw_authsession']['sessionip'] . ') ';
   }
 
+  /**
+   * TimeSeriesProjection::build_series()
+   *
+   * Uses the current metric data, the model data for the metric and
+   * an accuracy margin to build a projection curve for the metric
+   *
+   * @param array $actual
+   * @param array $model
+   * @param float $accuracy_margin
+   * @throws SWException
+   */
   public function build_series(array $actual, array $model, $accuracy_margin = 0.15)
   {
 
@@ -55,10 +82,17 @@ class TimeSeriesProjection {
     {
       $low_value = (float) $projected[$i] * (1 - $this->_accuracy_margin);
       $high_value = (float) $projected[$i] * (1 + $this->_accuracy_margin);
-      $this->_anomaly_data[$i] = array('timestamp' => $actual[$i]['timestamp'], 'value' => array(array($low_value, $projected[$i], $high_value), array(null, (float) $actual[$i]['value'], null)));
+      $this->_projection_data[$i] = array('timestamp' => $actual[$i]['timestamp'], 'value' => array(array($low_value, $projected[$i], $high_value), array(null, (float) $actual[$i]['value'], null)));
     }
   }
 
+  /**
+   * Determine the regression for each point of the current metric data
+   *
+   * @param array $actual
+   * @param array $model
+   * @return array
+   */
   private function _regression($actual, $model)
   {
 
@@ -77,6 +111,15 @@ class TimeSeriesProjection {
     return $regression->getCoefficients();
   }
 
+  /**
+   * Find the actual projected data for the series
+   *
+   * @param array $entries
+   * @param array $model
+   * @param float $base_coefficient
+   * @param float $model_coefficient
+   * @return array
+   */
   private function _projection($entries, $model, $base_coefficient, $model_coefficient)
   {
 
@@ -95,6 +138,13 @@ class TimeSeriesProjection {
     return $projected;
   }
 
+  /**
+   * Find the minute of the week that corresponds to the start time of the
+   * current metric data
+   *
+   * @param int $start_time
+   * @return int
+   */
   private function _get_model_point($start_time)
   {
     $start_dow = date('w', $start_time);
@@ -113,6 +163,11 @@ class TimeSeriesProjection {
     return $minute_of_week;
   }
 
+  /**
+   * Set the accuracy margin for the projection
+   *
+   * @param float $band
+   */
   public function set_accuracy_margin($band)
   {
     if ($band)
@@ -121,16 +176,25 @@ class TimeSeriesProjection {
     }
   }
 
+  /**
+   * Return the currently set accuracy margin
+   * @return float
+   */
   public function get_accuracy_margin()
   {
     return $this->_accuracy_margin;
   }
 
+  /**
+   * Return the projection data
+   *
+   * @return array|null
+   */
   public function read()
   {
-    if (!empty($this->_anomaly_data))
+    if (!empty($this->_projection_data))
     {
-      return $this->_anomaly_data;
+      return $this->_projection_data;
     }
     else
     {
