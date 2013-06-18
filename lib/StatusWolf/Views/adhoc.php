@@ -23,7 +23,6 @@
             </div>
             <div class="widget-main">
               <div id="graphdiv" style="width: 99%; height: 99%;"></div>
-<!--              <div id="graph-legend"></div>-->
             </div>
             <div class="widget-footer">
               <div class="widget-footer-btn" id="ad-hoc-edit" onClick="$(this).parents('.widget').addClass('flipped')"><span class="iconic iconic-pen-alt2"></span> Edit search parameters</div>
@@ -84,7 +83,6 @@
 
       $(document).ready(function() {
         $('.widget-main').css('height', ($('.widget').innerHeight() - ($('.widget-title').height() + $('.widget-footer').height())));
-//        $('#graphdiv').css('height', ($('#graphdiv').parents('.widget-main').innerHeight() - $('#graph-legend').height()));
       });
 
     </script>

@@ -491,21 +491,25 @@
 
   var sw_conf = '<?php echo json_encode($sw_conf); ?>';
   sw_conf = eval('(' + sw_conf + ')');
-  console.log(sw_conf);
 
+  // Add the styles for the ad-hoc search
   $('head').append('<link href="/app/css/datetimepicker.css" rel="stylesheet">')
       .append('<link href="/app/css/toggle-buttons.css" rel="stylesheet">')
       .append('<link href="/app/css/push-button.css" rel="stylesheet">')
       .append('<link href="/app/css/table.css" rel="stylesheet">')
       .append('<link href="/app/css/loader.css" rel="stylesheet">');
 
+  // Add the handler for the date/time picker and init the form objects
   loadScript("<?php echo URL; ?>app/js/lib/bootstrap-datetimepicker.js", function() {
     $('#start-time').datetimepicker({collapse: false});
     $('#end-time').datetimepicker({collapse: false});
   });
 
+  // Load the handler for the toggle-buttons
   loadScript("<?php echo URL; ?>app/js/toggle-buttons.js", function(){});
+  // Load the handler for the on-off push buttons
   loadScript("<?php echo URL; ?>app/js/push-button.js", function(){});
+  // Load the handler for metric name autocompletion and init the form objects
   loadScript("<?php echo URL; ?>app/js/lib/jquery.autocomplete.js", function(){
     $(".metric-autocomplete").autocomplete({
       minChars: 2
@@ -516,6 +520,8 @@
     });
   });
 
+  // If anomaly or week-over week displays are chosen update the
+  // time span menu to limit the search to 1 week or less
   $('.section-toggle').click(function() {
     $('#' + $(this).attr('data-target')).removeClass('section-off').addClass('section-on').siblings('.section').addClass('section-off').removeClass('section-on');
     if ($(this).attr('data-target') == 'ad-hoc-anomaly' || $(this).attr('data-target') == 'ad-hoc-wow')
@@ -558,6 +564,7 @@
     $('input[name="time-span"]').attr('value', ($(this).text()));
   });
 
+  // Click handler for drop-down menu items
   $('ul.dropdown-menu').on('click', 'li', function() {
     var button = $(this).parents('.ad-hoc-button').children('span');
     $(button).children('.ad-hoc-button-label').text($(this).text());
@@ -568,6 +575,8 @@
     $(button).children('div.ds-interval').attr('data-value', $(this).children('span').attr('data-value'));
   });
 
+  // On initial page load switch to the search form, and add the handler
+  // for the Enter key
   $(document).ready(function() {
     $('.widget').addClass('flipped');
   }).keypress(function(e) {
@@ -578,6 +587,7 @@
   });
 
 
+  // Function to build the graph when the form Go button is activated
   function go_click_handler(event)
   {
 
@@ -603,11 +613,11 @@
         alert("You must specify an end time");
       }
 
+      // Start date has to be before the End date.
       start = Date.parse($('input:text[name=start-time]').val()).getTime();
       start = start / 1000;
       end = Date.parse($('input:text[name=end-time]').val()).getTime();
       end = end / 1000;
-      alert('start: ' + start + ', end: ' + end);
       if (start >= end)
       {
         alert('Start time must come before end time');
@@ -712,6 +722,13 @@
         alert("You must specify a metric to search for");
         input_error = true;
       }
+      else if ((end - start) / 60 >= 10080)
+      {
+        alert('History comparison searches are limited to 1 week or less of data');
+        $('input:text[name=start-time]').css('border-color', 'red').css('background-color', 'rgb(255, 200, 200)').focus();
+        input_error = true;
+      }
+
       else
       {
         input_error = false;
@@ -747,32 +764,38 @@
       query_data['metrics'].push(build_metric);
     }
 
+    // If we made it this far without errors in the form input, then
+    // we build us a graph
     if (input_error == false)
     {
       var graph_element = $('#graphdiv');
+      // Make sure the graph display div is empty
       graph_element.empty();
+      // Load the waiting spinner
       graph_element.append('<div id="bowlG"><div id="bowl_ringG"><div class="ball_holderG"><div class="ballG"></div></div></div></div>');
       $('.widget').removeClass('flipped');
       graph_element.append('<div id="status-box" style="width: 100%; text-align: center;"><p id="status-message"></p></div>');
       $('#status-box').append('<p id=chuck style="margin: 0 25px"></p>');
 
+      // Start deferred query for metric data
       $.when(opentsdb_search(query_data)).then(
+          // done: Send the data over to be parsed
           function(data)
           {
-            console.log(data);
-            console.log('raw data recieved');
             $.when(process_graph_data(data, query_data)).then(
+                // done: Build the graph
                 function(data)
                 {
-                  console.log('parsed data received');
                   build_graph(data.graphdata, data.querydata);
                 }
+                // fail: Show error image and error message
                 ,function(status)
                 {
                   $('#bowlG').html('<img src="<?php echo URL; ?>app/img/error.png" style="height: 60px; width: 30px;">');
                   $('#chuck').removeClass('section-on').addClass('section-off');
                   $('#status-message').text(status);
                 }
+                // progress: Show any progress status messages received
                 ,function(status)
                 {
                   $('#chuck').removeClass('section-on').addClass('section-off');
@@ -781,12 +804,14 @@
                 }
             );
           }
+          // fail: Show error image and error message
           ,function(status)
           {
             $('#bowlG').html('<img src="<?php echo URL; ?>app/img/error.png" style="height: 60px; width: 30px;">');
             $('#chuck').addClass('section-off');
             $('#status-message').text(status);
           }
+          // progress: Show any progress status messages received
           ,function(status)
           {
             $('#chuck').removeClass('section-on').addClass('section-off');
@@ -797,12 +822,11 @@
     }
   }
 
+  // Function to wrap the OpenTSDB search
   function opentsdb_search(query_data)
   {
     var query_object = new $.Deferred();
 
-    console.log('Fetching data from OpenTSDB');
-    console.log(query_data);
     setInterval(function() {
       if (query_object.state() === "pending")
       {
@@ -832,6 +856,7 @@
       }
     }, 15000);
 
+    // Generate (or find the cached) model data for the metric
     if (query_data['history-graph'] == "anomaly")
     {
       $('#status-message').html('<p>Building Anomaly Model (this may take a few minutes)</p>');
@@ -841,6 +866,7 @@
           })
       );
     }
+    // Search current and previous week for metric data
     else if (query_data['history-graph'] == "wow")
     {
       $('<#status-message').html('<p>Fetching Week-Over-Week Data</p>');
@@ -864,6 +890,8 @@
 
   }
 
+
+  // AJAX function to search OpenTSDB
   function get_metric_data(query_data)
   {
     ajax_object = new $.Deferred();
@@ -888,6 +916,7 @@
 
   }
 
+  // AJAX function to search for Week-Over-Week data in OpenTSDB
   function get_metric_data_wow(query_data)
   {
 
@@ -895,8 +924,6 @@
 
     $('#status-message').html('<p>Fetching Metric Data</p>');
 
-    console.log('Fetching Week-Over-Week data from OpenTSDB');
-    console.log(query_data);
     var metric_data = {};
 
     var current_request = $.ajax({
@@ -922,7 +949,6 @@
           var query_span = parseInt(query_data.end_time) - parseInt(query_data.start_time);
           past_query.end_time = parseInt(query_data.end_time - <?php echo WEEK; ?>);
           past_query.start_time = past_query.end_time - query_span;
-          console.log(past_query);
           return $.ajax({
             url: "<?php echo URL; ?>adhoc/search/OpenTSDB"
             ,type: 'POST'
@@ -949,12 +975,11 @@
     return ajax_object.promise();
   }
 
+  // AJAX function to build/get the model data, current data and anomalies
   function get_metric_data_anomaly(query_data)
   {
 
     var ajax_object = new $.Deferred();
-
-    console.log('Building anomaly model');
 
     var metric_data = {};
     var anomaly_request = $.ajax({
@@ -965,7 +990,6 @@
         })
         ,chained = anomaly_request.then(function(data) {
           model_data_cache = eval('(' + data + ')');
-          console.log(model_data_cache);
           $('#status-message').html('<p>Fetching Metric Data</p>');
           return $.ajax({
             url: "<?php echo URL; ?>adhoc/search/OpenTSDB"
@@ -991,10 +1015,7 @@
           live_key = live_keys[0];
           metric_data[live_key] = live_data[live_key];
           delete live_data;
-          console.log('loaded ' + metric_data[live_key].length + ' metric data points');
-          console.log(metric_data[live_key]);
           $('#status-message').html('<p>Building Projection</p>');
-          console.log('Fetching projected data');
           return $.ajax({
             url: "<?php echo URL; ?>api/time_series_projection"
             ,type: 'POST'
@@ -1005,22 +1026,19 @@
         });
     chained_two.done(function(data) {
       var projection_data = eval('(' + data + ')');
-      console.log('projection data for ' + projection_data['projection'].length + ' metric data points');
-      console.log(projection_data);
       metric_data[live_key] = projection_data['projection'];
       metric_data['anomalies'] = projection_data['anomalies'];
-      console.log(metric_data);
       ajax_object.resolve(metric_data);
     });
 
     return ajax_object.promise();
   }
 
+  // Function to parse the returned OpenTSDB data
   function process_graph_data(data, query_data)
   {
     var parse_object = new $.Deferred();
 
-    console.log('Parsing');
     var labels = ['Timestamp'];
     var buckets = {};
     var bucket_interval = parseInt(query_data['downsample_master_interval'] * 60);
@@ -1039,7 +1057,6 @@
       delete data.anomalies;
     }
 
-    console.log('Metric data recieved from ' + query_url);
     $('#status-message').html('<p>Parsing Metric Data</p>');
 
     for (var i = start; i <= end; i = i + bucket_interval)
@@ -1089,7 +1106,6 @@
     }
 
     var parsed_data = {graphdata: graph_data, querydata: query_data};
-    console.log(parsed_data);
 
     parse_object.resolve(parsed_data);
 
@@ -1097,13 +1113,10 @@
 
   }
 
+  // Function to build the graph from the OpenTSDB metric data
   function build_graph(data, query_data)
   {
 
-    options = query_data['metrics'][0];
-    console.log('Building metric graph');
-    console.log(query_data);
-    console.log(options);
     var graph_data = data.data;
     var graph_labels = data.labels;
     var dygraph_format = [];
@@ -1114,7 +1127,7 @@
         series_times.push(timestamp);
         jtime = new Date(parseInt(timestamp * 1000));
         values = [jtime];
-        if (options['history_graph'] == 'anomaly')
+        if (query_data['history_graph'] == 'anomaly')
         {
           var value_bucket = new Array();
           $.each(graph_data[timestamp], function(k, d) {
@@ -1141,8 +1154,6 @@
     }
 
     series_times = series_times.splice(-4, 4);
-    console.log(series_times);
-    console.log('last timestamp: ' + series_times[3]);
 
     var labels_map = {};
     $.each(graph_labels, function(index, label) {
@@ -1192,29 +1203,32 @@
           ,connectSeparatedPoints: true
         }
     );
+    // Set up the right axis labels, if requested
     var right_axis = '';
-//      console.log(options);
-    if (options.y2 == true)
-    {
-      var axis_bits = {};
-//      console.log('adding ' + option_values.name + ' to right axis');
-      if (right_axis.length < 1)
+    $.each(query_data.metrics, function(i, metric) {
+      if (metric.y2 == true)
       {
-        axis_bits = {};
-        axis_bits[labels_map[option_values.name]] = {};
-        axis_bits[labels_map[option_values.name]]['axis'] = {};
-        right_axis = labels_map[option_values.name];
-        g.updateOptions(axis_bits);
+        var axis_bits = {};
+        if (right_axis.length < 1)
+        {
+          axis_bits = {};
+          axis_bits[labels_map[metric.name]] = {};
+          axis_bits[labels_map[metric.name]]['axis'] = {};
+          right_axis = labels_map[metric.name];
+          g.updateOptions(axis_bits);
+        }
+        else
+        {
+          axis_bits = {};
+          axis_bits[labels_map[metric.name]] = {};
+          axis_bits[labels_map[metric.name]]['axis'] = right_axis;
+          g.updateOptions(axis_bits);
+        }
       }
-      else
-      {
-        axis_bits = {};
-        axis_bits[labels_map[option_values.name]] = {};
-        axis_bits[labels_map[option_values.name]]['axis'] = right_axis;
-        g.updateOptions(axis_bits);
-      }
-    }
-    if (options.history_graph == "anomaly")
+    });
+
+    // Set up the projection band and anomaly highlighting if requested
+    if (query_data.history_graph == "anomaly")
     {
       anomalies = data.anomalies;
       g.updateOptions({
@@ -1233,13 +1247,12 @@
         }
       })
     }
-//      console.log(g);
     $('.dygraph-xlabel').parent().css('top', '40%');
 
+    // Set the interval for adding new data if Auto Update is selected
     if (query_data['auto_update'])
     {
       setInterval(function() {
-        console.log('Updating graph data');
         var new_start = series_times[0];
         var new_end = new Date.now().getTime();
         new_end = parseInt(new_end / 1000);
@@ -1248,13 +1261,9 @@
         $.when(opentsdb_search(query_data)).then(
             function(data)
             {
-              console.log(data);
-              console.log('raw data recieved');
               $.when(process_graph_data(data, query_data)).then(
                   function(data)
                   {
-                    console.log('graph data updates:');
-                    console.log(data);
                     var dygraph_update = new Array();
                     graph_data = data.graphdata.data;
                     for (var timestamp in graph_data) {
@@ -1263,7 +1272,7 @@
                         series_times.push(timestamp);
                         jtime = new Date(parseInt(timestamp * 1000));
                         values = [jtime];
-                        if (options['history_graph'] == 'anomaly')
+                        if (query_data['history_graph'] == 'anomaly')
                         {
                           var value_bucket = new Array();
                           $.each(graph_data[timestamp], function(k, d) {
@@ -1288,15 +1297,11 @@
                         dygraph_update.push(values);
                       }
                     }
-                    console.log(dygraph_update);
                     dygraph_format.splice(0, (dygraph_update.length - 2));
                     dygraph_format.splice(-2, 2);
                     dygraph_format = dygraph_format.concat(dygraph_update);
-                    console.log(dygraph_format);
                     g.updateOptions({'file': dygraph_format});
                     series_times = series_times.splice(-4, 4);
-                    console.log(series_times);
-                    console.log('last timestamp: ' + series_times[3]);
                   }
               );
             }
