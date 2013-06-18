@@ -13,7 +13,7 @@
 
     <div class="navbar">
       <link href="<?php echo URL; ?>app/css/nav.css?v=1" rel="stylesheet">
-      <div class="brand"><h4>StatusWolf</h4></div>
+      <div class="brand"><a href="<?php echo URL; ?>"><h4>StatusWolf</h4></a></div>
       <div class="user-menu dropdown menu-btn" id="user-menu">
         <form id="logout" method="post" action="<?php echo URL; ?>">
           <input type="hidden" name="action" value="logout">

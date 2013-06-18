@@ -11,6 +11,9 @@
  * @package StatusWolf.Views
  */
 
+// Fix the URI if StatusWolf is installed in a subdirectory of a server
+// instead of the server root
+// (e.g. http://site.com/StatusWolf vs http://statuswolf.site.com/)
 $uri = $_SERVER['REQUEST_URI'];
 if (strpos($uri, BASE_URI) !== false)
 {
@@ -70,6 +73,7 @@ if (strpos($uri, BASE_URI) !== false)
       }
       <?php unset($_SESSION['_auth_fail']); ?>
 
+      // Handler for the Enter key to submit the login form
       $(document).keypress(function(e)
       {
         if (e.which === 13)
