@@ -493,11 +493,11 @@
   sw_conf = eval('(' + sw_conf + ')');
 
   // Add the styles for the ad-hoc search
-  $('head').append('<link href="/app/css/datetimepicker.css" rel="stylesheet">')
-      .append('<link href="/app/css/toggle-buttons.css" rel="stylesheet">')
-      .append('<link href="/app/css/push-button.css" rel="stylesheet">')
-      .append('<link href="/app/css/table.css" rel="stylesheet">')
-      .append('<link href="/app/css/loader.css" rel="stylesheet">');
+  $('head').append('<link href="<?php echo URL; ?>app/css/datetimepicker.css" rel="stylesheet">')
+      .append('<link href="<?php echo URL; ?>app/css/toggle-buttons.css" rel="stylesheet">')
+      .append('<link href="<?php echo URL; ?>app/css/push-button.css" rel="stylesheet">')
+      .append('<link href="<?php echo URL; ?>app/css/table.css" rel="stylesheet">')
+      .append('<link href="<?php echo URL; ?>app/css/loader.css" rel="stylesheet">');
 
   // Add the handler for the date/time picker and init the form objects
   loadScript("<?php echo URL; ?>app/js/lib/bootstrap-datetimepicker.js", function() {
