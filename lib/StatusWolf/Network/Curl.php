@@ -34,7 +34,15 @@ class Curl
 		}
 	}
 
-	public function request()
+  /**
+   * Curl::request()
+   *
+   * Perform the curl operation for the desired URL
+   *
+   * @return mixed
+   * @throws SWException
+   */
+  public function request()
 	{
 		$curl_object = curl_init(self::$_url);
 		curl_setopt($curl_object, CURLOPT_RETURNTRANSFER, 1);

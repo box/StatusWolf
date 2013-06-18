@@ -85,6 +85,7 @@ class OpenTSDB extends TimeSeriesData {
    */
   public function __construct($host = null)
   {
+    // Init logging for the class
     if(SWConfig::read_values('statuswolf.debug'))
     {
       $this->loggy = new KLogger(ROOT . 'app/log/', KLogger::DEBUG);
@@ -286,7 +287,6 @@ class OpenTSDB extends TimeSeriesData {
     }
     catch(SWException $e)
     {
-//      throw new SWException('Failed to retrieve metrics from OpenTSDB: ' . $e->getMessage());
       $this->loggy->logError($this->log_tag . "Failed to retrieve metrics from OpenTSDB, start time was: $this->_query_start");
       $this->loggy->logError($this->log_tag . substr($e->getMessage(), 0, 256));
       return null;
@@ -384,6 +384,11 @@ class OpenTSDB extends TimeSeriesData {
 
   }
 
+  /**
+   * OpenTSDB::flush_data()
+   *
+   * Clears the array of gathered data
+   */
   public function flush_data()
   {
     unset($this->ts_data);

@@ -17,6 +17,7 @@ class ApiController extends SWController
   public function __construct($url_path)
   {
 
+    // Init app logging for the class
     if(SWConfig::read_values('statuswolf.debug'))
     {
       $this->loggy = new KLogger(ROOT . 'app/log/', KLogger::DEBUG);
@@ -28,7 +29,8 @@ class ApiController extends SWController
     $this->log_tag = '(' . $_SESSION['_sw_authsession']['username'] . '|' . $_SESSION['_sw_authsession']['sessionip'] . ') ';
 
     parent::__construct();
-    ini_set('max_input_vars', 5000);
+
+    // Determine the API function to call and pass on any remaining URL bits
     if (!empty($url_path[0]))
     {
       $_api_function = array_shift($url_path);
@@ -40,6 +42,13 @@ class ApiController extends SWController
     }
   }
 
+  /**
+   * Load the form view for the chosen Ad-Hoc datasource
+   *
+   * @param string $form - the name of the datasource form to load,
+   *                       will have '.php' appended
+   * @throws SWException
+   */
   protected function datasource_form($form)
   {
     if (!empty($form) && $form[0])
@@ -57,6 +66,12 @@ class ApiController extends SWController
     }
   }
 
+  /**
+   * Connects to the OpenTSDB suggest API to populate the autocomplete menu
+   * for the OpenTSDB Ad-Hoc search form
+   *
+   * @param string $query_bits - metric to look for in form 'q=string'
+   */
   protected function tsdb_metric_list($query_bits) {
     list($q, $query) = explode('=', $query_bits[0]);
     $query_url = 'http://opentsdb.ve.box.net:4242/suggest?type=metrics&q=';
@@ -71,7 +86,13 @@ class ApiController extends SWController
     echo json_encode($data);
   }
 
-  protected function opentsdb_anomaly_model($path)
+  /**
+   * Builds an OpenTSDBAnomalyModel object to generate model data for
+   * the given metric, used to project what current data should be and
+   * to check for anomalies between the projection and current data.
+   * Output is the path and filename of the model data cache.
+   */
+  protected function opentsdb_anomaly_model()
   {
     $query_bits = $_POST;
 
@@ -90,12 +111,23 @@ class ApiController extends SWController
 
   }
 
-  protected function time_series_projection($path)
+  /**
+   * Function that takes saved OpenTSDB metric anomaly model data and compares
+   * that with current metric data to generate a projection of what the
+   * current data should look like and to find any anomalies from that
+   * projection. Output is JSON encoded array of the start and end times of
+   * the anomaly periods.
+   *
+   * @return null
+   */
+  protected function time_series_projection()
   {
     $data = $_POST;
 
     $projection_start = time();
     $series = $data['key'];
+
+    // Load the cached model data
     if (file_exists($data['model_cache']))
     {
       $this->loggy->logDebug($this->log_tag . 'Loading cached model data');
@@ -109,6 +141,8 @@ class ApiController extends SWController
       $this->loggy->logCrit($this->log_tag . 'No cached model data found');
       return null;
     }
+
+    // Load the cached current query data
     if (file_exists($data['query_cache']))
     {
       $this->loggy->logDebug($this->log_tag . 'Loading current data');
@@ -140,6 +174,12 @@ class ApiController extends SWController
     echo json_encode($anomaly_data);
   }
 
+  /**
+   * Function to pull random quote data from configured source(s) for
+   * display during long-running operations (like building anomaly models)
+   *
+   * @param array $path - Config options are pulled from the URL passed in
+   */
   protected function fortune($path)
   {
     $arguments = array();
