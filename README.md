@@ -11,13 +11,13 @@ metrics, week-over-week display, projection modelling based on historical
 data, and anomaly detection in the current data.
 
 ## Ad-Hoc Search Interface
-![Ad-Hoc Search](https://cloud.box.com/s/a8aqjs34mpa65de6bp90)
+![Ad-Hoc Search](https://cloud.box.com/shared/static/a8aqjs34mpa65de6bp90.png)
 
 ## Standard Graph with Right Axis
-![Standard Graph](https://cloud.box.com/s/t1v30ygv65jq6uismjqu)
+![Standard Graph](https://cloud.box.com/shared/static/t1v30ygv65jq6uismjqu.png)
 
 ## Projection Model with Anomaly Detection
-![Anomaly Detection](https://cloud.box.com/s/wybbtdmr09qee8gibicf)
+![Anomaly Detection](https://cloud.box.com/shared/static/wybbtdmr09qee8gibicf.png)
 
 ## Requirements
 ### PHP
