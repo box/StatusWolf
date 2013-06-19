@@ -722,7 +722,7 @@
         alert("You must specify a metric to search for");
         input_error = true;
       }
-      else if ((end - start) / 60 >= 10080)
+      else if ((end - start) / 60 > 10080)
       {
         alert('History comparison searches are limited to 1 week or less of data');
         $('input:text[name=start-time]').css('border-color', 'red').css('background-color', 'rgb(255, 200, 200)').focus();
@@ -1070,7 +1070,7 @@
         if (query_data['history-graph'] == "anomaly")
         {
           labels.push(series + ' Projected');
-          query_data.metrics[0]['history_graph'] = "anomaly";
+          query_data.metrics[0]['history-graph'] = "anomaly";
         }
         labels.push(series);
 
@@ -1127,7 +1127,7 @@
         series_times.push(timestamp);
         jtime = new Date(parseInt(timestamp * 1000));
         values = [jtime];
-        if (query_data['history_graph'] == 'anomaly')
+        if (query_data['history-graph'] == 'anomaly')
         {
           var value_bucket = new Array();
           $.each(graph_data[timestamp], function(k, d) {
@@ -1228,7 +1228,7 @@
     });
 
     // Set up the projection band and anomaly highlighting if requested
-    if (query_data.history_graph == "anomaly")
+    if (query_data['history-graph'] == "anomaly")
     {
       anomalies = data.anomalies;
       g.updateOptions({
@@ -1272,7 +1272,7 @@
                         series_times.push(timestamp);
                         jtime = new Date(parseInt(timestamp * 1000));
                         values = [jtime];
-                        if (query_data['history_graph'] == 'anomaly')
+                        if (query_data['history-graph'] == 'anomaly')
                         {
                           var value_bucket = new Array();
                           $.each(graph_data[timestamp], function(k, d) {
