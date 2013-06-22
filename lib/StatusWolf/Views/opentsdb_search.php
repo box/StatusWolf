@@ -869,7 +869,7 @@
     // Search current and previous week for metric data
     else if (query_data['history-graph'] == "wow")
     {
-      $('<#status-message').html('<p>Fetching Week-Over-Week Data</p>');
+      $('#status-message').html('<p>Fetching Week-Over-Week Data</p>');
       $.when(get_metric_data_wow(query_data).then(
           function(data) {
             query_object.resolve(data);
@@ -922,8 +922,6 @@
 
     var ajax_object = new $.Deferred();
 
-    $('#status-message').html('<p>Fetching Metric Data</p>');
-
     var metric_data = {};
 
     var current_request = $.ajax({
@@ -935,6 +933,7 @@
         })
         ,chained = current_request.then(function(data) {
           metric_data[0] = eval('(' + data + ')');
+          $('#status-message').html('<p>Fetching Metric Data</p>');
           metric_data.start = metric_data[0]['start'];
           delete metric_data[0]['start'];
           metric_data.end = metric_data[0]['end'];
