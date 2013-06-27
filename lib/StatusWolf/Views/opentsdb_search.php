@@ -1157,7 +1157,11 @@
     var labels_map = {};
     $.each(graph_labels, function(index, label) {
       var label_bits = label.split(' ');
-      labels_map[label_bits[0]] = label;
+      if (typeof labels_map[label_bits[0]] == 'undefined')
+      {
+        labels_map[label_bits[0]] = [];
+      }
+      labels_map[label_bits[0]].push(label);
     });
 
     var x_space = $('#graphdiv').width() / 12;
@@ -1208,21 +1212,23 @@
       if (metric.y2 == true)
       {
         var axis_bits = {};
-        if (right_axis.length < 1)
+        $.each(labels_map[metric.name], function(i, label)
         {
-          axis_bits = {};
-          axis_bits[labels_map[metric.name]] = {};
-          axis_bits[labels_map[metric.name]]['axis'] = {};
-          right_axis = labels_map[metric.name];
+          if (right_axis.length < 1)
+          {
+            axis_bits = {};
+            axis_bits[label] = {};
+            axis_bits[label]['axis'] = {};
+            right_axis = label;
+          }
+          else
+          {
+            axis_bits = {};
+            axis_bits[label] = {};
+            axis_bits[label]['axis'] = right_axis;
+          }
           g.updateOptions(axis_bits);
-        }
-        else
-        {
-          axis_bits = {};
-          axis_bits[labels_map[metric.name]] = {};
-          axis_bits[labels_map[metric.name]]['axis'] = right_axis;
-          g.updateOptions(axis_bits);
-        }
+        });
       }
     });
 
