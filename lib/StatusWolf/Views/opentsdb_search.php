@@ -490,7 +490,6 @@
 <script type="text/javascript">
 
   var sw_conf = '<?php echo json_encode($sw_conf); ?>';
-  sw_conf = eval('(' + sw_conf + ')');
 
   // Add the styles for the ad-hoc search
   $('head').append('<link href="<?php echo URL; ?>app/css/datetimepicker.css" rel="stylesheet">')

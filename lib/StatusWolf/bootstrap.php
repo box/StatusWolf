@@ -19,6 +19,10 @@ SWConfig::load_config('auth.conf');
 // App config, general config for StatusWolf
 $app_config = SWConfig::read_values('statuswolf');
 
+// Current app version
+$sw_version = rtrim(file_get_contents(APPLIB . 'version'));
+SWConfig::write_values('statuswolf', 'version', $sw_version);
+
 // Set up the session handler, if configured
 // Default PHP session handling uses the filesystem, options can include
 // database-backed sessions
