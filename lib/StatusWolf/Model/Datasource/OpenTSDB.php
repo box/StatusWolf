@@ -289,6 +289,10 @@ class OpenTSDB extends TimeSeriesData {
     {
       $this->loggy->logError($this->log_tag . "Failed to retrieve metrics from OpenTSDB, start time was: $this->_query_start");
       $this->loggy->logError($this->log_tag . substr($e->getMessage(), 0, 256));
+      $raw_error = explode("\n", $e->getMessage());
+      $error_message = array_slice($raw_error, 2);
+      $error_message[1] = substr($error_message[1], 15);
+      $this->ts_data = array('error', $error_message);
       return null;
     }
     $data_pull_end = time();

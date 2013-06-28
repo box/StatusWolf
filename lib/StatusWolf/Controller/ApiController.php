@@ -76,7 +76,16 @@ class ApiController extends SWController
     list($q, $query) = explode('=', $query_bits[0]);
     $query_url = 'http://opentsdb.ve.box.net:4242/suggest?type=metrics&q=';
     $curl = new Curl($query_url . $query);
-    $ret = json_decode($curl->request());
+    try
+    {
+      $ret = json_decode($curl->request());
+    }
+    catch(SWException $e)
+    {
+      $this->loggy->logError($this->log_tag . "Failed to retrieve metric suggestion for $query from OpenTSDB");
+      $this->loggy->logError($this->log_tag . substr($e->getMessage(), 0, 256));
+      return null;
+    }
     $data = array();
     $data['query'] = $query;
     if (count($ret) > 20) {
