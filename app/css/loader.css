@@ -2,9 +2,8 @@
     position:relative;
     width:24px;
     height:24px;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 25%;
+    margin: 0 auto;
+    padding-top: 25%;
 }
 
 #bowl_ringG{

@@ -639,13 +639,13 @@
     query_data['end_time'] = end;
 
     // Check for auto-update flag
-    if ('input:checkbox[name=auto-update]:checked')
+    if ($('input:checkbox[name=auto-update]:checked').val() === 'on')
     {
       query_data['auto_update'] = true;
     }
     else
     {
-      query_data['auto_update'] = true;
+      query_data['auto_update'] = false;
     }
 
     // Check for history display options
@@ -791,7 +791,7 @@
                 // fail: Show error image and error message
                 ,function(status)
                 {
-                  $('#bowlG').html('<img src="<?php echo URL; ?>app/img/error.png" style="height: 60px; width: 30px;">');
+                  $('#bowlG').html('<img src="<?php echo URL; ?>app/img/error.png" style="width: 60px; height: 30px;">');
                   $('#chuck').removeClass('section-on').addClass('section-off');
                   $('#status-message').text(status);
                 }
@@ -807,9 +807,17 @@
           // fail: Show error image and error message
           ,function(status)
           {
-            $('#bowlG').html('<img src="<?php echo URL; ?>app/img/error.png" style="height: 60px; width: 30px;">');
-            $('#chuck').addClass('section-off');
-            $('#status-message').text(status);
+            $('#bowlG').css({'padding-top': '15%', 'margin-top': '0', 'margin-bottom': '5px', 'width': '120px', 'height': '60px'}).html('<img src="<?php echo URL; ?>app/img/error.png" style="width: 120px; height: 60px;">');
+            $('#status-box').empty().append('<p>' + status.shift() + '</p>');
+            if (status[0].match("<!DOCTYPE"))
+            {
+              var error_message = status.join(' ').replace(/'/g,"&#39");
+              $('#status-box').append('<iframe style="margin: 0 auto;" width="80%" height="90%" srcdoc=\'' + error_message + '\' seamless></iframe>');
+            }
+            else
+            {
+              $('#status-box').text(status);
+            }
           }
           // progress: Show any progress status messages received
           ,function(status)
@@ -879,9 +887,12 @@
     else
     {
       $('#status-message').html('<p>Fetching Metric Data</p>');
-      $.when(get_metric_data(query_data).then(
-          function(data) {
+      $.when(get_metric_data(query_data)
+          .done(function(data) {
             query_object.resolve(data);
+          })
+          .fail(function(data) {
+            query_object.reject(data);
           })
       );
     }
@@ -894,9 +905,15 @@
   // AJAX function to search OpenTSDB
   function get_metric_data(query_data)
   {
+
+    if (typeof ajax_request !== 'undefined')
+    {
+      ajax_request.abort();
+    }
+
     ajax_object = new $.Deferred();
 
-    var ajax_request = $.ajax({
+    ajax_request = $.ajax({
           url: "<?php echo URL; ?>adhoc/search/OpenTSDB"
           ,type: 'POST'
           ,data: query_data
@@ -904,12 +921,25 @@
           ,timeout: 120000
         })
         ,chain = ajax_request.then(function(data) {
+          console.log(ajax_request);
           data_object = eval('(' + data + ')');
           return(data_object);
         });
 
     chain.done(function(data) {
-          ajax_object.resolve(data);
+      console.log(data);
+      if (!data)
+      {
+        ajax_object.reject(data);
+      }
+      else if (data[0] === "error")
+      {
+        ajax_object.reject(data[1])
+      }
+      else
+      {
+        ajax_object.resolve(data);
+      }
     });
 
     return ajax_object.promise();
