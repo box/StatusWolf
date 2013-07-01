@@ -221,18 +221,6 @@ class OpenTSDB extends TimeSeriesData {
           }
           $qkey .= $this->aggregation_type . ':';
 
-          if (array_key_exists('ds_interval', $metric))
-          {
-            $this->downsample_interval = $metric['ds_interval'];
-          }
-          $qkey .= $this->downsample_interval . 'm-';
-
-          if (array_key_exists('ds_type', $metric))
-          {
-            $this->downsample_type = $metric['ds_type'];
-          }
-          $qkey .= $this->downsample_type . ':';
-
           if (array_key_exists('rate', $metric) && $metric['rate'])
           {
             $qkey .= 'rate:';

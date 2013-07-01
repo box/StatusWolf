@@ -70,7 +70,7 @@
       <tr>
         <th>Metric</th>
         <th>Aggregation</th>
-        <th colspan="2">Downsampling</th>
+        <th colspan="2"><span class="info-tooltip" title="Downsampling is performed exclusively by StatusWolf, OpenTSDB downsampling can be idiosyncratic and has been shown to return unexpected graphs.">Downsampling <span class="iconic-info"></span></span></th>
         <th>Interpolation</th>
         <th>Rate</th>
         <th>Right Axis</th>
@@ -496,7 +496,8 @@
       .append('<link href="<?php echo URL; ?>app/css/toggle-buttons.css" rel="stylesheet">')
       .append('<link href="<?php echo URL; ?>app/css/push-button.css" rel="stylesheet">')
       .append('<link href="<?php echo URL; ?>app/css/table.css" rel="stylesheet">')
-      .append('<link href="<?php echo URL; ?>app/css/loader.css" rel="stylesheet">');
+      .append('<link href="<?php echo URL; ?>app/css/loader.css" rel="stylesheet">')
+      .append('<link href="<?php echo URL; ?>app/css/tooltip.css" rel="stylesheet">');
 
   // Add the handler for the date/time picker and init the form objects
   loadScript("<?php echo URL; ?>app/js/lib/bootstrap-datetimepicker.js", function() {
@@ -573,6 +574,9 @@
     }
     $(button).children('div.ds-interval').attr('data-value', $(this).children('span').attr('data-value'));
   });
+
+  $('.info-tooltip').tooltip({placement: 'bottom'});
+  $('.info-tooltip').hover(function() {$(this).css('cursor', 'pointer')});
 
   // On initial page load switch to the search form, and add the handler
   // for the Enter key

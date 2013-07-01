@@ -668,6 +668,15 @@ select {
     content: '\2718';
 }
 
+.iconic-info:before {
+    content: '\2139';
+    color: rgb(24, 24, 24);
+    background-color: rgba(205, 205, 205, .25);
+    border-radius: 1px;
+    margin: 0;
+    padding: 0 0 2px 1px;
+}
+
 .iconic-minus-alt:before {
     content: '\e009';
 }
