@@ -91,7 +91,6 @@
 .autocomplete-suggestion {
     margin-bottom: 1px;
     font-size: .8em;
-    font-weight: bold;
     line-height: 1.5em;
     padding-left: 8px;
 }
@@ -101,6 +100,12 @@
     background-color: rgb(64, 64, 64);
     color: rgba(205, 205, 205, 0.8);
 }
+
+.autocomplete-selected {
+    background-color: rgb(64, 64, 64);
+    color: rgba(205, 205, 205, 0.8);
+}
+
 /*.section {*/
     /*-webkit-transition: visibility 0s linear 1s, opacity 1s linear;*/
     /*transition: visibility 0s linear 1s, opacity 1s linear;*/
