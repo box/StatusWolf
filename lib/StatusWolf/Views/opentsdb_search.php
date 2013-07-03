@@ -1,9 +1,42 @@
-<?php $sw_conf = SWConfig::read_values('statuswolf'); ?>
+<?php
+  $sw_conf = SWConfig::read_values('statuswolf');
+  $db_conf = $sw_conf['session_handler'];
+  if (array_key_exists('shared_search_key', $_SESSION))
+  {
+    $sw_db = new mysqli($db_conf['db_host'], $db_conf['db_user'], $db_conf['db_password'], $db_conf['database']);
+    if (mysqli_connect_error())
+    {
+      throw new SWException('Unable to connect to shared search database: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
+    }
+    $shared_search_query = sprintf("SELECT * FROM shared_searches WHERE search_id='%s'", $_SESSION['shared_search_key']);
+    if ($result = $sw_db->query($shared_search_query))
+    {
+      if ($result->num_rows && $result->num_rows > 0)
+      {
+        $raw_query_data = $result->fetch_assoc();
+        $serialized_query = $raw_query_data['search_params'];
+        $incoming_query_data = unserialize($serialized_query);
+      }
+      else
+      {
+        $incoming_query_data = "Expired";
+      }
+    }
+    else
+    {
+      throw new SWException('Database read error: ' . mysqli_errno($sw_db) . ' ' . mysqli_error($sw_db));
+    }
+  }
+  else
+  {
+    $incoming_query_data = null;
+  }
+?>
 
 <div class="ad-hoc-form-row" id="row1">
   <div id="auto-update">
     <div class="push-button">
-      <input type="checkbox" id="auto-update-button" name="auto-update"><label for="auto-update-button"><span class="iconic iconic-x-alt red"></span><span> Auto Update</span></label>
+      <input type="checkbox" id="auto-update-button" name="auto-update"><label id="auto-update-label" for="auto-update-button"><span class="iconic iconic-x-alt red"></span><span> Auto Update</span></label>
     </div>
   </div>
   <div class="flexy" id="history-toggle">
@@ -50,15 +83,15 @@
         <ul class="dropdown-menu menu-left" id="time-span-options" role="menu" aria-labelledby="dLabel">
           <li><span data-ms="<?php echo (MINUTE * 10); ?>">10 minutes</span></li>
           <li><span data-ms="<?php echo (MINUTE * 30); ?>">30 Minutes</span></li>
-          <li><span data-ms="<?php echo HOUR ?>">1 hour</span></li>
-          <li><span data-ms="<?php echo (HOUR * 2) ?>;">2 hours</span></li>
-          <li><span data-ms="<?php echo (HOUR * 4) ?>">4 hours</span></li>
-          <li><span data-ms="<?php echo (HOUR * 8) ?>">8 hours</span></li>
-          <li><span data-ms="<?php echo (HOUR * 12) ?>">12 hours</span></li>
-          <li><span data-ms="<?php echo DAY ?>">1 day</span></li>
-          <li><span data-ms="<?php echo WEEK ?>">1 week</span></li>
-          <li><span data-ms="<?php echo (WEEK * 2) ?>">2 weeks</span></li>
-          <li><span data-ms="<?php echo MONTH ?>">1 month</span></li>
+          <li><span data-ms="<?php echo HOUR; ?>">1 hour</span></li>
+          <li><span data-ms="<?php echo (HOUR * 2); ?>">2 hours</span></li>
+          <li><span data-ms="<?php echo (HOUR * 4); ?>">4 hours</span></li>
+          <li><span data-ms="<?php echo (HOUR * 8); ?>">8 hours</span></li>
+          <li><span data-ms="<?php echo (HOUR * 12); ?>">12 hours</span></li>
+          <li><span data-ms="<?php echo DAY; ?>">1 day</span></li>
+          <li><span data-ms="<?php echo WEEK; ?>">1 week</span></li>
+          <li><span data-ms="<?php echo (WEEK * 2); ?>">2 weeks</span></li>
+          <li><span data-ms="<?php echo MONTH; ?>">1 month</span></li>
         </ul>
       </div>
     </div>
@@ -491,7 +524,8 @@
 
   var sw_conf = '<?php echo json_encode($sw_conf); ?>';
   var query_data = {};
-  query_data.datasource = 'OpenTSDB';
+  var query_url = '';
+  var incoming_query_data = '<?php if ($incoming_query_data) { echo json_encode($incoming_query_data); } ?>';
 
   // Add the styles for the ad-hoc search
   $('head').append('<link href="<?php echo URL; ?>app/css/datetimepicker.css" rel="stylesheet">')
@@ -533,7 +567,7 @@
       $('#time-span-options').html('<li><span data-ms="<?php echo (MINUTE * 10); ?>">10 minutes</span></li>')
           .append('<li><span data-ms="<?php echo (MINUTE * 30); ?>">30 Minutes</span></li>')
           .append('<li><span data-ms="<?php echo HOUR ?>">1 hour</span></li>')
-          .append('<li><span data-ms="<?php echo (HOUR * 2) ?>;">2 hours</span></li>')
+          .append('<li><span data-ms="<?php echo (HOUR * 2) ?>">2 hours</span></li>')
           .append('<li><span data-ms="<?php echo (HOUR * 4) ?>">4 hours</span></li>')
           .append('<li><span data-ms="<?php echo (HOUR * 8) ?>">8 hours</span></li>')
           .append('<li><span data-ms="<?php echo (HOUR * 12) ?>">12 hours</span></li>')
@@ -551,7 +585,7 @@
       $('#time-span-options').html('<li><span data-ms="<?php echo (MINUTE * 10); ?>">10 minutes</span></li>')
           .append('<li><span data-ms="<?php echo (MINUTE * 30); ?>">30 Minutes</span></li>')
           .append('<li><span data-ms="<?php echo HOUR ?>">1 hour</span></li>')
-          .append('<li><span data-ms="<?php echo (HOUR * 2) ?>;">2 hours</span></li>')
+          .append('<li><span data-ms="<?php echo (HOUR * 2) ?>">2 hours</span></li>')
           .append('<li><span data-ms="<?php echo (HOUR * 4) ?>">4 hours</span></li>')
           .append('<li><span data-ms="<?php echo (HOUR * 8) ?>">8 hours</span></li>')
           .append('<li><span data-ms="<?php echo (HOUR * 12) ?>">12 hours</span></li>')
@@ -583,7 +617,44 @@
   // On initial page load switch to the search form, and add the handler
   // for the Enter key
   $(document).ready(function() {
-    $('.widget').addClass('flipped');
+    if (incoming_query_data.length > 1)
+    {
+      console.log('incoming: ' + incoming_query_data);
+      if (incoming_query_data.match(/Expired/))
+      {
+        $('.container').append('<div id="expired-popup" class="popup"><h5>Expired</h5><div class="popup-form-data">Your search has expired and is no longer available</div></div>');
+        $.magnificPopup.open({
+          items: {
+            src: '#expired-popup'
+            ,type: 'inline'
+          }
+          ,preloader: false
+          ,removalDelay: 300
+          ,mainClass: 'popup-animate'
+          ,callbacks: {
+            open: function() {
+              $('.navbar').addClass('blur');
+              $('.container').addClass('blur');
+            }
+            ,close: function() {
+              $('.container').removeClass('blur');
+              $('.navbar').removeClass('blur');
+              $('.widget').addClass('flipped');
+            }
+          }
+        });
+      }
+      else
+      {
+        query_data = eval('(' + incoming_query_data + ')');
+        console.log(query_data);
+        populate_form(query_data);
+      }
+    }
+    else
+    {
+      $('.widget').addClass('flipped');
+    }
   }).keypress(function(e) {
     if (e.which === 13)
     {
@@ -592,9 +663,95 @@
   });
 
 
+  function populate_form(query_data)
+  {
+    var method_map = {sum: 'Sum', avg: 'Average', min: 'Minimum Value', max: 'Maximum Value', dev: 'Standard Deviation'};
+
+    if (query_data['auto_update'] === "true") {
+      $('label#auto-update-label').click();
+      $('label#auto-update-label').parent('.push-button').addClass('pushed');
+      $('label#auto-update-label').children('span.iconic').removeClass('iconic-x-alt red').addClass('iconic-check-alt green');
+    }
+    if (query_data['history-graph'].match(/anomaly/))
+    {
+      var el = $('input#history-anomaly').parent('label');
+      $(el).parent('div.toggle-button').addClass('toggle-on');
+      $(el).parent('div.toggle-button').siblings('div.toggle-button').removeClass('toggle-on');
+      $(el).children('input').attr('checked', 'Checked');
+      $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
+      $('input#history-anomaly.section-toggle').click();
+    }
+    else if (query_data['history-graph'].match(/wow/))
+    {
+      var el = $('input#history-wow').parent('label');
+      $(el).parent('div.toggle-button').addClass('toggle-on');
+      $(el).parent('div.toggle-button').siblings('div.toggle-button').removeClass('toggle-on');
+      $(el).children('input').attr('checked', 'Checked');
+      $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
+      $('input#history-wow.section-toggle').click();
+    }
+    if (query_data['time_span'])
+    {
+      var el = $('input#span-search').parent('label');
+      $(el).parent('div.toggle-button').addClass('toggle-on');
+      $(el).parent('div.toggle-button').siblings('div.toggle-button').removeClass('toggle-on');
+      $(el).children('input').attr('checked', 'Checked');
+      $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
+      $('input#span-search.section-toggle').click();
+      var span = query_data['time_span'];
+      $('#time-span-options li span[data-ms="' + span + '"]').parent('li').click();
+    }
+    else
+    {
+      start_in = parseInt(query_data['start_time']);
+      end_in = parseInt(query_data['end_time']);
+      $('input:text[name="start-time"]').val(new Date(start_in * 1000).toString('yyyy/MM/dd HH:mm:ss'));
+//      $('input:text[name="end-time"]').val(new Date(end_in * 1000).toString('yyyy/MM/dd hh:mm:ss'));
+      $('input:text[name="end-time"]').val(new Date(end_in * 1000).toString('yyyy/MM/dd HH:mm:ss'));
+    }
+
+    $.each(query_data['metrics'], function(i, metric) {
+      metric_num = i + 1;
+      metric_string = metric.name;
+      if (metric.tags)
+      {
+        $.each(metric.tags, function(i, tag) {
+          metric_string += ' ' + tag;
+        });
+      }
+      $('input[name="metric' + metric_num + '"]').val(metric_string);
+      $('#active-aggregation-type' + metric_num).text(method_map[metric.agg_type]);
+      $('#active-downsample-type' + metric_num).text(method_map[metric.ds_type]);
+      $('#downsample-interval-options' + metric_num + ' li span[data-value="' + metric.ds_interval + '"]').parent('li').click();
+      if (!metric.lerp)
+      {
+        $('input#lerp-button' + metric_num).siblings('label').click();
+        $('input#lerp-button' + metric_num).parent('.push-button').removeClass('pushed');
+        $('input#lerp-button' + metric_num).siblings('label').children('span.iconic').addClass('iconic-x-alt red').removeClass('iconic-check-alt green');
+        $('input#lerp-button' + metric_num).siblings('label').children('span.binary-label').text('No');
+      }
+      if (metric.rate)
+      {
+        $('input#rate-button' + metric_num).siblings('label').click();
+        $('input#rate-button' + metric_num).parent('.push-button').addClass('pushed');
+        $('input#rate-button' + metric_num).siblings('label').children('span.iconic').removeClass('iconic-x-alt red').addClass('iconic-check-alt green');
+        $('input#rate-button' + metric_num).siblings('label').children('span.binary-label').text('Yes');
+      }
+      if (metric.y2)
+      {
+        $('input#y2-button' + metric_num).siblings('label').click();
+        $('input#y2-button' + metric_num).parent('.push-button').addClass('pushed');
+        $('input#y2-button' + metric_num).siblings('label').children('span.iconic').removeClass('iconic-x-alt red').addClass('iconic-check-alt green');
+        $('input#y2-button' + metric_num).siblings('label').children('span.binary-label').text('Yes');
+      }
+    });
+    go_click_handler();
+  }
+
   // Function to build the graph when the form Go button is activated
   function go_click_handler(event)
   {
+    query_data.datasource = 'OpenTSDB';
     query_data['downsample_master_interval'] = 0;
     var input_error = false;
     var methods = {'sum': 'sum', 'average': 'avg', 'minimum value': 'min', 'maximum value': 'max', 'standard deviation': 'dev'};
@@ -633,8 +790,8 @@
       end = parseInt(end / 1000);
       var span = parseInt($('#time-span').attr('data-ms'));
       start = (end - span);
-      var jstart = new Date(start * 1000).toString('yyyy/MM/dd hh:mm:ss');
-      var jend = new Date(end * 1000).toString('yyyy/MM/dd hh:mm:ss');
+      var jstart = new Date(start * 1000).toString('yyyy/MM/dd HH:mm:ss');
+      var jend = new Date(end * 1000).toString('yyyy/MM/dd HH:mm:ss');
       $('input[name=start-time]').val(jstart).change();
       $('input[name=end-time]').val(jend).change();
       query_data['time_span'] = span;
@@ -781,57 +938,62 @@
       graph_element.append('<div id="status-box" style="width: 100%; text-align: center;"><p id="status-message"></p></div>');
       $('#status-box').append('<p id=chuck style="margin: 0 25px"></p>');
 
-      // Start deferred query for metric data
-      $.when(opentsdb_search(query_data)).then(
-          // done: Send the data over to be parsed
-          function(data)
-          {
-            $.when(process_graph_data(data, query_data)).then(
-                // done: Build the graph
-                function(data)
-                {
-                  build_graph(data.graphdata, data.querydata);
-                }
-                // fail: Show error image and error message
-                ,function(status)
-                {
-                  $('#bowlG').html('<img src="<?php echo URL; ?>app/img/error.png" style="width: 60px; height: 30px;">');
-                  $('#chuck').removeClass('section-on').addClass('section-off');
-                  $('#status-message').text(status);
-                }
-                // progress: Show any progress status messages received
-                ,function(status)
-                {
-                  $('#chuck').removeClass('section-on').addClass('section-off');
-                  $('#chuck').text(status);
-                  $('#chuck').removeClass('section-off').addClass('section-on');
-                }
-            );
-          }
-          // fail: Show error image and error message
-          ,function(status)
-          {
-            $('#bowlG').css({'padding-top': '15%', 'margin-top': '0', 'margin-bottom': '5px', 'width': '120px', 'height': '60px'}).html('<img src="<?php echo URL; ?>app/img/error.png" style="width: 120px; height: 60px;">');
-            $('#status-box').empty().append('<p>' + status.shift() + '</p>');
-            if ((status[0].match("<!DOCTYPE")) || (status[0].match("<html>")))
-            {
-              var error_message = status.join(' ').replace(/'/g,"&#39");
-              $('#status-box').append('<iframe style="margin: 0 auto; color: rgb(205, 205, 205);" width="80%" height="90%" srcdoc=\'' + error_message + '\' seamless></iframe>');
-            }
-            else
-            {
-              $('#status-box').text(status);
-            }
-          }
-          // progress: Show any progress status messages received
-          ,function(status)
-          {
-            $('#chuck').removeClass('section-on').addClass('section-off');
-            $('#chuck').text(status);
-            $('#chuck').removeClass('section-off').addClass('section-on');
-          }
-      );
+      begin_querying(query_data);
     }
+  }
+
+  function begin_querying(query_data) {
+
+    // Start deferred query for metric data
+    $.when(opentsdb_search(query_data)).then(
+        // done: Send the data over to be parsed
+        function(data)
+        {
+          $.when(process_graph_data(data, query_data)).then(
+              // done: Build the graph
+              function(data)
+              {
+                build_graph(data.graphdata, data.querydata);
+              }
+              // fail: Show error image and error message
+              ,function(status)
+              {
+                $('#bowlG').html('<img src="<?php echo URL; ?>app/img/error.png" style="width: 60px; height: 30px;">');
+                $('#chuck').removeClass('section-on').addClass('section-off');
+                $('#status-message').text(status);
+              }
+              // progress: Show any progress status messages received
+              ,function(status)
+              {
+                $('#chuck').removeClass('section-on').addClass('section-off');
+                $('#chuck').text(status);
+                $('#chuck').removeClass('section-off').addClass('section-on');
+              }
+          );
+        }
+        // fail: Show error image and error message
+        ,function(status)
+        {
+          $('#bowlG').css({'padding-top': '15%', 'margin-top': '0', 'margin-bottom': '5px', 'width': '120px', 'height': '60px'}).html('<img src="<?php echo URL; ?>app/img/error.png" style="width: 120px; height: 60px;">');
+          $('#status-box').empty().append('<p>' + status.shift() + '</p>');
+          if ((status[0].match("<!DOCTYPE")) || (status[0].match("<html>")))
+          {
+            var error_message = status.join(' ').replace(/'/g,"&#39");
+            $('#status-box').append('<iframe style="margin: 0 auto; color: rgb(205, 205, 205);" width="80%" height="90%" srcdoc=\'' + error_message + '\' seamless></iframe>');
+          }
+          else
+          {
+            $('#status-box').text(status);
+          }
+        }
+        // progress: Show any progress status messages received
+        ,function(status)
+        {
+          $('#chuck').removeClass('section-on').addClass('section-off');
+          $('#chuck').text(status);
+          $('#chuck').removeClass('section-off').addClass('section-on');
+        }
+    );
   }
 
   // Function to wrap the OpenTSDB search
@@ -1078,7 +1240,7 @@
     var bucket_interval = parseInt(query_data['downsample_master_interval'] * 60);
     var start = parseInt(data.start);
     var end = parseInt(data.end);
-    query_data.query_url = data.query_url;
+    query_url = data.query_url;
     query_data.cache_key = data.cache_key;
     delete data.start;
     delete data.end;

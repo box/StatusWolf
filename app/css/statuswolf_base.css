@@ -21,6 +21,7 @@ body {
 
 a {
     text-decoration: none;
+    color: rgba(205, 205, 205, 0.75);
 }
 
 h1, h2, h3, h4, h5, h6 {

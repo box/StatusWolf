@@ -18,7 +18,7 @@
         <div class="widget">
           <div class="widget-front" id="ad-hoc-front">
             <div class="widget-title">
-              <div class="widget-title-head"><h4>Ad-Hoc Search</h4></div>
+              <div class="widget-title-head"><h4><a href="<?php echo URL; ?>adhoc/">Ad-Hoc Search</a></h4></div>
               <div id="legend"></div>
             </div>
             <div class="widget-main">
@@ -33,7 +33,7 @@
           </div>
           <div class="widget-back" id="ad-hoc-back">
             <div class="widget-title">
-              <div class="widget-title-head"><h4>Ad-Hoc Search</h4></div>
+              <div class="widget-title-head"><h4><a href="<?php echo URL; ?>adhoc/">Ad-Hoc Search</a></h4></div>
               <div class="dropdown" id="datasource-menu">
                 <span class="widget-title-button" data-toggle="dropdown"><span class="ad-hoc-button-label" id="active-datasource" >OpenTSDB</span><span class="iconic iconic-play rotate-90"></span></span>
                 <ul class="dropdown-menu menu-left" id="datasource-options" role="menu" aria-labelledby="dLabel">
@@ -75,9 +75,9 @@
     <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/bootstrap.js"></script>
     <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/date.js"></script>
     <script type="text/javascript" src="<?php echo URL; ?>app/js/status_wolf_colors.js"></script>
-    <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/magnific-popup.js"></script>
-    <link href="<?php echo URL; ?>app/css/popups.css?v=1.0" rel="stylesheet">
- 
+    <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/magnific-popup.js"></script>
+    <link href="<?php echo URL; ?>app/css/popups.css?v=1.0" rel="stylesheet">
+
     <script type="text/javascript">
 
       var datasource = $('#active-datasource').text().toLowerCase() + '_search';
@@ -112,7 +112,7 @@
         ,mainClass: 'popup-animate'
         ,callbacks: {
           beforeOpen: function() {
-            var ds_url = query_data['query_url'];
+            var ds_url = query_url;
             if (query_data['datasource'] === "OpenTSDB")
             {
               ds_url = ds_url.replace('&ascii','');
@@ -148,7 +148,7 @@
             if (query_data['time_span'])
             {
               delete query_data['start_time'];
-              delete query_data['end_time']
+              delete query_data['end_time'];
             }
             $.ajax({
               url: api_url
