@@ -871,9 +871,12 @@
     if (query_data['history-graph'] == "anomaly")
     {
       $('#status-message').html('<p>Building Anomaly Model (this may take a few minutes)</p>');
-      $.when(get_metric_data_anomaly(query_data).then(
-          function(data) {
+      $.when(get_metric_data_anomaly(query_data)
+          .done(function(data) {
             query_object.resolve(data);
+          })
+          .fail(function(data) {
+            query_object.reject(data);
           })
       );
     }
@@ -881,9 +884,12 @@
     else if (query_data['history-graph'] == "wow")
     {
       $('#status-message').html('<p>Fetching Week-Over-Week Data</p>');
-      $.when(get_metric_data_wow(query_data).then(
-          function(data) {
+      $.when(get_metric_data_wow(query_data)
+          .done(function(data) {
             query_object.resolve(data);
+          })
+          .fail(function(data) {
+            query_object.reject(data);
           })
       );
     }
@@ -953,11 +959,16 @@
   function get_metric_data_wow(query_data)
   {
 
-    var ajax_object = new $.Deferred();
+    if (typeof current_request !== 'undefined')
+    {
+      current_request.abort();
+    }
+
+    ajax_object = new $.Deferred();
 
     var metric_data = {};
 
-    var current_request = $.ajax({
+    current_request = $.ajax({
           url: "<?php echo URL; ?>adhoc/search/OpenTSDB"
           ,type: 'POST'
           ,data: query_data
@@ -1011,10 +1022,15 @@
   function get_metric_data_anomaly(query_data)
   {
 
-    var ajax_object = new $.Deferred();
+    if (typeof anomaly_request !== 'undefined')
+    {
+      anomaly_request.abort();
+    }
+
+    ajax_object = new $.Deferred();
 
     var metric_data = {};
-    var anomaly_request = $.ajax({
+    anomaly_request = $.ajax({
           url: "<?php echo URL; ?>api/opentsdb_anomaly_model"
           ,type: 'POST'
           ,data: query_data
