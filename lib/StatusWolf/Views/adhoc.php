@@ -10,6 +10,30 @@
  * @package StatusWolf.Views
  */
 
+  $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
+  $app_config = SWConfig::read_values('statuswolf');
+
+  // Load any available saved and public searches
+  $sw_db = new mysqli($app_config['session_handler']['db_host'], $app_config['session_handler']['db_user'], $app_config['session_handler']['db_password'], $app_config['session_handler']['database']);
+  if (mysqli_connect_error())
+  {
+    throw new SWException('Saved searches database connect error: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
+}
+  $saved_searches_query = sprintf("SELECT * FROM saved_searches where user_id='%s'", $_session_data['user_id']);
+  $user_searches_result = $sw_db->query($saved_searches_query);
+  if ($user_searches_result->num_rows && $user_searches->num_rows > 0)
+  {
+    $user_searches = $user_searches_result->fetch_assoc();
+    $_session_data['data']['user_searches'] = $user_searches;
+  }
+  $shared_searches_query = sprintf("SELECT * FROM saved_searches where private=0");
+  $shared_searches_result = $sw_db->query($shared_searches_query);
+  if ($shared_searches_result->num_rows && $shared_searches_result->num_rows > 0)
+  {
+    $shared_searches = $shared_searches_result->fetch_assoc();
+    $_session_data['data']['shared_searches'] = $shared_searches;
+}
+
 ?>
 
     <link href="<?php echo URL; ?>app/css/adhoc.css?v=1.0" rel="stylesheet">
