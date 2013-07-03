@@ -129,6 +129,42 @@ function authenticate_session($app_config) {
     {
       $_SESSION[$auth_options['sessionName']]['friendly_name'] = $_SESSION[$auth_options['sessionName']]['username'];
     }
+    // Make sure the user has an entry in the user_map table
+    $sw_db = new mysqli($app_config['session_handler']['db_host'], $app_config['session_handler']['db_user'], $app_config['session_handler']['db_password'], $app_config['session_handler']['database']);
+    if (mysqli_connect_error())
+    {
+      throw new SWException('User Map database connect error: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
+    }
+    $find_user_query = sprintf("SELECT * FROM user_map where username='%s'", $_SESSION[$auth_options['sessionName']]['username']);
+    if ($user_found = $sw_db->query($find_user_query))
+    {
+      if ($user_found->num_rows && $user_found->num_rows > 0)
+      {
+        $user = $user_found->fetch_assoc();
+        $_SESSION[$auth_options['sessionName']]['user_id'] = $user['id'];
+      }
+      else
+      {
+        $user_add_query = sprintf("INSERT INTO user_map VALUE('%s', '%s', '%s')", '', $_SESSION[$auth_options['sessionName']]['username'], $auth_method);
+        $add_result = $sw_db->query($user_add_query);
+        if (mysqli_error($sw_db))
+        {
+          throw new SWException('User map add error: ' . mysqli_errno($sw_db) . ' ' . mysqli_error($sw_db));
+        }
+        if ($user_found = $sw_db->query($find_user_query))
+        {
+          if ($user_found->num_rows && $user_found->num_rows > 0)
+          {
+            $user = $user_found->fetch_assoc();
+            $_SESSION[$auth_options['sessionName']]['user_id'] = $user['id'];
+          }
+        }
+        else
+        {
+          throw new SWException('Unable to add user ' . $_SESSION[$auth_options['sessionName']]['username'] . ' to user_map');
+        }
+      }
+    }
     return true;
   }
 
