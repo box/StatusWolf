@@ -491,6 +491,7 @@
 
   var sw_conf = '<?php echo json_encode($sw_conf); ?>';
   var query_data = {};
+  query_data.datasource = 'OpenTSDB';
 
   // Add the styles for the ad-hoc search
   $('head').append('<link href="<?php echo URL; ?>app/css/datetimepicker.css" rel="stylesheet">')
@@ -812,10 +813,10 @@
           {
             $('#bowlG').css({'padding-top': '15%', 'margin-top': '0', 'margin-bottom': '5px', 'width': '120px', 'height': '60px'}).html('<img src="<?php echo URL; ?>app/img/error.png" style="width: 120px; height: 60px;">');
             $('#status-box').empty().append('<p>' + status.shift() + '</p>');
-            if (status[0].match("<!DOCTYPE"))
+            if ((status[0].match("<!DOCTYPE")) || (status[0].match("<html>")))
             {
               var error_message = status.join(' ').replace(/'/g,"&#39");
-              $('#status-box').append('<iframe style="margin: 0 auto;" width="80%" height="90%" srcdoc=\'' + error_message + '\' seamless></iframe>');
+              $('#status-box').append('<iframe style="margin: 0 auto; color: rgb(205, 205, 205);" width="80%" height="90%" srcdoc=\'' + error_message + '\' seamless></iframe>');
             }
             else
             {
@@ -838,34 +839,34 @@
   {
     var query_object = new $.Deferred();
 
-    setInterval(function() {
-      if (query_object.state() === "pending")
-      {
-        if(sw_conf.waiting.source == "chuck")
-        {
-          url = "<?php echo URL; ?>api/fortune/chuck";
-        }
-        else
-        {
-          if (typeof sw_conf.waiting.category != 'undefined')
-          {
-            url = "<?php echo URL; ?>api/fortune/quotes/" + sw_conf.waiting.category;
-          }
-          else
-          {
-            url = "<?php echo URL; ?>api/fortune/quotes/random";
-          }
-        }
-        $.ajax({
-          url: url
-          ,type: 'GET'
-          ,dataType: 'json'
-          ,success: function(data) {
-            query_object.notify(data);
-          }
-        })
-      }
-    }, 15000);
+<!--    setInterval(function() {-->
+<!--      if (query_object.state() === "pending")-->
+<!--      {-->
+<!--        if(sw_conf.waiting.source == "chuck")-->
+<!--        {-->
+<!--          url = "--><?php //echo URL; ?><!--api/fortune/chuck";-->
+<!--        }-->
+<!--        else-->
+<!--        {-->
+<!--          if (typeof sw_conf.waiting.category != 'undefined')-->
+<!--          {-->
+<!--            url = "--><?php //echo URL; ?><!--api/fortune/quotes/" + sw_conf.waiting.category;-->
+<!--          }-->
+<!--          else-->
+<!--          {-->
+<!--            url = "--><?php //echo URL; ?><!--api/fortune/quotes/random";-->
+<!--          }-->
+<!--        }-->
+<!--        $.ajax({-->
+<!--          url: url-->
+<!--          ,type: 'GET'-->
+<!--          ,dataType: 'json'-->
+<!--          ,success: function(data) {-->
+<!--            query_object.notify(data);-->
+<!--          }-->
+<!--        })-->
+<!--      }-->
+<!--    }, 15000);-->
 
     // Generate (or find the cached) model data for the metric
     if (query_data['history-graph'] == "anomaly")
@@ -909,8 +910,10 @@
   function get_metric_data(query_data)
   {
 
+    console.log('get_metric_data');
     if (typeof ajax_request !== 'undefined')
     {
+      console.log('Previous request still in flight, aborting');
       ajax_request.abort();
     }
 
@@ -924,19 +927,12 @@
           ,timeout: 120000
         })
         ,chain = ajax_request.then(function(data) {
-          console.log(data);
-          if (data[0] === "error")
-          {
-            return(data);
-          }
-          else
-          {
-            data_object = eval('(' + data + ')');
-            return(data_object);
-          }
+          console.log('chain');
+          return(data);
         });
 
     chain.done(function(data) {
+      console.log(data);
       if (!data)
       {
         ajax_object.reject(data);
@@ -1082,7 +1078,7 @@
     var bucket_interval = parseInt(query_data['downsample_master_interval'] * 60);
     var start = parseInt(data.start);
     var end = parseInt(data.end);
-    var query_url = data.query_url;
+    query_data.query_url = data.query_url;
     query_data.cache_key = data.cache_key;
     delete data.start;
     delete data.end;
@@ -1270,6 +1266,8 @@
         });
       }
     });
+
+    $('.widget-footer-btn.hidden').removeClass('hidden');
 
     // Set up the projection band and anomaly highlighting if requested
     if (query_data['history-graph'] == "anomaly")

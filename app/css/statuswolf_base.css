@@ -218,6 +218,10 @@ select {
     color: red;
 }
 
+.hidden {
+    visibility: hidden;
+}
+
 /*
  * ==================
  * Top navigation bar
@@ -695,6 +699,10 @@ select {
 
 .iconic-share:before {
     content: '\e02e';
+}
+
+.iconic-target:before {
+    content: '\e02a';
 }
 
 .iconic-user:before {

@@ -26,8 +26,9 @@
             </div>
             <div class="flexy widget-footer">
               <div class="widget-footer-btn" id="ad-hoc-edit" onClick="$(this).parents('.widget').addClass('flipped')"><span class="iconic iconic-pen-alt2"></span> Edit search parameters</div>
+              <div class="widget-footer-btn hidden" id="get-datasource-url"><span class="iconic iconic-target"> Get Raw Datasource URL</span></div>
               <div class="glue1"></div>
-              <div class="widget-footer-btn" id="share-search"><span class="iconic iconic-share"> Share Search</span></div>
+              <div class="widget-footer-btn hidden" id="share-search"><span class="iconic iconic-share"> Share Search</span></div>
             </div>
           </div>
           <div class="widget-back" id="ad-hoc-back">
@@ -57,10 +58,18 @@
       <h5>Share Link to Search</h5>
       <div class="popup-form-data">
         <p id="share-info">Copy and paste this link into email, chat, etc. to share this search. Shared links will expire after 24 hours.</p>
-        <div class="uneditable-input" id="shared-search-url" style="width: 95%; vertical-align: middle; padding: 6px 10px 2px 10px;"></div>
+        <div class="uneditable-input" id="shared-search-url" onClick="select_text('shared-search-url')" style="width: 95%; vertical-align: middle; padding: 6px 10px 2px 10px;"></div>
       </div>
     </div>
 
+    <div id="datasource-url-popup" class="popup">
+      <h5>Raw Datasource URL</h5>
+      <div class="popup-form-data">
+        <div class="uneditable-input" id="datasource-url" onClick="select_text('datasource-url')" style="width: 95%; vertical-align: middle; padding: 6px 10px 2px 10px;"></div>
+      </div>
+    </div>
+
+    <script type="text/javascript" src="<?php echo URL; ?>app/js/sw_lib.js"></script>
     <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/dygraph-combined.js"></script>
     <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/jquery.js"></script>
     <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/bootstrap.js"></script>
@@ -93,6 +102,38 @@
         });
       }
 
+      $('#get-datasource-url').magnificPopup({
+        items: {
+          src: '#datasource-url-popup'
+          ,type: 'inline'
+        }
+        ,preloader: false
+        ,removalDelay: 300
+        ,mainClass: 'popup-animate'
+        ,callbacks: {
+          beforeOpen: function() {
+            var ds_url = query_data['query_url'];
+            if (query_data['datasource'] === "OpenTSDB")
+            {
+              ds_url = ds_url.replace('&ascii','');
+            }
+            $('body').append('<div id="width-test" style="position: absolute; visibility: hidden;">' + ds_url + '</div>');
+            var text_width = $('#width-test').width();
+            $('#width-test').remove();
+            $('#datasource-url-popup').css('width', text_width);
+            $('#datasource-url').text(ds_url);
+          }
+          ,open: function() {
+            $('.navbar').addClass('blur');
+            $('.container').addClass('blur');
+          }
+          ,close: function() {
+            $('.container').removeClass('blur');
+            $('.navbar').removeClass('blur');
+          }
+        }
+      });
+
       $('#share-search').magnificPopup({
         items: {
           src: '#share-search-popup'
@@ -104,7 +145,6 @@
         ,callbacks: {
           beforeOpen: function() {
             var api_url = "<?php echo URL; ?>api/get_shared_search";
-            query_data['datasource'] = $('#active-datasource').text();
             if (query_data['time_span'])
             {
               delete query_data['start_time'];
