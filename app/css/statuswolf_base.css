@@ -316,7 +316,6 @@ select {
 }
 
 .dropdown-menu li span {
-    font-weight: bold;
     line-height: 1.5em;
     margin-left: 8px;
 }
@@ -515,14 +514,6 @@ select {
     box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
-#go-button {
-    background-color: rgba(40, 55, 40, 0.95);
-}
-
-#go-button:hover {
-    background-color: rgba(40, 55, 40, 0.5);
-}
-
 .widget-title, .widget-footer {
     background-color: rgb(40, 40, 40);
     width: 100%;
@@ -666,6 +657,10 @@ select {
 
 .iconic-check-alt:before {
     content: '\2718';
+}
+
+.iconic-download:before {
+    content: '\e042';
 }
 
 .iconic-info:before {

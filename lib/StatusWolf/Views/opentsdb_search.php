@@ -490,6 +490,7 @@
 <script type="text/javascript">
 
   var sw_conf = '<?php echo json_encode($sw_conf); ?>';
+  var query_data = {};
 
   // Add the styles for the ad-hoc search
   $('head').append('<link href="<?php echo URL; ?>app/css/datetimepicker.css" rel="stylesheet">')
@@ -576,7 +577,7 @@
   });
 
   $('.info-tooltip').tooltip({placement: 'bottom'});
-  $('.info-tooltip').hover(function() {$(this).css('cursor', 'pointer')});
+  $('.info-tooltip').hover(function() {$(this).css('cursor', 'default')});
 
   // On initial page load switch to the search form, and add the handler
   // for the Enter key
@@ -593,8 +594,6 @@
   // Function to build the graph when the form Go button is activated
   function go_click_handler(event)
   {
-
-    var query_data = {};
     query_data['downsample_master_interval'] = 0;
     var input_error = false;
     var methods = {'sum': 'sum', 'average': 'avg', 'minimum value': 'min', 'maximum value': 'max', 'standard deviation': 'dev'};
@@ -637,6 +636,7 @@
       var jend = new Date(end * 1000).toString('yyyy/MM/dd hh:mm:ss');
       $('input[name=start-time]').val(jstart).change();
       $('input[name=end-time]').val(jend).change();
+      query_data['time_span'] = span;
     }
     query_data['start_time'] = start;
     query_data['end_time'] = end;
@@ -924,13 +924,11 @@
           ,timeout: 120000
         })
         ,chain = ajax_request.then(function(data) {
-          console.log(ajax_request);
           data_object = eval('(' + data + ')');
           return(data_object);
         });
 
     chain.done(function(data) {
-      console.log(data);
       if (!data)
       {
         ajax_object.reject(data);

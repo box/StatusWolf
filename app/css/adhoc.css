@@ -61,7 +61,7 @@
 .section-off {
     visibility: hidden;
     opacity: 0;
-    -webkit-transition: visibility 0s linear 0.5s, opacity 0.25s linear;
+    -webkit-transition: visibility 0s linear 0.25s, opacity 0.25s linear;
     transition: visibility 0s linear 0.25s, opacity 0.25s linear;
 }
 
@@ -162,6 +162,10 @@
     display: inline-block;
 }
 
+#datasource-options li {
+    font-size: 0.8em;
+}
+
 #date-span-toggle .toggle-button-group {
     margin-top: 4px;
 }
@@ -197,5 +201,13 @@
     -webkit-box-flex: 1;
     -webkit-box-pack: end;
     margin-right: 30px;
+}
+
+#go-button {
+    background-color: rgba(40, 55, 40, 0.95);
+}
+
+#go-button:hover {
+    background-color: rgba(40, 55, 40, 0.5);
 }
 
