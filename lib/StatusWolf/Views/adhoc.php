@@ -24,8 +24,10 @@
             <div class="widget-main">
               <div id="graphdiv" style="width: 99%; height: 99%;"></div>
             </div>
-            <div class="widget-footer">
+            <div class="flexy widget-footer">
               <div class="widget-footer-btn" id="ad-hoc-edit" onClick="$(this).parents('.widget').addClass('flipped')"><span class="iconic iconic-pen-alt2"></span> Edit search parameters</div>
+              <div class="glue1"></div>
+              <div class="widget-footer-btn" id="share-search"><span class="iconic iconic-share"> Share Search</span></div>
             </div>
           </div>
           <div class="widget-back" id="ad-hoc-back">
@@ -51,12 +53,22 @@
       </div>
     </div>
 
+    <div id="share-search-popup" class="popup">
+      <h5>Share Link to Search</h5>
+      <div class="popup-form-data">
+        <p id="share-info">Copy and paste this link into email, chat, etc. to share this search. Shared links will expire after 24 hours.</p>
+        <div class="uneditable-input" id="shared-search-url" style="width: 95%; vertical-align: middle; padding: 6px 10px 2px 10px;"></div>
+      </div>
+    </div>
+
     <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/dygraph-combined.js"></script>
     <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/jquery.js"></script>
     <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/bootstrap.js"></script>
     <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/date.js"></script>
     <script type="text/javascript" src="<?php echo URL; ?>app/js/status_wolf_colors.js"></script>
-
+    <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/magnific-popup.js"></script>
+    <link href="<?php echo URL; ?>app/css/popups.css?v=1.0" rel="stylesheet">
+ 
     <script type="text/javascript">
 
       var datasource = $('#active-datasource').text().toLowerCase() + '_search';
@@ -80,6 +92,45 @@
           }
         });
       }
+
+      $('#share-search').magnificPopup({
+        items: {
+          src: '#share-search-popup'
+          ,type: 'inline'
+        }
+        ,preloader: false
+        ,removalDelay: 300
+        ,mainClass: 'popup-animate'
+        ,callbacks: {
+          beforeOpen: function() {
+            var api_url = "<?php echo URL; ?>api/get_shared_search";
+            query_data['datasource'] = $('#active-datasource').text();
+            if (query_data['time_span'])
+            {
+              delete query_data['start_time'];
+              delete query_data['end_time']
+            }
+            $.ajax({
+              url: api_url
+              ,type: 'POST'
+              ,data: query_data
+              ,dataType: 'json'
+              ,success: function(data) {
+                var share_url = "<?php echo URL; ?>adhoc/shared/" + data['search_id'];
+                $("#shared-search-url").text(share_url);
+              }
+            });
+          }
+          ,open: function() {
+            $('.navbar').addClass('blur');
+            $('.container').addClass('blur');
+          }
+          ,close: function() {
+            $('.container').removeClass('blur');
+            $('.navbar').removeClass('blur');
+          }
+        }
+      });
 
       $(document).ready(function() {
         $('.widget-main').css('height', ($('.widget').innerHeight() - ($('.widget-title').height() + $('.widget-footer').height())));

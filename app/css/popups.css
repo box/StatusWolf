@@ -117,10 +117,13 @@ button.mfp-close {
     opacity: 0;
 }
 
-.popup_form_data {
-    width: 100%;
-    padding: 0 15px;
-    margin-bottom: 10px;
+.popup-form-data {
+    padding: 0;
+    margin: 0 0 10px 15px;
+}
+
+.popup-form-data p {
+    font-size: 0.8em;
 }
 
 .blur {

@@ -693,6 +693,10 @@ select {
     content: '\e008';
 }
 
+.iconic-share:before {
+    content: '\e02e';
+}
+
 .iconic-user:before {
     content: '\e062';
 }
