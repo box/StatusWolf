@@ -176,4 +176,8 @@
         $('.widget-main').css('height', ($('.widget').innerHeight() - ($('.widget-title').height() + $('.widget-footer').height())));
       });
 
+      $(window).resize(function() {
+        $('.widget-main').css('height', ($('.widget').innerHeight() - ($('.widget-title').height() + $('.widget-footer').height())));
+      })
+
     </script>
