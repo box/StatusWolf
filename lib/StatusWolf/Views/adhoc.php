@@ -54,7 +54,7 @@
       </div>
     </div>
 
-    <div id="share-search-popup" class="popup">
+    <div id="share-search-popup" class="popup mfp-hide">
       <h5>Share Link to Search</h5>
       <div class="popup-form-data">
         <p id="share-info">Copy and paste this link into email, chat, etc. to share this search. Shared links will expire after 24 hours.</p>
@@ -62,7 +62,7 @@
       </div>
     </div>
 
-    <div id="datasource-url-popup" class="popup">
+    <div id="datasource-url-popup" class="popup mfp-hide">
       <h5>Raw Datasource URL</h5>
       <div class="popup-form-data">
         <div class="uneditable-input" id="datasource-url" onClick="select_text('datasource-url')" style="width: 95%; vertical-align: middle; padding: 6px 10px 2px 10px;"></div>

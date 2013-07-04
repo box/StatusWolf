@@ -65,7 +65,7 @@ if (!defined('URL'))
     {
       array_pop($dir_parts);
     }
-    if (count($dir_parts) > 1)
+    if (count($dir_parts) > 0)
     {
       $dir = implode('/', $dir_parts);
     }
