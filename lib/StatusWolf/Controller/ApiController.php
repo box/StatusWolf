@@ -207,4 +207,35 @@ class ApiController extends SWController
 
   }
 
+  /**
+   * Function to generate an MD5 key for an ad-hoc search and save the
+   * key and query data to the database to facilitate sharing of searches.
+   * Returns the search key for use in building the URL of the shared search.
+   *
+   * @throws SWException
+   */
+  protected function get_shared_search()
+  {
+    $this->loggy->logDebug($this->log_tag . 'API call, return shared search key');
+    $data = $_POST;
+    $search_key = md5(json_encode($data));
+    $app_config = SWConfig::read_values('statuswolf.session_handler');
+    $shared_search_db = new mysqli($app_config['db_host'], $app_config['db_user'], $app_config['db_password'], $app_config['database']);
+    if (mysqli_connect_error())
+    {
+      throw new SWException('Shared search database connection error: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
+    }
+    $save_shared_search = sprintf("REPLACE INTO shared_searches VALUES('%s', '%s', '%s', '%s')", $search_key, $data['datasource'], serialize($data), time());
+    $this->loggy->logDebug($this->log_tag . 'Saved search query: ' . $save_shared_search);
+    $write_result = $shared_search_db->query($save_shared_search);
+    if (mysqli_error($shared_search_db))
+    {
+      throw new SWException('Shared search save error: ' . mysqli_errno($shared_search_db) . ' ' . mysqli_error($shared_search_db));
+    }
+    else
+    {
+      $this->loggy->logDebug($this->log_tag . 'Shared search key: ' . $search_key);
+      echo json_encode(array('search_id' => $search_key));
+    }
+  }
 }

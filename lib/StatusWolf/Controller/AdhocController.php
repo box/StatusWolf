@@ -16,6 +16,11 @@ class AdhocController extends SWController
   {
     parent::__construct();
 
+    if (array_key_exists('shared_search_key', $_SESSION))
+    {
+      unset($_SESSION['shared_search_key']);
+    }
+
     if (!empty($url_path[0]))
     {
       $_adhoc_function = array_shift($url_path);
@@ -31,6 +36,24 @@ class AdhocController extends SWController
         else
         {
           throw new SWException ('No datasource specified for Ad-Hoc search');
+        }
+      }
+      else if ($_adhoc_function === "shared")
+      {
+        if ($_shared_search_key = array_shift($url_path))
+        {
+          include 'header.php';
+          $_SESSION['shared_search_key'] = $_shared_search_key;
+          if ($_SESSION['authenticated'])
+          {
+            include 'navbar.php';
+          }
+          include 'adhoc.php';
+          include 'footer.php';
+        }
+        else
+        {
+          throw new SWException('No shared search provided, no search to display');
         }
       }
       else
