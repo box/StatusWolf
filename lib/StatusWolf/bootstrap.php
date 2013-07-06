@@ -183,7 +183,7 @@ function authenticate_session($app_config) {
 // Base login function, prints the login form if no active auth session exists
 function login($username = null, $status = null, &$auth = null)
 {
-  include 'header.php';
+  include 'login_header.php';
   include 'login.php';
   include 'footer.php';
   return false;

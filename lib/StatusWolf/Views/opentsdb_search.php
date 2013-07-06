@@ -1,13 +1,44 @@
 <?php
   $sw_conf = SWConfig::read_values('statuswolf');
   $db_conf = $sw_conf['session_handler'];
-  if (array_key_exists('shared_search_key', $_SESSION))
+  $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
+  $sw_db = new mysqli($db_conf['db_host'], $db_conf['db_user'], $db_conf['db_password'], $db_conf['database']);
+  if (mysqli_connect_error())
   {
-    $sw_db = new mysqli($db_conf['db_host'], $db_conf['db_user'], $db_conf['db_password'], $db_conf['database']);
-    if (mysqli_connect_error())
+    throw new SWException('Unable to connect to shared search database: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
+  }
+
+  if (array_key_exists('saved_search_key', $_SESSION))
+  {
+    $this->loggy->logDebug($this->log_tag . 'Looking for saved search id ' . $_SESSION['saved_search_key']);
+    $saved_search_query = sprintf("SELECT * FROM saved_searches WHERE id='%s'", $_SESSION['saved_search_key']);
+    if ($result = $sw_db->query($saved_search_query))
     {
-      throw new SWException('Unable to connect to shared search database: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
+      if ($result->num_rows && $result->num_rows > 0)
+      {
+        $raw_query_data = $result->fetch_assoc();
+        if ($raw_query_data['private'] == 1 && $raw_query_data['user_id'] != $_session_data['user_id'])
+        {
+          $this->loggy->logDebug($this->log_tag . 'Access violation, user id ' . $_session_data['user_id'] . ' trying to view private search owned by user id ' . $raw_query_data['user_id']);
+          $incoming_query_data = 'Not Allowed';
+        }
+        else {
+          $serialized_query = $raw_query_data['search_params'];
+          $incoming_query_data = unserialize($serialized_query);
+        }
+      }
+      else
+      {
+        $incoming_query_data = 'Not Found';
+      }
     }
+    else
+    {
+      throw new SWException('Database read error: ' . mysqli_errno($sw_db) . ' ' . mysqli_error($sw_db));
+    }
+  }
+  else if (array_key_exists('shared_search_key', $_SESSION))
+  {
     $shared_search_query = sprintf("SELECT * FROM shared_searches WHERE search_id='%s'", $_SESSION['shared_search_key']);
     if ($result = $sw_db->query($shared_search_query))
     {
@@ -619,7 +650,6 @@
   $(document).ready(function() {
     if (incoming_query_data.length > 1)
     {
-      console.log('incoming: ' + incoming_query_data);
       if (incoming_query_data.match(/Expired/))
       {
         $('.container').append('<div id="expired-popup" class="popup"><h5>Expired</h5><div class="popup-form-data">Your search has expired and is no longer available</div></div>');
@@ -639,6 +669,57 @@
             ,close: function() {
               $('.container').removeClass('blur');
               $('.navbar').removeClass('blur');
+              window.history.pushState("", "StatusWolf", "/adhoc/");
+              $('.widget').addClass('flipped');
+            }
+          }
+        });
+      }
+      else if (incoming_query_data.match(/Not Allowed/))
+      {
+        $('.container').append('<div id="not-allowed-popup" class="popup"><h5>Not Allowed</h5><div class="popup-form-data">You do not have permission to view this saved search</div></div>');
+        $.magnificPopup.open({
+          items: {
+            src: '#not-allowed-popup'
+            ,type: 'inline'
+          }
+          ,preloader: false
+          ,removalDelay: 300
+          ,mainClass: 'popup-animate'
+          ,callbacks: {
+            open: function() {
+              $('.navbar').addClass('blur');
+              $('.container').addClass('blur');
+            }
+            ,close: function() {
+              $('.container').removeClass('blur');
+              $('.navbar').removeClass('blur');
+              window.history.pushState("", "StatusWolf", "/adhoc/");
+              $('.widget').addClass('flipped');
+            }
+          }
+        });
+      }
+      else if (incoming_query_data.match(/Not Found/))
+      {
+        $('.container').append('<div id="not-found-popup" class="popup"><h5>Not Found</h5><div class="popup-form-data">The saved search was not found.</div></div>');
+        $.magnificPopup.open({
+          items: {
+            src: '#not-found-popup'
+            ,type: 'inline'
+          }
+          ,preloader: false
+          ,removalDelay: 300
+          ,mainClass: 'popup-animate'
+          ,callbacks: {
+            open: function() {
+              $('.navbar').addClass('blur');
+              $('.container').addClass('blur');
+            }
+            ,close: function() {
+              $('.container').removeClass('blur');
+              $('.navbar').removeClass('blur');
+              window.history.pushState("", "StatusWolf", "/adhoc/");
               $('.widget').addClass('flipped');
             }
           }
@@ -647,7 +728,6 @@
       else
       {
         query_data = eval('(' + incoming_query_data + ')');
-        console.log(query_data);
         populate_form(query_data);
       }
     }
@@ -658,13 +738,17 @@
   }).keypress(function(e) {
     if (e.which === 13)
     {
-      go_click_handler(e);
+      if ($('.widget').hasClass('flipped'))
+      {
+        go_click_handler(e);
+      }
     }
   });
 
 
   function populate_form(query_data)
   {
+    var prompt_user = false;
     var method_map = {sum: 'Sum', avg: 'Average', min: 'Minimum Value', max: 'Maximum Value', dev: 'Standard Deviation'};
 
     if (query_data['auto_update'] === "true") {
@@ -703,11 +787,15 @@
     }
     else
     {
-      start_in = parseInt(query_data['start_time']);
-      end_in = parseInt(query_data['end_time']);
-      $('input:text[name="start-time"]').val(new Date(start_in * 1000).toString('yyyy/MM/dd HH:mm:ss'));
-//      $('input:text[name="end-time"]').val(new Date(end_in * 1000).toString('yyyy/MM/dd hh:mm:ss'));
-      $('input:text[name="end-time"]').val(new Date(end_in * 1000).toString('yyyy/MM/dd HH:mm:ss'));
+      if ((start_in = parseInt(query_data['start_time'])) && (end_in = parseInt(query_data['end_time'])))
+      {
+        $('input:text[name="start-time"]').val(new Date(start_in * 1000).toString('yyyy/MM/dd HH:mm:ss'));
+        $('input:text[name="end-time"]').val(new Date(end_in * 1000).toString('yyyy/MM/dd HH:mm:ss'));
+      }
+      else
+      {
+        prompt_user = true;
+      }
     }
 
     $.each(query_data['metrics'], function(i, metric) {
@@ -745,7 +833,14 @@
         $('input#y2-button' + metric_num).siblings('label').children('span.binary-label').text('Yes');
       }
     });
-    go_click_handler();
+    if (prompt_user)
+    {
+      $('.widget').addClass('flipped');
+    }
+    else
+    {
+      go_click_handler();
+    }
   }
 
   // Function to build the graph when the form Go button is activated
@@ -782,6 +877,10 @@
       {
         alert('Start time must come before end time');
         $('input:text[name=start-time]').css('border-color', 'red').css('background-color', 'rgb(255, 200, 200)').focus();
+      }
+      if (typeof query_data['time_span'] != "undefined")
+      {
+        delete query_data['time_span'];
       }
     }
     else
@@ -1078,7 +1177,6 @@
   function get_metric_data(query_data)
   {
 
-    console.log('get_metric_data');
     if (typeof ajax_request !== 'undefined')
     {
       console.log('Previous request still in flight, aborting');
@@ -1095,7 +1193,6 @@
           ,timeout: 120000
         })
         ,chain = ajax_request.then(function(data) {
-          console.log('chain');
           return(data);
         });
 

@@ -14,9 +14,20 @@ class SWRouter {
 
   function __construct($uri)
   {
+    // Init logging for the class
+    if(SWConfig::read_values('statuswolf.debug'))
+    {
+      $this->loggy = new KLogger(ROOT . 'app/log/', KLogger::DEBUG);
+    }
+    else
+    {
+      $this->loggy = new KLogger(ROOT . 'app/log/', KLogger::INFO);
+    }
+    $this->log_tag = '(' . $_SESSION['_sw_authsession']['username'] . '|' . $_SESSION['_sw_authsession']['sessionip'] . ') ';
+
     // If installed in a subdirectory (e.g. root url of the
     // app is http://example.com/StatusWolf), strip the base URI
-    if (strpos($uri, BASE_URI) !== false)
+    if (BASE_URI && strpos($uri, BASE_URI) !== false)
     {
       $uri = substr_replace($uri, '', 0, strlen(BASE_URI));
     }

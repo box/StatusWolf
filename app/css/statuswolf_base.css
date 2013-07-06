@@ -323,6 +323,7 @@ select {
 .dropdown-menu li span {
     line-height: 1.5em;
     margin-left: 8px;
+    margin-right: 8px;
 }
 
 .dropdown-menu li:hover {
@@ -368,6 +369,12 @@ select {
     left: 8px
 }
 
+.dropdown-menu .divider {
+    height: 1px;
+    background-color: rgba(51, 51, 51, 0.75);
+    margin-top: 2px;
+}
+
 .menu-left:before {
     right: 6px;
     left: auto;
@@ -376,6 +383,12 @@ select {
 .menu-left:after {
     right: 7px;
     left: auto;
+}
+
+li.menu-section:hover {
+    cursor: default;
+    background-color: rgb(85, 85, 85);
+    color: rgba(205, 205, 205, 0.6);
 }
 
 /*
@@ -452,14 +465,17 @@ select {
 .widget-title-head {
     display: inline-block;
     height: 100%;
+    position: relative;
 }
 
 .widget-title h4 {
     margin: 0 10px;
-    vertical-align: bottom;
+    vertical-align: top;
     font-size: .8em;
-    line-height: 3em;
     height: 100%;
+    display: inline-block;
+    -webkit-margin-before: 0;
+    line-height: 3.0em;
 }
 
 .widget-title #legend {
@@ -467,13 +483,15 @@ select {
     height: 100%;
     margin-right: 15px;
     overflow: hidden;
-    position: absolute;
     vertical-align: bottom;
     font-size: .8em;
     line-height: 2.5em;
     color: rgba(205, 205, 205, .75);
+    position: absolute;
+    top: 0;
     right: 0;
     text-align: right;
+    -webkit-box-flex: 6;
 }
 
 .widget-title-button {
@@ -538,6 +556,10 @@ select {
     -moz-transform: rotateY(180deg);
     transform: rotateY(180deg);
     opacity: 0.8;
+}
+
+.widget-back .widget-title-head h4 {
+    line-height: 0;
 }
 
 #graph-legend {

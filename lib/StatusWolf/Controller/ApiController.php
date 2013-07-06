@@ -14,9 +14,14 @@
 class ApiController extends SWController
 {
 
+  private $_session_data;
+  private $_app_config;
+
   public function __construct($url_path)
   {
 
+    $this->_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
+    $this->_app_config = SWConfig::read_values('statuswolf');
     // Init app logging for the class
     if(SWConfig::read_values('statuswolf.debug'))
     {
@@ -26,7 +31,7 @@ class ApiController extends SWController
     {
       $this->loggy = new KLogger(ROOT . 'app/log/', KLogger::INFO);
     }
-    $this->log_tag = '(' . $_SESSION['_sw_authsession']['username'] . '|' . $_SESSION['_sw_authsession']['sessionip'] . ') ';
+    $this->log_tag = '(' . $this->_session_data['username'] . '|' . $this->_session_data['sessionip'] . ') ';
 
     parent::__construct();
 
@@ -237,5 +242,152 @@ class ApiController extends SWController
       $this->loggy->logDebug($this->log_tag . 'Shared search key: ' . $search_key);
       echo json_encode(array('search_id' => $search_key));
     }
+
+    // while we have a db connection, expire any shared searches more than 24 hours old
+    $expiration = time() - DAY;
+    $expiry_query = sprintf("DELETE FROM shared_searches where timestamp < '%s'", $expiration);
+    $this->loggy->logInfo($this->log_tag . "Expiring shared searches older than " . date('Y/m/d H:i:s', $expiration));
+    $this->loggy->logDebug($this->log_tag . "Expiration query: " . $expiry_query);
+    if ($shared_search_db->query($expiry_query) === TRUE)
+    {
+      $expired_rows = $shared_search_db->affected_rows;
+      if ($expired_rows > 0)
+      {
+        $this->loggy->logInfo($this->log_tag . ' ' . $expired_rows . ' ' . "shared searches expired");
+      }
+      else
+      {
+        $this->loggy->logInfo($this->log_tag . ' ' . "No expired shared searches found");
+      }
+    }
+
+    $shared_search_db->close();
   }
+
+  /**
+   * Function to save query data for adhoc searches.
+   * Saved searches can be private (viewable by creating user only),
+   * or public (viewable by all users).
+   *
+   * @return bool
+   * @throws SWException
+   */
+  protected function save_adhoc_search()
+  {
+    $this->loggy->logDebug($this->log_tag . 'API call, saving adhoc search');
+    $data = $_POST;
+    if ($data['save_span'] == 1)
+    {
+      if (array_key_exists('time_span', $data))
+      {
+        unset($data['time_span']);
+      }
+    }
+    else
+    {
+      unset($data['start_time']);
+      unset($data['end_time']);
+    }
+    $app_config = SWConfig::read_values('statuswolf.session_handler');
+    $saved_search_db = new mysqli($app_config['db_host'], $app_config['db_user'], $app_config['db_password'], $app_config['database']);
+    if (mysqli_connect_error())
+    {
+      throw new SWException('Shared search database connection error: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
+    }
+    $saved_search_query = sprintf("INSERT INTO saved_searches VALUES('', '%s', '%s', '%s', '%s', '%s')", $data['title'], $data['user_id'], $data['private'], serialize($data), $data['datasource']);
+    $save_result = $saved_search_db->query($saved_search_query);
+    $search_id = $saved_search_db->insert_id;
+    if (mysqli_error($saved_search_db))
+    {
+      throw new SWException('Error saving search: ' . mysqli_errno($saved_search_db) . ' ' . mysqli_error($saved_search_db));
+    }
+    else
+    {
+      $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
+      if ($data['private'] < 1)
+      {
+        if (array_key_exists('user_searches', $_session_data['data']))
+        {
+          array_push($_session_data['data']['user_searches'], array('id' => $data['id'], 'title' => $data['title']));
+        }
+        else
+        {
+          $_session_data['data']['user_searches'] = array();
+          array_push($_session_data['data']['user_searches'], array('id' => $data['id'], 'title' => $data['title']));
+        }
+      }
+      else
+      {
+        $usermap = array();
+        $usermap_result = $saved_search_db->query("SELECT * FROM user_map");
+        if ($usermap_result->num_rows && $usermap_result->num_rows > 0)
+        {
+          while ($usermap_entry = $usermap_result->fetch_assoc())
+          {
+            $usermap[$usermap_entry['id']] = $usermap_entry['username'];
+          }
+        }
+        if (array_key_exists('public_searches', $_session_data['data']))
+        {
+          array_push($_session_data['data']['public_searches'], array('id' => $data['id'], 'title' => $data['title'], 'username' => $usermap[$data['user_id']]));
+        }
+        else
+        {
+          $_session_data['data']['public_searches'] = array();
+          array_push($_session_data['data']['public_searches'], array('id' => $data['id'], 'title' => $data['title'], 'username' => $usermap[$data['user_id']]));
+        }
+      }
+      return true;
+    }
+  }
+
+  /**
+   * Function to find all saved searches for a user, and all public searches.
+   *
+   * @throws SWException
+   */
+  protected function get_saved_searches()
+  {
+    $data = $_POST;
+    $_saved_searches = array();
+
+    $sw_db = new mysqli($this->_app_config['session_handler']['db_host'], $this->_app_config['session_handler']['db_user'], $this->_app_config['session_handler']['db_password'], $this->_app_config['session_handler']['database']);
+    if (mysqli_connect_error())
+    {
+      throw new SWException('Saved searches database connect error: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
+    }
+    $saved_searches_query = sprintf("SELECT * FROM saved_searches where user_id='%s' AND private=1", $data['user_id']);
+    $user_searches_result = $sw_db->query($saved_searches_query);
+    if ($user_searches_result->num_rows && $user_searches_result->num_rows > 0)
+    {
+      $_saved_searches['user_searches'] = array();
+      while($user_searches = $user_searches_result->fetch_assoc())
+      {
+        array_push($_saved_searches['user_searches'], array('id' => $user_searches['id'], 'title' => $user_searches['title'], 'datasource' => $user_searches['data_source']));
+      }
+    }
+    $usermap = array();
+    $usermap_result = $sw_db->query("SELECT * FROM user_map");
+    if ($usermap_result->num_rows && $usermap_result->num_rows > 0)
+    {
+      while ($usermap_entry = $usermap_result->fetch_assoc())
+      {
+        $usermap[$usermap_entry['id']] = $usermap_entry['username'];
+      }
+    }
+    $public_searches_query = sprintf("SELECT * FROM saved_searches WHERE private=0");
+    $public_searches_result = $sw_db->query($public_searches_query);
+    if ($public_searches_result->num_rows && $public_searches_result->num_rows > 0)
+    {
+      $_saved_searches['public_searches'] = array();
+      while($public_searches = $public_searches_result->fetch_assoc())
+      {
+        array_push($_saved_searches['public_searches'], array('id' => $public_searches['id'], 'user_id' => $public_searches['user_id'], 'username' => $usermap[$public_searches['user_id']], 'title' => $public_searches['title'], 'datasource' => $public_searches['data_source']));
+      }
+    }
+
+    echo json_encode($_saved_searches);
+
+  }
+
 }

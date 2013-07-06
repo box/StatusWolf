@@ -16,9 +16,23 @@ class AdhocController extends SWController
   {
     parent::__construct();
 
+    // Init logging for the class
+    if(SWConfig::read_values('statuswolf.debug'))
+    {
+      $this->loggy = new KLogger(ROOT . 'app/log/', KLogger::DEBUG);
+    }
+    else
+    {
+      $this->loggy = new KLogger(ROOT . 'app/log/', KLogger::INFO);
+    }
+    $this->log_tag = '(' . $_SESSION['_sw_authsession']['username'] . '|' . $_SESSION['_sw_authsession']['sessionip'] . ') ';
     if (array_key_exists('shared_search_key', $_SESSION))
     {
       unset($_SESSION['shared_search_key']);
+    }
+    if (array_key_exists('saved_search_key', $_SESSION))
+    {
+      unset($_SESSION['saved_search_key']);
     }
 
     if (!empty($url_path[0]))
@@ -54,6 +68,26 @@ class AdhocController extends SWController
         else
         {
           throw new SWException('No shared search provided, no search to display');
+        }
+      }
+      else if ($_adhoc_function === "saved")
+      {
+        $this->loggy->logDebug($this->log_tag . 'Saved search requested');
+        if ($_saved_search_key = array_shift($url_path))
+        {
+          $this->loggy->logDebug($this->log_tag . 'Saved search id: ' . $_saved_search_key);
+          include 'header.php';
+          $_SESSION['saved_search_key'] = $_saved_search_key;
+          if ($_SESSION['authenticated'])
+          {
+            include 'navbar.php';
+          }
+          include 'adhoc.php';
+          include 'footer.php';
+        }
+        else
+        {
+          throw new SWException('No saved search provided, no search to display');
         }
       }
       else

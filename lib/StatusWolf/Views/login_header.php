@@ -10,15 +10,6 @@
  * @package StatusWolf.Views
  */
 
-  if(SWConfig::read_values('statuswolf.debug'))
-  {
-    $this->loggy = new KLogger(ROOT . 'app/log/', KLogger::DEBUG);
-  }
-  else
-  {
-    $this->loggy = new KLogger(ROOT . 'app/log/', KLogger::INFO);
-  }
-  $this->log_tag = '(' . $_SESSION['_sw_authsession']['username'] . '|' . $_SESSION['_sw_authsession']['sessionip'] . ') ';
 ?>
 
 

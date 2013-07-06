@@ -9,30 +9,7 @@
  *
  * @package StatusWolf.Views
  */
-
   $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
-  $app_config = SWConfig::read_values('statuswolf');
-
-  // Load any available saved and public searches
-  $sw_db = new mysqli($app_config['session_handler']['db_host'], $app_config['session_handler']['db_user'], $app_config['session_handler']['db_password'], $app_config['session_handler']['database']);
-  if (mysqli_connect_error())
-  {
-    throw new SWException('Saved searches database connect error: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
-}
-  $saved_searches_query = sprintf("SELECT * FROM saved_searches where user_id='%s'", $_session_data['user_id']);
-  $user_searches_result = $sw_db->query($saved_searches_query);
-  if ($user_searches_result->num_rows && $user_searches->num_rows > 0)
-  {
-    $user_searches = $user_searches_result->fetch_assoc();
-    $_session_data['data']['user_searches'] = $user_searches;
-  }
-  $shared_searches_query = sprintf("SELECT * FROM saved_searches where private=0");
-  $shared_searches_result = $sw_db->query($shared_searches_query);
-  if ($shared_searches_result->num_rows && $shared_searches_result->num_rows > 0)
-  {
-    $shared_searches = $shared_searches_result->fetch_assoc();
-    $_session_data['data']['shared_searches'] = $shared_searches;
-}
 
 ?>
 
@@ -41,8 +18,9 @@
       <div class="widget-container" id="ad-hoc-widget">
         <div class="widget">
           <div class="widget-front" id="ad-hoc-front">
-            <div class="widget-title">
-              <div class="widget-title-head"><h4><a href="<?php echo URL; ?>adhoc/">Ad-Hoc Search</a></h4></div>
+            <div class="flexy widget-title">
+              <div class="widget-title-head" style="-webkit-box-flex: 1;"><h4><a href="<?php echo URL; ?>adhoc/">Ad-Hoc Search</a></h4></div>
+              <div class="glue1"></div>
               <div id="legend"></div>
             </div>
             <div class="widget-main">
@@ -57,9 +35,14 @@
             </div>
           </div>
           <div class="widget-back" id="ad-hoc-back">
-            <div class="widget-title">
+            <div class="flexy widget-title">
               <div class="widget-title-head"><h4><a href="<?php echo URL; ?>adhoc/">Ad-Hoc Search</a></h4></div>
-              <div class="dropdown" id="datasource-menu">
+              <div class="dropdown widget-title-dropdown" id="saved-searches-menu">
+                <span class="widget-title-button" data-toggle="dropdown"><span class="ad-hoc-button-label" id="saved-searches">Saved Searches</span><span class="iconic iconic-play rotate-90"></span></span>
+                <ul class="dropdown-menu" id="saved-searches-options" role="menu" aria-labelledby="dLabel"></ul>
+              </div>
+              <div class="glue1"></div>
+              <div class="dropdown widget-title-dropdown" id="datasource-menu">
                 <span class="widget-title-button" data-toggle="dropdown"><span class="ad-hoc-button-label" id="active-datasource" >OpenTSDB</span><span class="iconic iconic-play rotate-90"></span></span>
                 <ul class="dropdown-menu menu-left" id="datasource-options" role="menu" aria-labelledby="dLabel">
                   <li><span>OpenTSDB</span></li>
@@ -81,7 +64,7 @@
 
     <div id="save_form_popup" class="popup mfp-hide">
       <div id="save_query_form">
-        <form target="#">
+        <form onsubmit="return false;">
           <h5>Title: </h5>
           <div class="popup_form_data">
             <input type="text" class="input" id="search_title" name="search_title" style="width: 250px;">
@@ -93,11 +76,21 @@
                 <input type="checkbox" id="save_span" name="save_span"><label for="save_span"><span class="iconic iconic-x-alt red"></span><span class="binary-label"> Save Search Times</span></label>
               </div>
               <div class="push-button">
-                <input type="checkbox" id="private" name="private"><label for="private"><span class="iconic iconic-x-alt red"></span><span class="binary-label"> Public Search</span></label>
+                <input type="checkbox" id="public" name="public"><label for="public"><span class="iconic iconic-x-alt red"></span><span class="binary-label"> Public Search</span></label>
               </div>
             </div>
           </div>
         </form>
+      </div>
+      <div id="save_query_info">
+        <ul>
+          <li><em>Save Search Times:</em> If selected will save the exact times for this search. If not selected and
+            the search times were specified specifically you will be prompted for new times when loading the shared
+            search. If the search times were specified as a time span (e.g. "Show me the past 8 hours") the span setting
+            will be saved with the search and used when it is loaded again.</li>
+          <li><em>Public Search: </em>If selected the saved search will show up for all logged in users in their Public
+            Searches list, otherwise it will only be visible to you, in your Saved Searches list.</li>
+        </ul>
       </div>
       <div class="flexy widget-footer" style="margin-top: 10px;">
         <div class="widget-footer-btn" id="cancel_save_query_data_button" onClick="$.magnificPopup.close()"><span class="iconic iconic-x-alt"> Cancel</span></div>
@@ -132,6 +125,7 @@
 
     <script type="text/javascript">
 
+      build_saved_search_menu();
       var datasource = $('#active-datasource').text().toLowerCase() + '_search';
       show_datasource_form(datasource);
 
@@ -245,7 +239,7 @@
             }, 150);
             if ($('#search_title').attr('value').length < 1)
             {
-              <?php if (array_key_exists('saved_searches', $_session_data['data'])) { $search_count = $_session_data['data']['saved_searches']; } else { $search_count = 0; } ?>
+              <?php if (array_key_exists('user_searches', $_session_data['data'])) { $search_count = count($_session_data['data']['user_searches']); } else { $search_count = 0; } ?>
               $('#search_title').attr('value', '<?php echo $_session_data['username']; ?>' + '_' + datasource + '_' + '<?php echo $search_count + 1; ?>');
             }
           }
@@ -256,9 +250,85 @@
         }
       });
 
-      function save_click_handler(event, query_data)
+      function save_click_handler(event)
       {
-        console.log(query_data);
+        if ($('input#search_title').val().length < 1)
+        {
+          $('input#search_title').css('border-color', 'red').css('background-color', 'rgb(255, 200, 200)').focus();
+          alert("You must specify a title for your saved search");
+        }
+        query_data['user_id'] = "<?php echo $_session_data['user_id']; ?>";
+        query_data['title'] = $('input#search_title').val();
+        $('#save_span').prop('checked')?query_data['save_span'] = 1:query_data['save_span'] = 0;
+        $('#public').prop('checked')?query_data['private'] = 0:query_data['private'] = 1;
+        var api_url = '<?php echo URL; ?>api/save_adhoc_search';
+        $.ajax({
+          url: api_url
+          ,type: 'POST'
+          ,data: query_data
+          ,dataType: 'json'
+          ,success: function(data) {
+            build_saved_search_menu();
+            $('.container').append('<div id="success-popup" class="popup"><h5>Success</h5><div class="popup-form-data">Your search has been saved.</div></div>');
+            $.magnificPopup.open({
+              items: {
+                src: '#success-popup'
+                ,type: 'inline'
+              }
+              ,preloader: false
+              ,removalDelay: 300
+              ,mainClass: 'popup-animate'
+              ,callbacks: {
+                open: function() {
+                  $('.navbar').addClass('blur');
+                  $('.container').addClass('blur');
+                }
+                ,close: function() {
+                  $('.container').removeClass('blur');
+                  $('.navbar').removeClass('blur');
+                  $('#success-popup').remove();
+                }
+              }
+            });
+            setTimeout(function() {
+              $.magnificPopup.close();
+            }, 750);
+          }
+        });
+
+      }
+
+      function build_saved_search_menu()
+      {
+        var user_id = "<?php echo $_session_data['user_id']; ?>";
+        var api_url = '<?php echo URL; ?>api/get_saved_searches';
+        api_query = {user_id: user_id};
+        $.ajax({
+          url: api_url
+          ,type: 'POST'
+          ,data: api_query
+          ,dataType: 'json'
+          ,success: function(data) {
+            my_searches = data['user_searches'];
+            public_searches = data['public_searches'];
+            $('#saved-searches-options').empty();
+            $('#saved-searches-options').append('<li class="menu-section"><span>My Searches</span></li>');
+            if (my_searches)
+            {
+              $.each(my_searches, function(i, search) {
+                $('#saved-searches-options').append('<li><span><a href="<?php echo URL; ?>adhoc/saved/' + search['id'] + '">' + search['title'] + '</span></li>');
+              });
+            }
+            if (public_searches)
+            {
+              $('#saved-searches-options').append('<li class="menu-section"><span class="divider"></span></li>');
+              $('#saved-searches-options').append('<li class="menu-section"><span>Public Searches</span></li>');
+              $.each(public_searches, function(i, public) {
+                $('#saved-searches-options').append('<li><span><a href="<?php echo URL; ?>adhoc/saved/' + public['id'] + '">' + public['title'] + ' (' + public['username'] + ')</a></span></li>');
+              });
+            }
+          }
+        });
       }
 
       $(document).ready(function() {
@@ -267,6 +337,6 @@
 
       $(window).resize(function() {
         $('.widget-main').css('height', ($('.widget').innerHeight() - ($('.widget-title').height() + $('.widget-footer').height())));
-      })
+      });
 
     </script>
