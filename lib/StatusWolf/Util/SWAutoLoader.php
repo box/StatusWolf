@@ -50,7 +50,7 @@ class SWAutoLoader {
    *
    * @param string $class
    */
-  public static function sw_autoloader($class)
+  public static function sw_autoloader($class, $recheck = false)
   {
     // All class files must end in .php
     $class_file = $class . '.php';
@@ -98,6 +98,10 @@ class SWAutoLoader {
           require_once $class_cache[$class_file];
           break;
         }
+        else if ($recheck)
+        {
+          throw new SWException('Class ' . $class_file . ' not found');
+        }
         else
         {
           $cached = false;
@@ -106,7 +110,7 @@ class SWAutoLoader {
       if (!$cached)
       {
         self::build_path_cache(LIB);
-        self::sw_autoloader($class);
+        self::sw_autoloader($class, true);
       }
     }
 

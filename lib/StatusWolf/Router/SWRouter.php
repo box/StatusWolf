@@ -49,7 +49,15 @@ class SWRouter {
     else
     {
       $controller = ucfirst(array_shift($url_path)) . 'Controller';
-      $controller_object = new $controller($url_path);
+      try
+      {
+        $controller_object = new $controller($url_path);
+      }
+      catch(SWException $e)
+      {
+        $this->loggy->logDebug("Controller " . $controller . " was not found, punting to Home");
+        $controller_object = new HomeController();
+      }
     }
   }
 
