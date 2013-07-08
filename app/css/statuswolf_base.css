@@ -223,6 +223,12 @@ select {
     visibility: hidden;
 }
 
+.maximize {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
 /*
  * ==================
  * Top navigation bar
@@ -416,6 +422,8 @@ li.menu-section:hover {
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
     border: 1px solid rgba(234, 234, 234, .75);
+    transition: all 0.5s ease-in-out;
+    -webkit-transition: all 0.5s ease-in-out;
 }
 
 .widget {
@@ -688,6 +696,14 @@ li.menu-section:hover {
 
 .iconic-download:before {
     content: '\e042';
+}
+
+.iconic-fullscreen:before {
+    content: '\e04e';
+}
+
+.iconic-fullscreen-exit:before {
+    content: '\e050';
 }
 
 .iconic-info:before {

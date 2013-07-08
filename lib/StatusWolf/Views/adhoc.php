@@ -32,6 +32,7 @@
               <div class="glue1"></div>
               <div class="widget-footer-btn hidden" id="share-search"><span class="iconic iconic-share"> Share Search</span></div>
               <div class="widget-footer-btn hidden" id="save_popup_button"><span class="iconic iconic-download"> Save Search</span></div>
+              <div class="widget-footer-btn fullscreen-out" id="fullscreen"><span id="fullscreen-button" class="iconic iconic-fullscreen"> </span></div>
             </div>
           </div>
           <div class="widget-back" id="ad-hoc-back">
@@ -134,6 +135,21 @@
         datasource = $(this).text().toLowerCase() + '_search';
         show_datasource_form(datasource);
       });
+
+      $('#fullscreen').click(function() {
+        if ($('.widget-container').hasClass('maximize'))
+        {
+          $('.widget-container').removeClass('maximize');
+          $('.navbar').removeClass('hidden');
+          $('#fullscreen-button').removeClass('iconic-fullscreen-exit').addClass('iconic-fullscreen');
+        }
+        else
+        {
+          $('.widget-container').addClass('maximize');
+          $('.navbar').addClass('hidden');
+          $('#fullscreen-button').removeClass('iconic-fullscreen-exit').addClass('iconic-fullscreen-exit');
+        }
+      })
 
       function show_datasource_form(datasource)
       {
