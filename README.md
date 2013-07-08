@@ -19,38 +19,8 @@ data, and anomaly detection in the current data.
 ## Projection Model with Anomaly Detection
 ![Anomaly Detection](https://cloud.box.com/shared/static/wybbtdmr09qee8gibicf.png)
 
-## Requirements
-### PHP
-Pear Auth
-Pear Log
+## Sharing a graph
+![Share Graph](https://cloud.box.com/shared/static/u5cdoo87j6u3fs5kaows.png)
 
-    pear install Auth
-    pear install Log
-
-If you wish to authenticate to a local database, you'll also need
-Pear MDB2 and the appropriate driver, e.g MDB2#mysqli
-
-    pear install MDB2
-    pear install MDB2#mysqli
-
-## StatusWolf uses:
-Bootstrap & Bootstrap Date/Time Picker (customized for StatusWolf)
-[http://twitter.github.io/bootstrap/]
-
-JQuery
-[http://jquery.com]
-
-JQuery Autocomplete plugin
-[http://www.devbridge.com/projects/autocomplete/jquery/]
-
-Dygraphs (customized for StatusWolf)
-[http://dygraphs.com]
-
-Date.js
-[http://www.datejs.com]
-
-KLogger
-[https://github.com/katzgrau/KLogger]
-
-PolynomialRegression
-[http://www.drque.net/Projects/PolynomialRegression/]
+## Saving a search
+![Save Search](https://cloud.box.com/shared/static/705m4z3yu7jyy55y2ban.png)
