@@ -142,14 +142,20 @@
           $('.widget-container').removeClass('maximize');
           $('.navbar').removeClass('hidden');
           $('#fullscreen-button').removeClass('iconic-fullscreen-exit').addClass('iconic-fullscreen');
+          var evt = document.createEvent('UIEvents');
+          evt.initUIEvent('resize', true, false,window,0);
+          window.dispatchEvent(evt);
         }
         else
         {
           $('.widget-container').addClass('maximize');
           $('.navbar').addClass('hidden');
           $('#fullscreen-button').removeClass('iconic-fullscreen-exit').addClass('iconic-fullscreen-exit');
+          var evt = document.createEvent('UIEvents');
+          evt.initUIEvent('resize', true, false,window,0);
+          window.dispatchEvent(evt);
         }
-      })
+      });
 
       function show_datasource_form(datasource)
       {
