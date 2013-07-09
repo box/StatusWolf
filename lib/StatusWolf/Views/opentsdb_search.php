@@ -207,346 +207,53 @@
           </div>
         </td>
       </tr>
-      <tr class="optional-metric" id="metric-row2">
-        <td>
-          <div class="metric-input-textbox" id="metric2-input-textbox">
-            <input type="text" class="metric-autocomplete" name="metric2">
-          </div>
-        </td>
-        <td>
-          <div class="dropdown ad-hoc-button">
-           <span class="flexy" data-toggle="dropdown">
-             <div class="ad-hoc-button-label" id="active-aggregation-type2">Sum</div>
-             <span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span>
-            </span>
-            <ul class="dropdown-menu" id="aggregation-type-options2 role="menu" aria-labelledby="dLabel">
-              <li><span>Sum</span></li>
-              <li><span>Average</span></li>
-              <li><span>Minimum Value</span></li>
-              <li><span>Maximum Value</span></li>
-              <li><span>Standard Deviation</span></li>
-            </ul>
-          </div>
-        </td>
-        <td style="padding-right: 0;">
-          <div class="dropdown ad-hoc-button">
-            <span class="flexy" data-toggle="dropdown">
-              <div class="ad-hoc-button-label" id="active-downsample-type2">Sum</div>
-              <span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span>
-            </span>
-            <ul class="dropdown-menu" id="downsample-type-options2" role="menu" aria-labelledby="dLabel">
-              <li><span>Sum</span></li>
-              <li><span>Average</span></li>
-              <li><span>Minimum Value</span></li>
-              <li><span>Maximum Value</span></li>
-            </ul>
-          </div>
-        </td>
-        <td style="padding-left: 0;">
-          <div class="dropdown ad-hoc-button" id="downsample-interval-button2">
-            <span class="flexy" data-toggle="dropdown">
-              <div class="ad-hoc-button-label ds-interval" id="active-downsample-interval2" data-value="1">1 minute</div>
-              <span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span>
-            </span>
-            <ul class="dropdown-menu ds-values" id="downsample-interval-options2" role="menu" aria-labelledby="dLabel">
-              <li><span data-value="1">1 minute</span></li>
-              <li><span data-value="10">10 minutes</span></li>
-              <li><span data-value="30">30 minutes</span></li>
-              <li><span data-value="60">1 hour</span></li>
-              <li><span data-value="240">4 hours</span></li>
-              <li><span data-value="720">12 hours</span></li>
-              <li><span data-value="1440">1 day</span></li>
-            </ul>
-          </div>
-        </td>
-        <td>
-          <div class="push-button binary pushed">
-            <input type="checkbox" id="lerp-button2" name="lerp2" checked><label for="lerp-button2"><span class="iconic iconic-check-alt green"></span><span class="binary-label"> Yes</span></label>
-          </div>
-        </td>
-        <td>
-          <div class="push-button binary">
-            <input type="checkbox" id="rate-button2" name="rate2"><label for="rate-button2"><span class="iconic iconic-x-alt red"></span><span class="binary-label"> No</span></label>
-          </div>
-        </td>
-        <td>
-          <div class="push-button binary">
-            <input type="checkbox" id="y2-button2" name="y2-2"><label for="y2-button2"><span class="iconic iconic-x-alt red"></span><span class="binary-label"> No</span></label>
-          </div>
-        </td>
-      </tr>
-      <tr class="optional-metric" id="metric-row3">
-        <td>
-          <div class="metric-input-textbox" id="metric3-input-textbox">
-            <input type="text" class="metric-autocomplete" name="metric3">
-          </div>
-        </td>
-        <td>
-          <div class="dropdown ad-hoc-button">
-           <span class="flexy" data-toggle="dropdown">
-             <div class="ad-hoc-button-label" id="active-aggregation-type3">Sum</div>
-             <span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span>
-            </span>
-            <ul class="dropdown-menu" id="aggregation-type-options3 role="menu" aria-labelledby="dLabel">
-            <li><span>Sum</span></li>
-            <li><span>Average</span></li>
-            <li><span>Minimum Value</span></li>
-            <li><span>Maximum Value</span></li>
-            <li><span>Standard Deviation</span></li>
-            </ul>
-          </div>
-        </td>
-        <td style="padding-right: 0;">
-          <div class="dropdown ad-hoc-button">
-            <span class="flexy" data-toggle="dropdown">
-              <div class="ad-hoc-button-label" id="active-downsample-type3">Sum</div>
-              <span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span>
-            </span>
-            <ul class="dropdown-menu" id="downsample-type-options3" role="menu" aria-labelledby="dLabel">
-              <li><span>Sum</span></li>
-              <li><span>Average</span></li>
-              <li><span>Minimum Value</span></li>
-              <li><span>Maximum Value</span></li>
-            </ul>
-          </div>
-        </td>
-        <td style="padding-left: 0;">
-          <div class="dropdown ad-hoc-button" id="downsample-interval-button3">
-            <span class="flexy" data-toggle="dropdown">
-              <div class="ad-hoc-button-label ds-interval" id="active-downsample-interval3" data-value="1">1 minute</div>
-              <span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span>
-            </span>
-            <ul class="dropdown-menu ds-values" id="downsample-interval-options3" role="menu" aria-labelledby="dLabel">
-              <li><span data-value="1">1 minute</span></li>
-              <li><span data-value="10">10 minutes</span></li>
-              <li><span data-value="30">30 minutes</span></li>
-              <li><span data-value="60">1 hour</span></li>
-              <li><span data-value="240">4 hours</span></li>
-              <li><span data-value="720">12 hours</span></li>
-              <li><span data-value="1440">1 day</span></li>
-            </ul>
-          </div>
-        </td>
-        <td>
-          <div class="push-button binary pushed">
-            <input type="checkbox" id="lerp-button3" name="lerp3" checked><label for="lerp-button3"><span class="iconic iconic-check-alt green"></span><span class="binary-label"> Yes</span></label>
-          </div>
-        </td>
-        <td>
-          <div class="push-button binary">
-            <input type="checkbox" id="rate-button3" name="rate3"><label for="rate-button3"><span class="iconic iconic-x-alt red"></span><span class="binary-label"> No</span></label>
-          </div>
-        </td>
-        <td>
-          <div class="push-button binary">
-            <input type="checkbox" id="y2-button3" name="y2-3"><label for="y2-button3"><span class="iconic iconic-x-alt red"></span><span class="binary-label"> No</span></label>
-          </div>
-        </td>
-      </tr>
-      <tr class="optional-metric" id="metric-row4">
-        <td>
-          <div class="metric-input-textbox" id="metric4-input-textbox">
-            <input type="text" class="metric-autocomplete" name="metric4">
-          </div>
-        </td>
-        <td>
-          <div class="dropdown ad-hoc-button">
-           <span class="flexy" data-toggle="dropdown">
-             <div class="ad-hoc-button-label" id="active-aggregation-type4">Sum</div>
-             <span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span>
-            </span>
-            <ul class="dropdown-menu" id="aggregation-type-options4 role="menu" aria-labelledby="dLabel">
-            <li><span>Sum</span></li>
-            <li><span>Average</span></li>
-            <li><span>Minimum Value</span></li>
-            <li><span>Maximum Value</span></li>
-            <li><span>Standard Deviation</span></li>
-            </ul>
-          </div>
-        </td>
-        <td style="padding-right: 0;">
-          <div class="dropdown ad-hoc-button">
-            <span class="flexy" data-toggle="dropdown">
-              <div class="ad-hoc-button-label" id="active-downsample-type4">Sum</div>
-              <span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span>
-            </span>
-            <ul class="dropdown-menu" id="downsample-type-options4" role="menu" aria-labelledby="dLabel">
-              <li><span>Sum</span></li>
-              <li><span>Average</span></li>
-              <li><span>Minimum Value</span></li>
-              <li><span>Maximum Value</span></li>
-            </ul>
-          </div>
-        </td>
-        <td style="padding-left: 0;">
-          <div class="dropdown ad-hoc-button" id="downsample-interval-button4">
-            <span class="flexy" data-toggle="dropdown">
-              <div class="ad-hoc-button-label ds-interval" id="active-downsample-interval4" data-value="1">1 minute</div>
-              <span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span>
-            </span>
-            <ul class="dropdown-menu ds-values" id="downsample-interval-options4" role="menu" aria-labelledby="dLabel">
-              <li><span data-value="1">1 minute</span></li>
-              <li><span data-value="10">10 minutes</span></li>
-              <li><span data-value="30">30 minutes</span></li>
-              <li><span data-value="60">1 hour</span></li>
-              <li><span data-value="240">4 hours</span></li>
-              <li><span data-value="720">12 hours</span></li>
-              <li><span data-value="1440">1 day</span></li>
-            </ul>
-          </div>
-        </td>
-        <td>
-          <div class="push-button binary pushed">
-            <input type="checkbox" id="lerp-button4" name="lerp4" checked><label for="lerp-button4"><span class="iconic iconic-check-alt green"></span><span class="binary-label"> Yes</span></label>
-          </div>
-        </td>
-        <td>
-          <div class="push-button binary">
-            <input type="checkbox" id="rate-button4" name="rate4"><label for="rate-button4"><span class="iconic iconic-x-alt red"></span><span class="binary-label"> No</span></label>
-          </div>
-        </td>
-        <td>
-          <div class="push-button binary">
-            <input type="checkbox" id="y2-button4" name="y2-4"><label for="y2-button4"><span class="iconic iconic-x-alt red"></span><span class="binary-label"> No</span></label>
-          </div>
-        </td>
-      </tr>
-      <tr class="optional-metric" id="metric-row5">
-        <td>
-          <div class="metric-input-textbox" id="metric5-input-textbox">
-            <input type="text" class="metric-autocomplete" name="metric5">
-          </div>
-        </td>
-        <td>
-          <div class="dropdown ad-hoc-button">
-           <span class="flexy" data-toggle="dropdown">
-             <div class="ad-hoc-button-label" id="active-aggregation-type5">Sum</div>
-             <span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span>
-            </span>
-            <ul class="dropdown-menu" id="aggregation-type-options5 role="menu" aria-labelledby="dLabel">
-            <li><span>Sum</span></li>
-            <li><span>Average</span></li>
-            <li><span>Minimum Value</span></li>
-            <li><span>Maximum Value</span></li>
-            <li><span>Standard Deviation</span></li>
-            </ul>
-          </div>
-        </td>
-        <td style="padding-right: 0;">
-          <div class="dropdown ad-hoc-button">
-            <span class="flexy" data-toggle="dropdown">
-              <div class="ad-hoc-button-label" id="active-downsample-type5">Sum</div>
-              <span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span>
-            </span>
-            <ul class="dropdown-menu" id="downsample-type-options5" role="menu" aria-labelledby="dLabel">
-              <li><span>Sum</span></li>
-              <li><span>Average</span></li>
-              <li><span>Minimum Value</span></li>
-              <li><span>Maximum Value</span></li>
-            </ul>
-          </div>
-        </td>
-        <td style="padding-left: 0;">
-          <div class="dropdown ad-hoc-button" id="downsample-interval-button5">
-            <span class="flexy" data-toggle="dropdown">
-              <div class="ad-hoc-button-label ds-interval" id="active-downsample-interval5" data-value="1">1 minute</div>
-              <span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span>
-            </span>
-            <ul class="dropdown-menu ds-values" id="downsample-interval-options5" role="menu" aria-labelledby="dLabel">
-              <li><span data-value="1">1 minute</span></li>
-              <li><span data-value="10">10 minutes</span></li>
-              <li><span data-value="30">30 minutes</span></li>
-              <li><span data-value="60">1 hour</span></li>
-              <li><span data-value="240">4 hours</span></li>
-              <li><span data-value="720">12 hours</span></li>
-              <li><span data-value="1440">1 day</span></li>
-            </ul>
-          </div>
-        </td>
-        <td>
-          <div class="push-button binary pushed">
-            <input type="checkbox" id="lerp-button5" name="lerp5" checked><label for="lerp-button5"><span class="iconic iconic-check-alt green"></span><span class="binary-label"> Yes</span></label>
-          </div>
-        </td>
-        <td>
-          <div class="push-button binary">
-            <input type="checkbox" id="rate-button5" name="rate5"><label for="rate-button5"><span class="iconic iconic-x-alt red"></span><span class="binary-label"> No</span></label>
-          </div>
-        </td>
-        <td>
-          <div class="push-button binary">
-            <input type="checkbox" id="y2-button5" name="y2-5"><label for="y2-button5"><span class="iconic iconic-x-alt red"></span><span class="binary-label"> No</span></label>
-          </div>
-        </td>
-      </tr>
-      <tr class="optional-metric" id="metric-row6">
-        <td>
-          <div class="metric-input-textbox" id="metric6-input-textbox">
-            <input type="text" class="metric-autocomplete" name="metric6">
-          </div>
-        </td>
-        <td>
-          <div class="dropdown ad-hoc-button">
-           <span class="flexy" data-toggle="dropdown">
-             <div class="ad-hoc-button-label" id="active-aggregation-type6">Sum</div>
-             <span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span>
-            </span>
-            <ul class="dropdown-menu" id="aggregation-type-options6 role="menu" aria-labelledby="dLabel">
-            <li><span>Sum</span></li>
-            <li><span>Average</span></li>
-            <li><span>Minimum Value</span></li>
-            <li><span>Maximum Value</span></li>
-            <li><span>Standard Deviation</span></li>
-            </ul>
-          </div>
-        </td>
-        <td style="padding-right: 0;">
-          <div class="dropdown ad-hoc-button">
-            <span class="flexy" data-toggle="dropdown">
-              <div class="ad-hoc-button-label" id="active-downsample-type6">Sum</div>
-              <span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span>
-            </span>
-            <ul class="dropdown-menu" id="downsample-type-options6" role="menu" aria-labelledby="dLabel">
-              <li><span>Sum</span></li>
-              <li><span>Average</span></li>
-              <li><span>Minimum Value</span></li>
-              <li><span>Maximum Value</span></li>
-            </ul>
-          </div>
-        </td>
-        <td style="padding-left: 0;">
-          <div class="dropdown ad-hoc-button" id="downsample-interval-button6">
-            <span class="flexy" data-toggle="dropdown">
-              <div class="ad-hoc-button-label ds-interval" id="active-downsample-interval6" data-value="1">1 minute</div>
-              <span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span>
-            </span>
-            <ul class="dropdown-menu ds-values" id="downsample-interval-options6" role="menu" aria-labelledby="dLabel">
-              <li><span data-value="1">1 minute</span></li>
-              <li><span data-value="10">10 minutes</span></li>
-              <li><span data-value="30">30 minutes</span></li>
-              <li><span data-value="60">1 hour</span></li>
-              <li><span data-value="240">4 hours</span></li>
-              <li><span data-value="720">12 hours</span></li>
-              <li><span data-value="1440">1 day</span></li>
-            </ul>
-          </div>
-        </td>
-        <td>
-          <div class="push-button binary pushed">
-            <input type="checkbox" id="lerp-button6" name="lerp6" checked><label for="lerp-button6"><span class="iconic iconic-check-alt green"></span><span class="binary-label"> Yes</span></label>
-          </div>
-        </td>
-        <td>
-          <div class="push-button binary">
-            <input type="checkbox" id="rate-button6" name="rate6"><label for="rate-button6"><span class="iconic iconic-x-alt red"></span><span class="binary-label"> No</span></label>
-          </div>
-        </td>
-        <td>
-          <div class="push-button binary">
-            <input type="checkbox" id="y2-button6" name="y2-6"><label for="y2-button6"><span class="iconic iconic-x-alt red"></span><span class="binary-label"> No</span></label>
-          </div>
-        </td>
-      </tr>
+      <?php
+      for ($i = 2; $i <= 6; $i++)
+      {
+        print '<tr class="optional-metric" id="metric-row' . $i . '">' . "\n";
+        print "<td>\n";
+        print '<div class="metric-input-textbox" id="metric' . $i . "-input-textbox\">\n";
+        print '<input type="text" class="metric-autocomplete" name="metric' . $i . "\">\n";
+        print "</div>\n</td>\n<td>\n<div class=\"dropdown ad-hoc-button\">\n<span class=\"flexy\" data-toggle=\"dropdown\">\n";
+        print '<div class="ad-hoc-button-label" id="active-aggregation-type' . $i . "\">Sum</div>\n";
+        print '<span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span>' . "\n</span>\n</span>";
+        print '<ul class="dropdown-menu" id="aggregation-type-options' . $i . '" role="menu" aria-labelledby="dLabel">' . "\n";
+        print "<li><span>Sum</span></li>\n<li><span>Average</span></li>\n<li><span>Minimum Value</span></li>\n";
+        print "<li><span>Maximum Value</span></li>\n<li><span>Standard Deviation</span></li>\n</ul></div></td>";
+        print '<td style="padding-right: 0;">' . "\n";
+        print '<div class="dropdown ad-hoc-button">' . "\n" . '<span class="flexy" data-toggle="dropdown">' . "\n";
+        print '<div class="ad-hoc-button-label" id="active-downsample-type' . $i . '">Sum</div>' . "\n";
+        print '<span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span>' . "\n</span>\n</span>";
+        print '<ul class="dropdown-menu" id="downsample-type-options' . $i . '" role="menu" aria-labelledby="dLabel">' . "\n";
+        print "<li><span>Sum</span></li>\n<li><span>Average</span></li>\n";
+        print "<li><span>Minimum Value</span></li>\n<li><span>Maximum Value</span></li>\n</ul>\n</div>\n</td>\n";
+        print '<td style="padding-left: 0;">' . "\n";
+        print '<div class="dropdown ad-hoc-button" id="downsample-interval-button' . $i . '">' . "\n";
+        print '<span class="flexy" data-toggle="dropdown">' . "\n";
+        print '<div class="ad-hoc-button-label ds-interval" id="active-downsample-interval' . $i . '" data-value="1">1 minute</div>' . "\n";
+        print '<span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span>' . "\n</span>\n</span>";
+        print '<ul class="dropdown-menu ds-values" id="downsample-interval-options' . $i . '" role="menu" aria-labelledby="dLabel">' . "\n";
+        print '<li><span data-value="1">1 minute</span></li>' . "\n";
+        print '<li><span data-value="10">10 minutes</span></li>' . "\n";
+        print '<li><span data-value="30">30 minutes</span></li>' . "\n";
+        print '<li><span data-value="60">1 hour</span></li>' . "\n";
+        print '<li><span data-value="240">4 hours</span></li>' . "\n";
+        print '<li><span data-value="720">12 hours</span></li>' . "\n";
+        print '<li><span data-value="1440">1 day</span></li>' . "\n</ul>\n</div>\n</td>\n";
+        print '<td>' . "\n" . '<div class="push-button binary pushed">' . "\n";
+        print '<input type="checkbox" id="lerp-button' . $i . '" name="lerp' . $i . '" checked>';
+        print '<label for="lerp-button' . $i . '"><span class="iconic iconic-check-alt green"></span>';
+        print '<span class="binary-label"> Yes</span></label>' . "\n</div>\n</td>\n";
+        print '<td>' . "\n" . '<div class="push-button binary">' . "\n";
+        print '<input type="checkbox" id="rate-button' . $i . '" name="rate' . $i . '">';
+        print '<label for="rate-button' . $i . '"><span class="iconic iconic-x-alt red"></span>';
+        print '<span class="binary-label"> No</span></label>' . "\n</div>\n</td>\n";
+        print '<td>' . "\n" . '<div class="push-button binary">' . "\n";
+        print '<input type="checkbox" id="y2-button' . $i . '" name="y2-' . $i . '">';
+        print '<label for="y2-button' . $i . '"><span class="iconic iconic-x-alt red"></span>';
+        print '<span class="binary-label"> No</span></label>' . "\n</div>\n</td>\n</tr>\n";
+      }
+      ?>
     </table>
   </div>
 </div>
