@@ -189,30 +189,6 @@ class ApiController extends SWController
   }
 
   /**
-   * Function to pull random quote data from configured source(s) for
-   * display during long-running operations (like building anomaly models)
-   *
-   * @param array $path - Config options are pulled from the URL passed in
-   */
-  protected function fortune($path)
-  {
-    $arguments = array();
-    if (!empty($path[0]))
-    {
-      $arguments['source'] = $path[0];
-    }
-    if (!empty($path[1]))
-    {
-      $arguments['category'] = $path[1];
-    }
-
-    $fortune = new Fortune();
-    $my_fortune = $fortune->get_fortune($arguments);
-    echo json_encode($my_fortune);
-
-  }
-
-  /**
    * Function to generate an MD5 key for an ad-hoc search and save the
    * key and query data to the database to facilitate sharing of searches.
    * Returns the search key for use in building the URL of the shared search.

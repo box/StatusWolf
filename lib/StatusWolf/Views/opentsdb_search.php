@@ -792,11 +792,11 @@
           delete incoming_query_data;
         }
       }
-      begin_querying(query_data);
+      init_query(query_data);
     }
   }
 
-  function begin_querying(query_data) {
+  function init_query(query_data) {
 
     // Start deferred query for metric data
     $.when(opentsdb_search(query_data)).then(
@@ -854,35 +854,6 @@
   function opentsdb_search(query_data)
   {
     var query_object = new $.Deferred();
-
-<!--    setInterval(function() {-->
-<!--      if (query_object.state() === "pending")-->
-<!--      {-->
-<!--        if(sw_conf.waiting.source == "chuck")-->
-<!--        {-->
-<!--          url = "--><?php //echo URL; ?><!--api/fortune/chuck";-->
-<!--        }-->
-<!--        else-->
-<!--        {-->
-<!--          if (typeof sw_conf.waiting.category != 'undefined')-->
-<!--          {-->
-<!--            url = "--><?php //echo URL; ?><!--api/fortune/quotes/" + sw_conf.waiting.category;-->
-<!--          }-->
-<!--          else-->
-<!--          {-->
-<!--            url = "--><?php //echo URL; ?><!--api/fortune/quotes/random";-->
-<!--          }-->
-<!--        }-->
-<!--        $.ajax({-->
-<!--          url: url-->
-<!--          ,type: 'GET'-->
-<!--          ,dataType: 'json'-->
-<!--          ,success: function(data) {-->
-<!--            query_object.notify(data);-->
-<!--          }-->
-<!--        })-->
-<!--      }-->
-<!--    }, 15000);-->
 
     // Generate (or find the cached) model data for the metric
     if (query_data['history-graph'] == "anomaly")
