@@ -226,6 +226,7 @@ class OpenTSDBAnomalyModel {
       else
       {
         $this->loggy->logDebug($this->log_tag . "Not enough data was gathered, can't build anomaly model");
+        $this->_model_cache = array("error", array("0", "Unable to build anomaly model for this metric, not enough past data in OpenTSDB"));
         $this->reference_model = null;
       }
     }

@@ -846,6 +846,7 @@
   // Function to build the graph when the form Go button is activated
   function go_click_handler(event)
   {
+    query_data = {};
     query_data.datasource = 'OpenTSDB';
     query_data.downsample_master_interval = 0;
     var input_error = false;
@@ -1197,12 +1198,14 @@
         });
 
     chain.done(function(data) {
-      if (!data)
+      if (Object.getOwnPropertyNames(data).length <= 5)
       {
-        ajax_object.reject(data);
+        ajax_request.abort();
+        ajax_object.reject(["0", "Query returned no data"]);
       }
       else if (data[0] === "error")
       {
+        ajax_request.abort();
         ajax_object.reject(data[1])
       }
       else
@@ -1219,60 +1222,94 @@
   function get_metric_data_wow(query_data)
   {
 
-    if (typeof current_request !== 'undefined')
+    if (typeof ajax_request !== 'undefined')
     {
-      current_request.abort();
+      ajax_request.abort();
     }
 
     ajax_object = new $.Deferred();
 
     var metric_data = {};
 
-    current_request = $.ajax({
+    ajax_request = $.ajax({
           url: "<?php echo URL; ?>adhoc/search/OpenTSDB"
           ,type: 'POST'
           ,data: query_data
           ,data_type: 'json'
           ,timeout: 120000
         })
-        ,chained = current_request.then(function(data) {
+        ,chained = ajax_request.then(function(data) {
           metric_data[0] = eval('(' + data + ')');
-          $('#status-message').html('<p>Fetching Metric Data</p>');
-          metric_data.start = metric_data[0]['start'];
-          delete metric_data[0]['start'];
-          metric_data.end = metric_data[0]['end'];
-          delete metric_data[0]['end'];
-          metric_data.query_url = metric_data[0]['query_url'];
-          delete metric_data[0]['query_url'];
-          current_keys = Object.keys(metric_data[0]);
-          current_key = 'Current - ' + current_keys[0];
-          metric_data[current_key] = metric_data[0][current_keys[0]];
-          delete metric_data[0];
-          var past_query = $.extend(true, {}, query_data);
-          var query_span = parseInt(query_data.end_time) - parseInt(query_data.start_time);
-          past_query.end_time = parseInt(query_data.end_time - <?php echo WEEK; ?>);
-          past_query.start_time = past_query.end_time - query_span;
-          return $.ajax({
-            url: "<?php echo URL; ?>adhoc/search/OpenTSDB"
-            ,type: 'POST'
-            ,data: past_query
-            ,data_type: 'json'
-            ,timeout: 120000
-          });
+          if (Object.keys(metric_data[0]).length <= 5)
+          {
+            ajax_request.abort();
+            ajax_object.reject(["0", "Current week query returned no data"]);
+          }
+          else if (metric_data[0][0] === "error")
+          {
+            ajax_request.abort();
+            ajax_object.reject(metric_data[0][1])
+          }
+          else
+          {
+            $('#status-message').html('<p>Fetching Metric Data</p>');
+            metric_data.start = metric_data[0]['start'];
+            delete metric_data[0]['start'];
+            metric_data.end = metric_data[0]['end'];
+            delete metric_data[0]['end'];
+            metric_data.query_url = metric_data[0]['query_url'];
+            delete metric_data[0]['query_url'];
+            current_keys = Object.keys(metric_data[0]);
+            current_key = 'Current - ' + current_keys[0];
+            metric_data[current_key] = metric_data[0][current_keys[0]];
+            delete metric_data[0];
+            var past_query = $.extend(true, {}, query_data);
+            var query_span = parseInt(query_data.end_time) - parseInt(query_data.start_time);
+            past_query.end_time = parseInt(query_data.end_time - <?php echo WEEK; ?>);
+            past_query.start_time = past_query.end_time - query_span;
+            return $.ajax({
+              url: "<?php echo URL; ?>adhoc/search/OpenTSDB"
+              ,type: 'POST'
+              ,data: past_query
+              ,data_type: 'json'
+              ,timeout: 120000
+            });
+          }
         });
     chained.done(function(data) {
-      metric_data[1] = eval('(' + data + ')');
-      delete metric_data[1].start;
-      delete metric_data[1].end;
-      delete metric_data[1].query_url;
-      past_keys = Object.keys(metric_data[1]);
-      past_key = 'Previous - ' + past_keys[0];
-      metric_data[past_key] = metric_data[1][past_keys[0]];
-      delete metric_data[1];
-      $.each(metric_data[past_key], function(index, entry) {
-        entry.timestamp = parseInt(entry.timestamp + <?php echo WEEK; ?>);
-      });
-      ajax_object.resolve(metric_data);
+      if (!data)
+      {
+        ajax_request.abort();
+        ajax_object.reject();
+      }
+      else
+      {
+        metric_data[1] = eval('(' + data + ')');
+        if (Object.getOwnPropertyNames(metric_data[1]).length <= 5)
+        {
+          ajax_request.abort();
+          ajax_object.reject(["0", "Previous week query returned no data"]);
+        }
+        else if (metric_data[1][0] === "error")
+        {
+          ajax_request.abort();
+          ajax_object.reject(metric_data[1][1])
+        }
+        else
+        {
+          delete metric_data[1].start;
+          delete metric_data[1].end;
+          delete metric_data[1].query_url;
+          past_keys = Object.keys(metric_data[1]);
+          past_key = 'Previous - ' + past_keys[0];
+          metric_data[past_key] = metric_data[1][past_keys[0]];
+          delete metric_data[1];
+          $.each(metric_data[past_key], function(index, entry) {
+            entry.timestamp = parseInt(entry.timestamp + <?php echo WEEK; ?>);
+          });
+          ajax_object.resolve(metric_data);
+        }
+      }
     });
 
     return ajax_object.promise();
@@ -1282,61 +1319,98 @@
   function get_metric_data_anomaly(query_data)
   {
 
-    if (typeof anomaly_request !== 'undefined')
+    if (typeof ajax_request !== 'undefined')
     {
-      anomaly_request.abort();
+      ajax_request.abort();
     }
 
     ajax_object = new $.Deferred();
 
     var metric_data = {};
-    anomaly_request = $.ajax({
+    ajax_request = $.ajax({
           url: "<?php echo URL; ?>api/opentsdb_anomaly_model"
           ,type: 'POST'
           ,data: query_data
           ,data_type: 'json'
         })
-        ,chained = anomaly_request.then(function(data) {
+        ,chained = ajax_request.then(function(data) {
           model_data_cache = eval('(' + data + ')');
-          $('#status-message').html('<p>Fetching Metric Data</p>');
-          return $.ajax({
-            url: "<?php echo URL; ?>adhoc/search/OpenTSDB"
-            ,type: 'POST'
-            ,data: query_data
-            ,data_type: 'json'
-            ,timeout: 120000
-          });
+          if (model_data_cache[0] === "error")
+          {
+            ajax_request.abort();
+            ajax_object.reject(model_data_cache[1]);
+          }
+          else
+          {
+            $('#status-message').html('<p>Fetching Metric Data</p>');
+            return $.ajax({
+              url: "<?php echo URL; ?>adhoc/search/OpenTSDB"
+              ,type: 'POST'
+              ,data: query_data
+              ,data_type: 'json'
+              ,timeout: 120000
+            });
+          }
         })
         ,chained_two = chained.then(function(data) {
-          live_data = eval('(' + data + ')');
-          metric_data['start'] = live_data['start'];
-          metric_data['end'] = live_data['end'];
-          metric_data['query_url'] = live_data['query_url'];
-          metric_data['cache_key'] = live_data['cache_key'];
-          metric_data['query_cache'] = live_data['query_cache'];
-          delete live_data['start'];
-          delete live_data['end'];
-          delete live_data['query_url'];
-          delete live_data['cache_key'];
-          delete live_data['query_cache'];
-          live_keys = Object.keys(live_data);
-          live_key = live_keys[0];
-          metric_data[live_key] = live_data[live_key];
-          delete live_data;
-          $('#status-message').html('<p>Building Projection</p>');
-          return $.ajax({
-            url: "<?php echo URL; ?>api/time_series_projection"
-            ,type: 'POST'
-            ,data: {model_cache: model_data_cache, query_cache: metric_data['query_cache'], key: live_key}
-            ,data_type: 'json'
-            ,timeout: 120000
-          });
+          if (!data)
+          {
+            ajax_request.abort();
+            ajax_object.reject();
+          }
+          else
+          {
+            live_data = eval('(' + data + ')');
+            if (Object.keys(live_data).length <= 5)
+            {
+              ajax_request.abort();
+              ajax_object.reject(["0", "Query returned no data"]);
+            }
+            else if (live_data[0] === "error")
+            {
+              ajax_request.abort();
+              ajax_object.reject(live_data[1])
+            }
+            else
+            {
+              metric_data['start'] = live_data['start'];
+              metric_data['end'] = live_data['end'];
+              metric_data['query_url'] = live_data['query_url'];
+              metric_data['cache_key'] = live_data['cache_key'];
+              metric_data['query_cache'] = live_data['query_cache'];
+              delete live_data['start'];
+              delete live_data['end'];
+              delete live_data['query_url'];
+              delete live_data['cache_key'];
+              delete live_data['query_cache'];
+              live_keys = Object.keys(live_data);
+              live_key = live_keys[0];
+              metric_data[live_key] = live_data[live_key];
+              delete live_data;
+              $('#status-message').html('<p>Building Projection</p>');
+              return $.ajax({
+                url: "<?php echo URL; ?>api/time_series_projection"
+                ,type: 'POST'
+                ,data: {model_cache: model_data_cache, query_cache: metric_data['query_cache'], key: live_key}
+                ,data_type: 'json'
+                ,timeout: 120000
+              });
+            }
+          }
         });
     chained_two.done(function(data) {
-      var projection_data = eval('(' + data + ')');
-      metric_data[live_key] = projection_data['projection'];
-      metric_data['anomalies'] = projection_data['anomalies'];
-      ajax_object.resolve(metric_data);
+      if (!data)
+      {
+        ajax_request.abort();
+        ajax_object.reject();
+      }
+      else
+      {
+        var projection_data = eval('(' + data + ')');
+        metric_data[live_key] = projection_data['projection'];
+        metric_data['anomalies'] = projection_data['anomalies'];
+        ajax_object.resolve(metric_data);
+      }
     });
 
     return ajax_object.promise();
@@ -1568,6 +1642,7 @@
     // Set the interval for adding new data if Auto Update is selected
     if (query_data['auto_update'])
     {
+      console.log('setting auto-update timer');
       setInterval(function() {
         var new_start = series_times[0];
         var new_end = new Date.now().getTime();
