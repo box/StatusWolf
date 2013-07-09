@@ -342,11 +342,11 @@
   $('ul.dropdown-menu').on('click', 'li', function() {
     var button = $(this).parents('.ad-hoc-button').children('span');
     $(button).children('.ad-hoc-button-label').text($(this).text());
+    $(button).children('div.ds-interval').attr('data-value', $(this).children('span').attr('data-value'));
     if ($(button).children('#time-span'))
     {
       $(button).children('#time-span').attr('data-ms', $(this).children('span').attr('data-ms'));
     }
-    $(button).children('div.ds-interval').attr('data-value', $(this).children('span').attr('data-value'));
   });
 
   $('.info-tooltip').tooltip({placement: 'bottom'});
@@ -559,6 +559,11 @@
     var input_error = false;
     var methods = {'sum': 'sum', 'average': 'avg', 'minimum value': 'min', 'maximum value': 'max', 'standard deviation': 'dev'};
 
+    if (typeof autoupdate_interval !== "undefined")
+    {
+      console.log('clearing auto-update timer');
+      clearInterval(autoupdate_interval);
+    }
     // Validate the input before we do anything else
 
     // Date range validation
@@ -745,6 +750,48 @@
       graph_element.append('<div id="status-box" style="width: 100%; text-align: center;"><p id="status-message"></p></div>');
       $('#status-box').append('<p id=chuck style="margin: 0 25px"></p>');
 
+      if (typeof incoming_query_data !== "undefined")
+      {
+        var form_change = 0;
+        var incoming_query = eval('(' + incoming_query_data + ')');
+        if (incoming_query.metrics.length == query_data.metrics.length)
+        {
+          $.each(incoming_query.metrics, function(i, metric)
+          {
+            if ((typeof metric.lerp !== "undefined") && (metric.lerp === "true"))
+            {
+              metric.lerp = true;
+            }
+            if ((typeof metric.rate !== "undefined") && (metric.rate === "true"))
+            {
+              metric.rate = true;
+            }
+            if ((typeof metric.y2 !== "undefined") && (metric.y2 === "true"))
+            {
+              metric.y2 = true;
+            }
+            if (typeof metric['history-graph'] != "undefined")
+            {
+              delete metric['history-graph'];
+            }
+            if (JSON.stringify(incoming_query.metrics[i]) != JSON.stringify(query_data.metrics[i]))
+            {
+              form_change++;
+            }
+          });
+        }
+        else
+        {
+          form_change++;
+        }
+
+        if (form_change > 0)
+        {
+          window.history.pushState("", "StatusWolf", "/adhoc/");
+          delete incoming_query;
+          delete incoming_query_data;
+        }
+      }
       begin_querying(query_data);
     }
   }
@@ -1350,7 +1397,7 @@
     if (query_data['auto_update'])
     {
       console.log('setting auto-update timer');
-      setInterval(function() {
+      autoupdate_interval = setInterval(function() {
         var new_start = series_times[0];
         var new_end = new Date.now().getTime();
         new_end = parseInt(new_end / 1000);
