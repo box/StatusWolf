@@ -115,6 +115,8 @@
       </div>
     </div>
 
+    <div id="success-popup" class="popup mfp-hide"><h5>Success</h5><div class="popup-form-data">Your search has been saved.</div></div>
+
     <script type="text/javascript" src="<?php echo URL; ?>app/js/sw_lib.js"></script>
     <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/dygraph-combined.js"></script>
     <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/jquery.js"></script>
@@ -291,7 +293,6 @@
           ,dataType: 'json'
           ,success: function(data) {
             build_saved_search_menu();
-            $('.container').append('<div id="success-popup" class="popup"><h5>Success</h5><div class="popup-form-data">Your search has been saved.</div></div>');
             $.magnificPopup.open({
               items: {
                 src: '#success-popup'

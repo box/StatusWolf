@@ -563,6 +563,7 @@
     {
       console.log('clearing auto-update timer');
       clearInterval(autoupdate_interval);
+      delete autoupdate_interval;
     }
     // Validate the input before we do anything else
 
@@ -750,7 +751,7 @@
       graph_element.append('<div id="status-box" style="width: 100%; text-align: center;"><p id="status-message"></p></div>');
       $('#status-box').append('<p id=chuck style="margin: 0 25px"></p>');
 
-      if (typeof incoming_query_data !== "undefined")
+      if (incoming_query_data.length > 1)
       {
         var form_change = 0;
         var incoming_query = eval('(' + incoming_query_data + ')');
@@ -789,7 +790,7 @@
         {
           window.history.pushState("", "StatusWolf", "/adhoc/");
           delete incoming_query;
-          delete incoming_query_data;
+          incoming_query_data = '';
         }
       }
       init_query(query_data);
@@ -935,6 +936,7 @@
       }
       else
       {
+        delete ajax_request;
         ajax_object.resolve(data);
       }
     });
@@ -1032,6 +1034,7 @@
           $.each(metric_data[past_key], function(index, entry) {
             entry.timestamp = parseInt(entry.timestamp + <?php echo WEEK; ?>);
           });
+          delete ajax_request;
           ajax_object.resolve(metric_data);
         }
       }
@@ -1134,6 +1137,7 @@
         var projection_data = eval('(' + data + ')');
         metric_data[live_key] = projection_data['projection'];
         metric_data['anomalies'] = projection_data['anomalies'];
+        delete ajax_request;
         ajax_object.resolve(metric_data);
       }
     });
