@@ -1,0 +1,30 @@
+.brand {
+    display: inline-block;
+}
+
+.version {
+    display: inline-block;
+}
+
+.version p {
+    display: inline-block;
+    margin: 2px 0 5px 5px;
+    font-size: 0.65em;
+    color: rgba(205, 205, 205, 0.5);
+}
+
+#user-menu {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+#user-menu-options {
+    min-width: 85px;
+    margin-top: 5px;
+}
+
+#user-menu-options li span {
+    text-align: right;
+    margin-right: 8px;
+}
