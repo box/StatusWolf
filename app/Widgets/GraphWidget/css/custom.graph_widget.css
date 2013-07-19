@@ -1,0 +1,25 @@
+.graph-widget-search-form {
+    padding-left: 10px;
+    font-size: 0.8em;
+}
+
+.graph-widget-form-row {
+    display: -webkit-box;
+    -webkit-box-orient: horizontal;
+    -webkit-box-align: center;
+    margin: 5px 0;
+    width: 100%;
+}
+
+#row1 {
+    margin-top: 10px;
+    position: relative;
+}
+
+.push-button span.iconic {
+    margin-left: 3px;
+}
+
+.push-button label span {
+    padding: 0 3px 0 3px;
+}

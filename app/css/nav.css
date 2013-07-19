@@ -13,6 +13,10 @@
     color: rgba(205, 205, 205, 0.5);
 }
 
+.menu-btn {
+    line-height: 2.1em;
+}
+
 #user-menu {
     position: absolute;
     top: 0;

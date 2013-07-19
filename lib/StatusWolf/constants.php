@@ -20,6 +20,16 @@ if (!defined('ROOT'))
 	define('ROOT', dirname(dirname(dirname(__FILE__))) . DS);
 }
 
+if (!defined('WIDGETS'))
+{
+  define('WIDGETS', ROOT . 'app' . DS . 'Widgets' . DS);
+}
+
+if (!defined('WIDGETS_URL'))
+{
+  define('WIDGETS_URL', 'app' . DS . 'Widgets' . DS);
+}
+
 if (!defined('LIB'))
 {
 	define('LIB', ROOT . 'lib' . DS);

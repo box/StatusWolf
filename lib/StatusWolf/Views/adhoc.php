@@ -13,7 +13,10 @@
 
 ?>
 
-    <link href="<?php echo URL; ?>app/css/adhoc.css?v=1.0" rel="stylesheet">
+    <link rel="stylesheet" href="<?php echo URL; ?>app/css/widget_base.css">
+    <link rel="stylesheet" href="<?php echo URL; ?>app/css/adhoc.css">
+    <link rel="stylesheet" href="<?php echo URL; ?>app/css/popups.css?v=1.0">
+
     <div class="container">
       <div class="widget-container" id="ad-hoc-widget">
         <div class="widget">
@@ -124,7 +127,6 @@
     <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/date.js"></script>
     <script type="text/javascript" src="<?php echo URL; ?>app/js/status_wolf_colors.js"></script>
     <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/magnific-popup.js"></script>
-    <link href="<?php echo URL; ?>app/css/popups.css?v=1.0" rel="stylesheet">
 
     <script type="text/javascript">
 
@@ -139,10 +141,11 @@
       });
 
       $('#fullscreen').click(function() {
-        if ($('.widget-container').hasClass('maximize'))
+        if ($('.widget-container').hasClass('maximize-widget'))
         {
-          $('.widget-container').removeClass('maximize');
+          $('.widget-container').removeClass('maximize-widget');
           $('.navbar').removeClass('hidden');
+          $('body').removeClass('no-overflow');
           $('#fullscreen-button').removeClass('iconic-fullscreen-exit').addClass('iconic-fullscreen');
           var evt = document.createEvent('UIEvents');
           evt.initUIEvent('resize', true, false,window,0);
@@ -150,9 +153,10 @@
         }
         else
         {
-          $('.widget-container').addClass('maximize');
+          $('.widget-container').addClass('maximize-widget');
           $('.navbar').addClass('hidden');
-          $('#fullscreen-button').removeClass('iconic-fullscreen-exit').addClass('iconic-fullscreen-exit');
+          $('body').addClass('no-overflow');
+          $('#fullscreen-button').removeClass('iconic-fullscreen').addClass('iconic-fullscreen-exit');
           var evt = document.createEvent('UIEvents');
           evt.initUIEvent('resize', true, false,window,0);
           window.dispatchEvent(evt);
@@ -161,7 +165,7 @@
 
       function show_datasource_form(datasource)
       {
-        var view_url = "<?php echo URL; ?>api/datasource_form/" + datasource;
+        var view_url = "<?php echo URL; ?>api/datasource_form/" + datasource + "/adhoc";
         $.ajax({
           url: view_url
           ,method: 'GET'
@@ -355,11 +359,11 @@
       }
 
       $(document).ready(function() {
-        $('.widget-main').css('height', ($('.widget').innerHeight() - ($('.widget-title').height() + $('.widget-footer').height())));
+        $('.widget-main').css('height', ($('#ad-hoc-widget').innerHeight() - ($('.widget-title').height() + $('.widget-footer').height())));
       });
 
       $(window).resize(function() {
-        $('.widget-main').css('height', ($('.widget').innerHeight() - ($('.widget-title').height() + $('.widget-footer').height())));
+        $('.widget-main').css('height', ($('#ad-hoc-widget').innerHeight() - ($('.widget-title').height() + $('.widget-footer').height())));
       });
 
     </script>

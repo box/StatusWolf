@@ -138,19 +138,6 @@
     margin-right: 10px;
 }
 
-.widget-title-dropdown {
-    display: inline-block;
-    height: 100%;
-}
-
-.widget-title-dropdown span {
-    display: inline-block;
-}
-
-.widget-title-dropdown li {
-    font-size: 0.8em;
-}
-
 #date-span-toggle .toggle-button-group {
     margin-top: 4px;
 }
@@ -210,3 +197,31 @@
 #saved-searches-options {
     min-width: 350px;
 }
+
+/*
+ * ========================================
+ * ad-hoc widget is bigger than the default
+ * ========================================
+ */
+
+.widget-container {
+    width: 100%;
+    height: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#graph-legend {
+    height: 70px;
+    overflow: hidden;
+    font-size: .8em;
+    line-height: 1.2em;
+    color: rgba(205, 205, 205, .75);
+    background-color: rgb(24, 24, 24);
+    padding: 0px 20px;
+}
+
+#graph-legend span {
+    margin-left: 15px;
+}
+

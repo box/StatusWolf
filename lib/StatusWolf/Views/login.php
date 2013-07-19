@@ -24,6 +24,7 @@ $uri = substr_replace($uri, '', 0, 1);
 
 ?>
 
+    <link href="<?php echo URL; ?>app/css/widget_base.css" rel="stylesheet">
     <link href="<?php echo URL; ?>app/css/login.css" rel="stylesheet">
     <div class="container" id="login-container">
       <div class="widget-container" id="login-widget-container">

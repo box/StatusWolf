@@ -223,10 +223,19 @@ select {
     visibility: hidden;
 }
 
+.transparent {
+    opacity: 0;
+}
+
 .maximize {
     position: absolute;
     top: 0;
     left: 0;
+    margin: 0;
+}
+
+.no-overflow {
+    overflow: hidden;
 }
 
 /*
@@ -397,191 +406,44 @@ li.menu-section:hover {
     color: rgba(205, 205, 205, 0.6);
 }
 
-/*
- * ==========================
- * Default styles for widgets
- * ==========================
- */
 
-.flipped {
-    -webkit-transform: rotateY(180deg);
-    -moz-transform: rotateY(180deg);
-    transform: rotateY(180deg);
+ul.sub-menu-item li.dropdown:hover {
+    cursor: default;
 }
 
-.widget-container {
-    -webkit-perspective: 1000;
-    -moz-perspective: 1000;
-    perspective: 1000;
-    width: 100%;
-    height: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 0;
-    border-top-right-radius: 3px;
-    border-bottom-left-radius: 3px;
-    border-bottom-right-radius: 3px;
-    border: 1px solid rgba(234, 234, 234, .75);
-    transition: all 0.5s ease-in-out;
-    -webkit-transition: all 0.5s ease-in-out;
-}
-
-.widget {
-    -webkit-transition: 0.6s;
-    -webkit-transform-style: preserve-3d;
-    -moz-transition: 0.6s;
-    -moz-transform-style: preserve-3d;
-    transition: 0.6s;
-    transform-style: preserve-3d;
-    color: rgba(205, 205, 205, .6);
-    height: 100%;
-    width: 99.9%;
-}
-
-.widget-front, .widget-back {
-    width: 100%;
-    height: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 0;
-    -webkit-backface-visibility: hidden;
-    -moz-backface-visibility: hidden;
-    backface-visibility: hidden;
+ul.sub-menu-item li:hover ul.sub-menu {
+    display: block;
     position: absolute;
-    top: 0;
-    left: 0;
-    background-color: rgb(24, 24, 24);
-    border-top-right-radius: 3px;
-    border-bottom-left-radius: 3px;
-    border-bottom-right-radius: 3px;
+    left: 100%;
+    border-radius: 3px;
+    -webkit-border-radius: 3px;
 }
 
-.widget-front {
-    z-index: 2;
-}
-
-.widget-title {
-    border-bottom: 1px solid rgba(205, 205, 205, 0.1);
-    position: absolute;
-    top: 0;
-    left: 0;
-    border-top-right-radius: 3px;
-    box-shadow: 0 1px 0 rgb(5, 5, 5);
-    height: 35px;
-}
-
-.widget-title-head {
-    display: inline-block;
-    height: 100%;
+ul.sub-menu-item ul.sub-menu {
+    display: none;
+    float: right;
     position: relative;
+    top: auto;
+    margin-top: -25px;
+    margin-left: 6px;
 }
 
-.widget-title h4 {
-    margin: 0 10px;
-    vertical-align: top;
-    font-size: .8em;
-    height: 100%;
-    display: inline-block;
-    -webkit-margin-before: 0;
-    line-height: 3.0em;
+ul.sub-menu-item ul.sub-menu:before {
+    border-left: 0;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-right: 7px solid rgba(0, 0, 0, 0.5);
+    top: 2px;
+    left: -7px;
 }
 
-.widget-title #legend {
-    display: inline-block;
-    height: 100%;
-    margin-right: 15px;
-    overflow: hidden;
-    vertical-align: bottom;
-    font-size: .8em;
-    line-height: 2.5em;
-    color: rgba(205, 205, 205, .75);
-    position: absolute;
-    top: 0;
-    right: 0;
-    text-align: right;
-    -webkit-box-flex: 6;
-}
-
-.widget-title-button {
-    height: 100%;
-    padding: 0 10px;
-    font-size: .8em;
-    line-height: 2.75em;
-    vertical-align: bottom;
-    border-right: 1px groove rgba(234, 234, 234, 0.1);
-    border-left: 1px groove rgba(234, 234, 234, 0.1);
-}
-
-.widget-title-button:hover, .widget-title-button.hover {
-    cursor: pointer;
-    background-color: rgb(37, 37, 37);
-    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
-}
-
-.widget-footer {
-    border-top: 1px solid rgba(205, 205, 205, 0.1);
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    border-bottom-left-radius: 3px;
-    border-bottom-right-radius: 3px;
-    box-shadow: 0 -1px 0 rgb(5, 5, 5);
-    height: 25px;
-}
-
-.widget-footer-btn {
-    height: 100%;
-    padding: 0 10px;
-    font-size: .8em;
-    line-height: 1.75em;
-    border-right: 1px groove rgba(234, 234, 234, 0.1);
-    border-left: 1px groove rgba(234, 234, 234, 0.1);
-    box-shadow: inset -1px 0 0 rgba(5, 5, 5, 0.25);
-}
-
-.widget-footer-btn:hover, .widget-footer-btn.hover {
-    cursor: pointer;
-    background-color: rgb(37, 37, 37);
-    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
-}
-
-.widget-title, .widget-footer {
-    background-color: rgb(40, 40, 40);
-    width: 100%;
-}
-
-.widget-main {
-    width: 100%;
-    height: 82%;
-    position: absolute;
-    left: 0;
-    top: 35px;
-    padding: 0;
-}
-
-.widget-back {
-    -webkit-transform: rotateY(180deg);
-    -moz-transform: rotateY(180deg);
-    transform: rotateY(180deg);
-    opacity: 0.8;
-}
-
-.widget-back .widget-title-head h4 {
-    line-height: 0;
-}
-
-#graph-legend {
-    height: 70px;
-    overflow: hidden;
-    font-size: .8em;
-    line-height: 1.2em;
-    color: rgba(205, 205, 205, .75);
-    background-color: rgb(24, 24, 24);
-    padding: 0px 20px;
-}
-
-#graph-legend span {
-    margin-left: 15px;
+ul.sub-menu-item ul.sub-menu:after {
+    border-left: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-right: 6px solid rgb(85, 85, 85);
+    top: 3px;
+    left: -6px;
 }
 
 /*
@@ -741,6 +603,10 @@ li.menu-section:hover {
 
 .iconic-user:before {
     content: '\e062';
+}
+
+.iconic-x:before {
+    content: '\2713';
 }
 
 .iconic-x-alt:before {
