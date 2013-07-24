@@ -47,6 +47,16 @@ spl_autoload_register(array('SWAutoLoader', 'sw_autoloader'));
 spl_autoload_register();
 spl_autoload_extensions('.php');
 
+// Strip HTML from any incoming POST data, e.g. if we're coming back
+// here from the login screen, or we're making an API call
+if (!empty($_POST))
+{
+  foreach ($_POST as $post_key => $post_value)
+  {
+    $_POST[$post_key] = strip_tags($post_value);
+  }
+}
+
 // Check to see whether we're configured for authentication
 if (!array_key_exists('authentication', $app_config) || (array_key_exists('authentication', $app_config) && !$app_config['authentication']))
 {

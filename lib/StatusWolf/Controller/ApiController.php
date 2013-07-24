@@ -178,6 +178,7 @@ class ApiController extends SWController
   {
     $this->loggy->logDebug($this->log_tag . 'API call, saving adhoc search');
     $search_parameters = $_POST;
+    $search_parameters['title'] = mysql_real_escape_string($search_parameters['title']);
     if ($search_parameters['save_span'] == 1)
     {
       if (array_key_exists('time_span', $search_parameters))
