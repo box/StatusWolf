@@ -53,7 +53,10 @@ if (!empty($_POST))
 {
   foreach ($_POST as $post_key => $post_value)
   {
-    $_POST[$post_key] = strip_tags($post_value);
+    if (is_string($post_value))
+    {
+      $_POST[$post_key] = strip_tags($post_value);
+    }
   }
 }
 
