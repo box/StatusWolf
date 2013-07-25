@@ -632,7 +632,7 @@
     {
       query_data['metrics_count'] = 1;
     }
-    query_data['metrics'] = [];
+    query_data['metrics'] = array();
 
     // Validate metrics to search on
     if (query_data['metrics_count'] > 1)
@@ -1055,7 +1055,7 @@
     ajax_object = new $.Deferred();
 
     var metric_data = {};
-    var data_for_detection = [];
+    var data_for_detection = array();
 
     var ajax_request = $.ajax({
       url: "<?php echo URL; ?>adhoc/search/OpenTSDB"
@@ -1189,7 +1189,7 @@
 
     for (var i = start; i <= end; i = i + bucket_interval)
     {
-      buckets[i] = [];
+      buckets[i] = array();
     }
 
     for (var series in data) {
@@ -1246,8 +1246,8 @@
 
     var graph_data = data.data;
     var graph_labels = data.labels;
-    var dygraph_format = [];
-    var series_times = [];
+    var dygraph_format = array();
+    var series_times = array();
     for (var timestamp in graph_data) {
       if (graph_data.hasOwnProperty(timestamp))
       {
@@ -1266,7 +1266,7 @@
       var label_bits = label.split(' ');
       if (typeof labels_map[label_bits[0]] == 'undefined')
       {
-        labels_map[label_bits[0]] = [];
+        labels_map[label_bits[0]] = array();
       }
       labels_map[label_bits[0]].push(label);
     });

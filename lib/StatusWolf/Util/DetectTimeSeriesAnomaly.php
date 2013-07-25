@@ -44,7 +44,7 @@ class DetectTimeSeriesAnomaly {
    *
    * @var array
    */
-  private $_anomaly_algorithms = [];
+  private $_anomaly_algorithms = array();
 
   /**
    * The number of checks which must vote yes in order for a
@@ -136,7 +136,7 @@ class DetectTimeSeriesAnomaly {
     $this->loggy->logDebug($this->log_tag . "Consensus threshold: " . $this->_consensus_threshold);
     $this->loggy->logDebug($this->log_tag . "Std Dev threshold: " . $this->_std_dev_threshold);
     $anomaly_detect_start = time();
-    $rolling_metric_data = [];
+    $rolling_metric_data = array();
 
     $metric_name = $query_bits['metric'];
     $current_cache = $query_bits['cache'];
@@ -157,7 +157,7 @@ class DetectTimeSeriesAnomaly {
       }
     }
 
-    $graph_data = [];
+    $graph_data = array();
     foreach ($current_cache_data[$metric_key] as $series_entry)
     {
       if (!empty($series_entry['value']))
@@ -165,7 +165,7 @@ class DetectTimeSeriesAnomaly {
         $graph_data[] = $series_entry;
       }
     }
-    $pre_anomaly_period_data = [];
+    $pre_anomaly_period_data = array();
     foreach ($pre_period_cache_data[$metric_key] as $pre_series_entry)
     {
       if (!empty($pre_series_entry['value']))
@@ -181,13 +181,13 @@ class DetectTimeSeriesAnomaly {
       $rolling_metric_data[] = array($pre_period_values['timestamp'], $pre_period_values['value']);
     }
 
-    $violations = [];
+    $violations = array();
     $in_violation = false;
     $start_violation = null;
-    $consensus_votes = [];
+    $consensus_votes = array();
     foreach ($graph_data as $current_values)
     {
-      $anomaly_consensus = [];
+      $anomaly_consensus = array();
       array_shift($rolling_metric_data);
       array_push($rolling_metric_data, array($current_values['timestamp'], $current_values['value']));
       foreach ($this->_anomaly_algorithms as $anomaly_algorithm)
@@ -269,7 +269,7 @@ class DetectTimeSeriesAnomaly {
     $first_hour_offset = $this->_pre_anomaly_period - 3600;
     $first_hour_threshold = $current_timestamp - $first_hour_offset;
     $series_in_range = true;
-    $first_hour_series = [];
+    $first_hour_series = array();
     while ($series_in_range)
     {
       foreach ($time_series as $metric_data_entry)
@@ -302,13 +302,13 @@ class DetectTimeSeriesAnomaly {
    */
   protected function mean_subtraction_cumulation($time_series)
   {
-    $series_values = [];
+    $series_values = array();
     foreach ($time_series as $metric_data_entry)
     {
       $series_values[] = $metric_data_entry[1];
     }
     $series_mean = $this->stats->mean($series_values);
-    $adjusted_series = [];
+    $adjusted_series = array();
     foreach ($series_values as $value)
     {
       $adjusted_series[] = $value - $series_mean;
@@ -331,7 +331,7 @@ class DetectTimeSeriesAnomaly {
    */
   protected function simple_stddev_from_moving_average($time_series)
   {
-    $series_values = [];
+    $series_values = array();
     foreach ($time_series as $metric_data_entry)
     {
       $series_values[] = $metric_data_entry[1];
@@ -364,7 +364,7 @@ class DetectTimeSeriesAnomaly {
     $coefficients = $regression->getCoefficients();
     $model_coefficient = round(floatval($coefficients[0]), 4);
     $base_coefficient = round(floatval($coefficients[1]), 4);
-    $errors_series = [];
+    $errors_series = array();
     for ($i = 0; $i < count($time_series); $i++)
     {
       $projected = $model_coefficient * $x_range[$i][1] + $base_coefficient;
@@ -392,7 +392,7 @@ class DetectTimeSeriesAnomaly {
    */
   protected function histogram_bins($time_series)
   {
-    $series_values = [];
+    $series_values = array();
     foreach ($time_series as $metric_data_entry)
     {
       $series_values[] = $metric_data_entry[1];
