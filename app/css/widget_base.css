@@ -15,7 +15,7 @@
     border-top-right-radius: 3px;
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
-    border: 1px solid rgba(234, 234, 234, .75);
+    border: 0;
     transition: all 0.5s linear;
     -webkit-transition: all 0.5s linear;
 }
@@ -60,7 +60,6 @@
     top: 0;
     left: 0;
     border-top-right-radius: 3px;
-    box-shadow: 0 1px 0 rgb(5, 5, 5);
     height: 35px;
 }
 
@@ -102,14 +101,15 @@
     font-size: .8em;
     line-height: 2.75em;
     vertical-align: bottom;
-    border-right: 1px groove rgba(234, 234, 234, 0.1);
-    border-left: 1px groove rgba(234, 234, 234, 0.1);
+    border-right: 1px solid rgba(234, 234, 234, 0.1);
+    border-left: 1px solid rgba(234, 234, 234, 0.1);
 }
 
-.widget-title-button:hover, .widget-title-button.hover {
+.widget-title-button:hover, .widget-title-button.hover,
+.widget-footer-button:hover, .widget-footer-button.hover {
     cursor: pointer;
-    background-color: rgb(37, 37, 37);
-    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
+    background-color: rgb(31, 31, 31);
+    box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.6);
 }
 
 .widget-title-dropdown {
@@ -132,24 +132,16 @@
     bottom: 0;
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
-    box-shadow: 0 -1px 0 rgb(5, 5, 5);
     height: 25px;
 }
 
-.widget-footer-btn {
+.widget-footer-button {
     height: 100%;
     padding: 0 10px;
     font-size: .8em;
     line-height: 1.75em;
-    border-right: 1px groove rgba(234, 234, 234, 0.1);
-    border-left: 1px groove rgba(234, 234, 234, 0.1);
-    box-shadow: inset -1px 0 0 rgba(5, 5, 5, 0.25);
-}
-
-.widget-footer-btn:hover, .widget-footer-btn.hover {
-    cursor: pointer;
-    background-color: rgb(37, 37, 37);
-    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
+    border-right: 1px solid rgba(234, 234, 234, 0.1);
+    border-left: 1px solid rgba(234, 234, 234, 0.1);
 }
 
 .widget-title, .widget-footer {
@@ -170,7 +162,6 @@
     -webkit-transform: rotateY(180deg);
     -moz-transform: rotateY(180deg);
     transform: rotateY(180deg);
-    opacity: 0.8;
 }
 
 .widget-back .widget-title-head h4 {
@@ -190,4 +181,12 @@
     width: 100%;
     margin: 0;
     z-index: 99;
+}
+
+.left-button {
+    border-left: none;
+}
+
+.right-button {
+    border-right: none;
 }

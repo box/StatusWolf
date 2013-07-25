@@ -30,12 +30,12 @@
               <div id="graphdiv" style="width: 99%; height: 99%;"></div>
             </div>
             <div class="flexy widget-footer">
-              <div class="widget-footer-btn" id="ad-hoc-edit" onClick="$(this).parents('.widget').addClass('flipped')"><span class="iconic iconic-pen-alt2"></span> Edit search parameters</div>
-              <div class="widget-footer-btn hidden" id="get-datasource-url"><span class="iconic iconic-target"> Get Raw Datasource URL</span></div>
+              <div class="widget-footer-button left-button" id="ad-hoc-edit" onClick="$(this).parents('.widget').addClass('flipped')"><span class="iconic iconic-pen-alt2"></span> Edit search parameters</div>
+              <div class="widget-footer-button hidden" id="get-datasource-url"><span class="iconic iconic-target"> Get Raw Datasource URL</span></div>
               <div class="glue1"></div>
-              <div class="widget-footer-btn hidden" id="share-search"><span class="iconic iconic-share"> Share Search</span></div>
-              <div class="widget-footer-btn hidden" id="save_popup_button"><span class="iconic iconic-download"> Save Search</span></div>
-              <div class="widget-footer-btn fullscreen-out" id="fullscreen"><span id="fullscreen-button" class="iconic iconic-fullscreen"> </span></div>
+              <div class="widget-footer-button hidden" id="share-search"><span class="iconic iconic-share"> Share Search</span></div>
+              <div class="widget-footer-button hidden" id="save_popup_button"><span class="iconic iconic-download"> Save Search</span></div>
+              <div class="widget-footer-button right-button fullscreen-out" id="fullscreen"><span id="fullscreen-button" class="iconic iconic-fullscreen"> </span></div>
             </div>
           </div>
           <div class="widget-back" id="ad-hoc-back">
@@ -47,7 +47,7 @@
               </div>
               <div class="glue1"></div>
               <div class="dropdown widget-title-dropdown" id="datasource-menu">
-                <span class="widget-title-button" data-toggle="dropdown"><span class="ad-hoc-button-label" id="active-datasource" >OpenTSDB</span><span class="iconic iconic-play rotate-90"></span></span>
+                <span class="widget-title-button right-button" data-toggle="dropdown"><span class="ad-hoc-button-label" id="active-datasource" >OpenTSDB</span><span class="iconic iconic-play rotate-90"></span></span>
                 <ul class="dropdown-menu menu-left" id="datasource-options" role="menu" aria-labelledby="dLabel">
                   <li><span>OpenTSDB</span></li>
                 </ul>
@@ -57,9 +57,9 @@
               <div id="ad-hoc-search-form"></div>
             </div>
             <div class="flexy widget-footer">
-              <div class="widget-footer-btn" id="query-cancel" onClick="$(this).parents('.widget').removeClass('flipped')"><span class="iconic iconic-x-alt"> Cancel</span></div>
+              <div class="widget-footer-button left-button" id="query-cancel" onClick="$(this).parents('.widget').removeClass('flipped')"><span class="iconic iconic-x-alt"> Cancel</span></div>
               <div class="glue1"></div>
-              <div class="widget-footer-btn" id="go-button" onClick="go_click_handler(event)"><span class="iconic iconic-bolt"> Go</span></div>
+              <div class="widget-footer-button right-button" id="go-button" onClick="go_click_handler(event)"><span class="iconic iconic-bolt"> Go</span></div>
             </div>
           </div>
         </div>
@@ -97,9 +97,9 @@
         </ul>
       </div>
       <div class="flexy widget-footer" style="margin-top: 10px;">
-        <div class="widget-footer-btn" id="cancel_save_query_data_button" onClick="$.magnificPopup.close()"><span class="iconic iconic-x-alt"> Cancel</span></div>
+        <div class="widget-footer-button" id="cancel_save_query_data_button" onClick="$.magnificPopup.close()"><span class="iconic iconic-x-alt"> Cancel</span></div>
         <div class="glue1"></div>
-        <div class="widget-footer-btn" id="save_query_data_button" onClick="save_click_handler(event, query_data)"><span class="iconic iconic-download"> Save</span></div>
+        <div class="widget-footer-button" id="save_query_data_button" onClick="save_click_handler(event, query_data)"><span class="iconic iconic-download"> Save</span></div>
       </div>
     </div>
 
