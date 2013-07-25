@@ -1,5 +1,5 @@
 {
-	"name": "custom.graph_widget"
+	"name": "sw.graphwidget"
 	,"title": "Graphing Widget"
 	,"description": "Widget for displaying graphs from various data sources"
 	,"version": "1.0"
@@ -13,5 +13,5 @@
 			,"email": "disco@box.com"
 		}
 	]
-	,"license": ""
+	,"license": "Apache v2.0"
 }

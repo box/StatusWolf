@@ -185,12 +185,18 @@ else
   $('.section-toggle').click(function() {
     console.log('clicked on: ');
     console.log($(this));
-    $('.' + $(this).attr('data-target')).removeClass('section-off').addClass('section-on').siblings('.section').addClass('section-off').removeClass('section-on');
-    if ($(this).attr('data-target') == 'history-anomaly' || $(this).attr('data-target') == 'history-wow')
+    var widget = $(this).parents('.widget-container').data('sw-graphwidget');
+    console.log(widget.sw_graphwidget_searchform);
+    var widget_id = widget.attr('id');
+    var clicked_button = $(this);
+    var data_target = clicked_button.attr('data-target');
+    var section = $('#' + widget_id + ' div.' + data_target);
+    section.removeClass('section-off').addClass('section-on').siblings('.section').addClass('section-off').removeClass('section-on');
+    if (clicked_button.attr('data-target') == 'history-anomaly' || clicked_button.attr('data-target') == 'history-wow')
     {
-      $('.optional-metric').removeClass('section-on');
-      $('.optional-metric').addClass('section-off');
-      $('.dropdown-menu[data-name="time-span-options"]').html('<li><span data-ms="<?php echo (MINUTE * 10); ?>">10 minutes</span></li>')
+      $('#' + widget_id + ' div.optional-metric').removeClass('section-on');
+      $('#' + widget_id + ' div.optional-metric').addClass('section-off');
+      $('#' + widget_id + ' ul.dropdown-menu[data-name="time-span-options"]').html('<li><span data-ms="<?php echo (MINUTE * 10); ?>">10 minutes</span></li>')
           .append('<li><span data-ms="<?php echo (MINUTE * 30); ?>">30 Minutes</span></li>')
           .append('<li><span data-ms="<?php echo HOUR ?>">1 hour</span></li>')
           .append('<li><span data-ms="<?php echo (HOUR * 2) ?>">2 hours</span></li>')
@@ -199,16 +205,16 @@ else
           .append('<li><span data-ms="<?php echo (HOUR * 12) ?>">12 hours</span></li>')
           .append('<li><span data-ms="<?php echo DAY ?>">1 day</span></li>')
           .append('<li><span data-ms="<?php echo WEEK ?>">1 week</span></li>');
-      if ($('.widget-button-label[data-name="time-span"]').attr('data-ms') > <?php echo WEEK; ?>)
+      if ($('#' + widget_id + ' .graph-widget-button-label[data-name="time-span"]').attr('data-ms') > <?php echo WEEK; ?>)
       {
-        $('.widget-button-label[data-name="time-span"]').text('1 week').attr('data-ms', <?php echo WEEK; ?>);
+        $('#' + widget_id + ' div.graph-widget-button-label[data-name="time-span"]').text('1 week').attr('data-ms', <?php echo WEEK; ?>);
       }
     }
-    else if ($(this).attr('data-target') == 'history-no')
+    else if (clicked_button.attr('data-target') == 'history-no')
     {
-      $('.optional-metric').removeClass('section-off');
-      $('.optional-metric').addClass('section-on');
-      $('.widget-button-label[data-name="time-span"]').html('<li><span data-ms="<?php echo (MINUTE * 10); ?>">10 minutes</span></li>')
+      $('#' + widget_id + ' div.optional-metric').removeClass('section-off');
+      $('#' + widget_id + ' div.optional-metric').addClass('section-on');
+      $('#' + widget_id + ' ul.dropdown-menu[data-name="time-span-options"]').html('<li><span data-ms="<?php echo (MINUTE * 10); ?>">10 minutes</span></li>')
           .append('<li><span data-ms="<?php echo (MINUTE * 30); ?>">30 Minutes</span></li>')
           .append('<li><span data-ms="<?php echo HOUR ?>">1 hour</span></li>')
           .append('<li><span data-ms="<?php echo (HOUR * 2) ?>">2 hours</span></li>')
@@ -222,6 +228,10 @@ else
     }
   });
 
+  function go_click_handler(event, widget)
+  {
+    console.log(widget);
+  }
 
 
 </script>

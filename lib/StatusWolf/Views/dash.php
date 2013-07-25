@@ -38,8 +38,7 @@ foreach($widgets as $widget_key)
 <link rel="stylesheet" href="<?php echo URL; ?>app/css/widget_base.css">
 <link rel="stylesheet" href="<?php echo URL; ?>app/css/dash.css">
 <div class="container">
-  <div id="dash-container">
-  </div>
+  <div id="dash-container"></div>
 </div>
 
 <script type="text/javascript" src="<?php echo URL; ?>app/js/sw_lib.js"></script>
@@ -64,17 +63,21 @@ foreach($widgets as $widget_key)
       var widget_url = '<?php echo URL . WIDGETS_URL; ?>';
       var widget_script = widget_url + widget_index + '/js/' + widget_data.name + '.js';
       console.log('loading ' + widget_index + ' widget from ' + widget_script);
+      var widget_type = widget_script.split('.');
       loadScript(widget_script, function() {});
-      $('#add-widget-menu-options').append('<li onClick="add_widget()"><span>' + widget_data.title + '</span></li>');
+      $('#add-widget-menu-options').append('<li onClick="add_widget(\'' + widget_type[1] + '\')"><span>' + widget_data.title + '</span></li>');
     });
   });
 
-  function add_widget()
+  function add_widget(widget_type)
   {
     var username = "<?php echo $_session_data['username'] ?>";
     var widget_id = "widget" + md5(username + new Date.now().getTime());
     $('#dash-container').append('<div class="widget-container" id="' + widget_id + '">');
-    $('#' + widget_id).graph_widget({widget_url: '<?php echo URL; ?>Widgets/'});
+    if (widget_type === "graphwidget")
+    {
+      $('#' + widget_id).graphwidget({widget_url: '<?php echo URL; ?>Widgets/'});
+    }
     setTimeout(function() {
       $('#' + widget_id).removeClass('transparent');
     }, 100);
