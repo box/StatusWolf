@@ -1346,7 +1346,8 @@
     {
       anomalies = data.anomalies;
       g.updateOptions({
-        underlayCallback: function(canvas, area, g) {
+        legend: 'always'
+        ,underlayCallback: function(canvas, area, g) {
           canvas.fillStyle = "rgba(219, 54, 9, 0.25)";
           function highlight_period(x_start, x_end) {
             var canvas_left_x = g.toDomXCoord(x_start);
@@ -1360,6 +1361,13 @@
         }
       })
     }
+    else if (query_data['history-graph'] == "wow")
+    {
+      g.updateOptions({
+        legend: 'always'
+      })
+    }
+
     $('.dygraph-xlabel').parent().css('top', '40%');
 
     // Set the interval for adding new data if Auto Update is selected
