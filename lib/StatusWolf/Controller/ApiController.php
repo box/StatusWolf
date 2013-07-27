@@ -79,7 +79,24 @@ class ApiController extends SWController
    */
   protected function tsdb_metric_list($query_bits) {
     list($q, $query) = explode('=', $query_bits[0]);
-    $query_url = 'http://opentsdb.ve.box.net:4242/suggest?type=metrics&q=';
+
+    if ($host_config = SWConfig::read_values('datasource.OpenTSDB.url'))
+    {
+      if (is_array($host_config))
+      {
+        $tsdb_host = $host_config[array_rand($host_config)];
+      }
+      else
+      {
+        $tsdb_host = $host_config;
+      }
+    }
+    else
+    {
+      throw new SWException('No OpenTSDB Host configured');
+    }
+
+    $query_url = 'http://' . $tsdb_host . '/suggest?type=metrics&q=';
     $curl = new Curl($query_url . $query);
     try
     {
