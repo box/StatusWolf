@@ -195,7 +195,6 @@ class ApiController extends SWController
   {
     $this->loggy->logDebug($this->log_tag . 'API call, saving adhoc search');
     $search_parameters = $_POST;
-    $search_parameters['title'] = mysql_real_escape_string($search_parameters['title']);
     if ($search_parameters['save_span'] == 1)
     {
       if (array_key_exists('time_span', $search_parameters))
@@ -214,6 +213,7 @@ class ApiController extends SWController
     {
       throw new SWException('Shared search database connection error: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
     }
+    $search_parameters['title'] = mysqli_real_escape_string($saved_search_db, $search_parameters['title']);
     $saved_search_query = sprintf("INSERT INTO saved_searches VALUES('', '%s', '%s', '%s', '%s', '%s')", $search_parameters['title'], $search_parameters['user_id'], $search_parameters['private'], serialize($search_parameters), $search_parameters['datasource']);
     $save_result = $saved_search_db->query($saved_search_query);
     $search_id = $saved_search_db->insert_id;
