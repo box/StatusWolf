@@ -76,7 +76,7 @@ foreach($widgets as $widget_key)
     $('#dash-container').append('<div class="widget-container" id="' + widget_id + '">');
     if (widget_type === "graphwidget")
     {
-      $('#' + widget_id).graphwidget({widget_url: '<?php echo URL; ?>Widgets/'});
+      var widget = $('#' + widget_id).graphwidget({widget_url: '<?php echo URL; ?>Widgets/'});
     }
     setTimeout(function() {
       $('#' + widget_id).removeClass('transparent');

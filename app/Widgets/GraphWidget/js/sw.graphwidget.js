@@ -33,6 +33,7 @@
 				,sw_graphwidget_backfooter
 				,sw_graphwidget_frontmain
 				,sw_graphwidget_backmain
+				,sw_graphwidget_legend
 				,sw_graphwidget_savedsearchesmenu
 				,sw_graphwidget_datasourcemenu
 				,sw_graphwidget_searchform
@@ -64,7 +65,6 @@
 			// and a footer bar
 			sw_graphwidget_fronttitle = (this.sw_graphwidget_fronttitle = $('<div>'))
 				.addClass('flexy widget-title')
-				.append('<div class="glue4">')
 				.appendTo(sw_graphwidget_front);
 			sw_graphwidget_frontmain = (this.sw_graphwidget_frontmain = $('<div>'))
 				.addClass('widget-main')
@@ -84,8 +84,12 @@
 
 			// Define the standard buttons for the graph widget
 			// Buttons that will go in the title bar:
+			sw_graphwidget_legend = (this.sw_graphwidget_legend = $('<div>'))
+				.addClass('graph-widget-legend glue4')
+				.appendTo(sw_graphwidget_fronttitle);
+
 			sw_graphwidget_close = (this.sw_graphwidget_close = $('<div>'))
-				.addClass('widget-title-button close-widget')
+				.addClass('widget-title-button right-button close-widget')
 				.click(function(event) {
 					event.preventDefault();
 					$(sw_graphwidget_container).addClass('transparent');
@@ -100,7 +104,7 @@
 
 			sw_graphwidget_savedsearchesmenu = (this.sw_graphwidget_savedsearchesmenu = $('<div>'))
 				.addClass('dropdown widget-title-dropdown saved-searches-menu')
-				.append('<span class="widget-title-button" data-toggle="dropdown">' +
+				.append('<span class="widget-title-button left-button" data-toggle="dropdown">' +
 				'<span class="widget-button-label">Saved Searches </span>' +
 				'<span class="iconic iconic-play rotate-90"></span></span>' +
 				'<ul class="dropdown-menu saved-searches-options" role="menu" aria-labelledby="dLabel"></ul>')
@@ -110,21 +114,16 @@
 
 			sw_graphwidget_datasourcemenu = (this.sw_graphwidget_datasourcemenu = $('<div>'))
 				.addClass('dropdown widget-title-dropdown datasource-menu')
-				.append('<span class="widget-title-button" data-toggle="dropdown">' +
+				.append('<span class="widget-title-button right-button" data-toggle="dropdown">' +
 					'<span class="widget-button-label active-datasource">OpenTSDB </span>' +
 					'<span class="iconic iconic-play rotate-90"></span></span>' +
 					'<ul class="dropdown-menu menu-left datasource-options" role="menu" aria-labelledby="dLabel">' +
 					'<li><span>OpenTSDB</span></li></ul>')
 				.appendTo(sw_graphwidget_backtitle);
 
-			// Define the div for the search form
-			sw_graphwidget_searchform = (this.sw_graphwidget_searchform = $('<div>'))
-				.addClass('graph-widget-search-form')
-				.appendTo(sw_graphwidget_backmain);
-
 			// Buttons that will go in the footer bar
 			sw_graphwidget_editparamsbutton = (this.sw_graphwidget_editparamsbutton = $('<div>'))
-				.addClass("widget-footer-btn")
+				.addClass("widget-footer-button left-button")
 				.click(function() {
 					sw_graphwidget.addClass("flipped");
 				})
@@ -134,7 +133,7 @@
 			sw_graphwidget_frontfooter.append('<div class="glue1">');
 
 			sw_graphwidget_maximizebutton = (this.sw_graphwidget_maximize_button = $('<div>'))
-				.addClass("widget-footer-btn fullscreen-out")
+				.addClass("widget-footer-button right-button fullscreen-out")
 				.append('<span class="maximize-me iconic iconic-fullscreen">')
 				.click(function(event) {
 					event.preventDefault();
@@ -143,7 +142,7 @@
 				.appendTo(sw_graphwidget_frontfooter);
 
 			sw_graphwidget_querycancelbutton = (this.sw_graphwidget_querycancelbutton = $('<div>'))
-				.addClass("widget-footer-btn query_cancel")
+				.addClass("widget-footer-button left-button query_cancel")
 				.click(function() {
 					sw_graphwidget.removeClass("flipped")
 				})
@@ -153,16 +152,19 @@
 			sw_graphwidget_backfooter.append('<div class="glue1">');
 
 			sw_graphwidget_gobutton = (this.sw_graphwidget_gobutton = $('<div>'))
-				.addClass("widget-footer-btn go-button")
+				.addClass("widget-footer-button right-button go-button")
 				.click(function() {
 					go_click_handler(event, that);
 				})
 				.append('<span class="iconic iconic-bolt"> Go</span>')
 				.appendTo(sw_graphwidget_backfooter);
 
-			console.log($(sw_graphwidget_datasourcemenu).children('span.widget-title-button').children('span.active-datasource'));
+			// Define the div for the search form
+			sw_graphwidget_searchform = (this.sw_graphwidget_searchform = $('<div>'))
+				.addClass('graph-widget-search-form')
+				.appendTo(sw_graphwidget_backmain);
+
 			sw_graphwidget_datasource = $.trim($(sw_graphwidget_datasourcemenu).children('span.widget-title-button').children('span.active-datasource').text().toLowerCase());
-			console.log(sw_graphwidget_datasource);
 			this.show_datasource_form(sw_graphwidget_datasource + '_search');
 		}
 
@@ -190,13 +192,11 @@
 		,show_datasource_form: function(datasource) {
 			var form_div = this.sw_graphwidget_searchform;
 			var view_url = this.options['widget_url'] + 'GraphWidget/api/datasource_form/' + datasource;
-			console.log(view_url);
 			$.ajax({
 				url: view_url
 				,method: 'GET'
 				,dataType: 'json'
 				,success: function(data) {
-					console.log(data);
 					$(form_div).addClass('hidden');
 					$(form_div).empty();
 					$(form_div).html(data['form_source']);

@@ -447,6 +447,93 @@ ul.sub-menu-item ul.sub-menu:after {
 }
 
 /*
+  * ====================
+  * Tab interface styles
+  * ====================
+  */
+
+.tabbable:after {
+    clear: both;
+}
+
+.tab-content {
+    background-color: rgb(31, 31, 31);
+    padding: 10px 0 5px 10px;
+    -webkit-border-top-right-radius: 3px;
+    -moz-border-radius-topright: 3px;
+    border-top-right-radius: 3px;
+    -webkit-border-bottom-right-radius: 3px;
+    -moz-border-radius-bottomright: 3px;
+    border-bottom-right-radius: 3px;
+}
+
+.tab-content > .tab-pane {
+    display: none;
+}
+
+.tab-content > .active {
+    display: block;
+}
+
+.tab-below > .nav-tabs {
+    /*border-top: 1px solid rgb(40, 40, 40);*/
+    position: relative;
+    bottom: 0;
+}
+
+.tab-below > .nav-tabs > li {
+    margin-top: -1px;
+    margin-bottom: 0;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    border-right: 1px solid transparent;
+    border-left: 1px solid transparent;
+    border-bottom: 1px solid transparent;
+}
+
+.tab-below > .nav-tabs > li > a {
+    -webkit-border-radius: 0 0 3px 3px;
+    -moz-border-radius: 0 0 3px 3px;
+    border-radius: 0 0 3px 3px;
+}
+
+.tab-below > .nav-tabs > li > a:hover {
+    border-top-color: rgb(40, 40, 40);
+    border-bottom-color: transparent;
+}
+
+.tab-below > .nav-tabs > li.active {
+    background-color: rgb(31, 31, 31);
+    -webkit-border-bottom-left-radius: 3px;
+    -moz-border-radius-bottomleft: 3px;
+    border-bottom-left-radius: 3px;
+    -webkit-border-bottom-right-radius: 3px;
+    -moz-border-radius-bottomright: 3px;
+    border-bottom-right-radius: 3px;
+}
+
+ul.nav-tabs {
+    list-style: none;
+}
+
+.nav-tabs > li {
+    float: left;
+    text-decoration: none;
+}
+
+.nav-tabs > li > a {
+    padding-right: 8px;
+    padding-left: 8px;
+    color: rgba(205, 205, 205, 0.5);
+}
+
+.nav-tabs > .active > a,
+.nav-tabs > .active > a:hover {
+    color: rgba(205, 205, 205, 0.9);
+    cursor: default;
+}
+
+/*
  * ==================
  * Home screen styles
  * ==================

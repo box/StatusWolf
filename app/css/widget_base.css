@@ -190,3 +190,19 @@
 .right-button {
     border-right: none;
 }
+
+.widget-footer-button.left-button {
+    border-bottom-left-radius: 3px;
+}
+
+.widget-footer-button.right-button {
+    border-bottom-right-radius: 3px;
+}
+
+.widget-title-button.left-button {
+    border-top-left-radius: 3px;
+}
+
+.widget-title-button.right-button {
+    border-top-right-radius: 3px;
+}
