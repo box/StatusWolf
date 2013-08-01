@@ -10,6 +10,15 @@
     height: 40%;
 }
 
+@-moz-document url-prefix() {
+    .container {
+        display: block;
+    }
+    .widget-container {
+        margin-top: 20%;
+    }
+}
+
 .login-logo {
     width: 225px;
     height: 100%;
@@ -22,14 +31,18 @@
 .login-form {
     display: inline-block;
     position: absolute;
+    text-align: right;
     bottom: 35%;
     right: 10%;
 }
 
 #login-container {
     -webkit-box-orient: horizontal;
+    box-orient: horizontal;
     -webkit-box-pack: center;
+    box-pack: center;
     -webkit-box-align: center;
+    box-align: center;
 }
 
 #login-submit {

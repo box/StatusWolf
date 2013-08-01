@@ -1,11 +1,13 @@
 .toggle-button-group {
     display: -webkit-box;
     -webkit-box-orient: horizontal;
+    display: box;
+    box-orient: horizontal;
     white-space: nowrap;
     overflow: hidden;
     vertical-align: middle;
-    font-size: .8em;
-    line-height: 2em;
+    font-size: .75em;
+    line-height: 1.5em;
     height: 100%;
 }
 
@@ -14,8 +16,6 @@
     margin: 0;
     padding: 2px;
     height: 100%;
-    font-size: 1em;
-    line-height: 1.5em;
     font-weight: normal;
     color: rgba(205, 205, 205, 0.6);
     background-color: rgb(51, 51, 51);
@@ -29,12 +29,20 @@
 }
 
 .toggle-button-group > .toggle-button:first-child {
+    -webkit-border-top-left-radius: 2px;
+    -moz-border-radius-topleft: 2px;
     border-top-left-radius: 2px;
+    -webkit-border-bottom-left-radius: 2px;
+    -moz-border-radius-bottomleft: 2px;
     border-bottom-left-radius: 2px;
 }
 
 .toggle-button-group > .toggle-button:last-child {
+    -webkit-border-top-right-radius: 2px;
+    -moz-border-radius-topright: 2px;
     border-top-right-radius: 2px;
+    -webkit-border-bottom-right-radius: 2px;
+    -moz-border-radius-bottomright: 2px;
     border-bottom-right-radius: 2px;
 }
 

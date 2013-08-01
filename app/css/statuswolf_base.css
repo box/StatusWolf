@@ -50,6 +50,7 @@ ul, ol {
     width: 95%;
     height: 90%;
     margin: 40px auto 20px auto;
+    display: box;
     display: -webkit-box;
 }
 
@@ -60,31 +61,39 @@ ul, ol {
 }
 
 .flexy {
+    display: box;
+    box-orient: horizontal;
     display: -webkit-box;
     -webkit-box-orient: horizontal;
 }
 
 .glue1 {
     -webkit-box-flex: 1;
+    box-flex: 1;
 }
 
 .glue2 {
     -webkit-box-flex: 2;
+    box-flex: 2;
 }
 .glue3 {
     -webkit-box-flex: 3;
+    box-flex: 3;
 }
 
 .glue4 {
     -webkit-box-flex: 4;
+    box-flex: 4
 }
 
 .glue5 {
     -webkit-box-flex: 5;
+    box-flex: 5;
 }
 
 .glue6 {
     -webkit-box-flex: 6;
+    box-flex: 6;
 }
 
 .highlight-error {
@@ -155,6 +164,7 @@ label {
 
 select {
     -webkit-appearance: push-button;
+    -moz-appearance: button;
     font-size: .8em;
     font-weight: bold;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -424,6 +434,7 @@ li.menu-section:hover {
     border: 1px solid rgba(234, 234, 234, .75);
     transition: all 0.5s ease-in-out;
     -webkit-transition: all 0.5s ease-in-out;
+    -moz-transition: all 0.5s ease-in-out;
 }
 
 .widget {
@@ -500,9 +511,12 @@ li.menu-section:hover {
     right: 0;
     text-align: right;
     -webkit-box-flex: 6;
+    -moz-box-flex: 6;
+    box-flex: 6;
 }
 
 .widget-title-button {
+    display: inline-block;
     height: 100%;
     padding: 0 10px;
     font-size: .8em;
@@ -523,7 +537,11 @@ li.menu-section:hover {
     position: absolute;
     left: 0;
     bottom: 0;
+    -webkit-border-bottom-left-radius: 3px;
+    -moz-border-radius-bottomleft: 3px;
     border-bottom-left-radius: 3px;
+    -webkit-border-bottom-right-radius: 3px;
+    -moz-border-radius-bottomright: 3px;
     border-bottom-right-radius: 3px;
     box-shadow: 0 -1px 0 rgb(5, 5, 5);
     height: 25px;
@@ -596,6 +614,16 @@ li.menu-section:hover {
     -webkit-box-pack: center;
     -webkit-box-align: center;
     -webkit-box-flex: 1;
+    display: -moz-box;
+    -moz-box-orient: vertical;
+    -moz-box-pack: center;
+    -moz-box-align: center;
+    -moz-box-flex: 1;
+    display: box;
+    box-orient: vertical;
+    box-pack: center;
+    box-align: center;
+    box-flex: 1;
 }
 
 .right-column {
@@ -603,6 +631,14 @@ li.menu-section:hover {
     -webkit-box-orient: horizontal;
     -webkit-box-align: center;
     -webkit-box-flex: 2;
+    display: -moz-box;
+    -moz-box-orient: horizontal;
+    -moz-box-align: center;
+    -moz-box-flex: 2;
+    display: box;
+    box-orient: horizontal;
+    box-align: center;
+    box-flex: 2;
 }
 
 .home-menu {
@@ -611,6 +647,14 @@ li.menu-section:hover {
     -webkit-box-orient: vertical;
     -webkit-box-pack: center;
     -webkit-box-align: left;
+    display: -moz-box;
+    -moz-box-orient: vertical;
+    -moz-box-pack: center;
+    -moz-box-align: left;
+    display: box;
+    box-orient: vertical;
+    box-pack: center;
+    box-align: left;
 }
 
 .home-menu-item {

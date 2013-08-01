@@ -90,7 +90,7 @@
       </div>
     </div>
   </div>
-  <div class="glue4">
+  <div class="glue4" id="date-span-inputs">
     <div class="flexy section section-on" id="ad-hoc-dates">
       <div class="ad-hoc-form-item menu-label" id="start-time">
         <h4>Start</h4>
@@ -1281,6 +1281,7 @@
         ,{
           labels: graph_labels
           ,labelsDiv: 'legend'
+          ,legend: 'always'
           ,axisLabelsFontSize: 13
           ,labelsKMB: true
           ,labelsDivWidth: g_width
@@ -1346,8 +1347,7 @@
     {
       anomalies = data.anomalies;
       g.updateOptions({
-        legend: 'always'
-        ,underlayCallback: function(canvas, area, g) {
+        underlayCallback: function(canvas, area, g) {
           canvas.fillStyle = "rgba(219, 54, 9, 0.25)";
           function highlight_period(x_start, x_end) {
             var canvas_left_x = g.toDomXCoord(x_start);
@@ -1359,12 +1359,6 @@
             highlight_period(new Date(parseInt(d.start * 1000)), new Date(parseInt(d.end * 1000)));
           });
         }
-      })
-    }
-    else if (query_data['history-graph'] == "wow")
-    {
-      g.updateOptions({
-        legend: 'always'
       })
     }
 

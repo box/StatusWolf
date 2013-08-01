@@ -37,6 +37,8 @@
     padding: 8px;
     color: rgb(59, 59, 59);
     background-color: rgb(205, 205, 205);
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
     border-radius: 2px;
     box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.45);
     font-weight: normal;
