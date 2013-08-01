@@ -163,7 +163,7 @@
         <td width="10%" style="padding-right: 0;">
           <div class="dropdown ad-hoc-button">
             <span class="flexy" data-toggle="dropdown">
-              <div class="ad-hoc-button-label" id="active-downsample-type1">Sum</div>
+              <div class="ad-hoc-button-label" id="active-downsample-type1">Maximum Value</div>
               <span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span>
             </span>
             <ul class="dropdown-menu" id="downsample-type-options1" role="menu" aria-labelledby="dLabel">
@@ -222,7 +222,7 @@
         print "<li><span>Maximum Value</span></li>\n<li><span>Standard Deviation</span></li>\n</ul></div></td>";
         print '<td style="padding-right: 0;">' . "\n";
         print '<div class="dropdown ad-hoc-button">' . "\n" . '<span class="flexy" data-toggle="dropdown">' . "\n";
-        print '<div class="ad-hoc-button-label" id="active-downsample-type' . $i . '">Sum</div>' . "\n";
+        print '<div class="ad-hoc-button-label" id="active-downsample-type' . $i . '">Maximum Value</div>' . "\n";
         print '<span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span>' . "\n</span>\n</span>";
         print '<ul class="dropdown-menu" id="downsample-type-options' . $i . '" role="menu" aria-labelledby="dLabel">' . "\n";
         print "<li><span>Sum</span></li>\n<li><span>Average</span></li>\n";
