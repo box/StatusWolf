@@ -71,9 +71,6 @@ foreach($widgets as $widget_key)
     document._sw_conf = _sw_conf;
   }
 
-  console.log(document._session_data);
-  console.log(document._sw_conf);
-
   $(document).ready(function() {
     var widgets = eval('(<?php echo json_encode($widget_list); ?>)');
     this.sw_url = '<?php echo URL; ?>';

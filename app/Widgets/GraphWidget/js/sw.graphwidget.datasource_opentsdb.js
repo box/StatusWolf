@@ -284,14 +284,11 @@ function add_tab(tab_num, widget_num)
 
 function dropdown_menu_handler(item, widget_num)
 {
-  console.log(item);
 	var button = $(item).parent().parent().children('span');
-  console.log(button);
 	$(button).children('.graph-widget-button-label').text($(item).text());
 	$(button).children('div.ds-interval').attr('data-value', $(item).children('span').attr('data-value'));
 	if ($(item).parent().attr('id') === "time-span-options" + widget_num)
 	{
-		console.log('setting time span');
 		$(button).children('div#time-span' + widget_num).attr('data-ms', $(item).children('span').attr('data-ms')).text();
 	}
 }
@@ -361,7 +358,6 @@ function populate_search_form(query_data, widget)
 {
 
   console.log('populating search form');
-  console.log(query_data);
   var prompt_user = false;
   var method_map = {sum: 'Sum', avg: 'Average', min: 'Minimum Value', max: 'Maximum Value', dev: 'Standard Deviation'};
   var widget_num = widget.uuid;
@@ -460,7 +456,6 @@ function populate_search_form(query_data, widget)
 
 function go_click_handler(event, widget)
 {
-	console.log(widget);
 
 	var widget_num = widget.uuid;
 	var widget_element = $(widget.element);
@@ -480,7 +475,7 @@ function go_click_handler(event, widget)
 	// Map out all the elements we need to check
 	var input_dates = $('div#graph-widget-dates' + widget_num);
 	var input_time_span = $('div#time-span' + widget_num);
-	var input_autoupdate = $('input#auto-update' + widget_num);
+	var input_autoupdate = $('input#auto-update-button' + widget_num);
 	var input_history = widget_element.find('input:radio[name="history-graph"]:checked');
 
 	// Date range validation
@@ -662,8 +657,6 @@ function go_click_handler(event, widget)
 //      $('#status-box' + widget_num).append('<p id=chuck style="margin: 0 25px"></p>');
 	}
 
-	console.log(widget.query_data);
-
 	init_query(widget.query_data, widget);
 
 }
@@ -677,13 +670,10 @@ function init_query(query_data, widget) {
 		// done: Send the data over to be parsed
 		function(data)
 		{
-			console.log(query_data);
-			console.log(data);
 			$.when(process_graph_data(data, query_data, widget)).then(
 				// done: Build the graph
 				function(data)
 				{
-					console.log(data);
 					build_graph(data.graphdata, data.querydata, widget);
 				}
 				// fail: Show error image and error message
@@ -1027,7 +1017,6 @@ function get_metric_data_anomaly(query_data, widget)
 			}
 		}
 	}).fail(function(data) {
-		console.log(data);
 		ajax_request.abort();
 		ajax_object.reject([data.status, data.statusText]);
 	});
@@ -1069,10 +1058,8 @@ function process_graph_data(data, query_data, widget)
 	for (var series in data) {
 		if (data.hasOwnProperty(series))
 		{
-			console.log(data[series]);
 			if (data[series] !== null)
 			{
-				console.log(series);
 				if (query_data['history-graph'] == "anomaly")
 				{
 					query_data.metrics[0]['history-graph'] = "anomaly";
@@ -1159,7 +1146,7 @@ function build_graph(data, query_data, widget)
 	var y_space = $('#' + graphdiv_id).height() / 12;
 	var g_width = $('#' + graphdiv_id).innerWidth() * .95;
 
-	var g = new Dygraph(
+	widget.g = new Dygraph(
 		document.getElementById('graphdiv' + widget.uuid)
         ,dygraph_format
         ,{
@@ -1180,7 +1167,7 @@ function build_graph(data, query_data, widget)
 				,textAlign: 'right'
 			}
 			,strokeWidth: 2
-			,gridLineColor: 'rgba(234, 234, 234, 0.15)'
+			,gridLineColor: 'rgba(205, 205, 205, 0.1)'
 			,axisLabelColor: 'rgba(234, 234, 234, 0.75)'
 			,colors: swcolors.Wheel_DarkBG[5]
 			,axes: {
@@ -1220,7 +1207,7 @@ function build_graph(data, query_data, widget)
             		axis_bits[label] = {};
             		axis_bits[label]['axis'] = right_axis;
 				}
-				g.updateOptions(axis_bits);
+				widget.g.updateOptions(axis_bits);
 			});
   		}
     });
@@ -1231,12 +1218,12 @@ function build_graph(data, query_data, widget)
     if (query_data['history-graph'] == "anomaly")
     {
 		anomalies = data.anomalies;
-		g.updateOptions({
+		widget.g.updateOptions({
         	underlayCallback: function(canvas, area, g) {
 				canvas.fillStyle = "rgba(219, 54, 9, 0.25)";
         		function highlight_period(x_start, x_end) {
-            		var canvas_left_x = g.toDomXCoord(x_start);
-            		var canvas_right_x = g.toDomXCoord(x_end);
+            		var canvas_left_x = widget.g.toDomXCoord(x_start);
+            		var canvas_right_x = widget.g.toDomXCoord(x_end);
             		var canvas_width = canvas_right_x - canvas_left_x;
             		canvas.fillRect(canvas_left_x, area.y, canvas_width, area.h);
           		}
@@ -1258,9 +1245,10 @@ function build_graph(data, query_data, widget)
         	new_end = parseInt(new_end / 1000);
         	query_data.start_time = new_start;
         	query_data.end_time = new_end;
-        	$.when(opentsdb_search(query_data)).then(function(data)
+          console.log('updating graph for widget ' + widget.element.attr('id'));
+        	$.when(opentsdb_search(query_data, widget)).then(function(data)
             {
-				$.when(process_graph_data(data, query_data)).then(
+				$.when(process_graph_data(data, query_data, widget)).then(
                 	function(data)
                   	{
                     	var dygraph_update = new Array();
@@ -1299,7 +1287,7 @@ function build_graph(data, query_data, widget)
                     	dygraph_format.splice(0, (dygraph_update.length - 2));
                     	dygraph_format.splice(-2, 2);
                     	dygraph_format = dygraph_format.concat(dygraph_update);
-                    	g.updateOptions({'file': dygraph_format});
+                    	widget.g.updateOptions({'file': dygraph_format});
                     	series_times = series_times.splice(-4, 4);
                   	}
               	);

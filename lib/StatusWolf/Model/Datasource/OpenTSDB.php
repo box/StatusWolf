@@ -131,6 +131,7 @@ class OpenTSDB extends TimeSeriesData {
     $this->loggy->logDebug($this->log_tag . "OpenTSDB object created");
     // The template URL with the configured OpenTSDB host included
     $this->_tsdb_base_url = 'http://' . $this->_host . '/q?start=%s&end=%s%s&%s';
+
   }
 
   /**
@@ -208,6 +209,7 @@ class OpenTSDB extends TimeSeriesData {
     else
     {
       ini_set('memory_limit', '2G');
+      set_time_limit(300);
 
       // Make sure we have a metric name to search on and build the metric
       // string with downsampler, aggregator, rate & interpolation info
