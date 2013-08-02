@@ -335,6 +335,132 @@ function build_saved_search_menu(widget)
 			}
 		}
 	});
+
+  widget.sw_graphwidget_backtitle.children('.saved-searches-menu').children('ul.saved-searches-options').on('click', 'li', function() {
+    var saved_query = {};
+    if (search_name = $(this).children('span').attr('data-name'))
+    {
+      var search_bits = search_name.split('-');
+      var search_id = search_bits[1];
+      console.log('loading saved search #' + search_id);
+      $.ajax({
+        url: sw_url + "/api/load_saved_search/" + search_id
+        ,type: 'GET'
+        ,dataType: 'json'
+        ,success: function(data) {
+          saved_query = data;
+          delete(saved_query.private);
+          delete(saved_query.save_span);
+          delete(saved_query.title);
+          delete(saved_query.user_id);
+          populate_search_form(saved_query, widget);
+        }
+      });
+    }
+
+  });
+
+}
+
+function populate_search_form(query_data, widget)
+{
+
+  console.log('populating search form');
+  console.log(query_data);
+  var prompt_user = false;
+  var method_map = {sum: 'Sum', avg: 'Average', min: 'Minimum Value', max: 'Maximum Value', dev: 'Standard Deviation'};
+  var widget_num = widget.uuid;
+
+  if (query_data['auto_update'] === "true") {
+    $('label[for="auto-update-button' + widget_num + '"]').click();
+    $('label[for="auto-update-button' + widget_num + '"]').parent('.push-button').addClass('pushed');
+    $('label[for="auto-update-button' + widget_num + '"]').children('span.iconic').removeClass('iconic-x-alt red').addClass('iconic-check-alt green');
+  }
+  if (query_data['history-graph'].match(/anomaly/))
+  {
+    var el = $('input[data-target="history-anomaly' + widget_num + '"]').parent('label');
+    $(el).parent('div.toggle-button').addClass('toggle-on');
+    $(el).parent('div.toggle-button').siblings('div.toggle-button').removeClass('toggle-on');
+    $(el).children('input').attr('checked', 'Checked');
+    $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
+    $('input[data-target="history-anomaly' + widget_num + '"]').click();
+  }
+  else if (query_data['history-graph'].match(/wow/))
+  {
+    var el = $('input[data-target="history-wow' + widget_num + '"]').parent('label');
+    $(el).parent('div.toggle-button').addClass('toggle-on');
+    $(el).parent('div.toggle-button').siblings('div.toggle-button').removeClass('toggle-on');
+    $(el).children('input').attr('checked', 'Checked');
+    $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
+    $('input[data-target="history-wow' + widget_num + '"]').click();
+  }
+  if (query_data['time_span'])
+  {
+    var el = $('input[data-target="graph-widget-time-span' + widget_num + '"]').parent('label');
+    $(el).parent('div.toggle-button').addClass('toggle-on');
+    $(el).parent('div.toggle-button').siblings('div.toggle-button').removeClass('toggle-on');
+    $(el).children('input').attr('checked', 'Checked');
+    $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
+    $('input[data-target="graph-widget-time-span' + widget_num + '"]').click();
+    var span = query_data['time_span'];
+    $('#time-span-options' + widget_num + ' li span[data-ms="' + span + '"]').parent('li').click();
+  }
+  else
+  {
+    if ((start_in = parseInt(query_data['start_time'])) && (end_in = parseInt(query_data['end_time'])))
+    {
+      $('div#start-time' + widget_num).children('input').val(new Date(start_in * 1000).toString('yyyy/MM/dd HH:mm:ss'));
+      $('div#end-time' + widget_num).children('input').val(new Date(end_in * 1000).toString('yyyy/MM/dd HH:mm:ss'));
+    }
+    else
+    {
+      prompt_user = true;
+    }
+  }
+
+  $.each(query_data['metrics'], function(i, metric) {
+    metric_num = i + 1;
+    metric_string = metric.name;
+    if (metric.tags)
+    {
+      $.each(metric.tags, function(i, tag) {
+        metric_string += ' ' + tag;
+      });
+    }
+    $('input[name="metric' + widget_num + '-' + metric_num + '"]').val(metric_string);
+    $('#active-aggregation-type' + widget_num + '-' + metric_num).text(method_map[metric.agg_type]);
+    $('#active-downsample-type' + widget_num + '-' + metric_num).text(method_map[metric.ds_type]);
+    $('#downsample-interval-options' + widget_num + '-' + metric_num + ' li span[data-value="' + metric.ds_interval + '"]').parent('li').click();
+    if (!metric.lerp)
+    {
+      $('input#lerp-button' + widget_num + '-' + metric_num).siblings('label').click();
+      $('input#lerp-button' + widget_num + '-' + metric_num).parent('.push-button').removeClass('pushed');
+      $('input#lerp-button' + widget_num + '-' + metric_num).siblings('label').children('span.iconic').addClass('iconic-x-alt red').removeClass('iconic-check-alt green');
+      $('input#lerp-button' + widget_num + '-' + metric_num).siblings('label').children('span.binary-label').text('No');
+    }
+    if (metric.rate)
+    {
+      $('input#rate-button' + widget_num + '-' + metric_num).siblings('label').click();
+      $('input#rate-button' + widget_num + '-' + metric_num).parent('.push-button').addClass('pushed');
+      $('input#rate-button' + widget_num + '-' + metric_num).siblings('label').children('span.iconic').removeClass('iconic-x-alt red').addClass('iconic-check-alt green');
+      $('input#rate-button' + widget_num + '-' + metric_num).siblings('label').children('span.binary-label').text('Yes');
+    }
+    if (metric.y2)
+    {
+      $('input#y2-button' + widget_num + '-' + metric_num).siblings('label').click();
+      $('input#y2-button' + widget_num + '-' + metric_num).parent('.push-button').addClass('pushed');
+      $('input#y2-button' + widget_num + '-' + metric_num).siblings('label').children('span.iconic').removeClass('iconic-x-alt red').addClass('iconic-check-alt green');
+      $('input#y2-button' + widget_num + '-' + metric_num).siblings('label').children('span.binary-label').text('Yes');
+    }
+  });
+  if (prompt_user)
+  {
+    $(widget.element).children('.widget').addClass('flipped');
+  }
+  else
+  {
+    go_click_handler('', widget);
+  }
 }
 
 function go_click_handler(event, widget)
