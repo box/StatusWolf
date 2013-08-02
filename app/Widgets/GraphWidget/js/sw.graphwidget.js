@@ -165,7 +165,7 @@
 				.appendTo(sw_graphwidget_backmain);
 
 			sw_graphwidget_datasource = $.trim($(sw_graphwidget_datasourcemenu).children('span.widget-title-button').children('span.active-datasource').text().toLowerCase());
-			loadScript('http://localhost:88/app/Widgets/GraphWidget/js/sw.graphwidget.datasource_' + sw_graphwidget_datasource + '.js', function() {
+			loadScript(this.options.sw_url + 'app/Widgets/GraphWidget/js/sw.graphwidget.datasource_' + sw_graphwidget_datasource + '.js', function() {
 				build_search_form(that);
 			});
 		}

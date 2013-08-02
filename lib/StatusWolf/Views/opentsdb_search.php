@@ -260,8 +260,6 @@
 
 <script type="text/javascript">
 
-  var apache_env = eval('(<?php echo json_encode($_SERVER); ?>)');
-  console.log(apache_env);
   var sw_conf = eval('(<?php echo json_encode($sw_conf); ?>)');
   var query_data = {};
   var query_url = '';

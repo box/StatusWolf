@@ -8,17 +8,16 @@
 function build_search_form(widget)
 {
 
-	sw_url = document.location.origin;
-	$('head').append('<link rel="stylesheet" href="' + sw_url + '/app/css/datetimepicker.css">' +
-		'<link rel="stylesheet" href="' + sw_url + '/app/css/toggle-buttons.css">' +
-		'<link rel="stylesheet" href="' + sw_url + '/app/css/push-button.css">' +
-		'<link rel="stylesheet" href="' + sw_url + '/app/css/table.css">' +
-		'<link rel="stylesheet" href="' + sw_url + '/app/css/loader.css">' +
-		'<link rel="stylesheet" href="' + sw_url + '/app/css/tooltip.css">' +
-		'<link rel="stylesheet" href="' + sw_url + '/app/Widgets/GraphWidget/css/custom.graph_widget.css">' +
-		'<script type="text/javascript" src="' + sw_url + '/app/js/lib/dygraph-combined.js"></script>' +
-		'<script type="text/javascript" src="' + sw_url + '/app/js/status_wolf_colors.js"></script>' +
-		'<script type="text/javascript" src="' + sw_url + '/app/js/push-button.js"></script>');
+	$('head').append('<link rel="stylesheet" href="' + widget.options.sw_url + 'app/css/datetimepicker.css">' +
+		'<link rel="stylesheet" href="' + widget.options.sw_url + 'app/css/toggle-buttons.css">' +
+		'<link rel="stylesheet" href="' + widget.options.sw_url + 'app/css/push-button.css">' +
+		'<link rel="stylesheet" href="' + widget.options.sw_url + 'app/css/table.css">' +
+		'<link rel="stylesheet" href="' + widget.options.sw_url + 'app/css/loader.css">' +
+		'<link rel="stylesheet" href="' + widget.options.sw_url + 'app/css/tooltip.css">' +
+		'<link rel="stylesheet" href="' + widget.options.sw_url + 'app/Widgets/GraphWidget/css/custom.graph_widget.css">' +
+		'<script type="text/javascript" src="' + widget.options.sw_url + 'app/js/lib/dygraph-combined.js"></script>' +
+		'<script type="text/javascript" src="' + widget.options.sw_url + 'app/js/status_wolf_colors.js"></script>' +
+		'<script type="text/javascript" src="' + widget.options.sw_url + 'app/js/push-button.js"></script>');
 
 	var widget_num = widget.uuid
 		,widget_element = widget.element;
@@ -101,7 +100,7 @@ function build_search_form(widget)
 			widget.metric_count = add_tab(widget.metric_count, widget_num);
 			$('input[name="metric' + widget_num + '-' + widget.metric_count + '"]').autocomplete({
 				minChars: 2
-				,serviceUrl: sw_url + '/api/tsdb_metric_list/'
+				,serviceUrl: widget.options.sw_url + 'api/tsdb_metric_list/'
 				,containerClass: 'autocomplete-suggestions dropdown-menu'
 				,zIndex: ''
 				,maxHeight: ''
@@ -124,12 +123,12 @@ function build_search_form(widget)
 
 
 	// Load the handler for the toggle-buttons
-	loadScript(sw_url + '/app/js/toggle-buttons.js', function(){});
+	loadScript(widget.options.sw_url + 'app/js/toggle-buttons.js', function(){});
 	// Load the handler for metric name autocompletion and init the form objects
-	loadScript(sw_url + '/app/js/lib/jquery.autocomplete.js', function(){
+	loadScript(widget.options.sw_url + 'app/js/lib/jquery.autocomplete.js', function(){
 		$(widget.sw_graphwidget_searchform.children('.row3').find('.metric-autocomplete')).autocomplete({
 			minChars: 2
-			,serviceUrl: '' + sw_url + '/api/tsdb_metric_list/'
+			,serviceUrl: widget.options.sw_url + 'api/tsdb_metric_list/'
 			,containerClass: 'autocomplete-suggestions dropdown-menu'
 			,zIndex: ''
 			,maxHeight: ''
@@ -140,7 +139,7 @@ function build_search_form(widget)
 	// Add the handler for the date/time picker and init the form objects
 	var start_time = $('#start-time' + widget_num);
 	var end_time = $('#end-time' + widget_num);
-	loadScript(sw_url + '/app/js/lib/bootstrap-datetimepicker.js', function() {
+	loadScript(widget.options.sw_url + 'app/js/lib/bootstrap-datetimepicker.js', function() {
 		$(start_time).datetimepicker({collapse: false});
 		$(end_time).datetimepicker({collapse: false});
 	});
@@ -300,7 +299,7 @@ function dropdown_menu_handler(item, widget_num)
 function build_saved_search_menu(widget)
 {
 	var user_id = document._session_data.user_id;
-	var api_url = sw_url + '/api/get_saved_searches';
+	var api_url = widget.options.sw_url + 'api/get_saved_searches';
   console.log('building saved search menu for user id ' + user_id);
 
   api_query = {user_id: user_id};
@@ -340,7 +339,7 @@ function build_saved_search_menu(widget)
       var search_id = search_bits[1];
       console.log('loading saved search #' + search_id);
       $.ajax({
-        url: sw_url + "/api/load_saved_search/" + search_id
+        url: widget.options.sw_url + "api/load_saved_search/" + search_id
         ,type: 'GET'
         ,dataType: 'json'
         ,success: function(data) {
@@ -690,7 +689,7 @@ function init_query(query_data, widget) {
 				// fail: Show error image and error message
 				,function(status)
 				{
-					widget.sw_graphwidget_frontmain.children('#graphdiv' + widget_num).children('.bowlG').html(sw_url + '/app/img/error.png" style="width: 60px; height: 30px;">');
+					widget.sw_graphwidget_frontmain.children('#graphdiv' + widget_num).children('.bowlG').html(widget.options.sw_url + 'app/img/error.png" style="width: 60px; height: 30px;">');
 					widget.sw_graphwidget_frontmain.find('#status-message' + widget_num).text(status);
 				}
 			);
@@ -700,7 +699,7 @@ function init_query(query_data, widget) {
 		{
 			widget.sw_graphwidget_frontmain.children('#graphdiv' + widget_num).children('.bowlG')
 				.css({'padding-top': '15%', 'margin-top': '0', 'margin-bottom': '5px', 'width': '120px', 'height': '60px'})
-				.html('<img src="' + sw_url + '/app/img/error.png" style="width: 120px; height: 60px;">');
+				.html('<img src="' + widget.options.sw_url + 'app/img/error.png" style="width: 120px; height: 60px;">');
 
 			widget.sw_graphwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num).empty()
 				.append('<p>' + status.shift() + '</p>');
@@ -757,7 +756,7 @@ function opentsdb_search(query_data, widget)
 	else
 	{
 		status.html('<p>Fetching Metric Data</p>');
-		$.when(get_metric_data(query_data)
+		$.when(get_metric_data(query_data, widget)
 			.done(function(data) {
 				query_object.resolve(data);
 			})
@@ -772,7 +771,7 @@ function opentsdb_search(query_data, widget)
 }
 
 // AJAX function to search OpenTSDB
-function get_metric_data(query_data)
+function get_metric_data(query_data, widget)
 {
 
 	if (typeof ajax_request !== 'undefined')
@@ -784,7 +783,7 @@ function get_metric_data(query_data)
 	var ajax_object = new $.Deferred();
 
 	var ajax_request = $.ajax({
-			url: sw_url + "/adhoc/search/OpenTSDB"
+			url: widget.options.sw_url + "adhoc/search/OpenTSDB"
 			,type: 'POST'
 			,data: query_data
 			,dataType: 'json'
@@ -831,7 +830,7 @@ function get_metric_data_wow(query_data, widget)
 	var metric_data = {};
 
 	var ajax_request = $.ajax({
-			url: sw_url + "/adhoc/search/OpenTSDB"
+			url: widget.options.sw_url + "adhoc/search/OpenTSDB"
 			,type: 'POST'
 			,data: query_data
 			,data_type: 'json'
@@ -867,7 +866,7 @@ function get_metric_data_wow(query_data, widget)
 			past_query.end_time = parseInt(query_data.end_time - 604800);
 			past_query.start_time = past_query.end_time - query_span;
 			return $.ajax({
-				url: sw_url + "/adhoc/search/OpenTSDB"
+				url: widget.options.sw_url + "adhoc/search/OpenTSDB"
 				,type: 'POST'
 				,data: past_query
 				,data_type: 'json'
@@ -931,7 +930,7 @@ function get_metric_data_anomaly(query_data, widget)
 	var data_for_detection = [];
 
 	var ajax_request = $.ajax({
-		url: sw_url + "/adhoc/search/OpenTSDB"
+		url: widget.options.sw_url + "adhoc/search/OpenTSDB"
 		,type: 'POST'
 		,data: query_data
 		,dataType: 'json'
@@ -957,7 +956,7 @@ function get_metric_data_anomaly(query_data, widget)
 			past_query.cache_key = metric_data.cache_key + '_pre';
 			status.html('<p>Fetching data for anomaly detection</p>');
 			return $.ajax({
-				url: sw_url + "/adhoc/search/OpenTSDB"
+				url: widget.options.sw_url + "adhoc/search/OpenTSDB"
 				,type: 'POST'
 				,data: past_query
 				,data_type: 'json'
@@ -999,7 +998,7 @@ function get_metric_data_anomaly(query_data, widget)
 				data_for_detection = {metric: query_data.metrics[0]['name'], cache: metric_data.query_cache, pre_cache: pre_period_cache};
 				status.html('<p>Calculating anomalies</p>');
 				return $.ajax({
-					url: sw_url + "/api/detect_timeseries_anomalies"
+					url: widget.options.sw_url + "api/detect_timeseries_anomalies"
 					,type: 'POST'
 					,data: data_for_detection
 					,data_type: 'json'

@@ -17,8 +17,8 @@ $_sw_conf = SWConfig::read_values('statuswolf');
 
 $widget_main = WIDGETS;
 $widget_dir_iterator = new DirectoryIterator($widget_main);
-$widgets = [];
-$widget_list = [];
+$widgets = array();
+$widget_list = array();
 foreach($widget_dir_iterator as $fileinfo)
 {
   if ($fileinfo->isDot()) { continue; }
@@ -86,10 +86,12 @@ foreach($widgets as $widget_key)
     $('#add-widget-menu-item').append('<ul class="dropdown-menu sub-menu" id="add-widget-menu-options">');
     $.each(widgets, function(widget_index, widget_data) {
       var widget_url = '<?php echo URL . WIDGETS_URL; ?>';
-      var widget_script = widget_url + widget_index + '/js/' + widget_data.name + '.js';
+      var widget_script_url = widget_url + widget_index + '/js/' + widget_data.name + '.js';
       console.log('loading ' + widget_index + ' widget from ' + widget_script);
+      var widget_script = widget_script_url.split('/');
+      widget_script = widget_script.pop();
       var widget_type = widget_script.split('.');
-      loadScript(widget_script, function() {});
+      loadScript(widget_script_url, function() {});
       $('#add-widget-menu-options').append('<li onClick="add_widget(\'' + widget_type[1] + '\')"><span>' + widget_data.title + '</span></li>');
     });
   });
@@ -98,10 +100,11 @@ foreach($widgets as $widget_key)
   {
     var username = "<?php echo $_session_data['username'] ?>";
     var widget_id = "widget" + md5(username + new Date.now().getTime());
+    var widget;
     $('#dash-container').append('<div class="widget-container" id="' + widget_id + '">');
     if (widget_type === "graphwidget")
     {
-      var widget = $('#' + widget_id).graphwidget({widget_url: '<?php echo URL; ?>Widgets/'});
+      widget = $('#' + widget_id).graphwidget({sw_url: '<?php echo URL; ?>'});
     }
     setTimeout(function() {
       $('#' + widget_id).removeClass('transparent');
