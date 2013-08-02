@@ -165,7 +165,9 @@
 				.appendTo(sw_graphwidget_backmain);
 
 			sw_graphwidget_datasource = $.trim($(sw_graphwidget_datasourcemenu).children('span.widget-title-button').children('span.active-datasource').text().toLowerCase());
-			this.show_datasource_form(sw_graphwidget_datasource + '_search');
+			loadScript('http://localhost:88/app/Widgets/GraphWidget/js/sw.graphwidget.datasource_' + sw_graphwidget_datasource + '.js', function() {
+				build_search_form(that);
+			});
 		}
 
 		,_destroy: function() {
@@ -187,22 +189,6 @@
 			this.sw_graphwidget_front.remove();
 			this.sw_graphwidget_back.remove();
 			this.sw_graphwidget.remove();
-		}
-
-		,show_datasource_form: function(datasource) {
-			var form_div = this.sw_graphwidget_searchform;
-			var view_url = this.options['widget_url'] + 'GraphWidget/api/datasource_form/' + datasource;
-			$.ajax({
-				url: view_url
-				,method: 'GET'
-				,dataType: 'json'
-				,success: function(data) {
-					$(form_div).addClass('hidden');
-					$(form_div).empty();
-					$(form_div).html(data['form_source']);
-					$(form_div).removeClass('hidden');
-				}
-			});
 		}
 
 		,maximize_widget: function() {

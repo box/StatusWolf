@@ -11,6 +11,7 @@
  */
 
 $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
+$_sw_conf = SWConfig::read_values('statuswolf');
 
 // Register available widgets
 
@@ -50,9 +51,13 @@ foreach($widgets as $widget_key)
 
 <script type="text/javascript">
 
+  document._session_data = eval('(<?php echo json_encode($_session_data); ?>)');
+  document._sw_conf = eval('(<?php echo json_encode($_sw_conf); ?>)');
+
   $(document).ready(function() {
     var widgets = eval('(<?php echo json_encode($widget_list); ?>)');
-    console.log(widgets);
+    this.sw_url = '<?php echo URL; ?>';
+
     $('#menu-placeholder').replaceWith('<div class="dashboard-menu dropdown menu-btn" id="dashboard-menu">');
     $('#dashboard-menu').append('<span class="flexy" id="dashboard-menu-content" data-toggle="dropdown">')
     $('#dashboard-menu-content').append('<span class="menu-label" id="dashboard-menu-label">Dashboard <span class="iconic iconic-play rotate-90">');

@@ -293,4 +293,31 @@ class ApiController extends SWController
 
   }
 
+  function search($url_path)
+  {
+    if ($_adhoc_datasource = array_shift($url_path))
+    {
+      $_search_object = new $_adhoc_datasource();
+      print_r($_POST);
+      $_search_object->get_raw_data($_POST);
+      $raw_data = $_search_object->read();
+      echo json_encode($raw_data);
+    }
+    else
+    {
+      throw new SWException ('No datasource specified for Ad-Hoc search');
+    }
+  }
+
+  function config($url_path)
+  {
+    if ($config_item = array_shift($url_path))
+    {
+      echo json_encode(SWConfig::read_values($config_item));
+    }
+    else {
+      echo json_encode(SWConfig::read_values());
+    }
+  }
+
 }

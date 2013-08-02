@@ -239,6 +239,7 @@ else
   $('.section-toggle').click(function() {
     var data_target = $(this).attr('data-target');
     var section = $(widget_instance.element).find('div[data-name="' + data_target + '"]');
+    console.log(section);
     section.removeClass('section-off').addClass('section-on').siblings('.section').addClass('section-off').removeClass('section-on');
     if (data_target == 'history-anomaly' || data_target == 'history-wow')
     {
@@ -259,6 +260,7 @@ else
       }
       widget_instance.sw_graphwidget_searchform.find('ul#tab-list' + widget_num + ' a[href="#tab' + widget_num + '-1"]').click();
       widget_instance.sw_graphwidget_searchform.find('ul.nav-tabs').addClass('hidden');
+      $('#' + add_metric_button_id).addClass('hidden');
     }
     else if (data_target == 'history-no')
     {
@@ -276,6 +278,7 @@ else
           .append('<li><span data-ms="<?php echo (WEEK * 2) ?>">2 weeks</span></li>')
           .append('<li><span data-ms="<?php echo MONTH ?>">1 month</span></li>');
       widget_instance.sw_graphwidget_searchform.find('ul.nav-tabs').removeClass('hidden');
+      $('#' + add_metric_button_id).removeClass('hidden');
     }
 
 //    var time_span_options = $(widget_instance.element).find('ul[data-name="time-span-options"]');
@@ -306,14 +309,6 @@ else
     $('ul.dropdown-menu').on('click', 'li', function() {
       dropdown_menu_handler(this);
     });
-  }).keypress(function(e) {
-    if (e.which === 13)
-    {
-      if ($('.widget').hasClass('flipped'))
-      {
-        go_click_handler(e, widget_instance);
-      }
-    }
   });
 
   function dropdown_menu_handler(item)
@@ -466,6 +461,7 @@ else
 
     var widget_num = widget.uuid;
     var widget_element = $(widget.element);
+    console.log(widget_element);
     widget.query_data = {};
     widget.query_data.datasource = 'OpenTSDB';
     widget.query_data.downsample_master_interval = 0;
@@ -484,7 +480,7 @@ else
     var input_time_span = widget_element.find('div[data-name="time-span"]');
     var input_autoupdate = widget_element.find('input:checkbox[name="auto-update"]');
     var input_history = widget_element.find('input:radio[name="history-graph"]:checked');
-    console.log(input_history.val());
+    console.log(input_history);
 
     // Date range validation
     var start, end;
@@ -731,7 +727,7 @@ else
     if (query_data['history-graph'] == "anomaly")
     {
       status.html('<p>Fetching Metric Data</p>');
-      $.when(get_metric_data_anomaly(query_data)
+      $.when(get_metric_data_anomaly(query_data, widget)
           .done(function(data) {
             query_object.resolve(data);
           })
@@ -756,7 +752,7 @@ else
     else
     {
       status.html('<p>Fetching Metric Data</p>');
-      $.when(get_metric_data(query_data, widget)
+      $.when(get_metric_data(query_data)
           .done(function(data) {
             query_object.resolve(data);
           })
@@ -815,6 +811,225 @@ else
 
   }
 
+  function get_metric_data_wow(query_data, widget)
+  {
+
+    var status = widget.sw_graphwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num).children('#status-message' + widget_num);
+
+    if (typeof ajax_request !== 'undefined')
+    {
+      ajax_request.abort();
+    }
+
+    var ajax_object = new $.Deferred();
+
+    var metric_data = {};
+
+    var ajax_request = $.ajax({
+      url: "<?php echo URL; ?>adhoc/search/OpenTSDB"
+      ,type: 'POST'
+      ,data: query_data
+      ,data_type: 'json'
+      ,timeout: 120000
+    })
+        ,chained = ajax_request.then(function(data) {
+      metric_data[0] = eval('(' + data + ')');
+      if (metric_data[0][0] === "error")
+      {
+        ajax_request.abort();
+        ajax_object.reject(metric_data[0][1])
+      }
+      else if (Object.keys(metric_data[0]).length <= 5)
+      {
+        ajax_request.abort();
+        ajax_object.reject(["0", "Current week query returned no data"]);
+      }
+      else
+      {
+        status.html('<p>Fetching Metric Data</p>');
+        metric_data.start = metric_data[0]['start'];
+        delete metric_data[0]['start'];
+        metric_data.end = metric_data[0]['end'];
+        delete metric_data[0]['end'];
+        metric_data.query_url = metric_data[0]['query_url'];
+        delete metric_data[0]['query_url'];
+        current_keys = Object.keys(metric_data[0]);
+        current_key = 'Current - ' + current_keys[0];
+        metric_data[current_key] = metric_data[0][current_keys[0]];
+        delete metric_data[0];
+        var past_query = $.extend(true, {}, query_data);
+        var query_span = parseInt(query_data.end_time) - parseInt(query_data.start_time);
+        past_query.end_time = parseInt(query_data.end_time - <?php echo WEEK; ?>);
+        past_query.start_time = past_query.end_time - query_span;
+        return $.ajax({
+          url: "<?php echo URL; ?>adhoc/search/OpenTSDB"
+          ,type: 'POST'
+          ,data: past_query
+          ,data_type: 'json'
+          ,timeout: 120000
+        });
+      }
+    });
+    chained.done(function(data) {
+      if (!data)
+      {
+        ajax_request.abort();
+        ajax_object.reject();
+      }
+      else
+      {
+        metric_data[1] = eval('(' + data + ')');
+        if (metric_data[1][0] === "error")
+        {
+          ajax_request.abort();
+          ajax_object.reject(metric_data[1][1])
+        }
+        else if (Object.getOwnPropertyNames(metric_data[1]).length <= 5)
+        {
+          ajax_request.abort();
+          ajax_object.reject(["0", "Previous week query returned no data"]);
+        }
+        else
+        {
+          delete metric_data[1].start;
+          delete metric_data[1].end;
+          delete metric_data[1].query_url;
+          past_keys = Object.keys(metric_data[1]);
+          past_key = 'Previous - ' + past_keys[0];
+          metric_data[past_key] = metric_data[1][past_keys[0]];
+          delete metric_data[1];
+          $.each(metric_data[past_key], function(index, entry) {
+            entry.timestamp = parseInt(entry.timestamp + <?php echo WEEK; ?>);
+          });
+          delete ajax_request;
+          ajax_object.resolve(metric_data);
+        }
+      }
+    });
+
+    return ajax_object.promise();
+  }
+
+  function get_metric_data_anomaly(query_data, widget)
+  {
+
+    var status = widget.sw_graphwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num).children('#status-message' + widget_num);
+
+    if (typeof ajax_request !== 'undefined')
+    {
+      ajax_request.abort();
+    }
+
+    var ajax_object = new $.Deferred();
+
+    var metric_data = {};
+    var data_for_detection = [];
+
+    var ajax_request = $.ajax({
+          url: "<?php echo URL; ?>adhoc/search/OpenTSDB"
+          ,type: 'POST'
+          ,data: query_data
+          ,dataType: 'json'
+          ,timeout: 120000
+        })
+        ,chained_request_1 = ajax_request.then(function(data) {
+          if (data[0] === "error")
+          {
+            ajax_request.abort();
+            ajax_object.reject(data[1])
+          }
+          else if (Object.getOwnPropertyNames(data).length <= 5)
+          {
+            ajax_request.abort();
+            ajax_object.reject(["0", "Query returned no data"]);
+          }
+          else
+          {
+            metric_data = data;
+            var past_query = $.extend(true, {}, query_data);
+            past_query.end_time = metric_data.start - 1;
+            past_query.start_time = past_query.end_time - sw_conf.anomalies.pre_anomaly_period;
+            past_query.cache_key = metric_data.cache_key + '_pre';
+            status.html('<p>Fetching data for anomaly detection</p>');
+            return $.ajax({
+              url: "<?php echo URL; ?>adhoc/search/OpenTSDB"
+              ,type: 'POST'
+              ,data: past_query
+              ,data_type: 'json'
+              ,timeout: 120000
+            });
+          }
+        })
+        ,chained_request_2 = chained_request_1.then(function(data) {
+          if (!data)
+          {
+            ajax_request.abort();
+            ajax_object.reject();
+          }
+          else
+          {
+            if (typeof(data) !== "object")
+            {
+              var pre_period_data = eval('(' + data + ')');
+            }
+            else
+            {
+              pre_period_data = data;
+            }
+            if (pre_period_data[0] === "error")
+            {
+              ajax_request.abort();
+              ajax_object.reject(pre_period_data[1])
+            }
+            else if (Object.getOwnPropertyNames(pre_period_data).length <= 5)
+            {
+              ajax_request.abort();
+              ajax_object.reject(["0", "Query returned no data"]);
+            }
+            else
+            {
+              var pre_period_cache = pre_period_data.query_cache;
+              delete pre_period_data;
+              data_for_detection = {metric: query_data.metrics[0]['name'], cache: metric_data.query_cache, pre_cache: pre_period_cache};
+              status.html('<p>Calculating anomalies</p>');
+              return $.ajax({
+                url: "<?php echo URL; ?>api/detect_timeseries_anomalies"
+                ,type: 'POST'
+                ,data: data_for_detection
+                ,data_type: 'json'
+              });
+            }
+          }
+        });
+
+    chained_request_2.done(function(data) {
+      if (!data)
+      {
+        ajax_request.abort();
+        ajax_object.reject();
+      }
+      else
+      {
+        metric_data['anomalies'] = eval('(' + data + ')');
+        if (metric_data[0] === "error")
+        {
+          ajax_request.abort();
+          ajax_object.reject(metric_data[1])
+        }
+        else
+        {
+          ajax_object.resolve(metric_data);
+        }
+      }
+    }).fail(function(data) {
+          console.log(data);
+          ajax_request.abort();
+          ajax_object.reject([data.status, data.statusText]);
+        });
+
+    return ajax_object.promise();
+  }
+
   function process_graph_data(data, query_data, widget)
   {
     var parse_object = new $.Deferred();
@@ -848,30 +1063,39 @@ else
     for (var series in data) {
       if (data.hasOwnProperty(series))
       {
-        if (query_data['history-graph'] == "anomaly")
+        console.log(data[series]);
+        if (data[series] !== null)
         {
-          query_data.metrics[0]['history-graph'] = "anomaly";
-        }
-        labels.push(series);
-
-        var data_holder = {};
-        data[series].forEach(function(series_data, index) {
-          data_holder[series_data['timestamp']] = series_data['value'];
-        });
-
-        for (var timestamp in buckets)
-        {
-          if (buckets.hasOwnProperty(timestamp))
+          console.log(series);
+          if (query_data['history-graph'] == "anomaly")
           {
-            if (data_holder[timestamp] != undefined)
+            query_data.metrics[0]['history-graph'] = "anomaly";
+          }
+          labels.push(series);
+
+          var data_holder = {};
+          data[series].forEach(function(series_data, index) {
+            data_holder[series_data['timestamp']] = series_data['value'];
+          });
+
+          for (var timestamp in buckets)
+          {
+            if (buckets.hasOwnProperty(timestamp))
             {
-              buckets[timestamp].push(data_holder[timestamp]);
-            }
-            else
-            {
-              buckets[timestamp].push(null);
+              if (data_holder[timestamp] != undefined)
+              {
+                buckets[timestamp].push(data_holder[timestamp]);
+              }
+              else
+              {
+                buckets[timestamp].push(null);
+              }
             }
           }
+        }
+        else
+        {
+          console.log(series + ' is null, skipping');
         }
 
       }
