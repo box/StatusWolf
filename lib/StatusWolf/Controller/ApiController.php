@@ -352,6 +352,12 @@ class ApiController extends SWController
 
   }
 
+  function query_param_cache()
+  {
+    $query_data = $_POST;
+    $_SESSION[SWConfig::read_values('auth.sessionName')]['data']['current_query'] = serialize($query_data);
+  }
+
   function config($url_path)
   {
     if ($config_item = array_shift($url_path))

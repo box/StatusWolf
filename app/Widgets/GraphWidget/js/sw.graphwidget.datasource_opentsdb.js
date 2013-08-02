@@ -8,7 +8,6 @@
 function build_search_form(widget)
 {
 
-	console.log(document._session_data);
 	sw_url = document.location.origin;
 	$('head').append('<link rel="stylesheet" href="' + sw_url + '/app/css/datetimepicker.css">' +
 		'<link rel="stylesheet" href="' + sw_url + '/app/css/toggle-buttons.css">' +
@@ -171,17 +170,14 @@ function build_search_form(widget)
 		}
 	});
 
-	console.log('adding first metric tab');
 	widget.metric_count = add_tab(widget.metric_count, widget_num);
 	var widget_height = $(widget_element).children('.widget').innerHeight();
 	var main_height = widget_height - (widget.sw_graphwidget_fronttitle.height() + widget.sw_graphwidget_frontfooter.height());
-	console.log('widget height: ' + widget_height + ', main height: ' + main_height);
 	widget.sw_graphwidget_frontmain.css('height', main_height);
 	widget.sw_graphwidget_backmain.css('height', main_height);
 	var row1_height = form_row_1.outerHeight(true);
 	var row2_height = form_row_2.outerHeight(true);
 	form_row_3.css('height', main_height - (row1_height + row2_height));
-	console.log('row 3: ' + form_row_3.height());
 
 	build_saved_search_menu(widget);
 
@@ -202,8 +198,6 @@ function add_tab(tab_num, widget_num)
 	var tab_content = $('div#tab-content' + widget_num)
 		,tab_tag = widget_num + '-' + tab_num
 		,tab_list = $('ul#tab-list' + widget_num);
-
-	console.log('adding tab' + tab_tag);
 
 	$(tab_content).append('<div class="tab-pane" id="tab' + tab_tag + '">');
 	var tab_pane = $(tab_content).children('div#tab' + tab_tag);
@@ -307,15 +301,17 @@ function build_saved_search_menu(widget)
 {
 	var user_id = document._session_data.user_id;
 	var api_url = sw_url + '/api/get_saved_searches';
-	api_query = {user_id: user_id};
+  console.log('building saved search menu for user id ' + user_id);
+
+  api_query = {user_id: user_id};
 	$.ajax({
 		url: api_url
 		,type: 'POST'
 		,data: api_query
 		,dataType: 'json'
 		,success: function(data) {
-			my_searches = data['user_searches'];
-			public_searches = data['public_searches'];
+			var my_searches = data['user_searches'];
+			var public_searches = data['public_searches'];
 			var saved_search_list = widget.sw_graphwidget_backtitle.children('.saved-searches-menu').children('ul.saved-searches-options')
 			saved_search_list.empty();
 			saved_search_list.append('<li class="menu-section"><span>My Searches</span></li>');

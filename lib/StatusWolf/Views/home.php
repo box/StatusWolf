@@ -19,8 +19,8 @@
       	<div class="home-menu-item btn" id="ad-hoc">
           <a href="<?php echo URL; ?>adhoc/">Ad-Hoc Search</a>
         </div>
-        <div class="home-menu-item btn hidden" id="shared-dashboards">
-          <a href="<?php echo URL; ?>dashboard/shared/">Shared Dashboards</a>
+        <div class="home-menu-item btn" id="dashboards">
+          <a href="<?php echo URL; ?>dashboard/">Dashboard</a>
         </div>
         <div class="home-menu-item btn hidden" id="my-dashboards">
           <a href="<?php echo URL; ?>dashboard/my/">My Dashboards</a>

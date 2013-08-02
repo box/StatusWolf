@@ -163,7 +163,7 @@
         <td width="10%" style="padding-right: 0;">
           <div class="dropdown ad-hoc-button">
             <span class="flexy" data-toggle="dropdown">
-              <div class="ad-hoc-button-label" id="active-downsample-type1">Sum</div>
+              <div class="ad-hoc-button-label" id="active-downsample-type1">Maximum Value</div>
               <span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span>
             </span>
             <ul class="dropdown-menu" id="downsample-type-options1" role="menu" aria-labelledby="dLabel">
@@ -222,7 +222,7 @@
         print "<li><span>Maximum Value</span></li>\n<li><span>Standard Deviation</span></li>\n</ul></div></td>";
         print '<td style="padding-right: 0;">' . "\n";
         print '<div class="dropdown ad-hoc-button">' . "\n" . '<span class="flexy" data-toggle="dropdown">' . "\n";
-        print '<div class="ad-hoc-button-label" id="active-downsample-type' . $i . '">Sum</div>' . "\n";
+        print '<div class="ad-hoc-button-label" id="active-downsample-type' . $i . '">Maximum Value</div>' . "\n";
         print '<span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span>' . "\n</span>\n</span>";
         print '<ul class="dropdown-menu" id="downsample-type-options' . $i . '" role="menu" aria-labelledby="dLabel">' . "\n";
         print "<li><span>Sum</span></li>\n<li><span>Average</span></li>\n";
@@ -260,6 +260,8 @@
 
 <script type="text/javascript">
 
+  var apache_env = eval('(<?php echo json_encode($_SERVER); ?>)');
+  console.log(apache_env);
   var sw_conf = eval('(<?php echo json_encode($sw_conf); ?>)');
   var query_data = {};
   var query_url = '';
@@ -451,7 +453,6 @@
       }
     }
   });
-
 
   function populate_form(query_data)
   {
@@ -746,7 +747,7 @@
       // Make sure the graph display div is empty
       graph_element.empty();
       // Load the waiting spinner
-      graph_element.append('<div id="bowlG"><div id="bowl_ringG"><div class="ball_holderG"><div class="ballG"></div></div></div></div>');
+      graph_element.append('<div class="bowlG"><div class="bowl_ringG"><div class="ball_holderG"><div class="ballG"></div></div></div></div>');
       $('.widget').removeClass('flipped');
       graph_element.append('<div id="status-box" style="width: 100%; text-align: center;"><p id="status-message"></p></div>');
       $('#status-box').append('<p id=chuck style="margin: 0 25px"></p>');
@@ -793,6 +794,7 @@
           incoming_query_data = '';
         }
       }
+
       init_query(query_data);
     }
   }
@@ -1281,6 +1283,7 @@
         ,{
           labels: graph_labels
           ,labelsDiv: 'legend'
+          ,legend: 'always'
           ,axisLabelsFontSize: 13
           ,labelsKMB: true
           ,labelsDivWidth: g_width

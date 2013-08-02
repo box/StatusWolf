@@ -51,8 +51,28 @@ foreach($widgets as $widget_key)
 
 <script type="text/javascript">
 
-  document._session_data = eval('(<?php echo json_encode($_session_data); ?>)');
-  document._sw_conf = eval('(<?php echo json_encode($_sw_conf); ?>)');
+<!--  document._session_data = eval('(--><?php //echo json_encode($_session_data); ?><!--)');-->
+  var _session_data = '<?php echo json_encode($_session_data); ?>';
+  if (typeof(_session_data) == "string")
+  {
+    document._session_data = eval('(' + _session_data + ')');
+  }
+  else
+  {
+    document._session_data = _session_data
+  }
+  var _sw_conf = '<?php echo json_encode($_sw_conf); ?>';
+  if (typeof(_sw_conf) == "string")
+  {
+    document._sw_conf = eval('(' + _sw_conf + ')');
+  }
+  else
+  {
+    document._sw_conf = _sw_conf;
+  }
+
+  console.log(document._session_data);
+  console.log(document._sw_conf);
 
   $(document).ready(function() {
     var widgets = eval('(<?php echo json_encode($widget_list); ?>)');
