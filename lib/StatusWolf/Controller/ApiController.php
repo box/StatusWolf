@@ -178,6 +178,7 @@ class ApiController extends SWController
   {
     $this->loggy->logDebug($this->log_tag . 'API call, saving adhoc search');
     $search_parameters = $_POST;
+    $this->loggy->logDebug(json_encode($search_parameters));
     if ($search_parameters['save_span'] == 1)
     {
       if (array_key_exists('time_span', $search_parameters))
@@ -210,12 +211,12 @@ class ApiController extends SWController
       {
         if (array_key_exists('user_searches', $_session_data['data']))
         {
-          array_push($_session_data['data']['user_searches'], array('id' => $search_parameters['id'], 'title' => $search_parameters['title']));
+          array_push($_session_data['data']['user_searches'], array('id' => $search_id, 'title' => $search_parameters['title']));
         }
         else
         {
           $_session_data['data']['user_searches'] = array();
-          array_push($_session_data['data']['user_searches'], array('id' => $search_parameters['id'], 'title' => $search_parameters['title']));
+          array_push($_session_data['data']['user_searches'], array('id' => $search_id, 'title' => $search_parameters['title']));
         }
       }
       else
@@ -231,16 +232,16 @@ class ApiController extends SWController
         }
         if (array_key_exists('public_searches', $_session_data['data']))
         {
-          array_push($_session_data['data']['public_searches'], array('id' => $search_parameters['id'], 'title' => $search_parameters['title'], 'username' => $usermap[$search_parameters['user_id']]));
+          array_push($_session_data['data']['public_searches'], array('id' => $search_id, 'title' => $search_parameters['title'], 'username' => $usermap[$search_parameters['user_id']]));
         }
         else
         {
           $_session_data['data']['public_searches'] = array();
-          array_push($_session_data['data']['public_searches'], array('id' => $search_parameters['id'], 'title' => $search_parameters['title'], 'username' => $usermap[$search_parameters['user_id']]));
+          array_push($_session_data['data']['public_searches'], array('id' => $search_id, 'title' => $search_parameters['title'], 'username' => $usermap[$search_parameters['user_id']]));
         }
       }
       $this->loggy->logDebug($this->log_tag . json_encode($_session_data));
-      return true;
+      echo json_encode($_session_data);
     }
   }
 

@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="<?php echo URL; ?>app/css/widget_base.css">
     <link rel="stylesheet" href="<?php echo URL; ?>app/css/adhoc.css">
     <link rel="stylesheet" href="<?php echo URL; ?>app/css/popups.css?v=1.0">
+    <script type="text/javascript" src="<?php echo URL; ?>app/js/push-button.js"></script>
 
     <div class="container">
       <div class="widget-container" id="ad-hoc-widget">
@@ -30,11 +31,17 @@
               <div id="graphdiv" style="width: 99%; height: 99%;"></div>
             </div>
             <div class="flexy widget-footer">
-              <div class="widget-footer-button left-button" id="ad-hoc-edit" onClick="$(this).parents('.widget').addClass('flipped')"><span class="iconic iconic-pen-alt2"></span> Edit search parameters</div>
-              <div class="widget-footer-button hidden" id="get-datasource-url"><span class="iconic iconic-target"> Get Raw Datasource URL</span></div>
+              <div class="widget-footer-button left-button" id="ad-hoc-edit" onClick="$(this).parents('.widget').addClass('flipped')">
+                <span class="iconic iconic-pen-alt2"></span> Edit search parameters
+              </div><div class="widget-footer-button left-button hidden" id="get-datasource-url">
+                <span class="iconic iconic-target"> Get Raw Datasource URL</span>
+              </div>
               <div class="glue1"></div>
-              <div class="widget-footer-button hidden" id="share-search"><span class="iconic iconic-share"> Share Search</span></div>
-              <div class="widget-footer-button hidden" id="save_popup_button"><span class="iconic iconic-download"> Save Search</span></div>
+              <div class="widget-footer-button right-button hidden" id="share-search">
+                <span class="iconic iconic-share"> Share Search</span>
+              </div><div class="widget-footer-button right-button hidden" id="save-popup-button">
+                <span class="iconic iconic-download"> Save Search</span>
+              </div>
               <div class="widget-footer-button right-button fullscreen-out" id="fullscreen"><span id="fullscreen-button" class="iconic iconic-fullscreen"> </span></div>
             </div>
           </div>
@@ -66,18 +73,18 @@
       </div>
     </div>
 
-    <div id="save_form_popup" class="popup mfp-hide">
-      <div id="save_query_form">
+    <div id="save-form-popup" class="popup mfp-hide">
+      <div id="save-query-form">
         <form onsubmit="return false;">
           <h5>Title: </h5>
-          <div class="popup_form_data">
-            <input type="text" class="input" id="search_title" name="search_title" style="width: 250px;">
+          <div class="popup-form-data">
+            <input type="text" class="input" id="search-title" name="search-title" value="" style="width: 250px;">
           </div>
           <h5>Options:</h5>
-          <div class="popup_form_data">
-            <div class="save_form_row" style="font-size: 1em;">
+          <div class="popup-form-data">
+            <div class="save-form-row" style="font-size: 1em;">
               <div class="push-button">
-                <input type="checkbox" id="save_span" name="save_span"><label for="save_span"><span class="iconic iconic-x-alt red"></span><span class="binary-label"> Save Search Times</span></label>
+                <input type="checkbox" id="save-span" name="save-span"><label for="save-span"><span class="iconic iconic-x-alt red"></span><span class="binary-label"> Save Search Times</span></label>
               </div>
               <div class="push-button">
                 <input type="checkbox" id="public" name="public"><label for="public"><span class="iconic iconic-x-alt red"></span><span class="binary-label"> Public Search</span></label>
@@ -86,7 +93,7 @@
           </div>
         </form>
       </div>
-      <div id="save_query_info">
+      <div id="save-query-info">
         <ul>
           <li><em>Save Search Times:</em> If selected will save the exact times for this search. If not selected and
             the search times were specified specifically you will be prompted for new times when loading the shared
@@ -97,9 +104,9 @@
         </ul>
       </div>
       <div class="flexy widget-footer" style="margin-top: 10px;">
-        <div class="widget-footer-button" id="cancel_save_query_data_button" onClick="$.magnificPopup.close()"><span class="iconic iconic-x-alt"> Cancel</span></div>
+        <div class="widget-footer-button" id="cancel-save-query-data-button" onClick="$.magnificPopup.close()"><span class="iconic iconic-x-alt"> Cancel</span></div>
         <div class="glue1"></div>
-        <div class="widget-footer-button" id="save_query_data_button" onClick="save_click_handler(event, query_data)"><span class="iconic iconic-download"> Save</span></div>
+        <div class="widget-footer-button" id="save-query-data-button" onClick="save_click_handler(event, query_data)"><span class="iconic iconic-download"> Save</span></div>
       </div>
     </div>
 
@@ -139,6 +146,8 @@
         datasource = $(this).text().toLowerCase() + '_search';
         show_datasource_form(datasource);
       });
+
+      $('#save-popup-button').css('margin-right', $('#fullscreen').outerWidth());
 
       $('#fullscreen').click(function() {
         if ($('.widget-container').hasClass('maximize-widget'))
@@ -250,13 +259,13 @@
         }
       });
 
-      $('#save_popup_button').magnificPopup({
+      $('#save-popup-button').magnificPopup({
         items: {
-          src: '#save_form_popup'
+          src: '#save-form-popup'
           ,type: 'inline'
         }
         ,preloader: false
-        ,focus: '#search_title'
+        ,focus: '#search-title'
         ,removalDelay: 300
         ,mainClass: 'popup-animate'
         ,callbacks: {
@@ -265,10 +274,10 @@
               $('.container').addClass('blur');
               $('.navbar').addClass('blur');
             }, 150);
-            if ($('#search_title').attr('value').length < 1)
+            if ($('#search-title').attr('value').length < 1)
             {
               <?php if (array_key_exists('user_searches', $_session_data['data'])) { $search_count = count($_session_data['data']['user_searches']); } else { $search_count = 0; } ?>
-              $('#search_title').attr('value', '<?php echo $_session_data['username']; ?>' + '_' + datasource + '_' + '<?php echo $search_count + 1; ?>');
+              $('#search-title').attr('value', '<?php echo $_session_data['username']; ?>' + '_' + datasource + '_' + '<?php echo $search_count + 1; ?>');
             }
           }
           ,close: function() {
@@ -278,16 +287,16 @@
         }
       });
 
-      function save_click_handler(event)
+      function save_click_handler(event, query_data)
       {
-        if ($('input#search_title').val().length < 1)
+        if ($('input#search-title').val().length < 1)
         {
-          $('input#search_title').css('border-color', 'red').css('background-color', 'rgb(255, 200, 200)').focus();
+          $('input#search-title').css('border-color', 'red').css('background-color', 'rgb(255, 200, 200)').focus();
           alert("You must specify a title for your saved search");
         }
         query_data['user_id'] = "<?php echo $_session_data['user_id']; ?>";
-        query_data['title'] = $('input#search_title').val();
-        $('#save_span').prop('checked')?query_data['save_span'] = 1:query_data['save_span'] = 0;
+        query_data['title'] = $('input#search-title').val();
+        $('#save-span').prop('checked')?query_data['save_span'] = 1:query_data['save_span'] = 0;
         $('#public').prop('checked')?query_data['private'] = 0:query_data['private'] = 1;
         var api_url = '<?php echo URL; ?>api/save_adhoc_search';
         $.ajax({

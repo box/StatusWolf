@@ -281,8 +281,6 @@
 
   // Load the handler for the toggle-buttons
   loadScript("<?php echo URL; ?>app/js/toggle-buttons.js", function(){});
-  // Load the handler for the on-off push buttons
-  loadScript("<?php echo URL; ?>app/js/push-button.js", function(){});
   // Load the handler for metric name autocompletion and init the form objects
   loadScript("<?php echo URL; ?>app/js/lib/jquery.autocomplete.js", function(){
     $(".metric-autocomplete").autocomplete({
