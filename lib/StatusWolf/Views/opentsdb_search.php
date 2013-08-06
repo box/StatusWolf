@@ -65,7 +65,7 @@
 ?>
 
 <div class="ad-hoc-form-row" id="row1">
-  <div id="auto-update">
+  <div id="auto-update" class="auto-update">
     <div class="push-button">
       <input type="checkbox" id="auto-update-button" name="auto-update"><label id="auto-update-label" for="auto-update-button"><span class="iconic iconic-x-alt red"></span><span> Auto Update</span></label>
     </div>
@@ -347,6 +347,10 @@
     {
       $(button).children('#time-span').attr('data-ms', $(this).children('span').attr('data-ms'));
     }
+  });
+
+  $('label').click(function() {
+    push_button(this);
   });
 
   $('.info-tooltip').tooltip({placement: 'bottom'});
