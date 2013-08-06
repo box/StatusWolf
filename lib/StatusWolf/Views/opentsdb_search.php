@@ -1248,6 +1248,8 @@
   function build_graph(data, query_data)
   {
 
+    $('.widget-footer-button.hidden').removeClass('hidden');
+
     var graph_data = data.data;
     var graph_labels = data.labels;
     var dygraph_format = [];
@@ -1343,8 +1345,6 @@
         });
       }
     });
-
-    $('.widget-footer-btn.hidden').removeClass('hidden');
 
     // Set up the anomaly highlighting if requested
     if (query_data['history-graph'] == "anomaly")
