@@ -16,8 +16,9 @@
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
     border: 0;
-    transition: all 0.5s linear;
     -webkit-transition: all 0.5s linear;
+    -moz-transition: all 0.5s linear;
+    transition: all 0.5s linear;
 }
 
 .widget {
@@ -96,6 +97,7 @@
 }
 
 .widget-title-button {
+    display: inline-block;
     height: 100%;
     padding: 0 10px;
     font-size: .8em;
@@ -125,17 +127,29 @@
     font-size: 0.8em;
 }
 
+.close-widget {
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
 .widget-footer {
     border-top: 1px solid rgba(205, 205, 205, 0.1);
     position: absolute;
     left: 0;
     bottom: 0;
+    -webkit-border-bottom-left-radius: 3px;
+    -moz-border-radius-bottomleft: 3px;
     border-bottom-left-radius: 3px;
+    -webkit-border-bottom-right-radius: 3px;
+    -moz-border-radius-bottomright: 3px;
     border-bottom-right-radius: 3px;
     height: 25px;
 }
 
 .widget-footer-button {
+    display: inline-block;
     height: 100%;
     padding: 0 10px;
     font-size: .8em;
@@ -147,6 +161,13 @@
 .widget-title, .widget-footer {
     background-color: rgb(40, 40, 40);
     width: 100%;
+}
+
+.fullscreen-out {
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    right: 0;
 }
 
 .widget-main {
@@ -171,6 +192,7 @@
 .widget-button-label {
     padding-right: 5px;
     -webkit-box-flex: 1;
+    box-flex: 1;
 }
 
 .maximize-widget {
@@ -192,17 +214,49 @@
 }
 
 .widget-footer-button.left-button {
+    -webkit-border-bottom-left-radius: 3px;
+    -moz-border-radius-bottomleft: 3px;
     border-bottom-left-radius: 3px;
 }
 
 .widget-footer-button.right-button {
+    -webkit-border-bottom-right-radius: 3px;
+    -moz-border-radius-bottomright: 3px;
     border-bottom-right-radius: 3px;
 }
 
 .widget-title-button.left-button {
+    -webkit-border-top-left-radius: 3px;
+    -moz-border-radius-topleft: 3px;
     border-top-left-radius: 3px;
 }
 
 .widget-title-button.right-button {
+    -webkit-border-top-right-radius: 3px;
+    -moz-border-radius-topright: 3px;
     border-top-right-radius: 3px;
+}
+
+.general-options-table {
+    width: 99%;
+    margin-top: 15px;
+    border-spacing: 10px;
+}
+
+.tab-table {
+    width: 99%;
+    margin-top: 5px;
+    border-spacing: 10px;
+}
+
+.datasource-menu {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.go-button {
+    position: absolute;
+    top: 0;
+    right: 0;
 }

@@ -45,53 +45,62 @@ function build_search_form(widget)
 			'<li><span data-ms=1209600>2 Weeks</span></li>' +
 			'<li><span data-ms=2592000>1 Month</span></li>';
 	var form_div = widget.sw_graphwidget_searchform;
-	form_div.append('<div class="graph-widget-form-row row1">');
-	var form_row_1 = form_div.children('div.row1');
-	form_row_1.append('<div class="flexy date-span-toggle">' +
-		'<div class="toggle-button-group">' +
-		'<div class="toggle-button toggle-on"><label>' +
-		'<input type="radio" class="section-toggle date-search" name="date-span" value="date-search" checked="checked" data-target="graph-widget-dates' + widget_num + '">' +
-		'<span>Date Range</span></label>' +
-		'</div><div class="toggle-button"><label>' +
-		'<input type="radio" class="section-toggle span-search" name="date-span" value="span-search" data-target="graph-widget-time-span' + widget_num +'">' +
-		'<span>Time Span</span></label></div></div></div>');
-	form_row_1.append('<div class="glue4">' +
-		'<div class="flexy section section-on graph-widget-dates" id="graph-widget-dates' + widget_num + '">' +
-		'<div class="graph-widget-form-item menu-label" id="start-time' + widget_num + '">' +
-		'<h4>Start</h4>' +
-		'<input type="text" class="input input-append date-input" data-format="yyyy/MM/dd hh:mm:ss" name="start-time">' +
-		'<span class="input-addon-btn"><span class="iconic iconic-calendar-alt"></span></span></div>' +
-		'<div class="graph-widget-form-item menu-label" id="end-time' + widget_num + '">' +
-		'<h4>End</h4>' +
-		'<input type="text" class="input input-append date-input" data-format="yyyy/MM/dd hh:mm:ss" name="end-time">' +
-		'<span class="input-addon-btn"><span class="iconic iconic-calendar-alt"></span></span></div></div>' +
-		'<div class="flexy section section-off graph-widget-time-span" id="graph-widget-time-span' + widget_num + '">' +
-		'<div class="graph-widget-form-item menu-label" style="margin-right: 0;">' +
-		'<h4>Show Me The Past</h4>' +
-		'<div class="dropdown graph-widget-button"><span class="flexy" data-toggle="dropdown"">' +
-		'<div class="graph-widget-button-label" id="time-span' + widget_num + '" data-ms=14400>4 Hours</div>' +
-		'<span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span></span>' +
-		'<ul class="dropdown-menu menu-left" id="time-span-options' + widget_num + '" role="menu" aria-labelledby="dLabel">' +
-		long_span_menu + '</ul></div></div></div>');
-	form_div.append('<div class="graph-widget-form-row row2">');
-	var form_row_2 = form_div.children('div.row2');
-	form_row_2.append('<div class="auto-update"><div class="push-button">' +
-		'<input type="checkbox" name="auto-update"><label>' +
-		'<span class="iconic iconic-x-alt red"></span><span> Auto Update</span></label></div></div>');
-	form_row_2.append('<div class="flexy history-toggle">' +
-		'<div class="toggle-button-group"><div class="toggle-button toggle-on"><label>' +
-		'<input type="radio" class="section-toggle history-no" name="history-graph" checked="checked" data-target="history-no' + widget_num + '" value="no">' +
-		'<span>No History</span></label>' +
-		'</div><div class="toggle-button"><label>' +
-		'<input type="radio" class="section-toggle history-anomaly" name="history-graph" data-target="history-anomaly' + widget_num + '" value="anomaly">' +
-		'<span>Anomaly</span></label>' +
-		'</div><div class="toggle-button"><label>' +
-		'<input type="radio" class="section-toggle history-wow" name="history-graph" data-target="history-wow' + widget_num + '" value="wow">' +
-		'<span>Week-Over-Week</span></label></div></div></div>');
+  form_div.append('<table class="general-options-table" id="graph-search-general' + widget_num + '">');
+	var form_table = form_div.children('table#graph-search-general' + widget_num);
+  form_table.append('<tr><td><div class="toggle-button-group">' +
+    '<div class="toggle-button toggle-on"><label>' +
+    '<input type="radio" class="section-toggle date-search" name="date-span" value="date-search" checked="checked" data-target="graph-widget-dates' + widget_num + '">' +
+    '<span>Date Range</span></label>' +
+    '</div><div class="toggle-button"><label>' +
+    '<input type="radio" class="section-toggle span-search" name="date-span" value="span-search" data-target="graph-widget-time-span' + widget_num + '">' +
+    '<span>Time Span</span></label></div></div></td>' +
+    '<td><div class="section section-on graph-widget-dates" id="graph-widget-dates' + widget_num + '">' +
+    '<div class="graph-widget-form-item menu-label" id="start-time' + widget_num + '">' +
+    '<h4>Start</h4>' +
+    '<input type="text" class="input input-append date-input" data-format="yyyy/MM/dd hh:mm:ss" name="start-time">' +
+    '<span class="input-addon-btn"><span class="iconic iconic-calendar-alt"></span></span></div>' +
+    '<div class="graph-widget-form-item menu-label" id="end-time' + widget_num + '">' +
+    '<h4>End</h4>' +
+    '<input type="text" class="input input-append date-input" data-format="yyyy/MM/dd hh:mm:ss" name="end-time">' +
+    '<span class="input-addon-btn"><span class="iconic iconic-calendar-alt"></span></span></div></div>' +
+    '<div class="section section-off graph-widget-time-span" id="graph-widget-time-span' + widget_num + '">' +
+    '<div class="graph-widget-form-item menu-label" style="margin-right: 0;">' +
+    '<h4>Show Me The Past</h4>' +
+    '<div class="dropdown graph-widget-button" style="display: inline-block;"><span data-toggle="dropdown">' +
+    '<div class="graph-widget-button-label" id="time-span' + widget_num + '" data-ms="14400">4 Hours</div>' +
+    '<span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span></span>' +
+    '<ul class="dropdown-menu menu-left" id="time-span-options' + widget_num + '" role="menu" aria=labelledby="dLabel">' +
+    long_span_menu + '</ul></div></div></div></td></tr>');
+  form_table.append('<tr><td><div class="auto-update"><div class="push-button">' +
+    '<input type="checkbox" name="auto-update"><label>' +
+    '<span class="iconic iconic-x-alt red"></span><span> Auto Update</span></label></div></div></td>' +
+    '<td><div class="toggle-button-group"><div class="toggle-button toggle-on"><label>' +
+    '<input type="radio" class="section-toggle history-no" name="history-graph" checked="checked" data-target="history-no' + widget_num + '" value="no">' +
+    '<span>No History</span></label>' +
+    '</div><div class="toggle-button"><label>' +
+    '<input type="radio" class="section-toggle history-anomaly" name="history-graph" data-target="history-anomaly' + widget_num + '" value="anomaly">' +
+    '<span>Anomaly</span></label>' +
+    '</div><div class="toggle-button"><label>' +
+    '<input type="radio" class="section-toggle history-wow" name="history-graph" data-target="history-wow' + widget_num + '" value="wow">' +
+    '<span>Week-Over-Week</span></label></div></div></td></tr>');
+
 	form_div.append('<div class="graph-widget-form-row row3">');
 	var form_row_3 = form_div.children('div.row3');
 	form_row_3.append('<div class="metric-input-tabs tabbable tab-below" style="width: 99%;">' +
 		'<div class="tab-content" id="tab-content' + widget_num + '"></div><ul class="nav nav-tabs" id="tab-list' + widget_num + '"></ul></div>');
+
+  // Load the handler for the toggle-buttons
+  loadScript(widget.options.sw_url + 'app/js/toggle-buttons.js', function(){});
+  // Load the handler for metric name autocompletion and init the form objects
+  loadScript(widget.options.sw_url + 'app/js/lib/jquery.autocomplete.js', function(){
+    $(widget.sw_graphwidget_searchform.children('.row3').find('.metric-autocomplete')).autocomplete({
+      minChars: 2
+      ,serviceUrl: widget.options.sw_url + 'api/tsdb_metric_list/'
+      ,containerClass: 'autocomplete-suggestions dropdown-menu'
+      ,zIndex: ''
+      ,maxHeight: ''
+    });
+  });
 
 	var add_metric_button_id = 'add-metric-button' + widget_num + '-' + widget.metric_count;
 	widget.sw_graphwidget_querycancelbutton.after('<div id="' + add_metric_button_id + '">');
@@ -104,14 +113,13 @@ function build_search_form(widget)
 				,containerClass: 'autocomplete-suggestions dropdown-menu'
 				,zIndex: ''
 				,maxHeight: ''
-				,width: '300px'
 			});
 			if (widget.metric_count == 6)
 			{
 				$(this).addClass('hidden');
 			}
 		})
-		.append('<span class="iconic iconic-plus-alt"> Add Metric</span>');
+		.append('<span class="iconic iconic-plus-alt"><span class="font-reset"> Add Metric</span></span>');
 
 	widget.sw_graphwidget_fronttitle.children('.graph-widget-legend').attr('id', 'legend' + widget_num);
 	$(widget_element).children('.widget').children('.widget-front').children('.widget-main')
@@ -120,21 +128,6 @@ function build_search_form(widget)
 	var auto_update = $(widget_element).find('div.auto-update').children('div.push-button');
 	$(auto_update).children('input').attr('id', 'auto-update-button' + widget_num);
 	$(auto_update).children('label').attr('for', 'auto-update-button' + widget_num);
-
-
-	// Load the handler for the toggle-buttons
-	loadScript(widget.options.sw_url + 'app/js/toggle-buttons.js', function(){});
-	// Load the handler for metric name autocompletion and init the form objects
-	loadScript(widget.options.sw_url + 'app/js/lib/jquery.autocomplete.js', function(){
-		$(widget.sw_graphwidget_searchform.children('.row3').find('.metric-autocomplete')).autocomplete({
-			minChars: 2
-			,serviceUrl: widget.options.sw_url + 'api/tsdb_metric_list/'
-			,containerClass: 'autocomplete-suggestions dropdown-menu'
-			,zIndex: ''
-			,maxHeight: ''
-			,width: '300px'
-		});
-	});
 
 	// Add the handler for the date/time picker and init the form objects
 	var start_time = $('#start-time' + widget_num);
@@ -174,9 +167,9 @@ function build_search_form(widget)
 	var main_height = widget_height - (widget.sw_graphwidget_fronttitle.height() + widget.sw_graphwidget_frontfooter.height());
 	widget.sw_graphwidget_frontmain.css('height', main_height);
 	widget.sw_graphwidget_backmain.css('height', main_height);
-	var row1_height = form_row_1.outerHeight(true);
-	var row2_height = form_row_2.outerHeight(true);
-	form_row_3.css('height', main_height - (row1_height + row2_height));
+//	var row1_height = form_row_1.outerHeight(true);
+//	var row2_height = form_row_2.outerHeight(true);
+//	form_row_3.css('height', main_height - (row1_height + row2_height));
 
 	build_saved_search_menu(widget);
 
@@ -200,67 +193,64 @@ function add_tab(tab_num, widget_num)
 
 	$(tab_content).append('<div class="tab-pane" id="tab' + tab_tag + '">');
 	var tab_pane = $(tab_content).children('div#tab' + tab_tag);
-	tab_pane.append('<div class="flexy tab-pane-row" id="tab' + tab_tag + '-row1">');
-	tab_pane.append('<div class="flexy tab-pane-row" id="tab' + tab_tag + '-row2">');
-	tab_pane.append('<div class="flexy tab-pane-row" id="tab' + tab_tag + '-row3" style="margin-bottom: 5px;">');
 
-	var tab_row1 = $(tab_pane).children('div#tab' + tab_tag + '-row1')
-		,tab_row2 = $(tab_pane).children('div#tab' + tab_tag + '-row2')
-		,tab_row3 = $(tab_pane).children('div#tab' + tab_tag + '-row3');
-
-	tab_row1.append('<div class="metric-input-textbox">' +
-		'<input type="text" class="metric-autocomplete" name="metric' + tab_tag + '" placeholder="Metric name and tags">');
-	tab_row2.append('<div class="graph-widget-form-item menu-label" id="aggregation' + tab_tag + '" style="margin-right: 0;">');
-	tab_row2.children('div#aggregation' + tab_tag).append('<h4>Aggregation</h4>' +
-		'<div class="dropdown graph-widget-button">' +
-		'<span class="flexy" data-toggle="dropdown">' +
-		'<div class="graph-widget-button-label" id="active-aggregation-type' + tab_tag + '">Sum</div>' +
-		'<span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span></span>' +
-		'<ul class="dropdown-menu" id="aggregation-type-options' + tab_tag + '" role="menu" aria-labelledby="dLabel">' +
-		'<li><span>Sum</span></li>' +
-		'<li><span>Average</span></li>' +
-		'<li><span>Minimum Value</span></li>' +
-		'<li><span>Maximum Value</span></li>' +
-		'<li><span>Standard Deviation</span></li></ul></div>');
-	tab_row2.append('<div class="graph-widget-form-item menu-label" id="downsample' + tab_tag + '" style="margin-right: 0; margin-left: 40px;">');
-	tab_row2.children('div#downsample' + tab_tag).append('<h4>Downsampling</h4>' +
-		'<div class="dropdown graph-widget-button">' +
-		'<span class="flexy" data-toggle="dropdown">' +
-		'<div class="graph-widget-button-label" id="active-downsample-type' + tab_tag + '">Maximum Value</div>' +
-		'<span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span></span>' +
-		'<ul class="dropdown-menu" id="downsample-type-options' + tab_tag + '" role="menu" aria-labelledby="dLabel">' +
-		'<li><span>Sum</span></li>' +
-		'<li><span>Average</span></li>' +
-		'<li><span>Minimum Value</span></li>' +
-		'<li><span>Maximum Value</span></li></ul></div>');
-	tab_row2.append('<div class="graph-widget-form-item">' +
-		'<div class="dropdown graph-widget-button" style="min-width: 25px; margin-left: 2px;">' +
-		'<span class="flexy" data-toggle="dropdown">' +
-		'<div class="graph-widget-button-label ds-interval" id="active-downsample-interval' + tab_tag + '" data-value="1">1 minute</div>' +
-		'<span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span></span>' +
-		'<ul class="dropdown-menu ds-values" id="downsample-interval-options' + tab_tag + '" role="menu" aria-labelledby="dLabel">' +
-		'<li><span data-value="1">1 minute</span></li>' +
-		'<li><span data-value="10">10 minutes</span></li>' +
-		'<li><span data-value="30">30 minutes</span></li>' +
-		'<li><span data-value="60">1 hour</span></li>' +
-		'<li><span data-value="240">4 hours</span></li>' +
-		'<li><span data-value="720">12 hours</span></li>' +
-		'<li><span data-value="1440">1 day</span></li></ul></div></div>');
-	tab_row3.append('<div style="width: 25%"><div class="graph-widget-form-item menu-label"><h4>Interpolation</h4> ' +
-		'<div class="push-button binary pushed">' +
-		'<input type="checkbox" id="lerp-button' + tab_tag + '" name="lerp' + tab_tag + '" checked>' +
-		'<label for="lerp-button' + tab_tag + '"><span class="iconic iconic-check-alt green"></span>' +
-		'<span class="binary-label">Yes</span></label></div></div></div>');
-	tab_row3.append('<div style="width: 25%"><div class="graph-widget-form-item menu-label"><h4>Right Axis</h4> ' +
-		'<div class="push-button binary">' +
-		'<input type="checkbox" id="y2-button' + tab_tag + '" name="y2-' + tab_tag + '">' +
-		'<label for="y2-button' + tab_tag + '"><span class="iconic iconic-x-alt red"></span>' +
-		'<span class="binary-label">No </span></label></div></div></div>');
-	tab_row3.append('<div style="width: 25%"><div class="graph-widget-form-item menu-label"><h4>Rate</h4> ' +
-		'<div class="push-button binary">' +
-		'<input type="checkbox" id="rate-button' + tab_tag + '" name="rate' + tab_tag +'">' +
-		'<label for="rate-button' + tab_tag + '"><span class="iconic iconic-x-alt red"></span>' +
-		'<span class="binary-label">No </span></label></div></div></div>');
+  tab_pane.append('<table class="tab-table" id="metric-options' + tab_tag + '">');
+  tab_table = $(tab_pane.children('table#metric-options' + tab_tag));
+  tab_table.append('<tr><td colspan="3"><div class="metric-input-textbox">' +
+    '<input type="text" class="metric-autocomplete" name="metric' + tab_tag + '" placeholder="Metric name and tags">' +
+    '</div></td></tr>' +
+    '<tr><td><div class="graph-widget-form-item menu-label" id="aggregation' + tab_tag + '" style="margin-right: 0;">' +
+    '<h4>Aggregation</h4><div class="dropdown graph-widget-button">' +
+    '<span data-toggle="dropdown"><div class="graph-widget-button-label" id="active-aggregation-type' + tab_tag + '">Sum</div>' +
+    '<span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span></span>' +
+    '<ul class="dropdown-menu" id="aggregation-type=options' + tab_tag + '" role="menu" aria-labelledby="dLabel">' +
+    '<li><span>Sum</span></li>' +
+    '<li><span>Average</span></li>' +
+    '<li><span>Minimum Value</span></li>' +
+    '<li><span>Maximum Value</span></li>' +
+    '<li><span>Standard Deviation</span></li>' +
+    '</ul></div></td>' +
+    '<td colspan="2"><div class="graph-widget-form-item menu-label" id="downsample' + tab_tag + '" style="margin-right: 0; margin-left: 40px;">' +
+    '<h4>Downsampling</h4>' +
+    '<div class="dropdown graph-widget-button">' +
+    '<span data-toggle="dropdown">' +
+    '<div class="graph-widget-button-label" id="active-downsample-type' + tab_tag + '">Maximum Value</div>' +
+    '<span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span></span>' +
+    '<ul class="dropdown-menu" id="downsample-type-options' + tab_tag + '" role="menu" aria-labelledby="dLabel">' +
+    '<li><span>Sum</span></li>' +
+    '<li><span>Average</span></li>' +
+    '<li><span>Minimum Value</span></li>' +
+    '<li><span>Maximum Value</span></li></ul></div>' +
+    '<div class="dropdown graph-widget-button">' +
+    '<span data-toggle="dropdown">' +
+    '<div class="graph-widget-button-label ds-interval" id="active-downsample-interval' + tab_tag + '" data-value="1">1 minute</div>' +
+    '<span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span></span>' +
+    '<ul class="dropdown-menu ds-values" id="downsample-interval-options' + tab_tag + '" role="menu" aria-labelledby="dLabel">' +
+    '<li><span data-value="1">1 minute</span></li>' +
+    '<li><span data-value="10">10 minutes</span></li>' +
+    '<li><span data-value="30">30 minutes</span></li>' +
+    '<li><span data-value="60">1 hour</span></li>' +
+    '<li><span data-value="240">4 hours</span></li>' +
+    '<li><span data-value="720">12 hours</span></li>' +
+    '<li><span data-value="1440">1 day</span></li></ul></div></td></tr>');
+  tab_table.append('<tr><td width="32%"><div class="graph-widget-form-item menu-label">' +
+    '<h4>Interpolation</h4>' +
+    '<div class="push-button binary pushed">' +
+    '<input type="checkbox" id="lerp-button' + tab_tag + '" name="lerp' + tab_tag + '" checked>' +
+    '<label for="lerp-button' + tab_tag + '"><span class="iconic iconic-check-alt green"></span>' +
+    '<span class="binary-label">Yes</span></label></div></div></td>' +
+    '<td width="30%"><div class="graph-widget-form-item menu-label">' +
+    '<h4>Right Axis</h4>' +
+    '<div class="push-button binary">' +
+    '<input type="checkbox" id="y2-button' + tab_tag + '" name="y2-' + tab_tag + '">' +
+    '<label for="y2-button' + tab_tag + '"><span class="iconic iconic-x-alt red"></span>' +
+    '<span class="binary-label">No </span></label></div></div></td>' +
+    '<td width="30%"><div class="graph-widget-form-item menu-label">' +
+    '<h4>Rate</h4>' +
+    '<div class="push-button binary">' +
+    '<input type="checkbox" id="rate-button' + tab_tag + '" name="rate' + tab_tag + '">' +
+    '<label for="rate-button' + tab_tag + '"><span class="iconic iconic-x-alt red"></span>' +
+    '<span class="binary-label">No </span></label></div></div></td></tr>');
 
 	tab_list.append('<li><a href="#tab' + tab_tag + '" data-toggle="tab">Metric ' + tab_num + '</a></li>');
 	$('#' + tab_list.attr('id') + ' a[href="#tab' + tab_tag + '"]').click(function(event) {
@@ -358,6 +348,7 @@ function populate_search_form(query_data, widget)
 {
 
   console.log('populating search form');
+  console.log(query_data);
   var prompt_user = false;
   var method_map = {sum: 'Sum', avg: 'Average', min: 'Minimum Value', max: 'Maximum Value', dev: 'Standard Deviation'};
   var widget_num = widget.uuid;
@@ -412,6 +403,26 @@ function populate_search_form(query_data, widget)
   $.each(query_data['metrics'], function(i, metric) {
     metric_num = i + 1;
     metric_string = metric.name;
+    console.log('loading query data for metric ' + metric_num + ', ' + metric_string);
+    if (metric_num > 1)
+    {
+      var metric_tab = $('div#tab' + widget.uuid + '-' + metric_num);
+      console.log('checking for tab' + widget.uuid + '-' + metric_num);
+      console.log(metric_tab);
+      console.log(metric_tab.length);
+      if (metric_tab.length == 0)
+      {
+        widget.metric_count = add_tab(i, widget.uuid);
+        $('input[name="metric' + widget_num + '-' + widget.metric_count + '"]').autocomplete({
+          minChars: 2
+          ,serviceUrl: widget.options.sw_url + 'api/tsdb_metric_list/'
+          ,containerClass: 'autocomplete-suggestions dropdown-menu'
+          ,zIndex: ''
+          ,maxHeight: ''
+        });
+      }
+    }
+
     if (metric.tags)
     {
       $.each(metric.tags, function(i, tag) {

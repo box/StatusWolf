@@ -127,7 +127,7 @@
 				.click(function() {
 					sw_graphwidget.addClass("flipped");
 				})
-				.append('<span class="iconic iconic-pen-alt2"> Edit Params</span>')
+				.append('<span class="iconic iconic-pen-alt2"><span class="font-reset"> Edit Params</span></span>')
 				.appendTo(sw_graphwidget_frontfooter);
 
 			sw_graphwidget_frontfooter.append('<div class="glue1">');
@@ -146,17 +146,17 @@
 				.click(function() {
 					sw_graphwidget.removeClass("flipped")
 				})
-				.append('<span class="iconic iconic-x-alt"> Cancel</span>')
+				.append('<span class="iconic iconic-x-alt"><span class="font-reset"> Cancel</span></span>')
 				.appendTo(sw_graphwidget_backfooter);
 
 			sw_graphwidget_backfooter.append('<div class="glue1">');
 
 			sw_graphwidget_gobutton = (this.sw_graphwidget_gobutton = $('<div>'))
 				.addClass("widget-footer-button right-button go-button")
-				.click(function() {
+				.click(function(event) {
 					go_click_handler(event, that);
 				})
-				.append('<span class="iconic iconic-bolt"> Go</span>')
+				.append('<span class="iconic iconic-bolt"><span class="font-reset"> Go</span></span>')
 				.appendTo(sw_graphwidget_backfooter);
 
 			// Define the div for the search form
@@ -211,6 +211,7 @@
 		}
 
 		,resize_graph: function() {
+      console.log('Triggering resize event');
 			var evt = document.createEvent('UIEvents');
 			evt.initUIEvent('resize', true, false,window,0);
 			window.dispatchEvent(evt);

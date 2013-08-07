@@ -51,6 +51,7 @@ ul, ol {
     height: 90%;
     margin: 40px auto 20px auto;
     display: -webkit-box;
+    display: box;
 }
 
 .rotate-90 {
@@ -62,29 +63,42 @@ ul, ol {
 .flexy {
     display: -webkit-box;
     -webkit-box-orient: horizontal;
+    display: box;
+    box-orient: horizontal;
+}
+
+.font-reset {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: rgba(205, 205, 205, 0.6);
 }
 
 .glue1 {
     -webkit-box-flex: 1;
+    box-flex: 1;
 }
 
 .glue2 {
     -webkit-box-flex: 2;
+    box-flex: 2;
 }
 .glue3 {
     -webkit-box-flex: 3;
+    box-flex: 3;
 }
 
 .glue4 {
     -webkit-box-flex: 4;
+    box-flex: 4;
 }
 
 .glue5 {
     -webkit-box-flex: 5;
+    box-flex: 5;
 }
 
 .glue6 {
     -webkit-box-flex: 6;
+    box-flex: 6;
 }
 
 .highlight-error {
@@ -139,7 +153,7 @@ input.input-append {
     -moz-border-radius: 0 0 0 2px;
     border-radius: 0 0 0 2px;
     vertical-align: top;
-    margin-top: 5px;
+    margin-top: 4px;
 }
 
 input[type="text"]:focus, input[type="text"].focus,
@@ -156,6 +170,7 @@ label {
 
 select {
     -webkit-appearance: push-button;
+    -moz-appearance: button;
     font-size: .8em;
     font-weight: bold;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -183,7 +198,7 @@ select {
     line-height: 16px;
     vertical-align: top;
     text-align: center;
-    margin: 5px 0 0 0;
+    margin: 4px 0 0 0;
     color: rgba(205, 205, 205, 0.6);
     display: inline-block;
     width: auto;
@@ -320,7 +335,7 @@ select {
     z-index: 1000;
     display: none;
     float: left;
-    min-width: 160px;
+    min-width: 125px;
     padding: 5px 0;
     list-style: none;
     color: rgba(205, 205, 205, 0.6);

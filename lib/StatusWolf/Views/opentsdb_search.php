@@ -65,68 +65,74 @@
 ?>
 
 <div class="ad-hoc-form-row" id="row1">
-  <div id="auto-update" class="auto-update">
-    <div class="push-button">
-      <input type="checkbox" id="auto-update-button" name="auto-update"><label id="auto-update-label" for="auto-update-button"><span class="iconic iconic-x-alt red"></span><span> Auto Update</span></label>
-    </div>
-  </div>
-  <div class="flexy" id="history-toggle">
-    <div class="toggle-button-group">
-      <div class="toggle-button toggle-on">
-        <label><input type="radio" class='section-toggle' id="history-no" name="history-graph" checked="checked" data-target="ad-hoc-no" value="no"><span>No History</span></label>
-      </div><div class="toggle-button">
-        <label><input type="radio" class='section-toggle' id="history-anomaly" name="history-graph" data-target="ad-hoc-anomaly" value="anomaly"><span>Anomaly</span></label>
-      </div><div class="toggle-button">
-        <label><input type="radio" class='section-toggle' id="history-wow" name="history-graph" data-target="ad-hoc-wow" value="wow"><span>Week-Over-Week</span></label>
-      </div>
-    </div>
-  </div>
-  <div class="flexy" id="date-span-toggle">
-    <div class="toggle-button-group">
-      <div class="toggle-button toggle-on">
-        <label><input type="radio" class='section-toggle' id="date-search" name="date-span" value="date-search" checked="checked" data-target="ad-hoc-dates"><span>Date Range</span></label>
-      </div><div class="toggle-button">
-        <label><input type="radio" class='section-toggle' id="span-search" name="date-span" value="span-search" data-target="ad-hoc-time-span"><span>Time Span</span></label>
-      </div>
-    </div>
-  </div>
-  <div class="glue4">
-    <div class="flexy section section-on" id="ad-hoc-dates">
-      <div class="ad-hoc-form-item menu-label" id="start-time">
-        <h4>Start</h4>
-        <input type="text" class="input input-append date-input" data-format="yyyy/MM/dd hh:mm:ss" name="start-time"><span class="input-addon-btn"><span class="iconic iconic-calendar-alt"></span></span>
-      </div>
-      <div class="ad-hoc-form-item menu-label" id="end-time">
-        <h4>End</h4>
-        <input type="text" class="input input-append date-input" data-format="yyyy/MM/dd hh:mm:ss" name="end-time"><span class="input-addon-btn"><span class="iconic iconic-calendar-alt"></span></span>
-      </div>
-    </div>
-    <div class="flexy section section-off" id="ad-hoc-time-span">
-      <div class="ad-hoc-form-item menu-label" style="margin-right: 0;">
-        <h4>Show Me The Past</h4>
-      </div>
-      <div class="dropdown ad-hoc-button">
-<!--        <input type="text" class="input input-append" name="time-span" value="4 hours"><span data-toggle="dropdown" class="input-addon-btn"><span class="iconic iconic-play rotate-90"></span></span>-->
-        <span class="flexy" data-toggle="dropdown">
-          <div class="ad-hoc-button-label" id="time-span" data-ms="<?php echo (HOUR * 4) ?>">4 hours</div>
-          <span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span>
-        </span>
-        <ul class="dropdown-menu menu-left" id="time-span-options" role="menu" aria-labelledby="dLabel">
-          <li><span data-ms="<?php echo (MINUTE * 10); ?>">10 minutes</span></li>
-          <li><span data-ms="<?php echo (MINUTE * 30); ?>">30 Minutes</span></li>
-          <li><span data-ms="<?php echo HOUR; ?>">1 hour</span></li>
-          <li><span data-ms="<?php echo (HOUR * 2); ?>">2 hours</span></li>
-          <li><span data-ms="<?php echo (HOUR * 4); ?>">4 hours</span></li>
-          <li><span data-ms="<?php echo (HOUR * 8); ?>">8 hours</span></li>
-          <li><span data-ms="<?php echo (HOUR * 12); ?>">12 hours</span></li>
-          <li><span data-ms="<?php echo DAY; ?>">1 day</span></li>
-          <li><span data-ms="<?php echo WEEK; ?>">1 week</span></li>
-          <li><span data-ms="<?php echo (WEEK * 2); ?>">2 weeks</span></li>
-          <li><span data-ms="<?php echo MONTH; ?>">1 month</span></li>
-        </ul>
-      </div>
-    </div>
-  </div>
+  <table class="general-options-table" id="graph-search-general">
+    <tr>
+      <td>
+        <div id="auto-update" class="auto-update">
+          <div class="push-button">
+            <input type="checkbox" id="auto-update-button" name="auto-update"><label id="auto-update-label" for="auto-update-button"><span class="iconic iconic-x-alt red"></span><span> Auto Update</span></label>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="toggle-button-group">
+          <div class="toggle-button toggle-on">
+            <label><input type="radio" class='section-toggle' id="history-no" name="history-graph" checked="checked" data-target="ad-hoc-no" value="no"><span>No History</span></label>
+          </div><div class="toggle-button">
+            <label><input type="radio" class='section-toggle' id="history-anomaly" name="history-graph" data-target="ad-hoc-anomaly" value="anomaly"><span>Anomaly</span></label>
+          </div><div class="toggle-button">
+            <label><input type="radio" class='section-toggle' id="history-wow" name="history-graph" data-target="ad-hoc-wow" value="wow"><span>Week-Over-Week</span></label>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="toggle-button-group">
+          <div class="toggle-button toggle-on">
+            <label><input type="radio" class='section-toggle' id="date-search" name="date-span" value="date-search" checked="checked" data-target="ad-hoc-dates"><span>Date Range</span></label>
+          </div><div class="toggle-button">
+            <label><input type="radio" class='section-toggle' id="span-search" name="date-span" value="span-search" data-target="ad-hoc-time-span"><span>Time Span</span></label>
+          </div>
+        </div>
+      </td>
+      <td width="50%">
+        <div class="section section-on" id="ad-hoc-dates">
+          <div class="ad-hoc-form-item menu-label" id="start-time">
+            <h4>Start</h4>
+            <input type="text" class="input input-append date-input" data-format="yyyy/MM/dd hh:mm:ss" name="start-time"><span class="input-addon-btn"><span class="iconic iconic-calendar-alt"></span></span>
+          </div>
+          <div class="ad-hoc-form-item menu-label" id="end-time">
+            <h4>End</h4>
+            <input type="text" class="input input-append date-input" data-format="yyyy/MM/dd hh:mm:ss" name="end-time"><span class="input-addon-btn"><span class="iconic iconic-calendar-alt"></span></span>
+          </div>
+        </div>
+        <div class="section section-off" id="ad-hoc-time-span">
+          <div class="ad-hoc-form-item menu-label" style="margin-right: 0;">
+            <h4>Show Me The Past</h4>
+          </div>
+          <div class="dropdown ad-hoc-button">
+            <!--        <input type="text" class="input input-append" name="time-span" value="4 hours"><span data-toggle="dropdown" class="input-addon-btn"><span class="iconic iconic-play rotate-90"></span></span>-->
+            <span data-toggle="dropdown">
+              <div class="ad-hoc-button-label" id="time-span" data-ms="<?php echo (HOUR * 4) ?>">4 hours</div>
+              <span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span>
+            </span>
+            <ul class="dropdown-menu menu-left" id="time-span-options" role="menu" aria-labelledby="dLabel">
+              <li><span data-ms="<?php echo (MINUTE * 10); ?>">10 minutes</span></li>
+              <li><span data-ms="<?php echo (MINUTE * 30); ?>">30 Minutes</span></li>
+              <li><span data-ms="<?php echo HOUR; ?>">1 hour</span></li>
+              <li><span data-ms="<?php echo (HOUR * 2); ?>">2 hours</span></li>
+              <li><span data-ms="<?php echo (HOUR * 4); ?>">4 hours</span></li>
+              <li><span data-ms="<?php echo (HOUR * 8); ?>">8 hours</span></li>
+              <li><span data-ms="<?php echo (HOUR * 12); ?>">12 hours</span></li>
+              <li><span data-ms="<?php echo DAY; ?>">1 day</span></li>
+              <li><span data-ms="<?php echo WEEK; ?>">1 week</span></li>
+              <li><span data-ms="<?php echo (WEEK * 2); ?>">2 weeks</span></li>
+              <li><span data-ms="<?php echo MONTH; ?>">1 month</span></li>
+            </ul>
+          </div>
+        </div>
+      </td>
+    </tr>
+  </table>
 </div>
 <div class="ad-hoc-form-row" id="row2">
   <div class="ad-hoc-form-item menu-label" id="metric-search-table">
@@ -746,6 +752,8 @@
       var graph_element = $('#graphdiv');
       // Make sure the graph display div is empty
       graph_element.empty();
+      // Clear the graph legend
+      $('#legend').empty();
       // Load the waiting spinner
       graph_element.append('<div class="bowlG"><div class="bowl_ringG"><div class="ball_holderG"><div class="ballG"></div></div></div></div>');
       $('.widget').removeClass('flipped');

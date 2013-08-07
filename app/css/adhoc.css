@@ -1,18 +1,23 @@
 .ad-hoc-form-item {
     display: -webkit-box;
     -webkit-box-orient: horizontal;
+    display: box;
+    box-orient: horizontal;
     height: 100%;
     margin-right: 15px;
 }
 
 .ad-hoc-form-item h4 {
-    font-size: .8em;
+    font-size: .75em;
 }
 
 .ad-hoc-form-row {
     display: -webkit-box;
     -webkit-box-orient: horizontal;
     -webkit-box-align: center;
+    display: box;
+    box-orient: horizontal;
+    box-align: center;
     margin: 15px 0;
     width: 100%;
     /*min-width: 1100px;*/
@@ -29,17 +34,22 @@
 }
 
 .ad-hoc-button {
-    display: -webkit-box;
-    -webkit-box-orient: horizontal;
+    display: inline-block;
     font-size: .8em;
     line-height: 1.5em;
     height: 100%;
     padding: 2px 10px;
     min-width: 110px;
     background-color: rgb(51, 51, 51);
+    -webkit-border-top-right-radius: 2px;
+    -moz-border-radius-topright: 2px;
     border-top-right-radius: 2px;
-    border-bottom-right-radius: 2px;
+    -webkit-border-bottom-left-radius: 2px;
+    -moz-border-radius-bottomleft: 2px;
     border-bottom-left-radius: 2px;
+    -webkit-border-bottom-right-radius: 2px;
+    -moz-border-radius-bottomright: 2px;
+    border-bottom-right-radius: 2px;
     border: 1px groove rgba(234, 234, 234, 0.1);
 }
 
@@ -51,17 +61,22 @@
 
 .ad-hoc-button span:first-child {
     -webkit-box-flex: 1;
+    -moz-box-flex: 1;
+    box-flex: 1;
 }
 
 .ad-hoc-button-label {
     padding-right: 5px;
     -webkit-box-flex: 1;
+    box-flex: 1;
+    display: inline-block;
 }
 
 .section-off {
     visibility: hidden;
     opacity: 0;
     -webkit-transition: visibility 0s linear 0.25s, opacity 0.25s linear;
+    -moz-transition: visibility 0s linear 0.25s, opacity 0.25s linear;
     transition: visibility 0s linear 0.25s, opacity 0.25s linear;
 }
 
@@ -69,15 +84,18 @@
     visibility: visible;
     opacity: 1;
     -webkit-transition: visibility 0s linear, opacity 0.25s linear;
+    -moz-transition: visibility 0s linear, opacity 0.25s linear;
     transition: visibility 0s linear, opacity 0.25s linear;
 }
 
 .metric-line, .metric-input {
     -webkit-box-flex: 1;
+    box-flex: 1;
 }
 
 .metric-input-textbox {
     -webkit-box-flex: 1;
+    box-flex: 1;
 }
 
 .metric-input-textbox input {
@@ -122,10 +140,12 @@
 
 #ad-hoc-dates, #ad-hoc-time-span {
     position: absolute;
-    top: 0;
+    top: 9px;
     margin-left: 25px;
     -webkit-box-flex: 4;
+    box-flex: 4;
     -webkit-box-pack: start;
+    box-pack: start;
 }
 
 #ad-hoc-edit, #query-cancel {
@@ -134,12 +154,34 @@
 
 #auto-update {
     -webkit-box-pack: start;
+    box-pack: start;
     margin-top: 4px;
     margin-right: 10px;
+    display: inline-block;
 }
 
-#date-span-toggle .toggle-button-group {
+.widget-title-dropdown {
+    display: inline-block;
+    height: 100%;
+}
+
+.widget-title-dropdown span {
+    display: inline-block;
+}
+
+.widget-title-dropdown li {
+    font-size: 0.8em;
+}
+
+#datasource-menu {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+#date-span-toggle {
     margin-top: 4px;
+    display: inline-block;
 }
 
 #ad-hoc-time-span .ad-hoc-button {
@@ -158,25 +200,34 @@
 
 #start-time, #end-time {
     -webkit-box-flex: 2;
+    box-flex: 2;
+    display: inline;
 }
 
 #metric-search-table {
     padding-left: 0;
+    width: 99%;
 }
 
 #history-toggle {
     margin-top: 4px;
     margin-right: 30px;
+    display: inline-block;
 }
 
 #action-buttons {
     -webkit-box-flex: 1;
+    box-flex: 1;
     -webkit-box-pack: end;
+    box-pack: end;
     margin-right: 30px;
 }
 
 #go-button {
     background-color: rgba(40, 55, 40, 0.95);
+    position: absolute;
+    bottom: 0;
+    right: 0;
 }
 
 #go-button:hover {
@@ -211,6 +262,10 @@
     margin-right: auto;
 }
 
+#graph-search-general {
+    position: relative;
+}
+
 #graph-legend {
     height: 70px;
     overflow: hidden;
@@ -225,3 +280,26 @@
     margin-left: 15px;
 }
 
+.menu-label {
+    display: inline-block;
+}
+
+@-moz-document url-prefix() {
+    #date-span-inputs {
+        position: absolute;
+        top: 0;
+        width: 100%;
+        display: inline-block;
+    }
+    .widget-footer-btn {
+        display: inline-block;
+    }
+    #fullscreen {
+        position: absolute;
+        top: 0;
+        right: 0;
+    }
+    .widget-footer > .glue1 {
+        display: inline-block;
+    }
+}
