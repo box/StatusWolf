@@ -118,6 +118,8 @@ class DetectTimeSeriesAnomaly {
      * Anomalies step, check the apache error log for PHP time out errors.
     */
     set_time_limit(300);
+    ini_set('memory_limit', '4G');
+
   }
   /**
    * DetectTimeSeriesAnomaly::detect_anomaly()

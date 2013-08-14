@@ -195,6 +195,7 @@ class ApiController extends SWController
   {
     $this->loggy->logDebug($this->log_tag . 'API call, saving adhoc search');
     $search_parameters = $_POST;
+    $this->loggy->logDebug(json_encode($search_parameters));
     if ($search_parameters['save_span'] == 1)
     {
       if (array_key_exists('time_span', $search_parameters))
@@ -228,12 +229,12 @@ class ApiController extends SWController
       {
         if (array_key_exists('user_searches', $_session_data['data']))
         {
-          array_push($_session_data['data']['user_searches'], array('id' => $search_parameters['id'], 'title' => $search_parameters['title']));
+          array_push($_session_data['data']['user_searches'], array('id' => $search_id, 'title' => $search_parameters['title']));
         }
         else
         {
           $_session_data['data']['user_searches'] = array();
-          array_push($_session_data['data']['user_searches'], array('id' => $search_parameters['id'], 'title' => $search_parameters['title']));
+          array_push($_session_data['data']['user_searches'], array('id' => $search_id, 'title' => $search_parameters['title']));
         }
       }
       else
@@ -249,16 +250,16 @@ class ApiController extends SWController
         }
         if (array_key_exists('public_searches', $_session_data['data']))
         {
-          array_push($_session_data['data']['public_searches'], array('id' => $search_parameters['id'], 'title' => $search_parameters['title'], 'username' => $usermap[$search_parameters['user_id']]));
+          array_push($_session_data['data']['public_searches'], array('id' => $search_id, 'title' => $search_parameters['title'], 'username' => $usermap[$search_parameters['user_id']]));
         }
         else
         {
           $_session_data['data']['public_searches'] = array();
-          array_push($_session_data['data']['public_searches'], array('id' => $search_parameters['id'], 'title' => $search_parameters['title'], 'username' => $usermap[$search_parameters['user_id']]));
+          array_push($_session_data['data']['public_searches'], array('id' => $search_id, 'title' => $search_parameters['title'], 'username' => $usermap[$search_parameters['user_id']]));
         }
       }
       $this->loggy->logDebug($this->log_tag . json_encode($_session_data));
-      return true;
+      echo json_encode($_session_data);
     }
   }
 
@@ -308,6 +309,178 @@ class ApiController extends SWController
     }
 
     echo json_encode($_saved_searches);
+
+  }
+
+  function search($url_path)
+  {
+    if ($_adhoc_datasource = array_shift($url_path))
+    {
+      $_search_object = new $_adhoc_datasource();
+      print_r($_POST);
+      $_search_object->get_raw_data($_POST);
+      $raw_data = $_search_object->read();
+      echo json_encode($raw_data);
+    }
+    else
+    {
+      throw new SWException ('No datasource specified for Ad-Hoc search');
+    }
+  }
+
+  function load_saved_search($query_bits)
+  {
+
+    $search_id = array_shift($query_bits);
+    $this->loggy->logDebug($this->log_tag . "Loading saved search id #" . $search_id);
+    $db_conf = $this->_app_config['session_handler'];
+
+    $sw_db = new mysqli($db_conf['db_host'], $db_conf['db_user'], $db_conf['db_password'], $db_conf['database']);
+    if (mysqli_connect_error())
+    {
+      throw new SWException('Unable to connect to shared search database: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
+    }
+
+    $saved_search_query = sprintf("SELECT * FROM saved_searches WHERE id='%s'", $search_id);
+    if ($result = $sw_db->query($saved_search_query))
+    {
+      if ($result->num_rows && $result->num_rows > 0)
+      {
+        $raw_query_data = $result->fetch_assoc();
+        if ($raw_query_data['private'] == 1 && $raw_query_data['user_id'] != $this->_session_data['user_id'])
+        {
+          $this->loggy->logDebug($this->log_tag . 'Access violation, user id ' . $this->_session_data['user_id'] . ' trying to view private search owned by user id ' . $raw_query_data['user_id']);
+          $incoming_query_data = 'Not Allowed';
+        }
+        else {
+          $serialized_query = $raw_query_data['search_params'];
+          $incoming_query_data = unserialize($serialized_query);
+        }
+      }
+      else
+      {
+        $incoming_query_data = 'Not Found';
+      }
+    }
+    else
+    {
+      throw new SWException('Database read error: ' . mysqli_errno($sw_db) . ' ' . mysqli_error($sw_db));
+    }
+
+    echo json_encode($incoming_query_data);
+
+  }
+
+  function query_param_cache()
+  {
+    $query_data = $_POST;
+    $_SESSION[SWConfig::read_values('auth.sessionName')]['data']['current_query'] = serialize($query_data);
+  }
+
+  function config($url_path)
+  {
+    if ($config_item = array_shift($url_path))
+    {
+      echo json_encode(SWConfig::read_values($config_item));
+    }
+    else {
+      echo json_encode(SWConfig::read_values());
+    }
+  }
+
+  function save_dashboard($url_path)
+  {
+    $dashboard_id = array_shift($url_path);
+    if ($confirm = array_shift($url_path))
+    {
+      if($confirm === "Confirm")
+      {
+        $confirm_save = true;
+      }
+      else
+      {
+        $confirm_save = false;
+      }
+    }
+    $this->loggy->logDebug($this->log_tag . 'API call, saving dashboard id: ' . $dashboard_id);
+    $dashboard_config = $_POST;
+    $this->loggy->logDebug($this->log_tag . json_encode($dashboard_config));
+    $app_config = SWConfig::read_values('statuswolf.session_handler');
+    $saved_dashboard_db = new mysqli($app_config['db_host'], $app_config['db_user'], $app_config['db_password'], $app_config['database']);
+    if (mysqli_connect_error())
+    {
+      throw new SWException('Dashboard database connection error: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
+    }
+    if (!$confirm_save)
+    {
+      $this->loggy->logDebug($this->log_tag . "Checking dashboard title against saved dashboards");
+      $check_dashboard_title = sprintf("SELECT id, title FROM saved_dashboards WHERE title='%s' AND user_id='%s'", $dashboard_config['title'], $dashboard_config['user_id']);
+      if ($check_title_result = $saved_dashboard_db->query($check_dashboard_title))
+      {
+        if ($check_title_result->num_rows && $check_title_result->num_rows > 0)
+        {
+          $raw_query_data = $check_title_result->fetch_assoc();
+          echo json_encode(array("query_result" => "Error", "query_info" => "Title", "dashboard_id" => $raw_query_data['id']));
+          $saved_dashboard_db->close();
+          return;
+        }
+      }
+    }
+    $save_dashboard_query = sprintf("REPLACE INTO saved_dashboards VALUES('%s', '%s', '%s', '%s', '%s')", $dashboard_id, $dashboard_config['title'], $dashboard_config['user_id'], $dashboard_config['shared'], serialize($dashboard_config['widgets']));
+    $save_result = $saved_dashboard_db->query($save_dashboard_query);
+    $transaction_id = $saved_dashboard_db->insert_id;
+    if (mysqli_error($saved_dashboard_db))
+    {
+      throw new SWException('Error saving search: ' . mysqli_errno($saved_dashboard_db) . ' ' . mysqli_error($saved_dashboard_db));
+    }
+
+    echo json_encode(array("query_result", "Success"));
+
+    $saved_dashboard_db->close();
+
+  }
+
+  protected function get_saved_dashboards()
+  {
+    $data = $_POST;
+    $_saved_dashboards = array();
+
+    $dashboard_db = new mysqli($this->_app_config['session_handler']['db_host'], $this->_app_config['session_handler']['db_user'], $this->_app_config['session_handler']['db_password'], $this->_app_config['session_handler']['database']);
+    if (mysqli_connect_error())
+    {
+      throw new SWException('Saved searches database connect error: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
+    }
+    $dashboard_query = sprintf("SELECT * FROM saved_dashboards where user_id='%s' AND shared=0", $data['user_id']);
+    $user_dashboards_result = $dashboard_db->query($dashboard_query);
+    if ($user_dashboards_result->num_rows && $user_dashboards_result->num_rows > 0)
+    {
+      $_saved_dashboards['user_dashboards'] = array();
+      while($user_dashboards = $user_dashboards_result->fetch_assoc())
+      {
+        array_push($_saved_dashboards['user_dashboards'], array('id' => $user_dashboards['id'], 'title' => $user_dashboards['title']));
+      }
+    }
+    $usermap = array();
+    $usermap_result = $dashboard_db->query("SELECT * FROM user_map");
+    if ($usermap_result->num_rows && $usermap_result->num_rows > 0)
+    {
+      while ($usermap_entry = $usermap_result->fetch_assoc())
+      {
+        $usermap[$usermap_entry['id']] = $usermap_entry['username'];
+      }
+    }
+    $shared_dashboards_query = sprintf("SELECT * FROM saved_dashboards WHERE shared=1");
+    $shared_dashboards_result = $dashboard_db->query($shared_dashboards_query);
+    if ($shared_dashboards_result->num_rows && $shared_dashboards_result->num_rows > 0)
+    {
+      $_saved_dashboards['shared_dashboards'] = array();
+      while($shared_dashboards = $shared_dashboards_result->fetch_assoc())
+      {
+        array_push($_saved_dashboards['shared_dashboards'], array('id' => $shared_dashboards['id'], 'user_id' => $shared_dashboards['user_id'], 'username' => $usermap[$shared_dashboards['user_id']], 'title' => $shared_dashboards['title']));
+      }
+    }
+
+    echo json_encode($_saved_dashboards);
 
   }
 

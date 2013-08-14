@@ -40,8 +40,10 @@ class AdhocController extends SWController
       $_adhoc_function = array_shift($url_path);
       if ($_adhoc_function === "search")
       {
+        $this->loggy->logDebug($this->log_tag . "AdHoc search specified.");
         if ($_adhoc_datasource = array_shift($url_path))
         {
+          $this->loggy->logDebug($this->log_tag . "Search datasource: " . $_adhoc_datasource);
           $_search_object = new $_adhoc_datasource();
           $_search_object->get_raw_data($_POST);
           $raw_data = $_search_object->read();

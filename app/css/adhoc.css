@@ -34,10 +34,7 @@
 }
 
 .ad-hoc-button {
-    display: -webkit-box;
-    -webkit-box-orient: horizontal;
-    display: box;
-    box-orient: horizontal;
+    display: inline-block;
     font-size: .8em;
     line-height: 1.5em;
     height: 100%;
@@ -143,7 +140,7 @@
 
 #ad-hoc-dates, #ad-hoc-time-span {
     position: absolute;
-    top: 0;
+    top: 9px;
     margin-left: 25px;
     -webkit-box-flex: 4;
     box-flex: 4;
@@ -252,6 +249,41 @@
     min-width: 350px;
 }
 
+/*
+ * ========================================
+ * ad-hoc widget is bigger than the default
+ * ========================================
+ */
+
+.widget-container {
+    width: 100%;
+    height: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#graph-search-general {
+    position: relative;
+}
+
+#graph-legend {
+    height: 70px;
+    overflow: hidden;
+    font-size: .8em;
+    line-height: 1.2em;
+    color: rgba(205, 205, 205, .75);
+    background-color: rgb(24, 24, 24);
+    padding: 0px 20px;
+}
+
+#graph-legend span {
+    margin-left: 15px;
+}
+
+.menu-label {
+    display: inline-block;
+}
+
 @-moz-document url-prefix() {
     #date-span-inputs {
         position: absolute;
@@ -270,8 +302,4 @@
     .widget-footer > .glue1 {
         display: inline-block;
     }
-}
-
-.menu-label {
-    display: inline-block;
 }

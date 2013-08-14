@@ -1,4 +1,4 @@
-#bowlG{
+.bowlG{
     position:relative;
     width:24px;
     height:24px;
@@ -6,7 +6,7 @@
     padding-top: 25%;
 }
 
-#bowl_ringG{
+.bowl_ringG{
     position:absolute;
     width:24px;
     height:24px;
