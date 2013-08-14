@@ -109,8 +109,6 @@ else
 <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/md5.js"></script>
 <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/dygraph-combined.js"></script>
 <script type="text/javascript" src="<?php echo URL; ?>app/js/status_wolf_colors.js"></script>
-<script type="text/javascript" src="<?php echo URL; ?>app/js/push-button.js"></script>
-<script type="text/javascript" src="<?php echo URL; ?>app/js/toggle-buttons.js"></script>
 <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/jquery.autocomplete.js"></script>
 
 

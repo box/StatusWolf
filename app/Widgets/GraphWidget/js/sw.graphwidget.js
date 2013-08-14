@@ -371,7 +371,7 @@
         widget.build_saved_search_menu(widget);
 
         $('label').click(function() {
-          push_button(this);
+          statuswolf_button(this);
         });
 
         $('ul.dropdown-menu').on('click', 'li', function() {
@@ -462,7 +462,7 @@
       $('#' + tab_list.attr('id') + ' a[href="#tab' + tab_tag + '"]').tab('show');
 
       $('label').click(function() {
-        push_button(this);
+        statuswolf_button(this);
       });
 
       $('ul.dropdown-menu').on('click', 'li', function() {
