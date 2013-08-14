@@ -402,7 +402,7 @@ class ApiController extends SWController
         if ($check_title_result->num_rows && $check_title_result->num_rows > 0)
         {
           $raw_query_data = $check_title_result->fetch_assoc();
-          echo json_encode(["query_result" => "Error", "query_info" => "Title", "dashboard_id" => $raw_query_data['id']]);
+          echo json_encode(array("query_result" => "Error", "query_info" => "Title", "dashboard_id" => $raw_query_data['id']));
           $saved_dashboard_db->close();
           return;
         }
@@ -416,7 +416,7 @@ class ApiController extends SWController
       throw new SWException('Error saving search: ' . mysqli_errno($saved_dashboard_db) . ' ' . mysqli_error($saved_dashboard_db));
     }
 
-    echo json_encode(["query_result", "Success"]);
+    echo json_encode(array("query_result", "Success"));
 
     $saved_dashboard_db->close();
 
