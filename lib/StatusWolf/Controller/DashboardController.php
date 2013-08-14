@@ -27,6 +27,17 @@ class DashboardController extends SWController
     }
     $this->log_tag = '(' . $_SESSION['_sw_authsession']['username'] . '|' . $_SESSION['_sw_authsession']['sessionip'] . ') ';
 
+    if (!empty($url_path[0]))
+    {
+      $this->loggy->logDebug($this->log_tag . 'Setting dashboard id to ' . $url_path[0]);
+      $_SESSION['_sw_authsession']['data']['dashboard_id'] = $url_path[0];
+    }
+    else
+    {
+      $this->loggy->logDebug($this->log_tag . 'Clearing dashboard id');
+      unset($_SESSION['_sw_authsession']['data']['dashboard_id']);
+    }
+
     include 'header.php';
     if ($_SESSION['authenticated'])
     {
@@ -34,5 +45,6 @@ class DashboardController extends SWController
     }
     include 'dash.php';
     include 'footer.php';
+
   }
 }

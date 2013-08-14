@@ -38,6 +38,9 @@
     <link href="<?php echo URL; ?>app/css/statuswolf_base.css?v=1" rel="stylesheet">
     <link rel="icon" href="<?php echo URL; ?>app/img/favicon-96.png">
 
+    <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/jquery.js"></script>
+    <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/magnific-popup.js"></script>
+
   </head>
 
   <body>

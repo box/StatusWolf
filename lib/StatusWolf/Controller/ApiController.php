@@ -370,4 +370,100 @@ class ApiController extends SWController
     }
   }
 
+  function save_dashboard($url_path)
+  {
+    $dashboard_id = array_shift($url_path);
+    if ($confirm = array_shift($url_path))
+    {
+      if($confirm === "Confirm")
+      {
+        $confirm_save = true;
+      }
+      else
+      {
+        $confirm_save = false;
+      }
+    }
+    $this->loggy->logDebug($this->log_tag . 'API call, saving dashboard id: ' . $dashboard_id);
+    $dashboard_config = $_POST;
+    $this->loggy->logDebug($this->log_tag . json_encode($dashboard_config));
+    $app_config = SWConfig::read_values('statuswolf.session_handler');
+    $saved_dashboard_db = new mysqli($app_config['db_host'], $app_config['db_user'], $app_config['db_password'], $app_config['database']);
+    if (mysqli_connect_error())
+    {
+      throw new SWException('Dashboard database connection error: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
+    }
+    if (!$confirm_save)
+    {
+      $this->loggy->logDebug($this->log_tag . "Checking dashboard title against saved dashboards");
+      $check_dashboard_title = sprintf("SELECT id, title FROM saved_dashboards WHERE title='%s' AND user_id='%s'", $dashboard_config['title'], $dashboard_config['user_id']);
+      if ($check_title_result = $saved_dashboard_db->query($check_dashboard_title))
+      {
+        if ($check_title_result->num_rows && $check_title_result->num_rows > 0)
+        {
+          $raw_query_data = $check_title_result->fetch_assoc();
+          echo json_encode(["query_result" => "Error", "query_info" => "Title", "dashboard_id" => $raw_query_data['id']]);
+          $saved_dashboard_db->close();
+          return;
+        }
+      }
+    }
+    $save_dashboard_query = sprintf("REPLACE INTO saved_dashboards VALUES('%s', '%s', '%s', '%s', '%s')", $dashboard_id, $dashboard_config['title'], $dashboard_config['user_id'], $dashboard_config['shared'], serialize($dashboard_config['widgets']));
+    $save_result = $saved_dashboard_db->query($save_dashboard_query);
+    $transaction_id = $saved_dashboard_db->insert_id;
+    if (mysqli_error($saved_dashboard_db))
+    {
+      throw new SWException('Error saving search: ' . mysqli_errno($saved_dashboard_db) . ' ' . mysqli_error($saved_dashboard_db));
+    }
+
+    echo json_encode(["query_result", "Success"]);
+
+    $saved_dashboard_db->close();
+
+  }
+
+  protected function get_saved_dashboards()
+  {
+    $data = $_POST;
+    $_saved_dashboards = array();
+
+    $dashboard_db = new mysqli($this->_app_config['session_handler']['db_host'], $this->_app_config['session_handler']['db_user'], $this->_app_config['session_handler']['db_password'], $this->_app_config['session_handler']['database']);
+    if (mysqli_connect_error())
+    {
+      throw new SWException('Saved searches database connect error: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
+    }
+    $dashboard_query = sprintf("SELECT * FROM saved_dashboards where user_id='%s' AND shared=0", $data['user_id']);
+    $user_dashboards_result = $dashboard_db->query($dashboard_query);
+    if ($user_dashboards_result->num_rows && $user_dashboards_result->num_rows > 0)
+    {
+      $_saved_dashboards['user_dashboards'] = array();
+      while($user_dashboards = $user_dashboards_result->fetch_assoc())
+      {
+        array_push($_saved_dashboards['user_dashboards'], array('id' => $user_dashboards['id'], 'title' => $user_dashboards['title']));
+      }
+    }
+    $usermap = array();
+    $usermap_result = $dashboard_db->query("SELECT * FROM user_map");
+    if ($usermap_result->num_rows && $usermap_result->num_rows > 0)
+    {
+      while ($usermap_entry = $usermap_result->fetch_assoc())
+      {
+        $usermap[$usermap_entry['id']] = $usermap_entry['username'];
+      }
+    }
+    $shared_dashboards_query = sprintf("SELECT * FROM saved_dashboards WHERE shared=1");
+    $shared_dashboards_result = $dashboard_db->query($shared_dashboards_query);
+    if ($shared_dashboards_result->num_rows && $shared_dashboards_result->num_rows > 0)
+    {
+      $_saved_dashboards['shared_dashboards'] = array();
+      while($shared_dashboards = $shared_dashboards_result->fetch_assoc())
+      {
+        array_push($_saved_dashboards['shared_dashboards'], array('id' => $shared_dashboards['id'], 'user_id' => $shared_dashboards['user_id'], 'username' => $usermap[$shared_dashboards['user_id']], 'title' => $shared_dashboards['title']));
+      }
+    }
+
+    echo json_encode($_saved_dashboards);
+
+  }
+
 }

@@ -10,16 +10,17 @@ function build_search_form(widget)
 
 	$('head').append('<link rel="stylesheet" href="' + widget.options.sw_url + 'app/css/datetimepicker.css">' +
 		'<link rel="stylesheet" href="' + widget.options.sw_url + 'app/css/toggle-buttons.css">' +
-		'<link rel="stylesheet" href="' + widget.options.sw_url + 'app/css/push-button.css">' +
 		'<link rel="stylesheet" href="' + widget.options.sw_url + 'app/css/table.css">' +
 		'<link rel="stylesheet" href="' + widget.options.sw_url + 'app/css/loader.css">' +
 		'<link rel="stylesheet" href="' + widget.options.sw_url + 'app/css/tooltip.css">' +
-		'<link rel="stylesheet" href="' + widget.options.sw_url + 'app/Widgets/GraphWidget/css/custom.graph_widget.css">' +
+		'<link rel="stylesheet" href="' + widget.options.sw_url + 'app/Widgets/GraphWidget/css/sw.graphwidget.css">' +
 		'<script type="text/javascript" src="' + widget.options.sw_url + 'app/js/lib/dygraph-combined.js"></script>' +
 		'<script type="text/javascript" src="' + widget.options.sw_url + 'app/js/status_wolf_colors.js"></script>' +
-		'<script type="text/javascript" src="' + widget.options.sw_url + 'app/js/push-button.js"></script>');
+		'<script type="text/javascript" src="' + widget.options.sw_url + 'app/js/push-button.js"></script>' +
+    '<script type="text/javascript" src="' + widget.options.sw_url + 'app/js/toggle-buttons.js"></script>' +
+    '<script type="text/javascript" src="' + widget.options.sw_url + 'app/js/lib/jquery.autocomplete.js"></script>');
 
-	var widget_num = widget.uuid
+  var widget_num = widget.uuid
 		,widget_element = widget.element;
 
 	widget.metric_count = 0;
@@ -89,17 +90,12 @@ function build_search_form(widget)
 	form_row_3.append('<div class="metric-input-tabs tabbable tab-below" style="width: 99%;">' +
 		'<div class="tab-content" id="tab-content' + widget_num + '"></div><ul class="nav nav-tabs" id="tab-list' + widget_num + '"></ul></div>');
 
-  // Load the handler for the toggle-buttons
-  loadScript(widget.options.sw_url + 'app/js/toggle-buttons.js', function(){});
-  // Load the handler for metric name autocompletion and init the form objects
-  loadScript(widget.options.sw_url + 'app/js/lib/jquery.autocomplete.js', function(){
-    $(widget.sw_graphwidget_searchform.children('.row3').find('.metric-autocomplete')).autocomplete({
-      minChars: 2
-      ,serviceUrl: widget.options.sw_url + 'api/tsdb_metric_list/'
-      ,containerClass: 'autocomplete-suggestions dropdown-menu'
-      ,zIndex: ''
-      ,maxHeight: ''
-    });
+  $(widget.sw_graphwidget_searchform.children('.row3').find('.metric-autocomplete')).autocomplete({
+    minChars: 2
+    ,serviceUrl: widget.options.sw_url + 'api/tsdb_metric_list/'
+    ,containerClass: 'autocomplete-suggestions dropdown-menu'
+    ,zIndex: ''
+    ,maxHeight: ''
   });
 
 	var add_metric_button_id = 'add-metric-button' + widget_num + '-' + widget.metric_count;

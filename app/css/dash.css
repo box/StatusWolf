@@ -8,6 +8,23 @@
     top: -1px;
 }
 
+#dashboard-menu-options {
+    min-width: 150px;
+}
+
+#load-dashboard-menu-options {
+    min-width: 300px;
+}
+
+#save-dashboard-form {
+    margin: 20px 0;
+}
+
+#confirmation-info {
+    margin: 15px;
+    padding-bottom: 10px;
+}
+
 .widget-container {
     display: inline-block;
 }
