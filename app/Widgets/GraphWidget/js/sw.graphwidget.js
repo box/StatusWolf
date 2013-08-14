@@ -1030,9 +1030,6 @@
     ,get_opentsdb_data_wow: function(query_data, widget)
     {
 
-      console.log('week-over-week search');
-      console.log(query_data);
-      
       var status = widget.sw_graphwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num).children('#status-message' + widget_num);
 
       if (typeof ajax_request !== 'undefined')
