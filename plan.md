@@ -4,8 +4,7 @@
 
 # Phase 2: Dashboard interface
 
-* Modular widget interface to make adding new things easy
-* Save and share dashboards
+* Done
 
 # Other:
 
