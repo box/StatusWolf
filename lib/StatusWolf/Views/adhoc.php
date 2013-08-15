@@ -16,7 +16,6 @@
     <link rel="stylesheet" href="<?php echo URL; ?>app/css/widget_base.css">
     <link rel="stylesheet" href="<?php echo URL; ?>app/css/adhoc.css">
     <link rel="stylesheet" href="<?php echo URL; ?>app/css/popups.css?v=1.0">
-    <script type="text/javascript" src="<?php echo URL; ?>app/js/push-button.js"></script>
 
     <div class="container">
       <div class="widget-container" id="ad-hoc-widget">
@@ -129,11 +128,9 @@
 
     <script type="text/javascript" src="<?php echo URL; ?>app/js/sw_lib.js"></script>
     <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/dygraph-combined.js"></script>
-    <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/jquery.js"></script>
     <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/bootstrap.js"></script>
     <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/date.js"></script>
     <script type="text/javascript" src="<?php echo URL; ?>app/js/status_wolf_colors.js"></script>
-    <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/magnific-popup.js"></script>
 
     <script type="text/javascript">
 

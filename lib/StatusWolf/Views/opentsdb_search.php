@@ -181,7 +181,7 @@
           </div>
         </td>
         <td width="7.5%" style="padding-left: 0;">
-          <div class="dropdown ad-hoc-button" id="downsample-interval-button1" style="min-width: 25px;">
+          <div class="dropdown ad-hoc-button" id="downsample-interval-button1">
             <span class="flexy" data-toggle="dropdown">
               <div class="ad-hoc-button-label ds-interval" id="active-downsample-interval1" data-value="1">1 minute</div>
               <span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span>
@@ -285,8 +285,6 @@
     $('#end-time').datetimepicker({collapse: false});
   });
 
-  // Load the handler for the toggle-buttons
-  loadScript("<?php echo URL; ?>app/js/toggle-buttons.js", function(){});
   // Load the handler for metric name autocompletion and init the form objects
   loadScript("<?php echo URL; ?>app/js/lib/jquery.autocomplete.js", function(){
     $(".metric-autocomplete").autocomplete({
@@ -354,7 +352,7 @@
   });
 
   $('label').click(function() {
-    push_button(this);
+    statuswolf_button(this);
   });
 
   $('.info-tooltip').tooltip({placement: 'bottom'});
