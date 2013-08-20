@@ -692,7 +692,19 @@
         var input_dates = $('div#graph-widget-dates' + widget_num);
         var input_time_span = $('div#time-span' + widget_num);
         var input_autoupdate = $('input#auto-update-button' + widget_num);
-        var input_history = widget_element.find('input:radio[name="history-graph"]:checked');
+        var history_buttons = widget_element.find('input:radio[name="history-graph"]');
+        $.each(history_buttons, function(i, history_type) {
+          if ($(history_type).attr('checked'))
+          {
+            input_history = history_type;
+          }
+        });
+        if (typeof input_history === "undefined")
+        {
+          console.log('unable to determine history type')
+          input_error = true;
+        }
+
 
         // Date range validation
         var start, end;
@@ -754,16 +766,21 @@
         // Check for history display options
         widget.query_data['metrics'] = [];
         widget.query_data['history-graph'] = $(input_history).val();
+        console.log('history: ' + widget.query_data['history-graph']);
+        console.log('input error state: ' + input_error);
         if (widget.query_data['history-graph'] === 'no')
         {
+          console.log('doing the no history metric shuffle for ' + widget.metric_count + ' metrics');
           widget.query_data['metrics_count'] = widget.metric_count;
           for (i=1; i<=widget.query_data['metrics_count']; i++)
           {
             var build_metric = {};
             var metric_bits = $('input:text[name=metric'+ widget_num + '-' + i + ']').val().split(' ');
+            console.log(metric_bits);
             build_metric.name = metric_bits.shift();
             if (build_metric.name.length < 1)
             {
+              console.log('no tags, moving on');
               continue;
             }
             if (metric_bits.length > 0)
@@ -796,8 +813,10 @@
 
             widget.query_data['metrics'].push(build_metric);
           }
+          console.log(widget.query_data['metrics']);
           if (widget.query_data['metrics'].length < 1)
           {
+            console.log('no metrics found, back to you');
             widget.sw_graphwidget_searchform.find('ul#tab-list' + widget_num + ' a[href="#tab' + widget_num + '-1"]').click();
             $('input:text[name="metric'+ widget_num + '-1"]').css('border-color', 'red').css('background-color', 'rgb(255, 200, 200)').focus();
             alert("You must specify at least one metric to search for");
@@ -858,6 +877,7 @@
 
       // If we made it this far without errors in the form input, then
       // we build us a graph
+      console.log('checking for input error state (' + input_error + ')' );
       if (input_error == false)
       {
         var graph_element = $('#graphdiv' + widget_num);
@@ -872,9 +892,17 @@
         $(widget.element).children('.widget').removeClass('flipped');
         graph_element.append('<div id="status-box' + widget_num + '" style="width: 100%; text-align: center;">' +
           '<p id="status-message' + widget_num + '"></p></div>');
+        widget.init_query(widget.query_data, widget);
+      }
+      else
+      {
+        console.log('input error still exists, keeping the form visible');
+        if (! widget_element.children('.widget').hasClass('flipped'))
+        {
+          widget_element.children('.widget').addClass('flipped');
+        }
       }
 
-      widget.init_query(widget.query_data, widget);
 
     }
 

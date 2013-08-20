@@ -169,6 +169,7 @@ foreach($widgets as $widget_key)
     $('#dashboard-menu').append('<span class="flexy" id="dashboard-menu-content" data-toggle="dropdown">')
     $('#dashboard-menu-content').append('<span class="menu-label" id="dashboard-menu-label">Dashboard <span class="iconic iconic-play rotate-90">');
     $('#dashboard-menu').append('<ul class="dropdown-menu sub-menu-item" id="dashboard-menu-options" role="menu" aria-labelledby="dLabel">');
+    $('#dashboard-menu-options').append('<li id="clear-dashboard-menu-choice"><a href="<?php echo URL; ?>dashboard/"><span>Clear</span></a></li>');
     $('#dashboard-menu-options').append('<li class="flexy dropdown" id="add-widget-menu-item"><span>Add Widget</span></span><span class="iconic iconic-play"></span></li>');
     $('#add-widget-menu-item').append('<ul class="dropdown-menu sub-menu" id="add-widget-menu-options">');
     $.each(widgets, function(widget_index, widget_data) {
