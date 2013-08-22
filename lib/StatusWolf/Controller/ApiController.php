@@ -191,8 +191,17 @@ class ApiController extends SWController
    * @return bool
    * @throws SWException
    */
-  protected function save_adhoc_search()
+  protected function save_adhoc_search($url_path)
   {
+    if (!empty($url_path))
+    {
+      $search_id = array_shift($url_path);
+      if (!is_numeric($search_id))
+      {
+        unset($search_id);
+      }
+    }
+
     $this->loggy->logDebug($this->log_tag . 'API call, saving adhoc search');
     $search_parameters = $_POST;
     $this->loggy->logDebug(json_encode($search_parameters));
@@ -215,7 +224,14 @@ class ApiController extends SWController
       throw new SWException('Shared search database connection error: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
     }
     $search_parameters['title'] = mysqli_real_escape_string($saved_search_db, $search_parameters['title']);
-    $saved_search_query = sprintf("INSERT INTO saved_searches VALUES('', '%s', '%s', '%s', '%s', '%s')", $search_parameters['title'], $search_parameters['user_id'], $search_parameters['private'], serialize($search_parameters), $search_parameters['datasource']);
+    if (!empty($search_id))
+    {
+      $saved_search_query = sprintf("UPDATE saved_searches SET title='%s', private='%s', search_params='%s' WHERE id='%s'", $search_parameters['title'], $search_parameters['private'], serialize($search_parameters), $search_id);
+    }
+    else
+    {
+      $saved_search_query = sprintf("INSERT INTO saved_searches VALUES('', '%s', '%s', '%s', '%s', '%s')", $search_parameters['title'], $search_parameters['user_id'], $search_parameters['private'], serialize($search_parameters), $search_parameters['datasource']);
+    }
     $save_result = $saved_search_db->query($saved_search_query);
     $search_id = $saved_search_db->insert_id;
     if (mysqli_error($saved_search_db))
@@ -261,6 +277,35 @@ class ApiController extends SWController
       $this->loggy->logDebug($this->log_tag . json_encode($_session_data));
       echo json_encode($_session_data);
     }
+  }
+
+  protected function delete_saved_searches()
+  {
+    $data = $_POST;
+    $search_ids = array();
+    foreach ($data as $search_title => $search_id)
+    {
+      array_push($search_ids, $search_id);
+    }
+
+    $this->loggy->logDebug($this->log_tag . "API call, deleting saved searches " . implode(',', $search_ids));
+
+    $sw_db = new mysqli($this->_app_config['session_handler']['db_host'], $this->_app_config['session_handler']['db_user'], $this->_app_config['session_handler']['db_password'], $this->_app_config['session_handler']['database']);
+    if (mysqli_connect_error())
+    {
+      throw new SWException('Saved searches database connect error: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
+    }
+    $delete_searches_query = sprintf("DELETE FROM saved_searches WHERE id in ('%s')", implode(',', $search_ids));
+    $sw_db->query($delete_searches_query);
+    if (mysqli_error($sw_db))
+    {
+      throw new SWException('Session open error: ' . mysqli_errno($sw_db) . ' ' . mysqli_error($sw_db));
+    }
+    else
+    {
+      echo json_encode($search_ids);
+    }
+
   }
 
   /**

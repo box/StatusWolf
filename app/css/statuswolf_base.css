@@ -235,6 +235,10 @@ select {
     color: red;
 }
 
+.grey {
+    color: rgb(234, 234, 234);
+}
+
 .hidden {
     visibility: hidden;
 }
@@ -252,6 +256,29 @@ select {
 
 .no-overflow {
     overflow: hidden;
+}
+
+.sw-button {
+    display: inline-block;
+    margin: 0 10px 0 0;
+    padding: 2px 8px;
+    /*height: 100%;*/
+    font-size: .75em;
+    line-height: 1.5em;
+    font-weight: normal;
+    color: rgba(205, 205, 205, 0.6);
+    background-color: rgb(51, 51, 51);
+    border: 1px groove rgba(234, 234, 234, 0.1);
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+.sw-button:hover, .pushed {
+    color: rgba(205, 205, 205, 0.8);
+    background-color: rgb(37, 37, 37);
+    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
 /*
@@ -656,6 +683,10 @@ ul.nav-tabs {
 
 .iconic-calendar-alt:before {
     content: '\e06c';
+}
+
+.iconic-cd:before {
+    content: '\e064';
 }
 
 .iconic-check-alt:before {
