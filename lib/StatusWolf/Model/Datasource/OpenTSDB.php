@@ -316,7 +316,7 @@ class OpenTSDB extends TimeSeriesData {
       $metric = array_shift($fields);
       $timestamp = array_shift($fields);
       $value = array_shift($fields);
-      if ($query_bits['history-graph'] === "no")
+      if ($query_bits['history_graph'] === "no")
       {
         if (!empty($fields))
         {

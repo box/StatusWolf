@@ -468,7 +468,7 @@
       $('label#auto-update-label').parent('.push-button').addClass('pushed');
       $('label#auto-update-label').children('span.iconic').removeClass('iconic-x-alt red').addClass('iconic-check-alt green');
     }
-    if (query_data['history-graph'].match(/anomaly/))
+    if (query_data.history_graph.match(/anomaly/))
     {
       var el = $('input#history-anomaly').parent('label');
       $(el).parent('div.toggle-button').addClass('toggle-on');
@@ -477,7 +477,7 @@
       $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
       $('input#history-anomaly.section-toggle').click();
     }
-    else if (query_data['history-graph'].match(/wow/))
+    else if (query_data.history_graph.match(/wow/))
     {
       var el = $('input#history-wow').parent('label');
       $(el).parent('div.toggle-button').addClass('toggle-on');
@@ -628,8 +628,8 @@
     }
 
     // Check for history display options
-    query_data['history-graph'] = $('input:radio[name=history-graph]:checked').val();
-    if (query_data['history-graph'] == 'no')
+    query_data.history_graph = $('input:radio[name=history-graph]:checked').val();
+    if (query_data.history_graph === 'no')
     {
       query_data['metrics_count'] = 6;
     }
@@ -778,9 +778,9 @@
             {
               metric.y2 = true;
             }
-            if (typeof metric['history-graph'] != "undefined")
+            if (typeof metric.history_graph != "undefined")
             {
-              delete metric['history-graph'];
+              delete metric.history_graph;
             }
             if (JSON.stringify(incoming_query.metrics[i]) != JSON.stringify(query_data.metrics[i]))
             {
@@ -865,7 +865,7 @@
     var query_object = new $.Deferred();
 
     // Generate (or find the cached) model data for the metric
-    if (query_data['history-graph'] == "anomaly")
+    if (query_data.history_graph === "anomaly")
     {
       $('#status-message').html('<p>Fetching Metric Data</p>');
       $.when(get_metric_data_anomaly(query_data)
@@ -878,7 +878,7 @@
       );
     }
     // Search current and previous week for metric data
-    else if (query_data['history-graph'] == "wow")
+    else if (query_data.history_graph === "wow")
     {
       $('#status-message').html('<p>Fetching Week-Over-Week Data</p>');
       $.when(get_metric_data_wow(query_data)
@@ -1187,7 +1187,7 @@
     delete data.query_url;
     delete data.cache_key;
     delete data.query_cache;
-    if (query_data['history-graph'] == "anomaly")
+    if (query_data.history_graph === "anomaly")
     {
       var anomalies = data.anomalies;
       delete data.anomalies;
@@ -1203,9 +1203,9 @@
     for (var series in data) {
       if (data.hasOwnProperty(series))
       {
-        if (query_data['history-graph'] == "anomaly")
+        if (query_data.history_graph === "anomaly")
         {
-          query_data.metrics[0]['history-graph'] = "anomaly";
+          query_data.metrics[0]['history_graph'] = "anomaly";
         }
         labels.push(series);
 
@@ -1234,7 +1234,7 @@
       var graph_data = {};
       graph_data.labels = labels;
       graph_data.data = buckets;
-      if (query_data['history-graph'] == "anomaly")
+      if (query_data.history_graph === "anomaly")
       {
         graph_data.anomalies = anomalies;
       }
@@ -1351,7 +1351,7 @@
     });
 
     // Set up the anomaly highlighting if requested
-    if (query_data['history-graph'] == "anomaly")
+    if (query_data.history_graph == "anomaly")
     {
       anomalies = data.anomalies;
       g.updateOptions({
@@ -1395,7 +1395,7 @@
                         series_times.push(timestamp);
                         jtime = new Date(parseInt(timestamp * 1000));
                         values = [jtime];
-                        if (query_data['history-graph'] == 'anomaly')
+                        if (query_data.history_graph === 'anomaly')
                         {
                           var value_bucket = new Array();
                           $.each(graph_data[timestamp], function(k, d) {

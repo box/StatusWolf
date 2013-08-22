@@ -3,6 +3,13 @@
 $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
 
 ?>
+<link rel="stylesheet" href="<?php echo URL; ?>app/css/widget_base.css">
+<link rel="stylesheet" href="<?php echo URL; ?>app/css/push-button.css">
+<link rel="stylesheet" href="<?php echo URL; ?>app/css/toggle-buttons.css">
+<link rel="stylesheet" href="<?php echo URL; ?>app/css/datetimepicker.css">
+<link rel="stylesheet" href="<?php echo URL; ?>app/css/popups.css">
+<link rel="stylesheet" href="<?php echo URL; ?>app/css/table.css">
+<link rel="stylesheet" href="<?php echo URL; ?>app/css/account.css">
 
 <div class="container">
   <div class="widget-container" id="account-widget">
@@ -12,9 +19,9 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
           <div class="toggle-button-group">
             <div class="widget-title-button left-button toggle-button toggle-on">
               <label><input type="radio" class="section-toggle" id="saved-search" name="account-panel" checked="checked" data-target="edit-saved-searches"><span>Saved Searches</span></label>
-            </div><div class="widget-title-button left-button toggle-button">
+            </div><div class="widget-title-button left-button toggle-button hidden">
               <label><input type="radio" class="section-toggle" id="saved-dashboards" name="account-panel" data-target="edit-saved-dashboards"><span>Saved Dashboards</span></label>
-            </div><div class="widget-title-button left-button toggle-button">
+            </div><div class="widget-title-button left-button toggle-button hidden">
               <label><input type="radio" class="section-toggle" id="preferences" name="account-panel" data-target="edit-preferences"><span>Preferences</span></label>
             </div>
           </div>
@@ -40,16 +47,14 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
   </div>
 </div>
 
-<link rel="stylesheet" href="<?php echo URL; ?>app/css/widget_base.css">
-<link rel="stylesheet" href="<?php echo URL; ?>app/css/push-button.css">
-<link rel="stylesheet" href="<?php echo URL; ?>app/css/toggle-buttons.css">
-<link rel="stylesheet" href="<?php echo URL; ?>app/css/datetimepicker.css">
-<link rel="stylesheet" href="<?php echo URL; ?>app/css/table.css">
-<link rel="stylesheet" href="<?php echo URL; ?>app/css/account.css">
+<div id="success-popup" class="popup mfp-hide"><h5>Success</h5>
+  <div class="popup-form-data">Your changes have been saved.</div>
+  <div class="sw-button" id="success-ok" style="position: absolute; bottom: 0; right: 0; margin: 20px 20px 10px 0;" onClick="$.magnificPopup.close()">OK!</div>
+</div>
 
 <script type="text/javascript" src="<?php echo URL; ?>app/js/sw_lib.js"></script>
-<script type="text/javascript" src="<?php echo URL; ?>app/js/lib/jquery.js"></script>
 <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/bootstrap.js"></script>
+<script type="text/javascript" src="<?php echo URL; ?>app/js/lib/bootstrap-datetimepicker.js"></script>
 <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/date.js"></script>
 <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/jquery.autocomplete.js"></script>
 
@@ -78,9 +83,6 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
 
   $(document).ready(function() {
 
-//    $('#search-list-pane').css('height', $('#edit-saved-searches').innerHeight());
-//    $('#search-info-pane').css('height', $('#edit-saved-searches').innerHeight());
-
     get_saved_searches();
     $('.widget-footer').empty();
     $('.widget-footer').append('<div class="widget-footer-button left-button" id="delete-saved-searches">');
@@ -92,6 +94,8 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
 
   });
 
+  // Clicking on the name of a search in the search info pane switches
+  // to a text box for changing the name of the search
   $('#search-title').on('click', 'h3', function() {
     var title_text = $(this).text();
     $(this).css('display', 'none');
@@ -104,6 +108,8 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
     }).focus();
   });
 
+  // Clicking, tabbing, etc. away from the search name text box resets it
+  // back to a head for the info pane, with new name if it was changed
   $('#search-title').on('blur', 'input', function() {
     var title_text = $('#search-title').children('h3').text();
     var changed_title = $('input#change-title').val();
@@ -119,6 +125,8 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
     }
   });
 
+  // The enter keypress when the search name edit field has focus
+  // does the same as above
   $('#search-title').on('keydown', 'input', function(event) {
     if (event.which === 13)
     {
@@ -126,11 +134,14 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
     }
   });
 
+  // Clicking on the name of a saved search in the list loads
+  // it in the info pane
   $('#search-list-pane').on('click', 'span.saved-search-title', function() {
     load_saved_search($(this).parent('li').attr('data-id'));
     $('#search-title > h3').text($(this).text());
   });
 
+  // Handler for the fance check boxes in the saved search list
   $('#search-list-pane').on('click', 'span.sw-check-box', function() {
     if ($(this).hasClass('check-on'))
     {
@@ -142,9 +153,13 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
     }
   });
 
+  // Handler for toggling tabs and other changing parts of the interface
   $('.widget').on('click', 'input.section-toggle', function() {
     var data_target = $(this).attr('data-target');
     $('#' + data_target).removeClass('section-off').addClass('section-on').siblings('.section').addClass('section-off').removeClass('section-on');
+
+    // If we're switching to the Edit Saved Searches tab, add the Delete,
+    // Select All and Select None buttons to the interface
     if (data_target === "edit-saved-searches")
     {
       $('.widget-footer').empty();
@@ -183,6 +198,7 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
     }
   });
 
+  // Handler for the buttons in the footer
   $('.widget').on('click', '.widget-footer-button', function() {
     if ($(this).attr('id') === "select-no-saved-searches")
     {
@@ -192,12 +208,17 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
     {
       $('span.sw-check-box').removeClass('empty grey').addClass('iconic-check-alt green check-on');
     }
+    else if ($(this).attr('id') === "delete-saved-searches")
+    {
+      delete_click_handler();
+    }
   });
 
   $('.widget-container').on('click', 'label', function() {
     statuswolf_button(this);
   });
 
+  // Load up the list of saved searches
   function get_saved_searches()
   {
     var user_id = "<?php echo $_session_data['user_id']; ?>";
@@ -232,6 +253,7 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
 
   }
 
+  // Adds a tab to the search definition, to add another metric to the search
   function add_tab(tab_num, data_source)
   {
     tab_num++;
@@ -253,7 +275,7 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
           '<h4>Aggregation</h4><div class="dropdown saved-search-button">' +
           '<span data-toggle="dropdown"><div class="saved-search-button-label" id="active-aggregation-type' + tab_num + '">Sum</div>' +
           '<span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span></span>' +
-          '<ul class="dropdown-menu" id="aggregation-type=options' + tab_num + '" role="menu" aria-labelledby="dLabel">' +
+          '<ul class="dropdown-menu" id="aggregation-type-options' + tab_num + '" role="menu" aria-labelledby="dLabel" style="min-width: 130px;">' +
           '<li><span>Sum</span></li>' +
           '<li><span>Average</span></li>' +
           '<li><span>Minimum Value</span></li>' +
@@ -323,17 +345,20 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
     return tab_num;
   }
 
+  // Deals with dropdown menus
   function dropdown_menu_handler(item, widget_num)
   {
     var button = $(item).parent().parent().children('span');
     $(button).children('.saved-search-button-label').text($(item).text());
     $(button).children('div.ds-interval').attr('data-value', $(item).children('span').attr('data-value'));
-    if ($(item).parent().attr('id') === "time-span-options" + widget_num)
+    if ($(item).parent().attr('id') === "time-span-options")
     {
       $(button).children('div#time-span').attr('data-ms', $(item).children('span').attr('data-ms')).text();
     }
   }
 
+  // Loads the actual query and other info for a saved search when the name
+  // of the search is clicked on in the list
   function load_saved_search(search_id)
   {
     $.ajax({
@@ -349,19 +374,24 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
         {
           query_data = data;
         }
-        populate_search_form(query_data);
+        populate_search_form(query_data, search_id);
       }
     });
   }
 
-  function populate_search_form(query_data)
+  // Takes the loaded query info and populates the info form with the current
+  // state of the saved search
+  function populate_search_form(query_data, search_id)
   {
 
+    console.log('getting search query data');
+    console.log(query_data);
     if (query_data.datasource === "OpenTSDB")
     {
       $('#search-guts').addClass('hidden');
       $('#search-guts').empty();
       $('.autocomplete-suggestions').remove();
+      $('.datetimepicker-widget').remove();
 
       $('#search-guts').append('<table class="general-options-table" id="saved-search-options">' +
         '<tr>' +
@@ -392,7 +422,7 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
         '<span class="dropdown-arrow-container">' +
         '<span class="iconic iconic-play rotate-90"></span>' +
         '</span></span>' +
-        '<ul class="dropdown-menu menu-left" id="time-span-options" role="menu" aria="labelledby=&quot;dLabel&quot;">' +
+        '<ul class="dropdown-menu menu-left" id="time-span-options" role="menu" aria-labelledby="dLabel">' +
         '<li><span data-ms="600">10 minutes</span></li>' +
         '<li><span data-ms="1800">30 minutes</span></li>' +
         '<li><span data-ms="3600">1 Hour</span></li>' +
@@ -430,8 +460,12 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
         '<div class="push-button">' +
         '<input type="checkbox" id="public" name="public"><label for="public"><span class="iconic iconic-x-alt red"></span><span class="binary-label"> Public Search</span></label>' +
         '</div>' +
-//        '<div class="sw-button" style="margin-left: 75px;">Save Changes</div></div>');
-        '<div class="sw-button" style="position: absolute; right: 0;">Save Changes</div></div>');
+        '<div class="action-buttons" style="display: inline-block; position: absolute; right: 0;">' +
+        '<div class="sw-button"><a href="<?php echo URL; ?>adhoc/saved/' + search_id + '" target="new">View Search</a></div>' +
+        '<div class="sw-button" id="save-changes">Save Changes</div></div></div>');
+
+      $('#start-time').datetimepicker({collapse: false});
+      $('#end-time').datetimepicker({collapse: false});
 
       $('#add-metric-button').click(function() {
         document.metric_count = add_tab(document.metric_count, query_data.datasource);
@@ -439,6 +473,10 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
         {
           $('#add-metric-button').addClass('hidden');
         }
+      });
+
+      $('#save-changes').click(function() {
+        save_click_handler(event, search_id, query_data);
       });
 
       if (query_data.save_span > 0)
@@ -459,7 +497,7 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
         $('label[for="auto-update-button"]').parent('.push-button').addClass('pushed');
         $('label[for="auto-update-button"]').children('span.iconic').removeClass('iconic-x-alt red').addClass('iconic-check-alt green');
       }
-      if (query_data['history-graph'].match(/anomaly/))
+      if (query_data.history_graph.match(/anomaly/))
       {
         var el = $('input[data-target="history-anomaly"]').parent('label');
         $(el).parent('div.toggle-button').addClass('toggle-on');
@@ -468,7 +506,7 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
         $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
         $('input[data-target="history-anomaly"]').click();
       }
-      else if (query_data['history-graph'].match(/wow/))
+      else if (query_data.history_graph.match(/wow/))
       {
         var el = $('input[data-target="history-wow"]').parent('label');
         $(el).parent('div.toggle-button').addClass('toggle-on');
@@ -477,7 +515,7 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
         $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
         $('input[data-target="history-wow"]').click();
       }
-      if (query_data['time_span'])
+      if (query_data.time_span !== "undefined" && query_data.time_span > 0)
       {
         var el = $('input[data-target="saved-search-time-span"]').parent('label');
         $(el).parent('div.toggle-button').addClass('toggle-on');
@@ -485,8 +523,9 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
         $(el).children('input').attr('checked', 'Checked');
         $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
         $('input[data-target="saved-search-time-span"]').click();
-        var span = query_data['time_span'];
-        $('#time-span-options li span[data-ms="' + span + '"]').parent('li').click();
+        var span = query_data.time_span;
+        console.log('setting time span to ' + span);
+        $('#time-span').attr('data-ms', span).text($('ul#time-span-options > li > span[data-ms="' + span + '"]').text());
       }
       else
       {
@@ -523,21 +562,21 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
         $('#active-aggregation-type' + metric_num).text(method_map[metric.agg_type]);
         $('#active-downsample-type' + metric_num).text(method_map[metric.ds_type]);
         $('#downsample-interval-options' + metric_num + ' li span[data-value="' + metric.ds_interval + '"]').parent('li').click();
-        if (!metric.lerp)
+        if (!metric.lerp || metric.lerp === "false")
         {
           $('input#lerp-button' + metric_num).siblings('label').click();
           $('input#lerp-button' + metric_num).parent('.push-button').removeClass('pushed');
           $('input#lerp-button' + metric_num).siblings('label').children('span.iconic').addClass('iconic-x-alt red').removeClass('iconic-check-alt green');
           $('input#lerp-button' + metric_num).siblings('label').children('span.binary-label').text('No');
         }
-        if (metric.rate)
+        if (metric.rate && metric.rate !== "false")
         {
           $('input#rate-button' + metric_num).siblings('label').click();
           $('input#rate-button' + metric_num).parent('.push-button').addClass('pushed');
           $('input#rate-button' + metric_num).siblings('label').children('span.iconic').removeClass('iconic-x-alt red').addClass('iconic-check-alt green');
           $('input#rate-button' + metric_num).siblings('label').children('span.binary-label').text('Yes');
         }
-        if (metric.y2)
+        if (metric.y2 && metric.y2 !== "false")
         {
           $('input#y2-button' + metric_num).siblings('label').click();
           $('input#y2-button' + metric_num).parent('.push-button').addClass('pushed');
@@ -546,24 +585,123 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
         }
       });
       $('#tab-list:first-child').addClass('active');
+
+      $('input:checkbox[name="auto-update"]').change(function() {
+        $(this).prop('checked') ? query_data.auto_update = true : query_data.auto_update = false;
+      });
+      $('input:radio[name="history-graph"]').change(function() {
+        query_data.history_graph = $('input:radio[name="history-graph"]:checked').val();
+      });
+      query_data.privacy_change = 0;
+      $('input:checkbox[name="public"]').change(function() {
+        query_data.privacy_change = 1;
+      });
     }
   }
 
-  function save_click_handler(event, query_data)
+  // Save the new version of the saved search
+  function save_click_handler(event, search_id, query_data)
   {
 
-    query_data['user_id'] = "<?php echo $_session_data['user_id']; ?>";
-    query_data['title'] = $('#search-title').children('h3').text();
-    $('#save-span').prop('checked')?query_data['save_span'] = 1:query_data['save_span'] = 0;
-    $('#public').prop('checked')?query_data['private'] = 0:query_data['private'] = 1;
-    var api_url = '<?php echo URL; ?>api/save_adhoc_search';
+    console.log('saving query');
+    query_data.user_id = "<?php echo $_session_data['user_id']; ?>";
+    query_data.title = $('#search-title').children('h3').text();
+    var privacy_change = query_data.privacy_change;
+    delete query_data.privacy_change;
+    delete query_data.metrics;
+    query_data.metrics = [];
+    if (query_data.datasource === "OpenTSDB")
+    {
+      var methods = {'sum': 'sum', 'average': 'avg', 'minimum value': 'min', 'maximum value': 'max', 'standard deviation': 'dev'};
+
+      $('#save-span').prop('checked')?query_data['save_span'] = 1:query_data['save_span'] = 0;
+      $('#public').prop('checked')?query_data['private'] = 0:query_data['private'] = 1;
+      if (query_data.history_graph !== 'no')
+      {
+        query_data.metrics_count = 1;
+      }
+      else
+      {
+        query_data.metrics_count = document.metric_count;
+      }
+
+      for (i = 1; i <= query_data.metrics_count; i++)
+      {
+        var build_metric = {};
+        var metric_bits = $('input:text[name="metric' + i +'"]').val().split(' ');
+        build_metric.name = metric_bits.shift();
+        if (build_metric.name.length < 1)
+        {
+          continue;
+        }
+        if (metric_bits.length > 0)
+        {
+          build_metric.tags = metric_bits;
+        }
+        var agg_type = $('#active-aggregation-type' + i).text().toLowerCase();
+        var ds_type = $('#active-downsample-type' + i).text().toLowerCase()
+        build_metric.agg_type = methods[agg_type];
+        build_metric.ds_type = methods[ds_type];
+        build_metric.ds_interval = $('#active-downsample-interval' + i).attr('data-value');
+        if ((query_data.downsample_master_interval < 1) || (build_metric.ds_interval < query_data.downsample_master_interval))
+        {
+          query_data.downsample_master_interval = build_metric.ds_interval;
+        }
+        $('#rate-button' + i).prop('checked') ? build_metric.rate = true : build_metric.rate = false;
+        $('#lerp-button' + i).prop('checked') ? build_metric.lerp = true : build_metric.lerp = false;
+        $('#y2-button' + i).prop('checked') ? build_metric.y2 = true : build_metric.y2 = false;
+
+        query_data.metrics.push(build_metric);
+      }
+
+      var date_span_options = $('input:radio[name="date-span"]:checked').val();
+      console.log(date_span_options);
+      if (date_span_options === "span-search")
+      {
+        query_data.time_span = $('#time-span').attr('data-ms');
+      }
+      else
+      {
+        delete(query_data.time_span);
+        if (query_data.save_span > 0)
+        {
+          var start = $('input:text[name="start-time"]').val();
+          if (start.length < 1)
+          {
+            alert('You must specify a start time');
+            $('input:text[name="start-time"]').css({'border-color': 'red', 'background-color': 'rgb(255, 200, 200)'}).focus();
+            return;
+          }
+          start = Date.parse(start).getTime();
+          start = start / 1000;
+          var end = $('input:text[name="end-time"]').val();
+          if (end.length < 1)
+          {
+            alert('You must specify an end time');
+            $('input:text[name="end-time"]').css({'border-color': 'red', 'background-color': 'rgb(255, 200, 200)'}).focus();
+            return;
+          }
+          end = Date.parse(end).getTime();
+          end = end / 1000;
+          if (start >= end)
+          {
+            alert('Start time must come before end time');
+            $('input:text[name="start-time"]').css({'border-color': 'red', 'background-color': 'rgb(255, 200, 200)'}).focus();
+            return;
+          }
+          query_data.start_time = start;
+          query_data.end_time = end;
+        }
+      }
+    }
+    console.log(query_data);
+    var api_url = '<?php echo URL; ?>api/save_adhoc_search/' + search_id;
     $.ajax({
       url: api_url
       ,type: 'POST'
       ,data: query_data
       ,dataType: 'json'
       ,success: function(data) {
-        build_saved_search_menu();
         $.magnificPopup.open({
           items: {
             src: '#success-popup'
@@ -580,16 +718,52 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
             ,close: function() {
               $('.container').removeClass('blur');
               $('.navbar').removeClass('blur');
-              $('#success-popup').remove();
             }
           }
         });
-        setTimeout(function() {
-          $.magnificPopup.close();
-        }, 750);
+        if (privacy_change > 0)
+        {
+          $('li.saved-search-item[data-id="' + search_id + '"]').remove();
+          if (query_data.private > 0)
+          {
+            $('#my-searches').append('<li class="saved-search-item" data-id="' + search_id + '"><span class="iconic empty grey sw-check-box"></span><span class="saved-search-title">' + query_data.title + '</span></li>');
+          }
+          else
+          {
+            $('#public-searches').append('<li class="saved-search-item" data-id="' + search_id + '"><span class="iconic empty grey sw-check-box"></span><span class="saved-search-title">' + query_data.title + '</span></li>');
+          }
+        }
+        else
+        {
+          $('li.saved-search-item[data-id="' + search_id + '"]').children('span.saved-search-title').text(query_data.title);
+        }
       }
     });
 
+  }
+
+  // Delete saved searches
+  function delete_click_handler()
+  {
+    var selected_searches = $('li.saved-search-item > span.sw-check-box.check-on').parent('li');
+    var selected_search_ids = {};
+    $.each(selected_searches, function(i, search) {
+      selected_search_ids[$(search).children('span.saved-search-title').text()] = $(search).attr('data-id');
+    });
+    console.log('deleting searches');
+    console.log(selected_search_ids);
+    $.ajax({
+      url: "<?php echo URL; ?>api/delete_saved_searches"
+      ,type: 'POST'
+      ,data: selected_search_ids
+      ,dataType: 'json'
+      ,success: function(data) {
+        console.log(data);
+        $.each(data, function(i, id) {
+          $('li.saved-search-item[data-id="' + id + '"]').remove();
+        })
+      }
+    })
   }
 
 </script>

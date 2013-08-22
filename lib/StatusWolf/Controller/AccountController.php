@@ -29,14 +29,14 @@ class AccountController extends SWController {
     if (!empty($url_path[0]))
     {
       $_account_function = array_shift($url_path);
-      if ($_account_function === "edit_saved_searches")
+      if ($_account_function === "my_settings")
       {
         include 'header.php';
         if ($_SESSION['authenticated'])
         {
           include 'navbar.php';
         }
-        include 'edit_saved_searches.php';
+        include 'my_settings.php';
         include 'footer.php';
       }
     }

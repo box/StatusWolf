@@ -560,7 +560,7 @@
           $('label[for="auto-update-button' + widget_num + '"]').parent('.push-button').addClass('pushed');
           $('label[for="auto-update-button' + widget_num + '"]').children('span.iconic').removeClass('iconic-x-alt red').addClass('iconic-check-alt green');
         }
-        if (query_data['history-graph'].match(/anomaly/))
+        if (query_data.history_graph.match(/anomaly/))
         {
           var el = $('input[data-target="history-anomaly' + widget_num + '"]').parent('label');
           $(el).parent('div.toggle-button').addClass('toggle-on');
@@ -569,7 +569,7 @@
           $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
           $('input[data-target="history-anomaly' + widget_num + '"]').click();
         }
-        else if (query_data['history-graph'].match(/wow/))
+        else if (query_data.history_graph.match(/wow/))
         {
           var el = $('input[data-target="history-wow' + widget_num + '"]').parent('label');
           $(el).parent('div.toggle-button').addClass('toggle-on');
@@ -753,8 +753,8 @@
 
         // Check for history display options
         widget.query_data['metrics'] = [];
-        widget.query_data['history-graph'] = $(input_history).val();
-        if (widget.query_data['history-graph'] === 'no')
+        widget.query_data.history_graph = $(input_history).val();
+        if (widget.query_data.history_graph === 'no')
         {
           widget.query_data['metrics_count'] = widget.metric_count;
           for (i=1; i<=widget.query_data['metrics_count']; i++)
@@ -941,7 +941,7 @@
       var status = widget.sw_graphwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num).children('#status-message' + widget_num);
 
       // Generate (or find the cached) model data for the metric
-      if (query_data['history-graph'] == "anomaly")
+      if (query_data.history_graph == "anomaly")
       {
         status.html('<p>Fetching Metric Data</p>');
         $.when(widget.get_opentsdb_data_anomaly(query_data, widget)
@@ -954,7 +954,7 @@
         );
       }
       // Search current and previous week for metric data
-      else if (query_data['history-graph'] == "wow")
+      else if (query_data.history_graph == "wow")
       {
         status.html('<p>Fetching Week-Over-Week Data</p>');
         $.when(widget.get_opentsdb_data_wow(query_data, widget)
@@ -1266,7 +1266,7 @@
       delete data.query_url;
       delete data.cache_key;
       delete data.query_cache;
-      if (query_data['history-graph'] == "anomaly")
+      if (query_data.history_graph == "anomaly")
       {
         var anomalies = data.anomalies;
         delete data.anomalies;
@@ -1284,9 +1284,9 @@
         {
           if (data[series] !== null)
           {
-            if (query_data['history-graph'] == "anomaly")
+            if (query_data.history_graph == "anomaly")
             {
-              query_data.metrics[0]['history-graph'] = "anomaly";
+              query_data.metrics[0]['history_graph'] = "anomaly";
             }
             labels.push(series);
 
@@ -1320,7 +1320,7 @@
         var graph_data = {};
         graph_data.labels = labels;
         graph_data.data = buckets;
-        if (query_data['history-graph'] == "anomaly")
+        if (query_data.history_graph == "anomaly")
         {
           graph_data.anomalies = anomalies;
         }
@@ -1439,7 +1439,7 @@
       $('.widget-footer-btn.hidden').removeClass('hidden');
 
       // Set up the anomaly highlighting if requested
-      if (query_data['history-graph'] == "anomaly")
+      if (query_data.history_graph == "anomaly")
       {
         anomalies = data.anomalies;
         widget.g.updateOptions({
@@ -1483,7 +1483,7 @@
                     series_times.push(timestamp);
                     jtime = new Date(parseInt(timestamp * 1000));
                     values = [jtime];
-                    if (query_data['history-graph'] == 'anomaly')
+                    if (query_data.history_graph == 'anomaly')
                     {
                       var value_bucket = new Array();
                       $.each(graph_data[timestamp], function(k, d) {
