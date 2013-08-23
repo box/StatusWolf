@@ -235,19 +235,25 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
         $('#search-list-pane').empty();
         $('#search-list-pane').append('<h4>My Private Searches</h4>');
         $('#search-list-pane').append('<ul class="saved-search-list" id="my-searches">');
-        $.each(my_searches, function(i, search) {
-          $('#my-searches').append('<li class="saved-search-item" data-id="' + search['id'] + '"><span class="iconic empty grey sw-check-box"></span><span class="saved-search-title">' + search['title'] + '</span></li>');
-        });
-        $('#search-title > h3').text(my_searches[0]['title']);
-        load_saved_search(my_searches[0]['id']);
+        if (typeof my_searches !== "undefined")
+        {
+          $.each(my_searches, function(i, search) {
+            $('#my-searches').append('<li class="saved-search-item" data-id="' + search['id'] + '"><span class="iconic empty grey sw-check-box"></span><span class="saved-search-title">' + search['title'] + '</span></li>');
+          });
+          $('#search-title > h3').text(my_searches[0]['title']);
+          load_saved_search(my_searches[0]['id']);
+        }
         $('#search-list-pane').append('<h4>My Public Searches</h4>');
         $('#search-list-pane').append('<ul class="saved-search-list" id="public-searches">');
-        $.each(public_searches, function(i, public) {
-          if (public['user_id'] == user_id)
-          {
-            $('#public-searches').append('<li class="saved-search-item" data-id="' + public['id'] + '"><span class="iconic empty grey sw-check-box"></span><span class="saved-search-title">' + public['title'] + '</span></li>');
-          }
-        });
+        if (typeof public_searches !== "undefined")
+        {
+          $.each(public_searches, function(i, public) {
+            if (public['user_id'] == user_id)
+            {
+              $('#public-searches').append('<li class="saved-search-item" data-id="' + public['id'] + '"><span class="iconic empty grey sw-check-box"></span><span class="saved-search-title">' + public['title'] + '</span></li>');
+            }
+          });
+        }
       }
     });
 
