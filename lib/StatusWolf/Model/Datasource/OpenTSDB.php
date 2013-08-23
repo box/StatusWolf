@@ -274,7 +274,7 @@ class OpenTSDB extends TimeSeriesData {
     }
     else
     {
-      $cache_key = md5($query_bits['key'] . $this->downsample_interval . $this->downsample_type . apache_getenv("HTTP_X_FORWARDED_FOR"));
+      $cache_key = md5($query_bits['key'] . $this->downsample_interval . $this->downsample_type . $_SERVER["SERVER_ADDR"]);
     }
 
     $this->_query_cache = CACHE . 'query_cache' . DS . $cache_key . '.cache';
