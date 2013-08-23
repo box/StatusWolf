@@ -137,7 +137,11 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
   // Clicking on the name of a saved search in the list loads
   // it in the info pane
   $('#search-list-pane').on('click', 'span.saved-search-title', function() {
-    load_saved_search($(this).parent('li').attr('data-id'));
+    var search_id = $(this).parent('li').attr('data-id');
+    $('#search-guts').addClass('hidden');
+    setTimeout(function() {
+      load_saved_search(search_id);
+    }, 250);
     $('#search-title > h3').text($(this).text());
   });
 
@@ -241,7 +245,10 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
             $('#my-searches').append('<li class="saved-search-item" data-id="' + search['id'] + '"><span class="iconic empty grey sw-check-box"></span><span class="saved-search-title">' + search['title'] + '</span></li>');
           });
           $('#search-title > h3').text(my_searches[0]['title']);
-          load_saved_search(my_searches[0]['id']);
+          $('#search-guts').addClass('hidden');
+          setTimeout(function() {
+            load_saved_search(my_searches[0]['id']);
+          }, 250);
         }
         $('#search-list-pane').append('<h4>My Public Searches</h4>');
         $('#search-list-pane').append('<ul class="saved-search-list" id="public-searches">');
@@ -367,6 +374,7 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
   // of the search is clicked on in the list
   function load_saved_search(search_id)
   {
+
     $.ajax({
       url: "<?php echo URL; ?>api/load_saved_search/" + search_id
       ,type: "GET"
@@ -383,6 +391,7 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
         populate_search_form(query_data, search_id);
       }
     });
+
   }
 
   // Takes the loaded query info and populates the info form with the current
@@ -394,7 +403,6 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
     console.log(query_data);
     if (query_data.datasource === "OpenTSDB")
     {
-      $('#search-guts').addClass('hidden');
       $('#search-guts').empty();
       $('.autocomplete-suggestions').remove();
       $('.datetimepicker-widget').remove();
@@ -493,8 +501,6 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
       {
         $('label[for="public"]').click();
       }
-
-      $('#search-guts').removeClass('hidden');
 
       var method_map = {sum: 'Sum', avg: 'Average', min: 'Minimum Value', max: 'Maximum Value', dev: 'Standard Deviation'};
 
@@ -603,6 +609,11 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
         query_data.privacy_change = 1;
       });
     }
+
+    setTimeout(function() {
+      $('#search-guts').removeClass('hidden');
+    }, 250);
+
   }
 
   // Save the new version of the saved search
