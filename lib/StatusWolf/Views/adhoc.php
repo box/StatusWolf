@@ -134,6 +134,8 @@
 
     <script type="text/javascript">
 
+      $('title').text('AdHoc Search - StatusWolf');
+
       build_saved_search_menu();
       var datasource = $('#active-datasource').text().toLowerCase() + '_search';
       show_datasource_form(datasource);

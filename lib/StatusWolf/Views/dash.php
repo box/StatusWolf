@@ -139,7 +139,8 @@ foreach($widgets as $widget_key)
 
 <script type="text/javascript">
 
-<!--  document._session_data = eval('(--><?php //echo json_encode($_session_data); ?><!--)');-->
+  $('title').text('Dashboard - StatusWolf');
+
   var _session_data = '<?php echo json_encode($_session_data); ?>';
   if (typeof(_session_data) == "string")
   {
@@ -243,6 +244,7 @@ foreach($widgets as $widget_key)
           dashboard_config = eval('(' + dashboard_config + ')');
         }
         console.log(dashboard_config);
+        $('title').text(dashboard_config.title + ' - StatusWolf');
         $('input#dashboard-title').val(dashboard_config.title);
         $.each(dashboard_config.widgets, function(widget_id, query_data) {
           console.log('adding widget ' + widget_id);

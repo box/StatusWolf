@@ -460,6 +460,9 @@
 
   function populate_form(query_data)
   {
+
+    $('title').text(query_data.title + ' - StatusWolf');
+
     var prompt_user = false;
     var method_map = {sum: 'Sum', avg: 'Average', min: 'Minimum Value', max: 'Maximum Value', dev: 'Standard Deviation'};
 

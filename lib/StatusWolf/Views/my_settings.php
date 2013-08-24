@@ -33,6 +33,9 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
               <div id="search-title">
                 <h3></h3>
               </div>
+              <div id="search-datasource">
+                <h5></h5>
+              </div>
               <div id="search-guts">
 
               </div>
@@ -91,6 +94,7 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
     $('#select-all-saved-searches').append('<span class="iconic">Select All</span>');
     $('.widget-footer').append('<div class="widget-footer-button left-button" id="select-no-saved-searches">');
     $('#select-no-saved-searches').append('<span class="iconic">Select None</span>');
+    $('title').text('Edit Saved Searches - StatusWolf');
 
   });
 
@@ -173,14 +177,17 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
       $('#select-all-saved-searches').append('<span class="iconic">Select All</span>');
       $('.widget-footer').append('<div class="widget-footer-button left-button" id="select-no-saved-searches">');
       $('#select-no-saved-searches').append('<span class="iconic">Select None</span>');
+      $('title').text('Edit Saved Searches - StatusWolf');
     }
     else if (data_target === "edit-saved-dashboards")
     {
       $('.widget-footer').empty();
+      $('title').text('Edit Saved Dashboards - StatusWolf');
     }
     else if (data_target === "edit-preferences")
     {
       $('.widget-footer').empty();
+      $('title').text('Edit Preferences - StatusWolf');
     }
 
     if (data_target === 'history-anomaly' || data_target === 'history-wow')
@@ -403,6 +410,7 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
     console.log(query_data);
     if (query_data.datasource === "OpenTSDB")
     {
+      $('#search-title > h5').text('Datasource: OpenTSDB');
       $('#search-guts').empty();
       $('.autocomplete-suggestions').remove();
       $('.datetimepicker-widget').remove();
