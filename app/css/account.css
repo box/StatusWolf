@@ -1,12 +1,13 @@
-.saved-search-list {
+.saved-search-list, .saved-dashboard-list {
     list-style: none;
 }
 
-.saved-search-list li {
+.saved-search-list li, .saved-dashboard-list li {
     margin: 0 0 5px 20px;
 }
 
-.saved-search-list span.saved-search-title:hover {
+.saved-search-list span.saved-search-title:hover,
+.saved-dashboard-list span.saved-dashboard-title:hover {
     cursor: pointer;
     color: rgba(234, 234, 234, 0.9);
 }
@@ -90,13 +91,14 @@
     box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.6);
 }
 
-#edit-saved-searches {
+#edit-saved-searches,
+#edit-saved-dashboards {
     width: 90%;
     height: 100%;
     margin: 25px auto;
 }
 
-#search-list-pane {
+#search-list-pane, #dashboard-list-pane {
     position: relative;
     display: inline-block;
     width: 39%;
@@ -108,7 +110,7 @@
     overflow: auto;
 }
 
-#search-info-pane {
+#search-info-pane, #dashboard-info-pane {
     position: relative;
     display: inline-block;
     width: 59%;
@@ -131,20 +133,21 @@
     transition: visibility 0s linear 0.25s, opacity 0.25s linear;
 }
 
-#saved-search-options {
+#saved-search-options, #saved-dashboard-options {
     border-spacing: 20px;
 }
 
-#search-title {
+#search-title, #dashboard-title {
     margin: 20px;
 }
 
-#search-title h3 {
+#search-title h3, #dashboard-title h3 {
     display: inline-block;
     margin-right: 20px;
 }
 
-#search-title, #search-guts {
+#search-title, #search-guts,
+#dashboard-title, #dashboard-guts {
     position: relative;
 }
 
