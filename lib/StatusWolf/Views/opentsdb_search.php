@@ -790,13 +790,25 @@
             {
               metric.lerp = true;
             }
+            else
+            {
+              delete(metric.lerp);
+            }
             if ((typeof metric.rate !== "undefined") && (metric.rate === "true"))
             {
               metric.rate = true;
             }
+            else
+            {
+              delete(metric.rate);
+            }
             if ((typeof metric.y2 !== "undefined") && (metric.y2 === "true"))
             {
               metric.y2 = true;
+            }
+            else
+            {
+              delete(metric.y2);
             }
             if (typeof metric.history_graph != "undefined")
             {
