@@ -714,13 +714,18 @@
         alert("You must specify a metric to search for");
         input_error = true;
       }
-      else if ((end - start) / 60 > 10080)
+      else if (query_data.history_graph === "wow" && (end - start) / 60 > 10080)
       {
-        alert('History comparison searches are limited to 1 week or less of data');
+        alert('Week-over-week history comparison searches are limited to 1 week or less of data');
         $('input:text[name=start-time]').css('border-color', 'red').css('background-color', 'rgb(255, 200, 200)').focus();
         input_error = true;
       }
-
+      else if (query_data.history_graph === "anomaly" && (end - start) > 86400)
+      {
+        alert('Anomaly detection searches are limited to 1 day or less');
+        $('input:text[name=start-time]').css('border-color', 'red').css('background-color', 'rgb(255, 200, 200)').focus();
+        input_error = true;
+      }
       else
       {
         input_error = false;
