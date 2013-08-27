@@ -654,21 +654,21 @@
           $('#active-aggregation-type' + widget_num + '-' + metric_num).text(method_map[metric.agg_type]);
           $('#active-downsample-type' + widget_num + '-' + metric_num).text(method_map[metric.ds_type]);
           $('#downsample-interval-options' + widget_num + '-' + metric_num + ' li span[data-value="' + metric.ds_interval + '"]').parent('li').click();
-          if (!metric.lerp)
+          if (!metric.lerp || metric.lerp === "false")
           {
             $('input#lerp-button' + widget_num + '-' + metric_num).siblings('label').click();
             $('input#lerp-button' + widget_num + '-' + metric_num).parent('.push-button').removeClass('pushed');
             $('input#lerp-button' + widget_num + '-' + metric_num).siblings('label').children('span.iconic').addClass('iconic-x-alt red').removeClass('iconic-check-alt green');
             $('input#lerp-button' + widget_num + '-' + metric_num).siblings('label').children('span.binary-label').text('No');
           }
-          if (metric.rate)
+          if (metric.rate && metric.rate !== "false")
           {
             $('input#rate-button' + widget_num + '-' + metric_num).siblings('label').click();
             $('input#rate-button' + widget_num + '-' + metric_num).parent('.push-button').addClass('pushed');
             $('input#rate-button' + widget_num + '-' + metric_num).siblings('label').children('span.iconic').removeClass('iconic-x-alt red').addClass('iconic-check-alt green');
             $('input#rate-button' + widget_num + '-' + metric_num).siblings('label').children('span.binary-label').text('Yes');
           }
-          if (metric.y2)
+          if (metric.y2 && metric.rate !== "false")
           {
             $('input#y2-button' + widget_num + '-' + metric_num).siblings('label').click();
             $('input#y2-button' + widget_num + '-' + metric_num).parent('.push-button').addClass('pushed');
@@ -695,6 +695,7 @@
       var widget_element = $(widget.element);
       widget.query_data = {};
       widget.query_data.downsample_master_interval = 0;
+      widget.query_data.new_query = true;
       var input_error = false;
 
       if (typeof widget.autoupdate_interval !== "undefined")
@@ -755,6 +756,7 @@
           {
             delete widget.query_data['time_span'];
           }
+          widget.query_data['time_span'] = end - start;
         }
         else
         {
@@ -849,13 +851,13 @@
             alert("You must specify a metric to search for");
             input_error = true;
           }
-          else if (query_data.history_graph === "wow" && (end - start) / 60 > 10080)
+          else if (widget.query_data.history_graph === "wow" && (end - start) / 60 > 10080)
           {
             alert('Week-over-week history comparison searches are limited to 1 week or less of data');
             $('input:text[name=start-time]').css('border-color', 'red').css('background-color', 'rgb(255, 200, 200)').focus();
             input_error = true;
           }
-          else if (query_data.history_graph === "anomaly" && (end - start) > 86400)
+          else if (widget.query_data.history_graph === "anomaly" && (end - start) > 86400)
           {
             alert('Anomaly detection searches are limited to 1 day or less');
             $('input:text[name=start-time]').css('border-color', 'red').css('background-color', 'rgb(255, 200, 200)').focus();
@@ -1515,11 +1517,12 @@
       {
         console.log('setting auto-update timer');
         autoupdate_interval = setInterval(function() {
-          var new_start = series_times[0];
+          var new_start = parseInt(series_times[0]);
           var new_end = new Date.now().getTime();
           new_end = parseInt(new_end / 1000);
           query_data.start_time = new_start;
           query_data.end_time = new_end;
+          query_data.new_query = false;
           console.log('updating graph for widget ' + widget.element.attr('id'));
           $.when(widget.opentsdb_search(query_data, widget)).then(function(data)
           {
@@ -1528,39 +1531,29 @@
               {
                 var dygraph_update = new Array();
                 graph_data = data.graphdata.data;
+                var end_trim = 0;
                 for (var timestamp in graph_data) {
                   if (graph_data.hasOwnProperty(timestamp))
                   {
-                    series_times.push(timestamp);
-                    jtime = new Date(parseInt(timestamp * 1000));
-                    values = [jtime];
-                    if (query_data.history_graph == 'anomaly')
+                    if ($.inArray(timestamp, series_times) >= 0)
                     {
-                      var value_bucket = new Array();
-                      $.each(graph_data[timestamp], function(k, d) {
-                        if (d == null)
-                        {
-                          value_bucket.push([null,null,null]);
-                          value_bucket.push([null,null,null]);
-                        }
-                        else
-                        {
-                          $.each(d, function(kk, dd) {
-                            value_bucket.push(dd);
-                          });
-                        }
-                      });
-                      values = values.concat(value_bucket);
+                      end_trim++;
                     }
                     else
                     {
-                      values = values.concat(graph_data[timestamp]);
+                      series_times.push(timestamp);
                     }
+                    jtime = new Date(parseInt(timestamp * 1000));
+                    values = [jtime];
+                    values = values.concat(graph_data[timestamp]);
                     dygraph_update.push(values);
                   }
                 }
-                dygraph_format.splice(0, (dygraph_update.length - 2));
-                dygraph_format.splice(-2, 2);
+                dygraph_format.splice(0, dygraph_update.length);
+                if (end_trim > 0)
+                {
+                  dygraph_format.splice(-end_trim, end_trim);
+                }
                 dygraph_format = dygraph_format.concat(dygraph_update);
                 widget.g.updateOptions({'file': dygraph_format});
                 series_times = series_times.splice(-4, 4);

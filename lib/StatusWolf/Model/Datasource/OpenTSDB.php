@@ -246,7 +246,7 @@ class OpenTSDB extends TimeSeriesData {
             $qkey = rtrim($qkey, ',');
             $qkey .= '}';
           }
-
+          $metric_keys[$qkey] = $metric['name'];
           $query_bits['key'] = $query_bits['key'] . $qkey;
         }
       }
@@ -274,14 +274,38 @@ class OpenTSDB extends TimeSeriesData {
     }
     else
     {
-      $cache_key = md5($query_bits['key'] . $this->downsample_interval . $this->downsample_type . apache_getenv("HTTP_X_FORWARDED_FOR"));
+      $cache_key = md5($query_bits['key'] . $this->downsample_interval . $this->downsample_type . $_SESSION['_sw_authsession']['username']);
     }
 
     $this->_query_cache = CACHE . 'query_cache' . DS . $cache_key . '.cache';
 
+    $this->loggy->logDebug($this->log_tag . 'Incoming new query setting: ' . $query_bits['new_query']);
+    if (array_key_exists('new_query', $query_bits) && $query_bits['new_query'] === "true")
+    {
+      if (file_exists($this->_query_cache))
+      {
+        $this->loggy->logDebug($this->log_tag . 'Resetting query cache');
+        unlink($this->_query_cache);
+      }
+    }
+
     if (file_exists($this->_query_cache))
     {
       $new_cache = false;
+      $cached_query_data = file_get_contents($this->_query_cache);
+      $cached_query_data = unserialize($cached_query_data);
+      $span_threshold = $query_bits['end_time'] - $query_bits['time_span'];
+      $cached_series_keys = array_keys($cached_query_data);
+      $last_cache_entry = array_slice($cached_query_data[$cached_series_keys[0]], -1);
+      $cache_end_stamp = $last_cache_entry[0]['timestamp'];
+      $this->loggy->logDebug($this->log_tag . 'Checking to make sure cached data is current');
+      $this->loggy->logDebug($this->log_tag . 'cache ends at ' . $cache_end_stamp . ', minimum threshold is ' . $span_threshold);
+      if ($cache_end_stamp < $span_threshold)
+      {
+        $new_cache = true;
+        unlink($this->_query_cache);
+        $query_bits['start_time'] = $span_threshold;
+      }
     }
 
     $query_url = $this->_build_url($query_bits);
@@ -357,35 +381,60 @@ class OpenTSDB extends TimeSeriesData {
         $timestamp[$key] = $row['timestamp'];
         $value[$key] = $row['value'];
       }
+      $this->loggy->logDebug($this->log_tag . 'sorting data, ' . count($timestamp) . ' timestamps, ' . count($value) . ' values');
       array_multisort($timestamp, SORT_ASC, $value, SORT_ASC, $data);
       $this->loggy->logDebug($this->log_tag . 'Calling downsampler, interval: ' . $this->downsample_interval . ' method: ' . $this->downsample_type);
       $downsampler = new TimeSeriesDownsample($this->downsample_interval, $this->downsample_type);
       $downsampler->ts_object = @$this;
       $graph_data[$series] = $downsampler->downsample($data, $this->_start_timestamp, $this->_end_timestamp);
+      if ($new_cache)
+      {
+        continue;
+      }
+      else
+      {
+        $this->loggy->logDebug($this->log_tag . 'Updating data for series ' . $series);
+        if (array_key_exists($series, $cached_query_data))
+        {
+          // Check beginning of cached data to make sure it falls before the
+          // beginning of the current search - accounts for time span changes
+          if ($cached_query_data[$series][0]['timestamp'] > $graph_data[$series][0]['timestamp'])
+          {
+            unset($cached_query_data[$series]);
+          }
+          else
+          {
+            // Remove any overlap between the cached data and the new query
+            $new_data_start = $graph_data[$series][0]['timestamp'];
+            foreach ($cached_query_data[$series] as $i => $series_data)
+            {
+              if ($series_data['timestamp'] >= $new_data_start)
+              {
+                unset($cached_query_data[$series][$i]);
+              }
+            }
+          }
+
+          $this->loggy->logDebug($this->log_tag . 'Trimming ' . count($graph_data[$series]) . ' points from cached data');
+          array_splice($cached_query_data[$series], 0, count($graph_data[$series]));
+          $new_series_data = array_merge($cached_query_data[$series], $graph_data[$series]);
+          $new_cache_data[$series] = $new_series_data;
+        }
+      }
     }
 
-    if ($new_cache)
+    if (!empty($new_cache_data))
     {
-      $this->loggy->logDebug($this->log_tag . 'Saving data to cache file');
-      file_put_contents($this->_query_cache, serialize($graph_data));
+      file_put_contents($this->_query_cache, serialize($new_cache_data));
     }
     else
     {
-      $this->loggy->logDebug($this->log_tag . 'Merging new data with cached data');
-      $cached_query_data = file_get_contents($this->_query_cache);
-      $cached_query_data = unserialize($cached_query_data);
-      foreach($cached_query_data as $series => $series_data)
-      {
-        $this->loggy->logDebug($this->log_tag . 'Updating data for series ' . $series);
-        $this->loggy->logDebug($this->log_tag . 'Trimming ' . count($graph_data[$series]) . ' points from cached data');
-        array_splice($series_data, 0, count($graph_data[$series]));
-        $new_series_data = array_merge($series_data, $graph_data[$series]);
-        $graph_data[$series] = $new_series_data;
-      }
       file_put_contents($this->_query_cache, serialize($graph_data));
-      $cached_keys = array_keys($graph_data);
-      $new_start_time = $graph_data[$cached_keys[0]][0]['timestamp'];
     }
+    $cached_keys = array_keys($graph_data);
+    $this->start_time = $graph_data[$cached_keys[0]][0]['timestamp'];
+    $last_entry = array_slice($graph_data[$cached_keys[0]], -1);
+    $this->end_time = $last_entry[0]['timestamp'];
 
     $this->ts_data = $graph_data;
     $this->ts_data['cache_key'] = $cache_key;

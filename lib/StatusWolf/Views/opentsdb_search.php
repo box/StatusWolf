@@ -536,21 +536,21 @@
       $('#active-aggregation-type' + metric_num).text(method_map[metric.agg_type]);
       $('#active-downsample-type' + metric_num).text(method_map[metric.ds_type]);
       $('#downsample-interval-options' + metric_num + ' li span[data-value="' + metric.ds_interval + '"]').parent('li').click();
-      if (!metric.lerp)
+      if (!metric.lerp || metric.lerp === "false")
       {
         $('input#lerp-button' + metric_num).siblings('label').click();
         $('input#lerp-button' + metric_num).parent('.push-button').removeClass('pushed');
         $('input#lerp-button' + metric_num).siblings('label').children('span.iconic').addClass('iconic-x-alt red').removeClass('iconic-check-alt green');
         $('input#lerp-button' + metric_num).siblings('label').children('span.binary-label').text('No');
       }
-      if (metric.rate)
+      if (metric.rate && metric.rate !== "false")
       {
         $('input#rate-button' + metric_num).siblings('label').click();
         $('input#rate-button' + metric_num).parent('.push-button').addClass('pushed');
         $('input#rate-button' + metric_num).siblings('label').children('span.iconic').removeClass('iconic-x-alt red').addClass('iconic-check-alt green');
         $('input#rate-button' + metric_num).siblings('label').children('span.binary-label').text('Yes');
       }
-      if (metric.y2)
+      if (metric.y2 && metric.y2 !== "false")
       {
         $('input#y2-button' + metric_num).siblings('label').click();
         $('input#y2-button' + metric_num).parent('.push-button').addClass('pushed');
@@ -574,6 +574,7 @@
     query_data = {};
     query_data.datasource = 'OpenTSDB';
     query_data.downsample_master_interval = 0;
+    query_data.new_query = true;
     var input_error = false;
     var methods = {'sum': 'sum', 'average': 'avg', 'minimum value': 'min', 'maximum value': 'max', 'standard deviation': 'dev'};
 
@@ -614,6 +615,7 @@
       {
         delete query_data['time_span'];
       }
+      query_data['time_span'] = end - start;
     }
     else
     {
@@ -1394,11 +1396,12 @@
     {
       console.log('setting auto-update timer');
       autoupdate_interval = setInterval(function() {
-        var new_start = series_times[0];
+        var new_start = parseInt(series_times[0]);
         var new_end = new Date.now().getTime();
         new_end = parseInt(new_end / 1000);
         query_data.start_time = new_start;
         query_data.end_time = new_end;
+        query_data.new_query = false;
         $.when(opentsdb_search(query_data)).then(
             function(data)
             {
@@ -1407,39 +1410,29 @@
                   {
                     var dygraph_update = new Array();
                     graph_data = data.graphdata.data;
+                    var end_trim = 0;
                     for (var timestamp in graph_data) {
                       if (graph_data.hasOwnProperty(timestamp))
                       {
-                        series_times.push(timestamp);
-                        jtime = new Date(parseInt(timestamp * 1000));
-                        values = [jtime];
-                        if (query_data.history_graph === 'anomaly')
+                        if ($.inArray(timestamp, series_times) >= 0)
                         {
-                          var value_bucket = new Array();
-                          $.each(graph_data[timestamp], function(k, d) {
-                            if (d == null)
-                            {
-                              value_bucket.push([null,null,null]);
-                              value_bucket.push([null,null,null]);
-                            }
-                            else
-                            {
-                              $.each(d, function(kk, dd) {
-                                value_bucket.push(dd);
-                              });
-                            }
-                          });
-                          values = values.concat(value_bucket);
+                          end_trim++;
                         }
                         else
                         {
-                          values = values.concat(graph_data[timestamp]);
+                          series_times.push(timestamp);
                         }
+                        jtime = new Date(parseInt(timestamp * 1000));
+                        values = [jtime];
+                        values = values.concat(graph_data[timestamp]);
                         dygraph_update.push(values);
                       }
                     }
-                    dygraph_format.splice(0, (dygraph_update.length - 2));
-                    dygraph_format.splice(-2, 2);
+                    dygraph_format.splice(0, dygraph_update.length);
+                    if (end_trim > 0)
+                    {
+                      dygraph_format.splice(-end_trim, end_trim);
+                    }
                     dygraph_format = dygraph_format.concat(dygraph_update);
                     g.updateOptions({'file': dygraph_format});
                     series_times = series_times.splice(-4, 4);
