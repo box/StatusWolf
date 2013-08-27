@@ -312,10 +312,20 @@
           .append('<li><span data-ms="<?php echo (HOUR * 8) ?>">8 hours</span></li>')
           .append('<li><span data-ms="<?php echo (HOUR * 12) ?>">12 hours</span></li>')
           .append('<li><span data-ms="<?php echo DAY ?>">1 day</span></li>')
-          .append('<li><span data-ms="<?php echo WEEK ?>">1 week</span></li>');
-      if ($('#time-span').attr('data-ms') > <?php echo WEEK; ?>)
+      if ($(this).attr('data-target') === "ad-hoc-wow")
       {
-        $('#time-span').text('1 week').attr('data-ms', <?php echo WEEK; ?>);
+        $('#time-span-options').append('<li><span data-ms="<?php echo WEEK ?>">1 week</span></li>');
+        if ($('#time-span').attr('data-ms') > <?php echo WEEK; ?>)
+        {
+          $('#time-span').text('1 week').attr('data-ms', <?php echo WEEK; ?>);
+        }
+      }
+      else
+      {
+        if ($('#time-span').attr('data-ms') > <?php echo DAY; ?>)
+        {
+          $('#time-span').text('1 day').attr('data-ms', <?php echo DAY; ?>);
+        }
       }
     }
     else if ($(this).attr('data-target') == 'ad-hoc-no')

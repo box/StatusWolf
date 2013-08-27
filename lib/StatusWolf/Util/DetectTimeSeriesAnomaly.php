@@ -117,7 +117,7 @@ class DetectTimeSeriesAnomaly {
      * If you're seeing Internal Server Error messages from the Calculating
      * Anomalies step, check the apache error log for PHP time out errors.
     */
-    set_time_limit(300);
+    set_time_limit(600);
     ini_set('memory_limit', SWConfig::read_values('statuswolf.anomalies.memory_limit'));
 
   }
@@ -167,21 +167,16 @@ class DetectTimeSeriesAnomaly {
         $graph_data[] = $series_entry;
       }
     }
-    $pre_anomaly_period_data = array();
+    $rolling_metric_data = array();
     foreach ($pre_period_cache_data[$metric_key] as $pre_series_entry)
     {
       if (!empty($pre_series_entry['value']))
       {
-        $pre_anomaly_period_data[] = $pre_series_entry;
+        $rolling_metric_data[] = array($pre_series_entry['timestamp'], $pre_series_entry['value']);
       }
     }
     unset($current_cache_data);
     unset($pre_period_cache_data);
-
-    foreach ($pre_anomaly_period_data as $pre_period_values)
-    {
-      $rolling_metric_data[] = array($pre_period_values['timestamp'], $pre_period_values['value']);
-    }
 
     $violations = array();
     $in_violation = false;
@@ -267,7 +262,8 @@ class DetectTimeSeriesAnomaly {
    */
   protected function first_hour_average($time_series)
   {
-    $current_timestamp = time();
+    $current_entry = array_slice($time_series, -1);
+    $current_timestamp = $current_entry[0][0];
     $first_hour_offset = $this->_pre_anomaly_period - 3600;
     $first_hour_threshold = $current_timestamp - $first_hour_offset;
     $series_in_range = true;

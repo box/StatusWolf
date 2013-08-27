@@ -226,15 +226,23 @@
 
         widget.metric_count = 0;
 
-        var short_span_menu = '<li><span data-ms=600>10 minutes</span></li>' +
+        var anomaly_span_menu = '<li><span data-ms=600>10 minutes</span></li>' +
           '<li><span data-ms=1800>30 minutes</span></li>' +
           '<li><span data-ms=3600>1 Hour</span></li>' +
           '<li><span data-ms=7200>2 Hours</span></li>' +
           '<li><span data-ms=14400>4 Hours</span></li>' +
           '<li><span data-ms=28800>8 Hours</span></li>' +
           '<li><span data-ms=43200>12 Hours</span></li>' +
-          '<li><span data-ms=86400>1 Day</span></li>' +
-          '<li><span data-ms=604800>1 Week</span></li>'
+          '<li><span data-ms=86400>1 Day</span></li>'
+          ,wow_span_menu = '<li><span data-ms=600>10 minutes</span></li>' +
+            '<li><span data-ms=1800>30 minutes</span></li>' +
+            '<li><span data-ms=3600>1 Hour</span></li>' +
+            '<li><span data-ms=7200>2 Hours</span></li>' +
+            '<li><span data-ms=14400>4 Hours</span></li>' +
+            '<li><span data-ms=28800>8 Hours</span></li>' +
+            '<li><span data-ms=43200>12 Hours</span></li>' +
+            '<li><span data-ms=86400>1 Day</span></li>' +
+            '<li><span data-ms=604800>1 Week</span></li>'
           ,long_span_menu = '<li><span data-ms="600">10 minutes</span></li>' +
             '<li><span data-ms=1800>30 minutes</span></li>' +
             '<li><span data-ms=3600>1 Hour</span></li>' +
@@ -335,12 +343,23 @@
           var data_target = $(this).attr('data-target');
           var section = $('#' + data_target);
           section.removeClass('section-off').addClass('section-on').siblings('.section').addClass('section-off').removeClass('section-on');
-          if (data_target === 'history-anomaly' + widget_num || data_target === 'history-wow' + widget_num)
+          if (data_target === 'history-anomaly' + widget_num)
           {
-            $('ul#time-span-options' + widget_num).html(short_span_menu);
+            $('ul#time-span-options' + widget_num).html(anomaly_span_menu);
+            if ($('div#time-span' + widget_num).attr('data-ms') > 86400)
+            {
+              $('div#time-span' + widget_num).text('1 day').attr('data-ms', "86400");
+            }
+            $('ul#tab-list' + widget_num + ' a[href="#tab' + widget_num + '-1"]').click();
+            $('ul#tab-list' + widget_num).addClass('hidden');
+            $('#' + add_metric_button_id).addClass('hidden');
+          }
+          else if (data_target === 'history-wow' + widget_num)
+          {
+            $('ul#time-span-options' + widget_num).html(wow_span_menu);
             if ($('div#time-span' + widget_num).attr('data-ms') > 604800)
             {
-              $('div#time-span' + widget_num).text('1 week').attr('data-ms', "608400");
+              $('div#time-span' + widget_num).text('1 week').attr('data-ms', "604800");
             }
             $('ul#tab-list' + widget_num + ' a[href="#tab' + widget_num + '-1"]').click();
             $('ul#tab-list' + widget_num).addClass('hidden');
