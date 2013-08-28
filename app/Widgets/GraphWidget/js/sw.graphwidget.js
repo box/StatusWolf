@@ -756,6 +756,7 @@
           {
             delete widget.query_data['time_span'];
           }
+          widget.query_data['period'] = 'date-search';
           widget.query_data['time_span'] = end - start;
         }
         else
@@ -769,6 +770,7 @@
           var jend = new Date(end * 1000).toString('yyyy/MM/dd HH:mm:ss');
           $(input_dates).children('div#start-time' + widget_num).children('input[name="start-time"]').val(jstart).change();
           $(input_dates).children('div#end-time' + widget_num).children('input[name="end-time"]').val(jend).change();
+          widget.query_data['period'] = 'span-search';
           widget.query_data['time_span'] = span;
         }
         widget.query_data['start_time'] = start;
