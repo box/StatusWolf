@@ -423,17 +423,17 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
           '<input type="checkbox" id="lerp-button' + tab_num + '" name="lerp' + tab_num + '" checked>' +
           '<label for="lerp-button' + tab_num + '"><span class="iconic iconic-check-alt green"></span>' +
           '<span class="binary-label">Yes</span></label></div></div></td>' +
-          '<td width="30%"><div class="saved-search-form-item menu-label">' +
-          '<h4>Right Axis</h4>' +
-          '<div class="push-button binary">' +
-          '<input type="checkbox" id="y2-button' + tab_num + '" name="y2-' + tab_num + '">' +
-          '<label for="y2-button' + tab_num + '"><span class="iconic iconic-x-alt red"></span>' +
-          '<span class="binary-label">No </span></label></div></div></td>' +
-          '<td width="30%"><div class="saved-search-form-item menu-label">' +
+          '<td width="23%"><div class="saved-search-form-item menu-label">' +
           '<h4>Rate</h4>' +
           '<div class="push-button binary">' +
           '<input type="checkbox" id="rate-button' + tab_num + '" name="rate' + tab_num + '">' +
           '<label for="rate-button' + tab_num + '"><span class="iconic iconic-x-alt red"></span>' +
+          '<span class="binary-label">No </span></label></div></div></td>' +
+          '<td width="35%"><div class="saved-search-form-item menu-label">' +
+          '<h4>Right Axis</h4>' +
+          '<div class="push-button binary">' +
+          '<input type="checkbox" id="y2-button' + tab_num + '" name="y2-' + tab_num + '">' +
+          '<label for="y2-button' + tab_num + '"><span class="iconic iconic-x-alt red"></span>' +
           '<span class="binary-label">No </span></label></div></div></td></tr>');
 
     }
@@ -510,6 +510,18 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
           dash_data = data;
         }
         console.log(dash_data);
+        $('#dashboard-guts').append('<ul class="saved-dashboard-list" id="dashboard-widgets">');
+        $.each(dash_data.widgets, function(widget_id, widget_config) {
+          var metric_string = '';
+          $('#dashboard-widgets').append('<li class="saved-dashboard-item" data-id="' + widget_id + '">');
+          $.each(widget_config.metrics, function(i, metric_info) {
+            metric_string = metric_string + ',' + metric_info.name;
+          });
+          $('li[data-id="' + widget_id + '"]').append('<span class="saved-dashboard-title">' + metric_string + '</span>');
+        });
+        setTimeout(function() {
+          $('#dashboard-guts').removeClass('hidden')
+        }, 250);
       }
     });
   }
