@@ -25,6 +25,7 @@
         else {
           $serialized_query = $raw_query_data['search_params'];
           $incoming_query_data = unserialize($serialized_query);
+          $incoming_query_data['search_id'] = $_SESSION['saved_search_key'];
         }
       }
       else
@@ -451,6 +452,12 @@
       else
       {
         query_data = eval('(' + incoming_query_data + ')');
+        if (query_data.save_span == 0)
+        {
+          query_data.period = 'span-search';
+        }
+        $('#search-title').attr('value', query_data.title);
+        $('#search-id').attr('value', query_data.search_id);
         populate_form(query_data);
       }
     }
@@ -499,7 +506,7 @@
       $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
       $('input#history-wow.section-toggle').click();
     }
-    if (query_data['time_span'])
+    if (query_data['period'] === 'span-search')
     {
       var el = $('input#span-search').parent('label');
       $(el).parent('div.toggle-button').addClass('toggle-on');
@@ -615,6 +622,7 @@
       {
         delete query_data['time_span'];
       }
+      query_data['period'] = 'date-search';
       query_data['time_span'] = end - start;
     }
     else
@@ -627,6 +635,7 @@
       var jend = new Date(end * 1000).toString('yyyy/MM/dd HH:mm:ss');
       $('input[name=start-time]').val(jstart).change();
       $('input[name=end-time]').val(jend).change();
+      query_data['period'] = 'span-search';
       query_data['time_span'] = span;
     }
     query_data['start_time'] = start;

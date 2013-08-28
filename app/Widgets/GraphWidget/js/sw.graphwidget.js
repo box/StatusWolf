@@ -597,7 +597,7 @@
           $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
           $('input[data-target="history-wow' + widget_num + '"]').click();
         }
-        if (query_data['time_span'])
+        if (query_data.period === "span-search")
         {
           var el = $('input[data-target="graph-widget-time-span' + widget_num + '"]').parent('label');
           $(el).parent('div.toggle-button').addClass('toggle-on');

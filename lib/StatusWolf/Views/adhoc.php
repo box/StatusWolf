@@ -78,6 +78,7 @@
           <h5>Title: </h5>
           <div class="popup-form-data">
             <input type="text" class="input" id="search-title" name="search-title" value="" style="width: 250px;">
+            <input type="hidden" class="hidden" id="search-id" name="search-id" value="">
           </div>
           <h5>Options:</h5>
           <div class="popup-form-data">
@@ -105,7 +106,7 @@
       <div class="flexy widget-footer" style="margin-top: 10px;">
         <div class="widget-footer-button" id="cancel-save-query-data-button" onClick="$.magnificPopup.close()"><span class="iconic iconic-x-alt"><span class="font-reset"> Cancel</span></span></div>
         <div class="glue1"></div>
-        <div class="widget-footer-button" id="save-query-data-button" onClick="save_click_handler(event, query_data)"><span class="iconic iconic-download"><span class="font-reset"> Save</span></span></div>
+        <div class="widget-footer-button" id="save-query-data-button" onClick="save_click_handler(event, 0, query_data)"><span class="iconic iconic-download"><span class="font-reset"> Save</span></span></div>
       </div>
     </div>
 
@@ -125,6 +126,17 @@
     </div>
 
     <div id="success-popup" class="popup mfp-hide"><h5>Success</h5><div class="popup-form-data">Your search has been saved.</div></div>
+    <div id="failure-popup" class="popup mfp-hide"><h5>Error</h5><div id="failure-info" class="popup-form-data">There was an error when saving your search, please try again later.</div></div>
+    <div id="confirmation-popup" class="popup mfp-hide">
+      <div id="confirmation-main">
+        <div id="confirmation-info" class="popup-form-data"></div>
+      </div>
+      <div class="flexy widget-footer" style="margin-top: 10px;">
+        <div class="widget-footer-button" id="cancel-confirm-button" onClick="$.magnificPopup.close()"><span class="iconic iconic-x-alt"><span class="font-reset"> Cancel</span></span></div>
+        <div class="glue1"></div>
+        <div class="widget-footer-button" id="confirm-save-button"><span class="iconic iconic-download"><span class="font-reset"> Overwrite</span></span></div>
+      </div>
+    </div>
 
     <script type="text/javascript" src="<?php echo URL; ?>app/js/sw_lib.js"></script>
     <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/dygraph-combined.js"></script>
@@ -229,7 +241,8 @@
         ,callbacks: {
           beforeOpen: function() {
             var api_url = "<?php echo URL; ?>api/get_shared_search";
-            if (query_data['time_span'])
+            query_data['title'] = 'Shared search from <?php echo $_session_data['username']; ?>';
+            if (query_data['period'] === "span-search")
             {
               delete query_data['start_time'];
               delete query_data['end_time'];
@@ -286,7 +299,7 @@
         }
       });
 
-      function save_click_handler(event, query_data)
+      function save_click_handler(event, confirmation, query_data)
       {
         if ($('input#search-title').val().length < 1)
         {
@@ -298,12 +311,68 @@
         $('#save-span').prop('checked')?query_data['save_span'] = 1:query_data['save_span'] = 0;
         $('#public').prop('checked')?query_data['private'] = 0:query_data['private'] = 1;
         var api_url = '<?php echo URL; ?>api/save_adhoc_search';
+        if (typeof query_data.search_id !== "undefined")
+        {
+          api_url += '/' + query_data.search_id;
+          if (confirmation > 0)
+          {
+            api_url += '/Confirm'
+          }
+        }
         $.ajax({
           url: api_url
           ,type: 'POST'
           ,data: query_data
           ,dataType: 'json'
           ,success: function(data) {
+            if (typeof data === "string")
+            {
+              data = eval('(' + data + ')');
+            }
+            if (data.query_result === "Error")
+            {
+              switch (data.query_info)
+              {
+                case "Title":
+                  query_data.search_id = data.search_id;
+                  $('#confirmation-info').empty().append("<span>A search with that name already exists, overwrite?</span>");
+                  $('#confirm-save-button').click(function(event) {
+                    save_click_handler(event, 1, query_data);
+                  })
+                  $.magnificPopup.open({
+                    items: {
+                      src: '#confirmation-popup'
+                      ,type: 'inline'
+                    }
+                    ,preloader: false
+                    ,mainClass: 'popup-animate'
+                    ,callbacks: {
+                      close: function() {
+                        $('#confirmation-popup').remove();
+                      }
+                    }
+                  });
+                  return;
+                default:
+                  $.magnificPopup.open({
+                    items: {
+                      src: '#failure-popup'
+                      ,type: 'inline'
+                    }
+                    ,preloader: false
+                    ,removalDelay: 300
+                    ,mainClass: 'popup-animate'
+                    ,callbacks: {
+                      close: function() {
+                        $('#failure-popup').remove();
+                      }
+                    }
+                  })
+                  setTimeout(function() {
+                    $.magnificPopup.close();
+                  }, 750);
+              }
+            }
             build_saved_search_menu();
             $.magnificPopup.open({
               items: {

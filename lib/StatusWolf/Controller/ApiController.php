@@ -200,6 +200,17 @@ class ApiController extends SWController
       {
         unset($search_id);
       }
+      if ($confirm = array_shift($url_path))
+      {
+        if($confirm === "Confirm")
+        {
+          $confirm_save = true;
+        }
+        else
+        {
+          $confirm_save = false;
+        }
+      }
     }
 
     $this->loggy->logDebug($this->log_tag . 'API call, saving adhoc search');
@@ -224,6 +235,22 @@ class ApiController extends SWController
       throw new SWException('Shared search database connection error: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
     }
     $search_parameters['title'] = mysqli_real_escape_string($saved_search_db, $search_parameters['title']);
+    if (!$confirm_save)
+    {
+      $this->loggy->logDebug($this->log_tag . "Checking search title against saved searches");
+      $check_search_title = sprintf("SELECT id, title FROM saved_searches WHERE title='%s' AND user_id='%s'", $search_parameters['title'], $search_parameters['user_id']);
+      if ($check_title_result = $saved_search_db->query($check_search_title))
+      {
+        if ($check_title_result->num_rows && $check_title_result->num_rows > 0)
+        {
+          $raw_query_data = $check_title_result->fetch_assoc();
+          echo json_encode(array("query_result" => "Error", "query_info" => "Title", "search_id" => $raw_query_data['id']));
+          $saved_search_db->close();
+          return;
+        }
+      }
+    }
+
     if (!empty($search_id))
     {
       $saved_search_query = sprintf("UPDATE saved_searches SET title='%s', private='%s', search_params='%s' WHERE id='%s'", $search_parameters['title'], $search_parameters['private'], serialize($search_parameters), $search_id);
