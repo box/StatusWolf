@@ -569,6 +569,14 @@
       console.log(query_data);
       var prompt_user = false;
       var widget_num = widget.uuid;
+      if (typeof query_data.period === "undefined" && typeof query_data.time_span === "undefined")
+      {
+        query_data.period = 'date-search';
+      }
+      else
+      {
+        query_data.period = 'span-search';
+      }
 
       if (widget.options.datasource === "OpenTSDB")
       {
