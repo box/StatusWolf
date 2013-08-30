@@ -887,7 +887,7 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
         }
       }
     }
-    var api_url = '<?php echo URL; ?>api/save_adhoc_search/' + search_id;
+    var api_url = '<?php echo URL; ?>api/save_adhoc_search/' + search_id + '/Confirm';
     $.ajax({
       url: api_url
       ,type: 'POST'
