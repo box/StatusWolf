@@ -556,4 +556,77 @@ class ApiController extends SWController
 
   }
 
+  protected function load_saved_dashboard($query_bits)
+  {
+    $dash_id = array_shift($query_bits);
+    $db_conf = $this->_app_config['session_handler'];
+
+    $sw_db = new mysqli($db_conf['db_host'], $db_conf['db_user'], $db_conf['db_password'], $db_conf['database']);
+    if (mysqli_connect_error())
+    {
+      throw new SWException('Unable to connect to shared dashboard database: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
+    }
+    $this->loggy->logDebug($this->log_tag . "Loading saved dashboard id " . $dash_id);
+    $dashboard_query = sprintf("SELECT * FROM saved_dashboards WHERE id='%s'", $dash_id);
+    if ($dashboard_result = $sw_db->query($dashboard_query))
+    {
+      if ($dashboard_result->num_rows && $dashboard_result->num_rows > 0)
+      {
+        $dashboard_data = $dashboard_result->fetch_assoc();
+        if ($dashboard_data['shared'] == 0 && $dashboard_data['user_id'] != $this->_session_data['user_id'])
+        {
+          $this->loggy->logDebug($this->log_tag . 'Access violation, user id ' . $this->_session_data['user_id'] . ' trying to view private dashboard owned by user id ' . $dashboard_data['user_id']);
+          $dashboard_config['error'] = 'Not Allowed';
+        }
+        else
+        {
+          $this->loggy->logDebug($this->log_tag . 'Dashboard config found, loading');
+          $dashboard_config = $dashboard_data;
+          $incoming_widgets = unserialize($dashboard_data['widgets']);
+          $dashboard_config['widgets'] = $incoming_widgets;
+        }
+      }
+      else
+      {
+        $this->loggy->logDebug($this->log_tag . 'Dashboard id ' . $dash_id . ' was not found');
+        $dashboard_config['error'] = 'Not Found';
+      }
+    }
+    else
+    {
+      throw new SWException('Database read error: ' . mysqli_errno($sw_db) . ' ' . mysqli_error($sw_db));
+    }
+
+    echo json_encode($dashboard_config);
+
+  }
+  protected function delete_saved_dashboards()
+  {
+    $data = $_POST;
+    $dashboard_ids = array();
+    foreach ($data as $dashboard_title => $dashboard_id)
+    {
+      array_push($dashboard_ids, $dashboard_id);
+    }
+
+    $this->loggy->logDebug($this->log_tag . "API call, deleting saved dashboards " . implode(',', $dashboard_ids));
+
+    $sw_db = new mysqli($this->_app_config['session_handler']['db_host'], $this->_app_config['session_handler']['db_user'], $this->_app_config['session_handler']['db_password'], $this->_app_config['session_handler']['database']);
+    if (mysqli_connect_error())
+    {
+      throw new SWException('Saved dashboards database connect error: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
+    }
+    $delete_dashboards_query = sprintf("DELETE FROM saved_dashboards WHERE id in ('%s')", implode(',', $dashboard_ids));
+    $sw_db->query($delete_dashboards_query);
+    if (mysqli_error($sw_db))
+    {
+      throw new SWException('Session open error: ' . mysqli_errno($sw_db) . ' ' . mysqli_error($sw_db));
+    }
+    else
+    {
+      echo json_encode($dashboard_ids);
+    }
+
+  }
+
 }
