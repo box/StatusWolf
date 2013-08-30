@@ -48,6 +48,8 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
                 <h3></h3>
               </div>
               <div id="dashboard-guts"></div>
+              <div class="action-buttons">
+              </div>
             </div>
           </div>
           <div class="section section-off" id="edit-preferences"></div>
@@ -125,7 +127,7 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
   $('#dashboard-title').on('click', 'h3', function() {
     var title_text = $(this).text();
     $(this).css('display', 'none');
-    $('#dashboard-title').append('<input id="change-dashboard-title" type="text" name="change-dashboard-title" value=' + title_text + '">');
+    $('#dashboard-title').append('<input id="change-dashboard-title" type="text" name="change-dashboard-title" value="' + title_text + '">');
     $('#dashboard-title').children('input').css({
       'font-size': $(this).css('font-size')
       ,'font-weight': $(this).css('font-weight')
@@ -139,16 +141,31 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
   $('#search-title').on('blur', 'input', function() {
     var title_text = $('#search-title').children('h3').text();
     var changed_title = $('input#change-search-title').val();
+    $(this).css('class', 'hidden');
     if (changed_title.length > 1)
     {
-      $('#change-search-title').remove();
       $('#search-title').children('h3').text(changed_title).css('display', 'inline-block');
     }
     else
     {
-      $('#change-search-title').remove();
       $('#search-title').children('h3').text(title_text).css('display', 'inline-block');
     }
+    $(this).remove();
+  });
+
+  $('#dashboard-title').on('blur', 'input', function() {
+    var title_text = $('#dashboard-title').children('h3').text();
+    var changed_title = $(this).val();
+    $(this).css('class', 'hidden');
+    if (changed_title.length > 1)
+    {
+      $('#dashboard-title').children('h3').text(changed_title).css('display', 'inline-block');
+    }
+    else
+    {
+      $('#dashboard-title').children('h3').text(title_text).css('display', 'inline-block');
+    }
+    $(this).remove();
   });
 
   // The enter keypress when the search name edit field has focus
@@ -157,6 +174,13 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
     if (event.which === 13)
     {
       $('#change-search-title').blur();
+    }
+  });
+
+  $('#dashboard-title').on('keydown', 'input', function(event) {
+    if (event.which === 13)
+    {
+      $('#change-dashboard-title').blur();
     }
   });
 
@@ -180,7 +204,7 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
     $('#dashboard-title > h3').text($(this).text());
   });
 
-  // Handler for the fance check boxes in the saved search list
+  // Handler for the fancy check boxes in the saved search list
   $('.widget-main').on('click', 'span.sw-check-box', function() {
     if ($(this).hasClass('check-on'))
     {
@@ -496,6 +520,10 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
   function load_saved_dashboard(dash_id)
   {
 
+    $('#dashboard-info-pane').attr('data-id', dash_id);
+    $('#dashboard-info-pane > div.action-buttons').empty().append('<div class="sw-button" id="save-dashboard-changes">Save Changes</div>');
+    var dash_data;
+
     $.ajax({
       url: "<?php echo URL; ?>api/load_saved_dashboard/" + dash_id
       ,type: 'GET'
@@ -509,20 +537,40 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
         {
           dash_data = data;
         }
-        console.log(dash_data);
-        $('#dashboard-guts').append('<ul class="saved-dashboard-list" id="dashboard-widgets">');
+        $('#dashboard-guts').empty().append('<ul class="saved-dashboard-info" id="dashboard-widgets">');
+        var dashboard_widget_count = 0;
         $.each(dash_data.widgets, function(widget_id, widget_config) {
+          dashboard_widget_count++;
           var metric_string = '';
-          $('#dashboard-widgets').append('<li class="saved-dashboard-item" data-id="' + widget_id + '">');
+          $('#dashboard-widgets').append('<li data-id="' + widget_id + '">');
           $.each(widget_config.metrics, function(i, metric_info) {
-            metric_string = metric_string + ',' + metric_info.name;
+            metric_string = metric_string + ', ' + metric_info.name + ' {' + metric_info.tags.join(', ') + '}';
           });
-          $('li[data-id="' + widget_id + '"]').append('<span class="saved-dashboard-title">' + metric_string + '</span>');
+          metric_string = metric_string.substr(2);
+          $('li[data-id="' + widget_id + '"]').append('<span class="button-wrapper"><span class="sw-button remove-dashboard-widget" style="vertical-align: top;">Remove</span></span>' +
+              '<span class="dashboard-widget-info"><span style="color: rgba(205, 205, 205, 0.8);"> Widget ' + dashboard_widget_count + ' Metrics:</span><br>' +
+              '<span style="margin-left: 20px;">' + metric_string + '</span></span>');
         });
         setTimeout(function() {
           $('#dashboard-guts').removeClass('hidden')
         }, 250);
       }
+
+    });
+
+    $('#save-dashboard-changes').click(function() {
+      save_dashboard_click_handler(dash_data)
+    });
+
+
+    $('#dashboard-guts').on('click', '.remove-dashboard-widget', function() {
+      $(this).parent('span').parent('li').addClass('marked-for-removal');
+      $(this).addClass('cancel-remove-dashboard-widget').removeClass('remove-dashboard-widget').text('Cancel');
+    });
+
+    $('#dashboard-guts').on('click', '.cancel-remove-dashboard-widget', function() {
+      $(this).parent('span').parent('li').removeClass('marked-for-removal');
+      $(this).addClass('remove-dashboard-widget').removeClass('cancel-remove-dashboard-widget').text('Remove');
     });
   }
 
@@ -531,8 +579,6 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
   function populate_search_form(query_data, search_id)
   {
 
-    console.log('getting search query data');
-    console.log(query_data);
     if (query_data.datasource === "OpenTSDB")
     {
       $('#search-title > h5').text('Datasource: OpenTSDB');
@@ -609,7 +655,7 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
         '</div>' +
         '<div class="action-buttons" style="display: inline-block; position: absolute; right: 0;">' +
         '<div class="sw-button"><a href="<?php echo URL; ?>adhoc/saved/' + search_id + '" target="new">View Search</a></div>' +
-        '<div class="sw-button" id="save-changes">Save Changes</div></div></div>');
+        '<div class="sw-button" id="save-search-changes">Save Changes</div></div></div>');
 
       $('#start-time').datetimepicker({collapse: false});
       $('#end-time').datetimepicker({collapse: false});
@@ -622,8 +668,8 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
         }
       });
 
-      $('#save-changes').click(function() {
-        save_click_handler(event, search_id, query_data);
+      $('#save-search-changes').click(function() {
+        save_search_click_handler(event, search_id, query_data);
       });
 
       if (query_data.save_span > 0)
@@ -669,7 +715,6 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
         $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
         $('input[data-target="saved-search-time-span"]').click();
         var span = query_data.time_span;
-        console.log('setting time span to ' + span);
         $('#time-span').attr('data-ms', span).text($('ul#time-span-options > li > span[data-ms="' + span + '"]').text());
       }
       else
@@ -750,10 +795,9 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
   }
 
   // Save the new version of the saved search
-  function save_click_handler(event, search_id, query_data)
+  function save_search_click_handler(event, search_id, query_data)
   {
 
-    console.log('saving query');
     query_data.user_id = "<?php echo $_session_data['user_id']; ?>";
     query_data.title = $('#search-title').children('h3').text();
     var privacy_change = query_data.privacy_change;
@@ -805,7 +849,6 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
       }
 
       var date_span_options = $('input:radio[name="date-span"]:checked').val();
-      console.log(date_span_options);
       if (date_span_options === "span-search")
       {
         query_data.time_span = $('#time-span').attr('data-ms');
@@ -844,7 +887,6 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
         }
       }
     }
-    console.log(query_data);
     var api_url = '<?php echo URL; ?>api/save_adhoc_search/' + search_id;
     $.ajax({
       url: api_url
@@ -892,6 +934,47 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
 
   }
 
+  function save_dashboard_click_handler(dash_data) {
+    dash_data.title = $('#dashboard-title > h3').text();
+    var marked_for_death = $('li.marked-for-removal');
+    $.each(marked_for_death, function(i, dead_pool) {
+      var removal_id = $(dead_pool).attr('data-id');
+      delete(dash_data.widgets[removal_id]);
+    });
+    $.ajax({
+      url: '<?php echo URL; ?>api/save_dashboard/' + dash_data.id + '/Confirm'
+      ,type: 'POST'
+      ,data: dash_data
+      ,dataType: 'json'
+      ,success: function(data) {
+        $.magnificPopup.open({
+          items: {
+            src: '#success-popup'
+            ,type: 'inline'
+          }
+          ,preloader: false
+          ,removalDelay: 300
+          ,mainClass: 'popup-animate'
+          ,callbacks: {
+            open: function() {
+              $('.navbar').addClass('blur');
+              $('.container').addClass('blur');
+            }
+            ,close: function() {
+              $('.container').removeClass('blur');
+              $('.navbar').removeClass('blur');
+            }
+          }
+        });
+      }
+    });
+    $('li.saved-dashboard-item[data-id="' + dash_data.id + '"]').children('span.saved-dashboard-title').text(dash_data.title);
+    $('#dashboard-guts').addClass('hidden');
+    setTimeout(function() {
+      load_saved_dashboard(dash_data.id);
+    }, 250);
+  }
+
   // Delete saved searches
   function delete_click_handler(type)
   {
@@ -902,15 +985,12 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
       $.each(selected_searches, function(i, search) {
         selected_search_ids[$(search).children('span.saved-search-title').text()] = $(search).attr('data-id');
       });
-      console.log('deleting searches');
-      console.log(selected_search_ids);
       $.ajax({
         url: "<?php echo URL; ?>api/delete_saved_searches"
         ,type: 'POST'
         ,data: selected_search_ids
         ,dataType: 'json'
         ,success: function(data) {
-          console.log(data);
           $.each(data, function(i, id) {
             $('li.saved-search-item[data-id="' + id + '"]').remove();
           })
@@ -924,15 +1004,12 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
       $.each(selected_dashboards, function(i, dash) {
         selected_dashboard_ids[$(dash).children('span.saved-dashboard-title').text()] = $(dash).attr('data-id');
       });
-      console.log('deleting dashboards');
-      console.log(selected_dashboard_ids);
       $.ajax({
         url: "<?php echo URL; ?>api/delete_saved_dashboards"
         ,type: 'POST'
         ,data: selected_dashboard_ids
         ,dataType: 'json'
         ,success: function(data) {
-          console.log(data);
           $.each(data, function(i, id) {
             $('li.saved-dashboard-item[data-id="' + id + '"]').remove();
           })

@@ -2,6 +2,15 @@
     list-style: none;
 }
 
+.saved-dashboard-info {
+    list-style: none;
+    margin-left: 20px;
+}
+
+.saved-dashboard-info li {
+    margin: 0 0 15px 20px;
+}
+
 .saved-search-list li, .saved-dashboard-list li {
     margin: 0 0 5px 20px;
 }
@@ -10,6 +19,15 @@
 .saved-dashboard-list span.saved-dashboard-title:hover {
     cursor: pointer;
     color: rgba(234, 234, 234, 0.9);
+}
+
+.dashboard-widget-info {
+    display: inline-block;
+}
+
+.marked-for-removal > .dashboard-widget-info {
+    opacity: 0.5;
+    text-decoration: line-through;
 }
 
 .widget-main > .section {
@@ -157,6 +175,11 @@
     margin-top: 15px;
 }
 
+#dashboard-info-pane > div.action-buttons {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
 .saved-search-form {
     padding-left: 10px;
     font-size: 0.8em;
@@ -309,3 +332,9 @@ ul.nav-tabs {
     background-color: rgb(64, 64, 64);
 }
 
+.button-wrapper {
+    display: inline-block;
+    margin-right: 25px;
+    width: 75px;
+    vertical-align: top;
+}
