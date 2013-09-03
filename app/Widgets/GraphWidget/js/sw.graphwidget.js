@@ -39,6 +39,7 @@
 				,sw_graphwidget_datasourcemenu
 				,sw_graphwidget_searchform
 				,sw_graphwidget_editparamsbutton
+        ,sw_graphwidget_clonebutton
 				,sw_graphwidget_maximizebutton
 				,sw_graphwidget_querycancelbutton
 				,sw_graphwidget_gobutton
@@ -131,6 +132,14 @@
 				.append('<span class="iconic iconic-pen-alt2"><span class="font-reset"> Edit Params</span></span>')
 				.appendTo(sw_graphwidget_frontfooter);
 
+      sw_graphwidget_clonebutton = (this.sw_graphwidget_clonebutton = $('<div>'))
+        .addClass("widget-footer-button left-button")
+        .click(function() {
+          clone_widget(that);
+        })
+        .append('<span class="iconic iconic-new-window"><span class="font-reset"> Clone Widget</span></span>')
+        .appendTo(sw_graphwidget_frontfooter);
+
 			sw_graphwidget_frontfooter.append('<div class="glue1">');
 
 			sw_graphwidget_maximizebutton = (this.sw_graphwidget_maximize_button = $('<div>'))
@@ -181,6 +190,7 @@
 			this.sw_graphwidget_backtitle.remove();
 			this.sw_graphwidget_maximize_button.remove();
 			this.sw_graphwidget_editparamsbutton.remove();
+      this.sw_graphwidget_clonebutton.remove();
 			this.sw_graphwidget_close.remove();
 			this.sw_graphwidget_frontfooter.remove();
 			this.sw_graphwidget_frontmain.remove();
@@ -562,13 +572,17 @@
       });
     }
 
-    ,populate_search_form: function(query_data, widget)
+    ,populate_search_form: function(query_data, widget, force_prompt_user)
     {
 
       console.log('populating search form');
       console.log(query_data);
       var prompt_user = false;
       var widget_num = widget.uuid;
+      if (typeof force_prompt_user !== "undefined")
+      {
+        prompt_user = true;
+      }
       if (typeof query_data.period === "undefined" && typeof query_data.time_span === "undefined")
       {
         query_data.period = 'date-search';

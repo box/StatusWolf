@@ -718,6 +718,10 @@ ul.nav-tabs {
     content: '\e009';
 }
 
+.iconic-new-window:before {
+    content: '\e059';
+}
+
 .iconic-pen-alt2:before {
     content: '\e006';
 }

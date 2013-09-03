@@ -303,10 +303,39 @@ foreach($widgets as $widget_key)
     if (widget_type === "graphwidget")
     {
       widget = $('#' + widget_id).graphwidget({sw_url: '<?php echo URL; ?>'});
+      setTimeout(function() {
+        widget.data('sw-graphwidget').sw_graphwidget_editparamsbutton.click();
+      }, 250);
     }
     setTimeout(function() {
       $('#' + widget_id).removeClass('transparent');
     }, 100);
+  }
+
+  function clone_widget(widget)
+  {
+    console.log(widget);
+    var username = "<?php echo $_session_data['username'] ?>";
+    var widget_id = "widget" + md5(username + new Date.now().getTime());
+    var widget_element = $(widget.element);
+    var widget_type = $(widget_element).attr('data-widget-type');
+    console.log(widget_type);
+    if (widget_type === "graphwidget")
+    {
+      $('#dash-container').append('<div class="widget-container" id="' + widget_id + '" data-widget-type="' + widget_type + '">');
+      console.log(widget_id);
+      new_widget = $('div#' + widget_id).graphwidget({sw_url: '<?php echo URL; ?>'});
+      new_widget_object = $(new_widget).data('sw-' + new_widget.attr('data-widget-type'));
+      console.log('created widget ' + new_widget_object.uuid);
+      console.log('populating widget ' + new_widget_object.uuid);
+      new_widget_object.populate_search_form(widget.query_data, new_widget_object, 'clone');
+      $('#' + widget_id).removeClass('transparent');
+    }
+    else
+    {
+      console.log('unknown widget type: ' + widget_element.widget_type);
+    }
+
   }
 
   function build_dashboard_list_menu()
