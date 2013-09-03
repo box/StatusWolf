@@ -234,15 +234,20 @@
     background-color: rgba(40, 55, 40, 0.5);
 }
 
-#save_query_info {
+#save-query-form {
+    margin-bottom: 35px;
+}
+
+#save-query-info {
     font-size: 0.75em;
     max-width: 800px;
     margin: 0 15px 20px 25px;
     color: rgba(205, 205, 205, 0.75);
 }
 
-#save_query_info li {
+#save-query-info li {
     margin-bottom: 10px;
+    list-style: none;
 }
 
 #saved-searches-options {
