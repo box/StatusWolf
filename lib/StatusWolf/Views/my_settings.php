@@ -544,12 +544,21 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
           var metric_string = '';
           $('#dashboard-widgets').append('<li data-id="' + widget_id + '">');
           $.each(widget_config.metrics, function(i, metric_info) {
-            metric_string = metric_string + ', ' + metric_info.name + ' {' + metric_info.tags.join(', ') + '}';
+            if ('tags' in metric_info)
+            {
+              metric_string = metric_string + '<div style="margin-left: 15px;">' + metric_info.name + ' {' + metric_info.tags.join(', ') + '}</div>';
+            }
+            else
+            {
+              metric_string = metric_string + '<div style="margin-left: 15px;">' + metric_info.name + '</div>';
+            }
           });
-          metric_string = metric_string.substr(2);
           $('li[data-id="' + widget_id + '"]').append('<span class="button-wrapper"><span class="sw-button remove-dashboard-widget" style="vertical-align: top;">Remove</span></span>' +
-              '<span class="dashboard-widget-info"><span style="color: rgba(205, 205, 205, 0.8);"> Widget ' + dashboard_widget_count + ' Metrics:</span><br>' +
-              '<span style="margin-left: 20px;">' + metric_string + '</span></span>');
+              '<span class="dashboard-widget-info">' +
+              '<span style="color: rgba(205, 205, 205, 0.8);"> Widget ' + dashboard_widget_count + ' Metrics:</span>' +
+              '<span>' + metric_string + '</span></span>');
+          var dashboard_widget_info = $('li[data-id="' + widget_id + '"] > span.dashboard-widget-info')
+          dashboard_widget_info.css('width', (dashboard_widget_info.parent('li').innerWidth() - 100));
         });
         setTimeout(function() {
           $('#dashboard-guts').removeClass('hidden')
