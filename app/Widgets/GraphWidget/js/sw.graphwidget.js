@@ -978,15 +978,18 @@
             widget.sw_graphwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num).empty()
               .append('<p>' + status.shift() + '</p>');
 
-            if ((status[0].match("<!DOCTYPE")) || (status[0].match("<html>")))
+            if (typeof status[0] === "string")
             {
-              var error_message = status.join(' ').replace(/'/g,"&#39");
-              widget.sw_graphwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num)
-                .append('<iframe style="margin: 0 auto; color: rgb(205, 205, 205);" width="80%" height="90%" srcdoc=\'' + error_message + '\' seamless></iframe>');
-            }
-            else
-            {
-              widget.sw_graphwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num).text(status);
+              if ((status[0].match("<!DOCTYPE")) || (status[0].match("<html>")))
+              {
+                var error_message = status.join(' ').replace(/'/g,"&#39");
+                widget.sw_graphwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num)
+                  .append('<iframe style="margin: 0 auto; color: rgb(205, 205, 205);" width="80%" height="90%" srcdoc=\'' + error_message + '\' seamless></iframe>');
+              }
+              else
+              {
+                widget.sw_graphwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num).text(status);
+              }
             }
           }
         );
