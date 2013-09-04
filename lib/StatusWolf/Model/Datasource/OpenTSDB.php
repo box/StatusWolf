@@ -277,7 +277,16 @@ class OpenTSDB extends TimeSeriesData {
       $cache_key = md5($query_bits['key'] . $this->downsample_interval . $this->downsample_type . $_SESSION['_sw_authsession']['username']);
     }
 
-    $this->_query_cache = CACHE . 'query_cache' . DS . $cache_key . '.cache';
+    $this->loggy->logDebug(json_encode($query_bits));
+    if ($query_bits['history_graph'] === "wow" && array_key_exists('previous', $query_bits) && $query_bits['previous'])
+    {
+      $this->loggy->logDebug($this->log_tag . 'Creating cache file for week-over-week data');
+      $this->_query_cache = CACHE . 'query_cache' . DS . $cache_key . '_wow.cache';
+    }
+    else
+    {
+      $this->_query_cache = CACHE . 'query_cache' . DS . $cache_key . '.cache';
+    }
 
     $this->loggy->logDebug($this->log_tag . 'Incoming new query setting: ' . $query_bits['new_query']);
     if (array_key_exists('new_query', $query_bits) && $query_bits['new_query'] === "true")

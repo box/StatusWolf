@@ -1100,6 +1100,7 @@
             var query_span = parseInt(query_data.end_time) - parseInt(query_data.start_time);
             past_query.end_time = parseInt(query_data.end_time - <?php echo WEEK; ?>);
             past_query.start_time = past_query.end_time - query_span;
+            past_query.previous = true;
             return $.ajax({
               url: "<?php echo URL; ?>adhoc/search/OpenTSDB"
               ,type: 'POST'
