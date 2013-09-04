@@ -265,6 +265,53 @@
             '<li><span data-ms=1209600>2 Weeks</span></li>' +
             '<li><span data-ms=2592000>1 Month</span></li>';
 
+        $('#' + widget_element.attr('id') + ' .widget-title .saved-searches-menu')
+          .after('<h3 id="search-title' + widget_num +'" class="search-title search-title-prompt"></h3>' +
+          '<input type="text" name="search-title-input' + widget_num + '" class="nodisplay">');
+        $('#search-title' + widget_num).text('Click to set search title');
+
+        $('.widget-title').on('click', 'h3', function() {
+          var search_title_text = $(this).text();
+          $(this).addClass('nodisplay');
+          var title_input = $(this).parent('div').children('input');
+          $(title_input).removeClass('nodisplay');
+          if ($(this).hasClass('search-title-prompt'))
+          {
+            $(title_input).attr('placeholder', search_title_text);
+          }
+          else
+          {
+            $(title_input).val(search_title_text);
+          }
+          $(title_input).css({
+            'font-size': $(this).css('font-size')
+            ,'font-weight': $(this).css('font-weight')
+          }).focus();
+        });
+
+        $('.widget-title').on('blur', 'input', function() {
+          var search_title_text = $(this).siblings('h3').text();
+          var changed_title = $(this).val();
+          $(this).addClass('nodisplay');
+          if (changed_title.length > 1)
+          {
+            $(this).siblings('h3').text(changed_title).removeClass('nodisplay search-title-prompt');
+          }
+          else
+          {
+            $(this).siblings('h3').text(search_title_text).removeClass('nodisplay');
+          }
+        });
+
+        // The enter keypress when the search name edit field has focus
+        // does the same as above
+        $('.widget-title').on('keydown', 'input', function(event) {
+          if (event.which === 13)
+          {
+            $(this).blur();
+          }
+        });
+
         var form_div = widget.sw_graphwidget_searchform;
         form_div.append('<table class="general-options-table" id="graph-search-general' + widget_num + '">');
         var form_table = form_div.children('table#graph-search-general' + widget_num);
@@ -294,7 +341,7 @@
           '<ul class="dropdown-menu menu-left" id="time-span-options' + widget_num + '" role="menu" aria=labelledby="dLabel">' +
           long_span_menu + '</ul></div></div></div></td></tr>');
 
-        form_table.append('<tr><td><div class="auto-update"><div class="push-button">' +
+        form_table.append('<tr></td><td><div class="auto-update"><div class="push-button">' +
           '<input type="checkbox" name="auto-update"><label>' +
           '<span class="iconic iconic-x-alt red"></span><span> Auto Update</span></label></div></div></td>' +
           '<td><div class="toggle-button-group"><div class="toggle-button toggle-on"><label>' +
@@ -333,7 +380,8 @@
 
         widget.sw_graphwidget_fronttitle.children('.graph-widget-legend').attr('id', 'legend' + widget_num);
         $(widget_element).children('.widget').children('.widget-front').children('.widget-main')
-          .append('<div id="graphdiv' + widget_num + '" style="height: 99%; width: 99%;">');
+          .append('<div id="graph-title' + widget_num + '" class="graph-title">')
+          .append('<div id="graphdiv' + widget_num + '" class="graphdiv" style="height: 99%; width: 99%;">');
 
         var auto_update = $(widget_element).find('div.auto-update').children('div.push-button');
         $(auto_update).children('input').attr('id', 'auto-update-button' + widget_num);
@@ -562,7 +610,6 @@
               saved_query = data;
               delete(saved_query.private);
               delete(saved_query.save_span);
-              delete(saved_query.title);
               delete(saved_query.user_id);
               widget.populate_search_form(saved_query, widget);
             }
@@ -590,6 +637,26 @@
       else
       {
         query_data.period = 'span-search';
+      }
+
+      if (typeof query_data.history_graph === "undefined")
+      {
+        if (typeof query_data['history-graph'] !== "undefined")
+        {
+          query_data.history_graph = query_data['history-graph'];
+          delete(query_data['history-graph']);
+        }
+        else
+        {
+          query_data.history_graph = 'no';
+        }
+      }
+      console.log(query_data);
+
+      if (typeof query_data.title !== "undefined")
+      {
+        $('h3#search-title' + widget.uuid).text(query_data.title).removeClass('search-title-prompt');
+        $('.widget-title > input[name="search-title-input' + widget.uuid + '"]').val(query_data.title);
       }
 
       if (widget.options.datasource === "OpenTSDB")
@@ -720,6 +787,7 @@
       widget.query_data.new_query = true;
       var input_error = false;
 
+      $('#graph-title' + widget_num).empty();
       if (typeof widget.autoupdate_interval !== "undefined")
       {
         console.log('clearing auto-update timer');
@@ -735,6 +803,7 @@
         var input_time_span = $('div#time-span' + widget_num);
         var input_autoupdate = $('input#auto-update-button' + widget_num);
         var history_buttons = widget_element.find('input:radio[name="history-graph"]');
+        widget.query_data.title = $('input[name="search-title-input' + widget_num + '"]').val();
         $.each(history_buttons, function(i, history_type) {
           if ($(history_type).attr('checked'))
           {
@@ -1066,44 +1135,45 @@
     ,get_opentsdb_data: function(query_data, widget)
     {
 
-      if (typeof ajax_request !== 'undefined')
+      console.log(widget.ajax_request);
+      if (typeof widget.ajax_request !== 'undefined')
       {
         console.log('Previous request still in flight, aborting');
-        ajax_request.abort();
+        widget.ajax_request.abort();
       }
 
-      var ajax_object = new $.Deferred();
+      widget.ajax_object = new $.Deferred();
 
-      var ajax_request = $.ajax({
+      widget.ajax_request = $.ajax({
           url: widget.options.sw_url + "adhoc/search/OpenTSDB"
           ,type: 'POST'
           ,data: query_data
           ,dataType: 'json'
           ,timeout: 120000
         })
-        ,chain = ajax_request.then(function(data) {
+        ,chain = widget.ajax_request.then(function(data) {
           return(data);
         });
 
       chain.done(function(data) {
         if (data[0] === "error")
         {
-          ajax_request.abort();
-          ajax_object.reject(data[1])
+          widget.ajax_request.abort();
+          widget.ajax_object.reject(data[1])
         }
         else if (Object.getOwnPropertyNames(data).length <= 5)
         {
-          ajax_request.abort();
-          ajax_object.reject(["0", "Query returned no data"]);
+          widget.ajax_request.abort();
+          widget.ajax_object.reject(["0", "Query returned no data"]);
         }
         else
         {
-          delete ajax_request;
-          ajax_object.resolve(data);
+          delete widget.ajax_request;
+          widget.ajax_object.resolve(data);
         }
       });
 
-      return ajax_object.promise();
+      return widget.ajax_object.promise();
 
     }
 
@@ -1112,33 +1182,35 @@
 
       var status = widget.sw_graphwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num).children('#status-message' + widget_num);
 
-      if (typeof ajax_request !== 'undefined')
+      console.log(widget.ajax_request);
+      if (typeof widget.ajax_request !== 'undefined')
       {
-        ajax_request.abort();
+        console.log('Previous request still in flight, aborting');
+        widget.ajax_request.abort();
       }
 
-      var ajax_object = new $.Deferred();
+      widget.ajax_object = new $.Deferred();
 
       var metric_data = {};
 
-      var ajax_request = $.ajax({
+      widget.ajax_request = $.ajax({
           url: widget.options.sw_url + "adhoc/search/OpenTSDB"
           ,type: 'POST'
           ,data: query_data
           ,data_type: 'json'
           ,timeout: 120000
         })
-        ,chained = ajax_request.then(function(data) {
+        ,chained = widget.ajax_request.then(function(data) {
           metric_data[0] = eval('(' + data + ')');
           if (metric_data[0][0] === "error")
           {
-            ajax_request.abort();
-            ajax_object.reject(metric_data[0][1])
+            widget.ajax_request.abort();
+            widget.ajax_object.reject(metric_data[0][1])
           }
           else if (Object.keys(metric_data[0]).length <= 5)
           {
-            ajax_request.abort();
-            ajax_object.reject(["0", "Current week query returned no data"]);
+            widget.ajax_request.abort();
+            widget.ajax_object.reject(["0", "Current week query returned no data"]);
           }
           else
           {
@@ -1169,21 +1241,21 @@
       chained.done(function(data) {
         if (!data)
         {
-          ajax_request.abort();
-          ajax_object.reject();
+          widget.ajax_request.abort();
+          widget.ajax_object.reject();
         }
         else
         {
           metric_data[1] = eval('(' + data + ')');
           if (metric_data[1][0] === "error")
           {
-            ajax_request.abort();
-            ajax_object.reject(metric_data[1][1])
+            widget.ajax_request.abort();
+            widget.ajax_object.reject(metric_data[1][1])
           }
           else if (Object.getOwnPropertyNames(metric_data[1]).length <= 5)
           {
-            ajax_request.abort();
-            ajax_object.reject(["0", "Previous week query returned no data"]);
+            widget.ajax_request.abort();
+            widget.ajax_object.reject(["0", "Previous week query returned no data"]);
           }
           else
           {
@@ -1197,13 +1269,13 @@
             $.each(metric_data[past_key], function(index, entry) {
               entry.timestamp = parseInt(entry.timestamp + 604800);
             });
-            delete ajax_request;
-            ajax_object.resolve(metric_data);
+            delete widget.ajax_request;
+            widget.ajax_object.resolve(metric_data);
           }
         }
       });
 
-      return ajax_object.promise();
+      return widget.ajax_object.promise();
 
     }
 
@@ -1212,33 +1284,35 @@
 
       var status = widget.sw_graphwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num).children('#status-message' + widget_num);
 
-      if (typeof ajax_request !== 'undefined')
+      console.log(widget.ajax_request);
+      if (typeof widget.ajax_request !== 'undefined')
       {
-        ajax_request.abort();
+        console.log('Previous request still in flight, aborting');
+        widget.ajax_request.abort();
       }
 
-      var ajax_object = new $.Deferred();
+      widget.ajax_object = new $.Deferred();
 
       var metric_data = {};
       var data_for_detection = [];
 
-      var ajax_request = $.ajax({
+      widget.ajax_request = $.ajax({
           url: widget.options.sw_url + "adhoc/search/OpenTSDB"
           ,type: 'POST'
           ,data: query_data
           ,dataType: 'json'
           ,timeout: 120000
         })
-        ,chained_request_1 = ajax_request.then(function(data) {
+        ,chained_request_1 = widget.ajax_request.then(function(data) {
           if (data[0] === "error")
           {
-            ajax_request.abort();
-            ajax_object.reject(data[1])
+            widget.ajax_request.abort();
+            widget.ajax_object.reject(data[1])
           }
           else if (Object.getOwnPropertyNames(data).length <= 5)
           {
-            ajax_request.abort();
-            ajax_object.reject(["0", "Query returned no data"]);
+            widget.ajax_request.abort();
+            widget.ajax_object.reject(["0", "Query returned no data"]);
           }
           else
           {
@@ -1260,8 +1334,8 @@
         ,chained_request_2 = chained_request_1.then(function(data) {
           if (!data)
           {
-            ajax_request.abort();
-            ajax_object.reject();
+            widget.ajax_request.abort();
+            widget.ajax_object.reject();
           }
           else
           {
@@ -1276,13 +1350,13 @@
 
             if (pre_period_data[0] === "error")
             {
-              ajax_request.abort();
-              ajax_object.reject(pre_period_data[1])
+              widget.ajax_request.abort();
+              widget.ajax_object.reject(pre_period_data[1])
             }
             else if (Object.getOwnPropertyNames(pre_period_data).length <= 5)
             {
-              ajax_request.abort();
-              ajax_object.reject(["0", "Query returned no data"]);
+              widget.ajax_request.abort();
+              widget.ajax_object.reject(["0", "Query returned no data"]);
             }
             else
             {
@@ -1303,28 +1377,28 @@
       chained_request_2.done(function(data) {
         if (!data)
         {
-          ajax_request.abort();
-          ajax_object.reject();
+          widget.ajax_request.abort();
+          widget.ajax_object.reject();
         }
         else
         {
           metric_data['anomalies'] = eval('(' + data + ')');
           if (metric_data[0] === "error")
           {
-            ajax_request.abort();
-            ajax_object.reject(metric_data[1])
+            widget.ajax_request.abort();
+            widget.ajax_object.reject(metric_data[1])
           }
           else
           {
-            ajax_object.resolve(metric_data);
+            widget.ajax_object.resolve(metric_data);
           }
         }
       }).fail(function(data) {
-          ajax_request.abort();
-          ajax_object.reject([data.status, data.statusText]);
+          widget.ajax_request.abort();
+          widget.ajax_object.reject([data.status, data.statusText]);
         });
 
-      return ajax_object.promise();
+      return widget.ajax_object.promise();
 
     }
 
@@ -1437,6 +1511,13 @@
       }
 
       var graphdiv_id = 'graphdiv' + widget.uuid;
+      var graph_title_id = 'graph-title' + widget.uuid;
+
+      $('#' + graph_title_id).empty();
+      if (typeof query_data.title !== "undefined")
+      {
+        $('#' + graph_title_id).append('<h1>' + query_data.title + '</h1>');
+      }
 
       series_times = series_times.splice(-4, 4);
 

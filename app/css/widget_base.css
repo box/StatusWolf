@@ -127,6 +127,21 @@
     font-size: 0.8em;
 }
 
+.widget-title > input {
+    margin-left: 10px;
+    position: relative;
+    top: -10px;
+}
+
+.search-title {
+    margin-left: 10px;
+    color: rgba(205, 205, 205, 0.6);
+}
+
+.search-title-prompt {
+    color: rgba(205, 205, 205, 0.25);
+}
+
 .close-widget {
     display: inline-block;
     position: absolute;
@@ -259,4 +274,26 @@
     position: absolute;
     top: 0;
     right: 0;
+}
+
+.graph-title {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 99%;
+    height: 99%;
+}
+
+.graph-title h1 {
+    color: rgba(205, 205, 205, 0.5);
+    width: 85%;
+    margin: 15% auto;
+    text-align: center;
+    font-size: 2.5em;
+}
+
+.graphdiv {
+    position: absolute;
+    top: 0;
+    left: 0;
 }

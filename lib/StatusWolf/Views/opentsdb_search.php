@@ -66,6 +66,11 @@
 ?>
 
 <div class="ad-hoc-form-row" id="row1">
+  <h1 class="search-title search-title-prompt" id="search-title">Click to set search title</h1>
+  <input type="text" name="search-title-input" class="hidden">
+  <div style="height: 100%;">&nbsp;</div>
+</div>
+<div class="ad-hoc-form-row" id="row2">
   <table class="general-options-table" id="graph-search-general">
     <tr>
       <td>
@@ -369,6 +374,51 @@
   $('.info-tooltip').tooltip({placement: 'bottom'});
   $('.info-tooltip').hover(function() {$(this).css('cursor', 'default')});
 
+  $('#search-title').click(function() {
+    console.log('title click');
+    var search_title_text = $(this).text();
+    $(this).addClass('hidden');
+    var title_input = $('input[name="search-title-input"]');
+    $(title_input).removeClass('hidden');
+    if ($(this).hasClass('search-title-prompt'))
+    {
+      $(title_input).attr('placeholder', search_title_text);
+    }
+    else
+    {
+      $(title_input).val(search_title_text);
+    }
+    $(title_input).css({
+      'font-size': $(this).css('font-size')
+      ,'font-weight': $(this).css('font-weight')
+      ,'height': $(this).css('font-size')
+    }).focus();
+  });
+
+  $('input[name="search-title-input"]').blur(function() {
+    var search_title_text = $('#search-title').text();
+    var changed_title = $(this).val();
+    $(this).addClass('hidden');
+    if (changed_title.length > 1)
+    {
+      $('#search-title').text(changed_title).removeClass('hidden search-title-prompt');
+    }
+    else
+    {
+      $('#search-title').text(search_title_text).removeClass('hidden');
+    }
+  });
+
+  // The enter keypress when the search name edit field has focus
+  // does the same as above
+  $('input[name="search-title-input"]').keypress(function(event) {
+    if (event.which === 13)
+    {
+      event.stopImmediatePropagation();
+      $(this).blur();
+    }
+  });
+
   // On initial page load switch to the search form, and add the handler
   // for the Enter key
   $(document).ready(function() {
@@ -456,7 +506,6 @@
         {
           query_data.period = 'span-search';
         }
-        $('#search-title').attr('value', query_data.title);
         $('#search-id').attr('value', query_data.search_id);
         populate_form(query_data);
       }
@@ -482,6 +531,12 @@
 
     var prompt_user = false;
     var method_map = {sum: 'Sum', avg: 'Average', min: 'Minimum Value', max: 'Maximum Value', dev: 'Standard Deviation'};
+
+    if (typeof query_data.title !== "undefined")
+    {
+      $('input[name="search-title-input"]').attr('value', query_data.title);
+      $('#search-title').text(query_data.title).removeClass('search-title-prompt');
+    }
 
     if (query_data['auto_update'] === "true") {
       $('label#auto-update-label').click();
@@ -584,6 +639,8 @@
     query_data.new_query = true;
     var input_error = false;
     var methods = {'sum': 'sum', 'average': 'avg', 'minimum value': 'min', 'maximum value': 'max', 'standard deviation': 'dev'};
+    query_data.title = $('input[name="search-title-input"]').val();
+    $('#graph-title').empty();
 
     if (typeof autoupdate_interval !== "undefined")
     {
@@ -1312,6 +1369,12 @@
         values = values.concat(graph_data[timestamp]);
         dygraph_format.push(values);
       }
+    }
+
+    $('#graph-title').empty();
+    if (typeof query_data.title !== "undefined")
+    {
+      $('#graph-title').append('<h1>' + query_data.title + '</h1>');
     }
 
     series_times = series_times.splice(-4, 4);

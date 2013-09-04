@@ -243,6 +243,10 @@ select {
     visibility: hidden;
 }
 
+.nodisplay {
+    display: none;
+}
+
 .transparent {
     opacity: 0;
 }

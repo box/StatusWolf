@@ -27,7 +27,8 @@
               <div id="legend"></div>
             </div>
             <div class="widget-main">
-              <div id="graphdiv" style="width: 99%; height: 99%;"></div>
+              <div id="graph-title" class="graph-title" style="width: 99%; height: 99%;"></div>
+              <div id="graphdiv" class="graphdiv" style="width: 99%; height: 99%;"></div>
             </div>
             <div class="flexy widget-footer">
               <div class="widget-footer-button left-button" id="ad-hoc-edit" onClick="$(this).parents('.widget').addClass('flipped')">
@@ -77,7 +78,7 @@
         <form onsubmit="return false;">
           <h5>Title: </h5>
           <div class="popup-form-data">
-            <input type="text" class="input" id="search-title" name="search-title" value="" style="width: 250px;">
+            <input type="text" class="input" id="save-search-title" name="save-search-title" value="" style="width: 250px;">
             <input type="hidden" class="hidden" id="search-id" name="search-id" value="">
           </div>
           <h5>Options:</h5>
@@ -181,6 +182,7 @@
           evt.initUIEvent('resize', true, false,window,0);
           window.dispatchEvent(evt);
         }
+
       });
 
       function show_datasource_form(datasource)
@@ -277,7 +279,7 @@
           ,type: 'inline'
         }
         ,preloader: false
-        ,focus: '#search-title'
+        ,focus: '#save-search-title'
         ,removalDelay: 300
         ,mainClass: 'popup-animate'
         ,callbacks: {
@@ -286,7 +288,7 @@
               $('.container').addClass('blur');
               $('.navbar').addClass('blur');
             }, 150);
-            if ($('#search-title').attr('value').length < 1)
+            if ($('#save-search-title').attr('value').length < 1)
             {
               <?php if (array_key_exists('user_searches', $_session_data['data'])) { $search_count = count($_session_data['data']['user_searches']); } else { $search_count = 0; } ?>
               $('#search-title').attr('value', '<?php echo $_session_data['username']; ?>' + '_' + datasource + '_' + '<?php echo $search_count + 1; ?>');

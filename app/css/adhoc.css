@@ -285,6 +285,24 @@
     margin-left: 15px;
 }
 
+input[name="search-title-input"] {
+    width: 60%;
+    margin: 8px 0 2px 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#search-title {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.graph-title h1 {
+    font-size: 5em;
+}
+
 .menu-label {
     display: inline-block;
 }
