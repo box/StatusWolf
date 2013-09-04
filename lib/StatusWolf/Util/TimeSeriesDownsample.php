@@ -108,12 +108,12 @@ class TimeSeriesDownsample
 		{
 			$this->ts_object->start_time = $next_min;
 		}
-		$end_stamp = end($time_series);
-		$end_stamp = $end_stamp['timestamp'];
-    reset($time_series);
-		$end_check = getdate($end_stamp);
+//		$end_stamp = end($time_series);
+//		$end_stamp = $end_stamp['timestamp'];
+//    reset($time_series);
+		$end_check = getdate($end);
 		$end_differential = $end_check['seconds'];
-		$end_min = $end_stamp - $end_differential;
+		$end_min = $end - $end_differential;
 		$master_end = $this->ts_object->end_time;
 		if (!$master_end)
 		{

@@ -386,6 +386,7 @@ class OpenTSDB extends TimeSeriesData {
       $this->loggy->logDebug($this->log_tag . 'Calling downsampler, interval: ' . $this->downsample_interval . ' method: ' . $this->downsample_type);
       $downsampler = new TimeSeriesDownsample($this->downsample_interval, $this->downsample_type);
       $downsampler->ts_object = @$this;
+      $this->loggy->logDebug($this->log_tag . 'Downsampling data, start: ' . $this->_start_timestamp . ', end: ' . $this->_end_timestamp);
       $graph_data[$series] = $downsampler->downsample($data, $this->_start_timestamp, $this->_end_timestamp);
       if ($new_cache)
       {
@@ -432,9 +433,18 @@ class OpenTSDB extends TimeSeriesData {
       file_put_contents($this->_query_cache, serialize($graph_data));
     }
     $cached_keys = array_keys($graph_data);
-    $this->start_time = $graph_data[$cached_keys[0]][0]['timestamp'];
-    $last_entry = array_slice($graph_data[$cached_keys[0]], -1);
-    $this->end_time = $last_entry[0]['timestamp'];
+    foreach ($cached_keys as $my_key)
+    {
+      if ((empty($this->start_time)) || ($graph_data[$my_key][0]['timestamp'] < $this->start_time))
+      {
+        $this->start_time = $graph_data[$my_key][0]['timestamp'];
+      }
+      $last_point = array_slice($graph_data[$my_key], -1);
+      if ((empty($this->end_time)) || ($last_point[0]['timestamp'] > $this->end_time))
+      {
+        $this->end_time = $last_point[0]['timestamp'];
+      }
+    }
 
     $this->ts_data = $graph_data;
     $this->ts_data['cache_key'] = $cache_key;

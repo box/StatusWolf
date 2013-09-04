@@ -1263,6 +1263,10 @@
             {
               buckets[timestamp].push(data_holder[timestamp]);
             }
+            else if (typeof sw_conf.graphing.treat_null_as_zero !== "undefined" && sw_conf.graphing.treat_null_as_zero === "1")
+            {
+              buckets[timestamp].push(0);
+            }
             else
             {
               buckets[timestamp].push(null);
