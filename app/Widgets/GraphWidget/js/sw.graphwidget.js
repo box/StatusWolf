@@ -653,7 +653,7 @@
       }
       console.log(query_data);
 
-      if (typeof query_data.title !== "undefined")
+      if (typeof query_data.title !== "undefined" && query_data.title.length > 1)
       {
         $('h3#search-title' + widget.uuid).text(query_data.title).removeClass('search-title-prompt');
         $('.widget-title > input[name="search-title-input' + widget.uuid + '"]').val(query_data.title);

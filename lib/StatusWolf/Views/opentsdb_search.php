@@ -532,7 +532,7 @@
     var prompt_user = false;
     var method_map = {sum: 'Sum', avg: 'Average', min: 'Minimum Value', max: 'Maximum Value', dev: 'Standard Deviation'};
 
-    if (typeof query_data.title !== "undefined")
+    if (typeof query_data.title !== "undefined" && query_data.title.length > 1)
     {
       $('input[name="search-title-input"]').attr('value', query_data.title);
       $('#search-title').text(query_data.title).removeClass('search-title-prompt');
