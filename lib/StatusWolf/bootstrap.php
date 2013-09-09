@@ -60,29 +60,36 @@ if (!empty($_POST))
   }
 }
 
-// Check to see whether we're configured for authentication
-if (!array_key_exists('authentication', $app_config) || (array_key_exists('authentication', $app_config) && !$app_config['authentication']))
-{
-
-  session_name('_sw_session');
-  session_start();
-  $_SESSION['authenticated'] = false;
-  $bootstrap = true;
-
-}
-else
-{
-  $bootstrap = authenticate_session($app_config);
-}
+$bootstrap = authenticate_session($app_config);
 
 // Initialize app authentication, uses the Pear Auth module
 function authenticate_session($app_config) {
 
+  if (!array_key_exists('authentication', $app_config) || (array_key_exists('authentication', $app_config) && !$app_config['authentication']))
+  {
+    $auth_method = 'MDB2';
+    $auth_options = Array();
+    $auth_options['dsn'] = Array();
+    $auth_options['db_fields'] = Array();
+    $auth_options['dsn']['hostspec'] = $app_config['session_handler']['db_host'];
+    $auth_options['dsn']['username'] = $app_config['session_handler']['db_user'];
+    $auth_options['dsn']['password'] = $app_config['session_handler']['db_password'];
+    $auth_options['dsn']['phptype'] = 'mysqli';
+    $auth_options['dsn']['database'] = $app_config['session_handler']['database'];
+    $auth_options['db_fields'][] = 'full_name';
+    $auth_options['name_key'] = 'full_name';
+    $auth_options['auto'] = true;
+    $auth_options['auto_user'] = 'statuswolf_user';
+    $auth_options['auto_user_fullname'] = 'Default User';
+  }
+  else
+  {
 // Auth method - which backend are we using for authentication?
-  $auth_method = SWConfig::read_values('auth.method');
+    $auth_method = SWConfig::read_values('auth.method');
 
 // Load the options for the auth backend
-  $auth_options = SWConfig::read_values('auth.' . $auth_method);
+    $auth_options = SWConfig::read_values('auth.' . $auth_method);
+  }
 
 // Set the name used for session management, defaults to '_sw_authsession' to avoid conflicts
 // with other apps on the server that may be using the default Auth session naming
@@ -112,8 +119,18 @@ function authenticate_session($app_config) {
   $sw_auth->setFailedLoginCallback('login_failed');
 
 // Start the new auth session
+  if ($auth_options['auto'] && $auth_options['auto_user'])
+  {
+    if (!$sw_auth->checkAuth())
+    {
+      $sw_auth->setAuth($auth_options['auto_user']);
+      $sw_auth->setAuthData($auth_options['name_key'], $auth_options['auto_user_fullname'], true);
+      $sw_auth->setAuthData('auto_login', 'true', true);
+    }
+  }
   $sw_auth->start();
   $_SESSION['authenticated'] = true;
+
 
   if (array_key_exists('debug', $app_config) && $app_config['debug'])
   {
