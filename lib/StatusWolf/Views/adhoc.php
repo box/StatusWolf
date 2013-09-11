@@ -288,10 +288,17 @@
               $('.container').addClass('blur');
               $('.navbar').addClass('blur');
             }, 150);
-            if ($('#save-search-title').attr('value').length < 1)
+            if ($('input[name="save-search-title"]').attr('value').length < 1)
             {
-              <?php if (array_key_exists('user_searches', $_session_data['data'])) { $search_count = count($_session_data['data']['user_searches']); } else { $search_count = 0; } ?>
-              $('#search-title').attr('value', '<?php echo $_session_data['username']; ?>' + '_' + datasource + '_' + '<?php echo $search_count + 1; ?>');
+              if ($('#graph-title').text().length < 1)
+              {
+                <?php if (array_key_exists('user_searches', $_session_data['data'])) { $search_count = count($_session_data['data']['user_searches']); } else { $search_count = 0; } ?>
+                $('input[name="save-search-title"]').attr('value', '<?php echo $_session_data['username']; ?>' + '_' + datasource + '_' + '<?php echo $search_count + 1; ?>');
+              }
+              else
+              {
+                $('input[name="save-search-title"]').attr('value', $('#graph-title').text());
+              }
             }
           }
           ,close: function() {
@@ -303,13 +310,13 @@
 
       function save_click_handler(event, confirmation, query_data)
       {
-        if ($('input#search-title').val().length < 1)
+        if ($('input[name="save-search-title"]').val().length < 1)
         {
-          $('input#search-title').css('border-color', 'red').css('background-color', 'rgb(255, 200, 200)').focus();
+          $('input[name="save-search-title"]').css('border-color', 'red').css('background-color', 'rgb(255, 200, 200)').focus();
           alert("You must specify a title for your saved search");
         }
         query_data['user_id'] = "<?php echo $_session_data['user_id']; ?>";
-        query_data['title'] = $('input#search-title').val();
+        query_data['title'] = $('input[name="save-search-title"]').val();
         $('#save-span').prop('checked')?query_data['save_span'] = 1:query_data['save_span'] = 0;
         $('#public').prop('checked')?query_data['private'] = 0:query_data['private'] = 1;
         var api_url = '<?php echo URL; ?>api/save_adhoc_search';
