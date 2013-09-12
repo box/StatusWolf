@@ -55,7 +55,7 @@ class Curl
 		$status = curl_getinfo($curl_object, CURLINFO_HTTP_CODE);
 		curl_close($curl_object);
 
-		if ($status !== 200)
+		if ($status !== 200 && $status !== 202)
 		{
 			throw new SWException("Failed to fetch data from: \nURL: " . self::$_url . "\nResponse Code: " . $status . "\nResponse Body: " . $data);
 		}
