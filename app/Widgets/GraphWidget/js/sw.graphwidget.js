@@ -203,7 +203,7 @@
 		,maximize_widget: function() {
 			if ($(this.sw_graphwidget_container).hasClass('maximize-widget'))
 			{
-				$(this.sw_graphwidget_container).removeClass('maximize-widget');
+				$(this.sw_graphwidget_container).removeClass('maximize-widget').addClass('shrink-widget');
 				$('body').removeClass('no-overflow');
 				$('.navbar').removeClass('hidden');
 				$(this.sw_graphwidget_container).children('span.maximize-me').removeClass('iconic-fullscreen-exit').addClass('iconic-fullscreen');

@@ -496,4 +496,19 @@ function save_click_handler(event, confirmation, dashboard_id)
     });
   }
 
+  $(window).resize(function() {
+    var widget_container = $('div.maximize-widget'),
+        widget_main;
+    if (widget_container.length > 0)
+    {
+      widget_main = $(widget_container).children('div.widget').children('div.widget-front').children('div.widget-main');
+    }
+    else
+    {
+      widget_container = $('div.shrink-widget');
+      widget_main = $(widget_container).children('div.widget').children('div.widget-front').children('div.widget-main');
+      $(widget_container).removeClass('shrink-widget');
+    }
+    $(widget_main).css('height', ($(widget_container).innerHeight() - ($('.widget-title').height() + $('.widget-footer').height())));
+  })
 </script>
