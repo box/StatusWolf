@@ -7,7 +7,7 @@
 
 .widget-container {
     width: 500px;
-    height: 40%;
+    height: 300px;
 }
 
 @-moz-document url-prefix() {

@@ -11,24 +11,54 @@
  */
 ?>
 
-    <div class="container">
-      <div class="left-column">
-        <div class="home-logo"></div>
-      </div>
-      <div class="home-menu">
-      	<div class="home-menu-item btn" id="ad-hoc">
-          <a href="<?php echo URL; ?>adhoc/">Ad-Hoc Search</a>
+<div class="home-container">
+  <div class="home-logo"></div>
+  <div class="home-menu">
+    <div class="home-menu-box-wrapper">
+      <div class="home-menu-box" id="ad-hoc-box">
+        <div class="home-menu-item" id="adhoc">
+          <span>Ad-Hoc Search</span>
         </div>
-        <div class="home-menu-item btn" id="dashboards">
-          <a href="<?php echo URL; ?>dashboard/">Dashboard</a>
-        </div>
-        <div class="home-menu-item btn hidden" id="my-dashboards">
-          <a href="<?php echo URL; ?>dashboard/my/">My Dashboards</a>
+        <div class="home-descriptions" id="ad-hoc-descriptions">
+          <p>Search against your configured data sources on a single graph</p>
         </div>
       </div>
-      <div class="right-column"></div>
+      <div class="home-menu-box" id="dashboards-box">
+        <div class="home-menu-item" id="dashboard">
+          <span>Dashboard</span>
+        </div>
+        <div class="home-descriptions" id="dashboards-description">
+          <p>Create, save and reload dasboards</p>
+        </div>
+      </div>
+      <div class="home-menu-box" id="my-settings-box">
+        <div class="home-menu-item" id="my-settings">
+          <span>My Settings</span>
+        </div>
+        <div class="home-descriptions" id="my-settings-description">
+          <p>Edit your saved searches and saved dashboards</p>
+        </div>
+      </div>
     </div>
+  </div>
+</div>
 
-    <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/jquery.js"></script>
-    <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/bootstrap.js"></script>
+<script type="text/javascript" src="<?php echo URL; ?>app/js/lib/jquery.js"></script>
+<script type="text/javascript" src="<?php echo URL; ?>app/js/lib/bootstrap.js"></script>
 
+<script type="text/javascript">
+
+  $('div.home-menu-item').click(function() {
+    if ($(this).attr('id') === "my-settings")
+    {
+      var new_loc = 'account/my_settings';
+    }
+    else
+    {
+      var new_loc = $(this).attr('id');
+    }
+
+    window.location.href = '<?php echo URL; ?>' + new_loc;
+  });
+
+</script>

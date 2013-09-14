@@ -39,7 +39,7 @@ ul, ol {
  * =======================
  */
 
-.btn {
+.button {
     padding: 5px 8px;
     border-right: 1px groove rgba(234, 234, 234, 0.1);
     border-left: 1px groove rgba(234, 234, 234, 0.1);
@@ -295,8 +295,8 @@ select {
     background-color: rgb(24, 24, 24);
     border-bottom: 1px solid rgba(234, 234, 234, 0.25);
     height: 25px;
-    width: 99%;
-    padding: 0 10px;
+    width: 100%;
+    padding-right: 10px;
     position: fixed;
     top: 0;
     left: 0;
@@ -317,7 +317,6 @@ select {
     top: 0;
     right: 0;
     height: 100%;
-    margin-right: 20px;
 }
 
 .menu-label {
@@ -346,7 +345,7 @@ select {
 .menu-btn:hover, .menu-btn.hover {
     cursor: pointer;
     background-color: rgb(37, 37, 37);
-    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
+    /*box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);*/
 }
 
 /*
@@ -589,62 +588,85 @@ ul.nav-tabs {
  * ==================
  */
 
-.left-column {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-box-pack: center;
-    -webkit-box-align: center;
-    -webkit-box-flex: 1;
+.home-container {
+    width: 95%;
+    height: 90%;
+    margin: 40px auto 20px auto;
 }
 
-.right-column {
-    display: -webkit-box;
-    -webkit-box-orient: horizontal;
-    -webkit-box-align: center;
-    -webkit-box-flex: 2;
+.home-logo {
+    margin: 50px auto;
+    height: 350px;
+    width: 300px;
+    background: url(../img/Status_Wolf2@2x.png) center no-repeat;
+    background-size: 300px;
 }
 
 .home-menu {
-    margin-left: 100px;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-box-pack: center;
-    -webkit-box-align: left;
+    width: 80%;
+    min-width: 1130px;
+    margin: 50px auto;
+    padding: 20px;
+}
+
+.home-menu-box-wrapper {
+    width: 98%;
+    min-width: 1108px;
+    margin: 0 auto;
+}
+
+.home-menu-box {
+    display: inline-block;
+    vertical-align: top;
+    width: 30%;
+    min-width: 200px;
+    height: 200px;
+    padding: 15px;
+    background-color: rgba(205, 205, 205, 0.25);
+    border-top-right-radius: 3px;
+    -webkit-border-top-right-radius: 3px;
+    -moz-border-radius-topright: 3px;
+    border-bottom-right-radius: 3px;
+    -webkit-border-bottom-right-radius: 3px;
+    -moz-border-radius-bottomright: 3px;
+    border-bottom-left-radius: 3px;
+    -webkit-border-bottom-left-radius: 3px;
+    -moz-border-radius-bottomleft: 3px;
 }
 
 .home-menu-item {
-    font-size: 1.5em;
+    font-size: 1em;
     font-weight: bold;
     line-height: 2em;
-    border: 1px groove rgba(234, 234, 234, 0.1);
-    box-shadow: inset -1px -1px 0 rgba(5, 5, 5, 0.25);
-}
-
-.home-menu-item a, .home-menu-item a:visited {
-    text-decoration: none;
-    color: rgba(205, 205, 205, 0.75);
-}
-
-.home-menu-item a:hover {
-    color: rgba(205, 205, 205, 1);
-}
-
-.home-menu-item a:active {
-    color: rgb(234, 234, 234);
+    color: rgb(205, 205, 205);
+    width: 150px;
+    margin: 0 auto;
+    text-align: center;
+    background-color: rgba(205, 205, 205, 0.25);
+    border-top-right-radius: 2px;
+    -webkit-border-top-right-radius: 2px;
+    -moz-border-radius-topright: 2px;
+    border-bottom-right-radius: 2px;
+    -webkit-border-bottom-right-radius: 2px;
+    -moz-border-radius-bottomright: 2px;
+    border-bottom-lef-radius: 2px;
+    -webkit-border-bottom-left-radius: 2px;
+    -moz-border-radius-bottomleft: 2px;
 }
 
 .home-menu-item:hover, .home-menu-item.hover {
     cursor: pointer;
-    background-color: rgb(37, 37, 37);
-    box-shadow: inset 1px 1px 4px rgba(0, 0, 0, 0.6);
+    color: rgb(234, 234, 234);
+    background-color: rgb(64, 64, 64);
 }
 
-.home-logo {
-    height: 400px;
-    width: 350px;
-    margin-left: 50px;
-    background: url(../img/Status_Wolf2@2x.png) center no-repeat;
-    background-size: 350px;
+.home-descriptions {
+    width: 90%;
+    margin: 30px auto 20px auto;
+    text-align: center;
+    font-size: .9em;
+    line-height: 1.5em;
+    color: rgb(205, 205, 205);
 }
 
 /*
@@ -707,6 +729,10 @@ ul.nav-tabs {
 
 .iconic-fullscreen-exit:before {
     content: '\e050';
+}
+
+.iconic-home:before {
+    content: '\2302';
 }
 
 .iconic-info:before {
