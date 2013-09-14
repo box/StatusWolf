@@ -13,18 +13,33 @@
     color: rgba(205, 205, 205, 0.5);
 }
 
+#nav-menu {
+    font-size: 1em;
+    line-height: 1.25em;
+    position: relative;
+    top: 0;
+    left: 0;
+}
+
+#nav-menu-content {
+    font-size: .8em;
+    line-height: 1.9em;
+    margin-left: 10px;
+}
+
 #user-menu {
     position: absolute;
     top: 0;
     right: 0;
+    padding-right: 30px;
 }
 
 #user-menu-options {
     min-width: 85px;
     margin-top: 5px;
+    margin-right: 20px;
 }
 
 #user-menu-options li span {
     text-align: right;
-    margin-right: 8px;
 }
