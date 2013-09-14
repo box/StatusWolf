@@ -28,7 +28,7 @@
           <span>Dashboard</span>
         </div>
         <div class="home-descriptions" id="dashboards-description">
-          <p>Create, save and reload dasboards</p>
+          <p>Create, save and reload dashboards</p>
         </div>
       </div>
       <div class="home-menu-box" id="my-settings-box">
