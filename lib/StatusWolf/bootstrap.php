@@ -65,18 +65,10 @@ $bootstrap = authenticate_session($app_config);
 // Initialize app authentication, uses the Pear Auth module
 function authenticate_session($app_config) {
 
+  $auth_options = Array();
+
   if (!array_key_exists('authentication', $app_config) || (array_key_exists('authentication', $app_config) && !$app_config['authentication']))
   {
-    $auth_method = 'MDB2';
-    $auth_options = Array();
-    $auth_options['dsn'] = Array();
-    $auth_options['db_fields'] = Array();
-    $auth_options['dsn']['hostspec'] = $app_config['session_handler']['db_host'];
-    $auth_options['dsn']['username'] = $app_config['session_handler']['db_user'];
-    $auth_options['dsn']['password'] = $app_config['session_handler']['db_password'];
-    $auth_options['dsn']['phptype'] = 'mysqli';
-    $auth_options['dsn']['database'] = $app_config['session_handler']['database'];
-    $auth_options['db_fields'][] = 'full_name';
     $auth_options['name_key'] = 'full_name';
     $auth_options['auto'] = true;
     $auth_options['auto_user'] = 'statuswolf_user';
@@ -85,10 +77,24 @@ function authenticate_session($app_config) {
   else
   {
 // Auth method - which backend are we using for authentication?
-    $auth_method = SWConfig::read_values('auth.method');
+    $auth_methods = SWConfig::read_values('auth.method');
 
 // Load the options for the auth backend
-    $auth_options = SWConfig::read_values('auth.' . $auth_method);
+    if (is_array($auth_methods))
+    {
+      foreach ($auth_methods as $method_index => $auth_method)
+      {
+        $auth_options[$method_index] = Array();
+        $auth_options[$method_index]['type'] = $auth_method;
+        $auth_options[$method_index]['options'] = SWConfig::read_values('auth.' . $auth_method);
+      }
+    }
+    else
+    {
+      $auth_options[0] = Array();
+      $auth_options[0]['type'] = $auth_methods;
+      $auth_options[0]['options'] = SWConfig::read_values('auth' . $auth_methods);
+    }
   }
 
 // Set the name used for session management, defaults to '_sw_authsession' to avoid conflicts
@@ -104,7 +110,7 @@ function authenticate_session($app_config) {
   }
 
 // Create authentication object
-  $sw_auth = new Auth($auth_method, $auth_options, 'login');
+  $sw_auth = new Auth('Multiple', $auth_options, 'login');
 
   if (array_key_exists('enableLogging', $auth_options) && $auth_options['enableLogging'])
   {
@@ -115,11 +121,14 @@ function authenticate_session($app_config) {
     $sw_auth->logger->setBacktraceDepth(2);
   }
 
+// Set callback function for successful login attempts
+  $sw_auth->setLoginCallback('login_succeeded');
+
 // Set the function to use on failed login attempts
   $sw_auth->setFailedLoginCallback('login_failed');
 
 // Start the new auth session
-  if ($auth_options['auto'] && $auth_options['auto_user'])
+  if (array_key_exists('auto', $auth_options) && array_key_exists('auto_user', $auth_options))
   {
     if (!$sw_auth->checkAuth())
     {
@@ -152,9 +161,13 @@ function authenticate_session($app_config) {
 // Check for a logged in session
   if ($sw_auth->checkAuth())
   {
-    if (array_key_exists('name_key', $auth_options) && array_key_exists($auth_options['name_key'], $_SESSION[$auth_options['sessionName']]['data']))
+    if (array_key_exists('name_key', $_SESSION[$auth_options['sessionName']]['data']))
     {
-      $_SESSION[$auth_options['sessionName']]['friendly_name'] = $_SESSION[$auth_options['sessionName']]['data'][$auth_options['name_key']];
+      $user_name_key = $_SESSION[$auth_options['sessionName']]['data']['name_key'];
+    }
+    if (!empty($user_name_key) && array_key_exists($user_name_key, $_SESSION[$auth_options['sessionName']]['data']))
+    {
+     $_SESSION[$auth_options['sessionName']]['friendly_name'] = $_SESSION[$auth_options['sessionName']]['data'][$user_name_key];
     }
     else
     {
@@ -176,6 +189,7 @@ function authenticate_session($app_config) {
       }
       else
       {
+        $auth_method = $_SESSION[$auth_options['sessionName']]['data']['auth_type'];
         $user_add_query = sprintf("INSERT INTO user_map VALUE('%s', '%s', '%s')", '', $_SESSION[$auth_options['sessionName']]['username'], $auth_method);
         $add_result = $sw_db->query($user_add_query);
         if (mysqli_error($sw_db))
@@ -234,3 +248,10 @@ function login_failed($user = null, &$auth = null)
   return false;
 }
 
+function login_succeeded($user = null, &$auth = null)
+{
+  $auth_backend = array_slice($auth->storage->containers, -1, 1, true);
+  $container_key = key($auth_backend);
+  $auth->setAuthData('auth_type', $auth->storage_options[$container_key]['type']);
+  $auth->setAuthData('name_key', $auth->storage_options[$container_key]['options']['name_key']);
+}
