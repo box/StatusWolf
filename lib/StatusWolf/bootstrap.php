@@ -93,7 +93,7 @@ function authenticate_session($app_config) {
     {
       $auth_options[0] = Array();
       $auth_options[0]['type'] = $auth_methods;
-      $auth_options[0]['options'] = SWConfig::read_values('auth' . $auth_methods);
+      $auth_options[0]['options'] = SWConfig::read_values('auth.' . $auth_methods);
     }
   }
 
