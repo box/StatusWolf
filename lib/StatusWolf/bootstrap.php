@@ -134,6 +134,7 @@ function authenticate_session($app_config) {
     {
       $sw_auth->setAuth($auth_options['auto_user']);
       $sw_auth->setAuthData($auth_options['name_key'], $auth_options['auto_user_fullname'], true);
+      $sw_auth->setAuthData('name_key', $auth_options['name_key']);
       $sw_auth->setAuthData('auto_login', 'true', true);
     }
   }
@@ -161,55 +162,6 @@ function authenticate_session($app_config) {
 // Check for a logged in session
   if ($sw_auth->checkAuth())
   {
-    if (array_key_exists('name_key', $_SESSION[$auth_options['sessionName']]['data']))
-    {
-      $user_name_key = $_SESSION[$auth_options['sessionName']]['data']['name_key'];
-    }
-    if (!empty($user_name_key) && array_key_exists($user_name_key, $_SESSION[$auth_options['sessionName']]['data']))
-    {
-     $_SESSION[$auth_options['sessionName']]['friendly_name'] = $_SESSION[$auth_options['sessionName']]['data'][$user_name_key];
-    }
-    else
-    {
-      $_SESSION[$auth_options['sessionName']]['friendly_name'] = $_SESSION[$auth_options['sessionName']]['username'];
-    }
-    // Make sure the user has an entry in the user_map table
-    $sw_db = new mysqli($app_config['session_handler']['db_host'], $app_config['session_handler']['db_user'], $app_config['session_handler']['db_password'], $app_config['session_handler']['database']);
-    if (mysqli_connect_error())
-    {
-      throw new SWException('User Map database connect error: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
-    }
-    $find_user_query = sprintf("SELECT * FROM user_map where username='%s'", $_SESSION[$auth_options['sessionName']]['username']);
-    if ($user_found = $sw_db->query($find_user_query))
-    {
-      if ($user_found->num_rows && $user_found->num_rows > 0)
-      {
-        $user = $user_found->fetch_assoc();
-        $_SESSION[$auth_options['sessionName']]['user_id'] = $user['id'];
-      }
-      else
-      {
-        $auth_method = $_SESSION[$auth_options['sessionName']]['data']['auth_type'];
-        $user_add_query = sprintf("INSERT INTO user_map VALUE('%s', '%s', '%s')", '', $_SESSION[$auth_options['sessionName']]['username'], $auth_method);
-        $add_result = $sw_db->query($user_add_query);
-        if (mysqli_error($sw_db))
-        {
-          throw new SWException('User map add error: ' . mysqli_errno($sw_db) . ' ' . mysqli_error($sw_db));
-        }
-        if ($user_found = $sw_db->query($find_user_query))
-        {
-          if ($user_found->num_rows && $user_found->num_rows > 0)
-          {
-            $user = $user_found->fetch_assoc();
-            $_SESSION[$auth_options['sessionName']]['user_id'] = $user['id'];
-          }
-        }
-        else
-        {
-          throw new SWException('Unable to add user ' . $_SESSION[$auth_options['sessionName']]['username'] . ' to user_map');
-        }
-      }
-    }
     return true;
   }
 
@@ -250,8 +202,71 @@ function login_failed($user = null, &$auth = null)
 
 function login_succeeded($user = null, &$auth = null)
 {
+  $app_config = SWConfig::read_values('statuswolf');
+  $auth_options = Array();
+  if (! $auth_options['sessionName'] = SWConfig::read_values('auth.sessionName'))
+  {
+    $auth_options['sessionName'] = '_sw_authsession';
+  }
   $auth_backend = array_slice($auth->storage->containers, -1, 1, true);
   $container_key = key($auth_backend);
-  $auth->setAuthData('auth_type', $auth->storage_options[$container_key]['type']);
+  $auth_method = $auth->storage_options[$container_key]['type'];
+  $auth->setAuthData('auth_type', $auth_method);
   $auth->setAuthData('name_key', $auth->storage_options[$container_key]['options']['name_key']);
+  if (array_key_exists('name_key', $_SESSION[$auth_options['sessionName']]['data']))
+  {
+    $user_name_key = $_SESSION[$auth_options['sessionName']]['data']['name_key'];
+  }
+  if (!empty($user_name_key) && array_key_exists($user_name_key, $_SESSION[$auth_options['sessionName']]['data']))
+  {
+    $_SESSION[$auth_options['sessionName']]['friendly_name'] = $_SESSION[$auth_options['sessionName']]['data'][$user_name_key];
+  }
+  else
+  {
+    $_SESSION[$auth_options['sessionName']]['friendly_name'] = $_SESSION[$auth_options['sessionName']]['username'];
+  }
+  // Make sure the user has an entry in the user_map table
+  $sw_db = new mysqli($app_config['session_handler']['db_host'], $app_config['session_handler']['db_user'], $app_config['session_handler']['db_password'], $app_config['session_handler']['database']);
+  if (mysqli_connect_error())
+  {
+    throw new SWException('User Map database connect error: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
+  }
+  $find_user_query = sprintf("SELECT * FROM user_map where username='%s'", $_SESSION[$auth_options['sessionName']]['username']);
+  if ($user_found = $sw_db->query($find_user_query))
+  {
+    if ($user_found->num_rows && $user_found->num_rows > 0)
+    {
+      $user = $user_found->fetch_assoc();
+      $auth->logger->log('Checking ' . $user['source'] . ' vs ' . $auth_method, AUTH_LOG_DEBUG);
+      if ($user['source'] !== $auth_method)
+      {
+        $_SESSION['_auth_fail'] = "Username or password are incorrect";
+        $auth->logout();
+      }
+      else{
+        $_SESSION[$auth_options['sessionName']]['user_id'] = $user['id'];
+      }
+    }
+    else
+    {
+      $user_add_query = sprintf("INSERT INTO user_map VALUE('%s', '%s', '%s')", '', $_SESSION[$auth_options['sessionName']]['username'], $auth_method);
+      $add_result = $sw_db->query($user_add_query);
+      if (mysqli_error($sw_db))
+      {
+        throw new SWException('User map add error: ' . mysqli_errno($sw_db) . ' ' . mysqli_error($sw_db));
+      }
+      if ($user_found = $sw_db->query($find_user_query))
+      {
+        if ($user_found->num_rows && $user_found->num_rows > 0)
+        {
+          $user = $user_found->fetch_assoc();
+          $_SESSION[$auth_options['sessionName']]['user_id'] = $user['id'];
+        }
+      }
+      else
+      {
+        throw new SWException('Unable to add user ' . $_SESSION[$auth_options['sessionName']]['username'] . ' to user_map');
+      }
+    }
+  }
 }
