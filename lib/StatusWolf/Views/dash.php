@@ -501,6 +501,7 @@ function save_click_handler(event, confirmation, dashboard_id)
         widget_main;
     if (widget_container.length > 0)
     {
+      $(this).scrollTop(0);
       widget_main = $(widget_container).children('div.widget').children('div.widget-front').children('div.widget-main');
     }
     else
