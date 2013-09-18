@@ -15,7 +15,7 @@
 // instead of the server root
 // (e.g. http://site.com/StatusWolf vs http://statuswolf.site.com/)
 $uri = $_SERVER['REQUEST_URI'];
-if (strpos($uri, BASE_URI) !== false)
+if (BASE_URI && strpos($uri, BASE_URI) !== false)
 {
   $uri = substr_replace($uri, '', 0, strlen(BASE_URI));
 }

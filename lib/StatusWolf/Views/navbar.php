@@ -30,7 +30,7 @@
       <span class="iconic iconic-user" style="padding-left: 10px;"></span><a data-toggle="dropdown"><span class="menu-label"><?php echo $this->usersession['friendly_name']; ?></span></a>
       <ul class="dropdown-menu menu-left" id="user-menu-options" role="menu" aria-labelled-by="dLabel">
         <li><a href="<?php echo URL; ?>account/my_settings"><span>My Settings</span></a></li>
-        <?php if ($_SESSION[SWConfig::read_values('auth.sessionName')]['data']['auto_login'] !== "true")
+        <?php if (!array_key_exists('auto_login', $_SESSION[SWConfig::read_values('auth.sessionName')]['data']) || $_SESSION[SWConfig::read_values('auth.sessionName')]['data']['auto_login'] !== "true")
               {
                 echo '<li onClick="$(\'#logout\').submit()"><span>Logout</span></li>';
               }
