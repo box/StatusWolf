@@ -159,7 +159,7 @@ foreach($widgets as $widget_key)
   {
     document._sw_conf = _sw_conf;
   }
-  var dashboard_config = '<?php if ($dashboard_config) { echo json_encode($dashboard_config); } ?>';
+  var dashboard_config = <?php if ($dashboard_config) { echo json_encode($dashboard_config); } else { echo 'null'; } ?>;
 
   $(document).ready(function() {
     var widgets = eval('(<?php echo json_encode($widget_list); ?>)');
@@ -185,57 +185,60 @@ foreach($widgets as $widget_key)
 
     build_dashboard_list_menu();
 
-    if (dashboard_config.length > 1)
+    if (dashboard_config !== null && typeof dashboard_config !== "undefined")
     {
-      console.log('loading saved dashboard');
-      console.log(dashboard_config);
-      if (dashboard_config.match(/Not Allowed/))
+      if (typeof dashboard_config === "string" && dashboard_config.length > 1)
       {
-        $('.container').append('<div id="not-allowed-popup" class="popup"><h5>Not Allowed</h5><div class="popup-form-data">You do not have permission to view this dashboard</div></div>');
-        $.magnificPopup.open({
-          items: {
-            src: '#not-allowed-popup'
-            ,type: 'inline'
-          }
-          ,preloader: false
-          ,removalDelay: 300
-          ,mainClass: 'popup-animate'
-          ,callbacks: {
-            open: function() {
-              $('.navbar').addClass('blur');
-              $('.container').addClass('blur');
+        console.log('loading saved dashboard');
+        console.log(dashboard_config);
+        if (dashboard_config.match(/Not Allowed/))
+        {
+          $('.container').append('<div id="not-allowed-popup" class="popup"><h5>Not Allowed</h5><div class="popup-form-data">You do not have permission to view this dashboard</div></div>');
+          $.magnificPopup.open({
+            items: {
+              src: '#not-allowed-popup'
+              ,type: 'inline'
             }
-            ,close: function() {
-              $('.container').removeClass('blur');
-              $('.navbar').removeClass('blur');
-              window.history.pushState("", "StatusWolf", "/dashboard/");
+            ,preloader: false
+            ,removalDelay: 300
+            ,mainClass: 'popup-animate'
+            ,callbacks: {
+              open: function() {
+                $('.navbar').addClass('blur');
+                $('.container').addClass('blur');
+              }
+              ,close: function() {
+                $('.container').removeClass('blur');
+                $('.navbar').removeClass('blur');
+                window.history.pushState("", "StatusWolf", "/dashboard/");
+              }
             }
-          }
-        });
-      }
-      else if(dashboard_config.match(/Not Found/))
-      {
-        $('.container').append('<div id="not-found-popup" class="popup"><h5>Not Found</h5><div class="popup-form-data">The dashboard was not found.</div></div>');
-        $.magnificPopup.open({
-          items: {
-            src: '#not-found-popup'
-            ,type: 'inline'
-          }
-          ,preloader: false
-          ,removalDelay: 300
-          ,mainClass: 'popup-animate'
-          ,callbacks: {
-            open: function() {
-              $('.navbar').addClass('blur');
-              $('.container').addClass('blur');
+          });
+        }
+        else if(dashboard_config.match(/Not Found/))
+        {
+          $('.container').append('<div id="not-found-popup" class="popup"><h5>Not Found</h5><div class="popup-form-data">The dashboard was not found.</div></div>');
+          $.magnificPopup.open({
+            items: {
+              src: '#not-found-popup'
+              ,type: 'inline'
             }
-            ,close: function() {
-              $('.container').removeClass('blur');
-              $('.navbar').removeClass('blur');
-              window.history.pushState("", "StatusWolf", "/dashboard/");
+            ,preloader: false
+            ,removalDelay: 300
+            ,mainClass: 'popup-animate'
+            ,callbacks: {
+              open: function() {
+                $('.navbar').addClass('blur');
+                $('.container').addClass('blur');
+              }
+              ,close: function() {
+                $('.container').removeClass('blur');
+                $('.navbar').removeClass('blur');
+                window.history.pushState("", "StatusWolf", "/dashboard/");
+              }
             }
-          }
-        });
+          });
+        }
       }
       else
       {
@@ -265,7 +268,6 @@ foreach($widgets as $widget_key)
           }
         });
       }
-
     }
 
     $('#save-dashboard-menu-choice').magnificPopup({

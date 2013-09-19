@@ -59,10 +59,6 @@
       throw new SWException('Database read error: ' . mysqli_errno($sw_db) . ' ' . mysqli_error($sw_db));
     }
   }
-  else
-  {
-    $incoming_query_data = null;
-  }
 ?>
 
 <div class="ad-hoc-form-row" id="row1">
@@ -275,7 +271,7 @@
   var sw_conf = eval('(<?php echo json_encode($sw_conf); ?>)');
   var query_data = {};
   var query_url = '';
-  var incoming_query_data = '<?php if ($incoming_query_data) { echo json_encode($incoming_query_data); } ?>';
+  var incoming_query_data = <?php if ($incoming_query_data) { echo json_encode($incoming_query_data); } else { echo 'null'; } ?>;
 
   // Add the styles for the ad-hoc search
   $('head').append('<link href="<?php echo URL; ?>app/css/datetimepicker.css" rel="stylesheet">')
@@ -422,86 +418,89 @@
   // On initial page load switch to the search form, and add the handler
   // for the Enter key
   $(document).ready(function() {
-    if (incoming_query_data.length > 1)
+    if (incoming_query_data !== null && typeof incoming_query_data !== "undefined")
     {
-      if (incoming_query_data.match(/Expired/))
+      if (typeof incoming_query_data === "string" && incoming_query_data.length > 1)
       {
-        $('.container').append('<div id="expired-popup" class="popup"><h5>Expired</h5><div class="popup-form-data">Your search has expired and is no longer available</div></div>');
-        $.magnificPopup.open({
-          items: {
-            src: '#expired-popup'
-            ,type: 'inline'
-          }
-          ,preloader: false
-          ,removalDelay: 300
-          ,mainClass: 'popup-animate'
-          ,callbacks: {
-            open: function() {
-              $('.navbar').addClass('blur');
-              $('.container').addClass('blur');
+        if (incoming_query_data.match(/Expired/))
+        {
+          $('.container').append('<div id="expired-popup" class="popup"><h5>Expired</h5><div class="popup-form-data">Your search has expired and is no longer available</div></div>');
+          $.magnificPopup.open({
+            items: {
+              src: '#expired-popup'
+              ,type: 'inline'
             }
-            ,close: function() {
-              $('.container').removeClass('blur');
-              $('.navbar').removeClass('blur');
-              window.history.pushState("", "StatusWolf", "/adhoc/");
-              $('.widget').addClass('flipped');
+            ,preloader: false
+            ,removalDelay: 300
+            ,mainClass: 'popup-animate'
+            ,callbacks: {
+              open: function() {
+                $('.navbar').addClass('blur');
+                $('.container').addClass('blur');
+              }
+              ,close: function() {
+                $('.container').removeClass('blur');
+                $('.navbar').removeClass('blur');
+                window.history.pushState("", "StatusWolf", "/adhoc/");
+                $('.widget').addClass('flipped');
+              }
             }
-          }
-        });
-      }
-      else if (incoming_query_data.match(/Not Allowed/))
-      {
-        $('.container').append('<div id="not-allowed-popup" class="popup"><h5>Not Allowed</h5><div class="popup-form-data">You do not have permission to view this saved search</div></div>');
-        $.magnificPopup.open({
-          items: {
-            src: '#not-allowed-popup'
-            ,type: 'inline'
-          }
-          ,preloader: false
-          ,removalDelay: 300
-          ,mainClass: 'popup-animate'
-          ,callbacks: {
-            open: function() {
-              $('.navbar').addClass('blur');
-              $('.container').addClass('blur');
+          });
+        }
+        else if (incoming_query_data.match(/Not Allowed/))
+        {
+          $('.container').append('<div id="not-allowed-popup" class="popup"><h5>Not Allowed</h5><div class="popup-form-data">You do not have permission to view this saved search</div></div>');
+          $.magnificPopup.open({
+            items: {
+              src: '#not-allowed-popup'
+              ,type: 'inline'
             }
-            ,close: function() {
-              $('.container').removeClass('blur');
-              $('.navbar').removeClass('blur');
-              window.history.pushState("", "StatusWolf", "/adhoc/");
-              $('.widget').addClass('flipped');
+            ,preloader: false
+            ,removalDelay: 300
+            ,mainClass: 'popup-animate'
+            ,callbacks: {
+              open: function() {
+                $('.navbar').addClass('blur');
+                $('.container').addClass('blur');
+              }
+              ,close: function() {
+                $('.container').removeClass('blur');
+                $('.navbar').removeClass('blur');
+                window.history.pushState("", "StatusWolf", "/adhoc/");
+                $('.widget').addClass('flipped');
+              }
             }
-          }
-        });
-      }
-      else if (incoming_query_data.match(/Not Found/))
-      {
-        $('.container').append('<div id="not-found-popup" class="popup"><h5>Not Found</h5><div class="popup-form-data">The saved search was not found.</div></div>');
-        $.magnificPopup.open({
-          items: {
-            src: '#not-found-popup'
-            ,type: 'inline'
-          }
-          ,preloader: false
-          ,removalDelay: 300
-          ,mainClass: 'popup-animate'
-          ,callbacks: {
-            open: function() {
-              $('.navbar').addClass('blur');
-              $('.container').addClass('blur');
+          });
+        }
+        else if (incoming_query_data.match(/Not Found/))
+        {
+          $('.container').append('<div id="not-found-popup" class="popup"><h5>Not Found</h5><div class="popup-form-data">The saved search was not found.</div></div>');
+          $.magnificPopup.open({
+            items: {
+              src: '#not-found-popup'
+              ,type: 'inline'
             }
-            ,close: function() {
-              $('.container').removeClass('blur');
-              $('.navbar').removeClass('blur');
-              window.history.pushState("", "StatusWolf", "/adhoc/");
-              $('.widget').addClass('flipped');
+            ,preloader: false
+            ,removalDelay: 300
+            ,mainClass: 'popup-animate'
+            ,callbacks: {
+              open: function() {
+                $('.navbar').addClass('blur');
+                $('.container').addClass('blur');
+              }
+              ,close: function() {
+                $('.container').removeClass('blur');
+                $('.navbar').removeClass('blur');
+                window.history.pushState("", "StatusWolf", "/adhoc/");
+                $('.widget').addClass('flipped');
+              }
             }
-          }
-        });
+          });
+        }
       }
       else
       {
-        query_data = eval('(' + incoming_query_data + ')');
+        query_data = incoming_query_data;
         if (query_data.save_span == 0)
         {
           query_data.period = 'span-search';
@@ -844,10 +843,17 @@
       graph_element.append('<div id="status-box" style="width: 100%; text-align: center;"><p id="status-message"></p></div>');
       $('#status-box').append('<p id=chuck style="margin: 0 25px"></p>');
 
-      if (incoming_query_data.length > 1)
+      if (incoming_query_data !== null && typeof incoming_query_data !== "undefined")
       {
+        if (typeof incoming_query_data === "string" && incoming_query_data.length > 1)
+        {
+          var incoming_query = eval('(' + incoming_query_data + ')');
+        }
+        else
+        {
+          var incoming_query = incoming_query_data;
+        }
         var form_change = 0;
-        var incoming_query = eval('(' + incoming_query_data + ')');
         if (incoming_query.metrics.length == query_data.metrics.length)
         {
           $.each(incoming_query.metrics, function(i, metric)
@@ -898,7 +904,6 @@
           incoming_query_data = '';
         }
       }
-
       init_query(query_data);
     }
   }

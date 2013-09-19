@@ -149,7 +149,9 @@ class ApiController extends SWController
     {
       throw new SWException('Shared search database connection error: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
     }
-    $save_shared_search = sprintf("REPLACE INTO shared_searches VALUES('%s', '%s', '%s', '%s')", $search_key, $data['datasource'], serialize($data), time());
+    $datasource = mysqli_real_escape_string($shared_search_db, $data['datasource']);
+    $search_data = mysqli_real_escape_string($shared_search_db, serialize($data));
+    $save_shared_search = sprintf("REPLACE INTO shared_searches VALUES('%s', '%s', '%s', '%s')", $search_key, $datasource, $search_data, time());
     $this->loggy->logDebug($this->log_tag . 'Saved search query: ' . $save_shared_search);
     $write_result = $shared_search_db->query($save_shared_search);
     if (mysqli_error($shared_search_db))
@@ -234,11 +236,15 @@ class ApiController extends SWController
     {
       throw new SWException('Shared search database connection error: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
     }
-    $search_parameters['title'] = mysqli_real_escape_string($saved_search_db, $search_parameters['title']);
+    $sanitized_title = mysqli_real_escape_string($saved_search_db, $search_parameters['title']);
+    $sanitized_datasource = mysqli_real_escape_string($saved_search_db, $search_parameters['datasource']);
+    $sanitized_user_id = mysqli_real_escape_string($saved_search_db, $search_parameters['user_id']);
+    $sanitized_private = mysqli_real_escape_string($saved_search_db, $search_parameters['private']);
+    $search_data = mysqli_real_escape_string($saved_search_db, serialize($search_parameters));
     if (!$confirm_save)
     {
       $this->loggy->logDebug($this->log_tag . "Checking search title against saved searches");
-      $check_search_title = sprintf("SELECT id, title FROM saved_searches WHERE title='%s' AND user_id='%s'", $search_parameters['title'], $search_parameters['user_id']);
+      $check_search_title = sprintf("SELECT id, title FROM saved_searches WHERE title='%s' AND user_id='%s'", $sanitized_title, $sanitized_user_id);
       if ($check_title_result = $saved_search_db->query($check_search_title))
       {
         if ($check_title_result->num_rows && $check_title_result->num_rows > 0)
@@ -253,11 +259,11 @@ class ApiController extends SWController
 
     if (!empty($search_id))
     {
-      $saved_search_query = sprintf("UPDATE saved_searches SET title='%s', private='%s', search_params='%s' WHERE id='%s'", $search_parameters['title'], $search_parameters['private'], serialize($search_parameters), $search_id);
+      $saved_search_query = sprintf("UPDATE saved_searches SET title='%s', private='%s', search_params='%s' WHERE id='%s'", $sanitized_title, $sanitized_private, $search_data, $search_id);
     }
     else
     {
-      $saved_search_query = sprintf("INSERT INTO saved_searches VALUES('', '%s', '%s', '%s', '%s', '%s')", $search_parameters['title'], $search_parameters['user_id'], $search_parameters['private'], serialize($search_parameters), $search_parameters['datasource']);
+      $saved_search_query = sprintf("INSERT INTO saved_searches VALUES('', '%s', '%s', '%s', '%s', '%s')", $sanitized_title, $sanitized_user_id, $sanitized_private, $search_data, $sanitized_datasource);
     }
     $save_result = $saved_search_db->query($saved_search_query);
     $search_id = $saved_search_db->insert_id;
@@ -310,19 +316,20 @@ class ApiController extends SWController
   {
     $data = $_POST;
     $search_ids = array();
-    foreach ($data as $search_title => $search_id)
-    {
-      array_push($search_ids, $search_id);
-    }
-
-    $this->loggy->logDebug($this->log_tag . "API call, deleting saved searches " . implode(',', $search_ids));
 
     $sw_db = new mysqli($this->_app_config['session_handler']['db_host'], $this->_app_config['session_handler']['db_user'], $this->_app_config['session_handler']['db_password'], $this->_app_config['session_handler']['database']);
     if (mysqli_connect_error())
     {
       throw new SWException('Saved searches database connect error: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
     }
-    $delete_searches_query = sprintf("DELETE FROM saved_searches WHERE id in ('%s')", implode(',', $search_ids));
+    foreach ($data as $search_title => $search_id)
+    {
+      array_push($search_ids, mysqli_real_escape_string($sw_db, $search_id));
+    }
+    $this->loggy->logDebug($this->log_tag . "API call, deleting saved searches " . implode("','", $search_ids));
+    $search_ids_string = implode("','", $search_ids);
+    $delete_searches_query = sprintf("DELETE FROM saved_searches WHERE id in ('%s')", $search_ids_string);
+    $this->loggy->logDebug($this->log_tag . $delete_searches_query);
     $sw_db->query($delete_searches_query);
     if (mysqli_error($sw_db))
     {
@@ -350,7 +357,8 @@ class ApiController extends SWController
     {
       throw new SWException('Saved searches database connect error: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
     }
-    $saved_searches_query = sprintf("SELECT * FROM saved_searches where user_id='%s' AND private=1", $data['user_id']);
+    $search_user = mysqli_real_escape_string($sw_db, $data['user_id']);
+    $saved_searches_query = sprintf("SELECT * FROM saved_searches where user_id='%s' AND private=1", $search_user);
     $user_searches_result = $sw_db->query($saved_searches_query);
     if ($user_searches_result->num_rows && $user_searches_result->num_rows > 0)
     {
@@ -403,7 +411,6 @@ class ApiController extends SWController
   function load_saved_search($query_bits)
   {
 
-    $search_id = array_shift($query_bits);
     $this->loggy->logDebug($this->log_tag . "Loading saved search id #" . $search_id);
     $db_conf = $this->_app_config['session_handler'];
 
@@ -412,7 +419,7 @@ class ApiController extends SWController
     {
       throw new SWException('Unable to connect to shared search database: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
     }
-
+    $search_id = mysqli_real_escape_string($sw_db, array_shift($query_bits));
     $saved_search_query = sprintf("SELECT * FROM saved_searches WHERE id='%s'", $search_id);
     if ($result = $sw_db->query($saved_search_query))
     {
@@ -483,6 +490,10 @@ class ApiController extends SWController
     {
       throw new SWException('Dashboard database connection error: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
     }
+    $dashboard_config['title'] = mysqli_real_escape_string($saved_dashboard_db, $dashboard_config['title']);
+    $dashboard_config['user_id'] = mysqli_real_escape_string($saved_dashboard_db, $dashboard_config['user_id']);
+    $dashboard_config['shared'] = mysqli_real_escape_string($saved_dashboard_db, $dashboard_config['shared']);
+    $widgets_string = mysqli_real_escape_string($saved_dashboard_db, serialize($dashboard_config['widgets']));
     if (!$confirm_save)
     {
       $this->loggy->logDebug($this->log_tag . "Checking dashboard title against saved dashboards");
@@ -498,7 +509,8 @@ class ApiController extends SWController
         }
       }
     }
-    $save_dashboard_query = sprintf("REPLACE INTO saved_dashboards VALUES('%s', '%s', '%s', '%s', '%s')", $dashboard_id, $dashboard_config['title'], $dashboard_config['user_id'], $dashboard_config['shared'], serialize($dashboard_config['widgets']));
+    $save_dashboard_query = sprintf("REPLACE INTO saved_dashboards VALUES('%s', '%s', '%s', '%s', '%s')", $dashboard_id, $dashboard_config['title'], $dashboard_config['user_id'], $dashboard_config['shared'], $widgets_string);
+    $this->loggy->logDebug($this->log_tag . $save_dashboard_query);
     $save_result = $saved_dashboard_db->query($save_dashboard_query);
     $transaction_id = $saved_dashboard_db->insert_id;
     if (mysqli_error($saved_dashboard_db))
@@ -522,6 +534,7 @@ class ApiController extends SWController
     {
       throw new SWException('Saved searches database connect error: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
     }
+    $data['user_id'] = mysqli_real_escape_string($dashboard_db, $data['user_id']);
     $dashboard_query = sprintf("SELECT * FROM saved_dashboards where user_id='%s' AND shared=0", $data['user_id']);
     $user_dashboards_result = $dashboard_db->query($dashboard_query);
     if ($user_dashboards_result->num_rows && $user_dashboards_result->num_rows > 0)
@@ -558,7 +571,6 @@ class ApiController extends SWController
 
   protected function load_saved_dashboard($query_bits)
   {
-    $dash_id = array_shift($query_bits);
     $db_conf = $this->_app_config['session_handler'];
 
     $sw_db = new mysqli($db_conf['db_host'], $db_conf['db_user'], $db_conf['db_password'], $db_conf['database']);
@@ -566,6 +578,7 @@ class ApiController extends SWController
     {
       throw new SWException('Unable to connect to shared dashboard database: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
     }
+    $dash_id = mysqli_real_escape_string($sw_db, array_shift($query_bits));
     $this->loggy->logDebug($this->log_tag . "Loading saved dashboard id " . $dash_id);
     $dashboard_query = sprintf("SELECT * FROM saved_dashboards WHERE id='%s'", $dash_id);
     if ($dashboard_result = $sw_db->query($dashboard_query))
@@ -582,8 +595,7 @@ class ApiController extends SWController
         {
           $this->loggy->logDebug($this->log_tag . 'Dashboard config found, loading');
           $dashboard_config = $dashboard_data;
-          $incoming_widgets = unserialize($dashboard_data['widgets']);
-          $dashboard_config['widgets'] = $incoming_widgets;
+          $dashboard_config['widgets'] = unserialize($dashboard_data['widgets']);
         }
       }
       else
@@ -604,19 +616,20 @@ class ApiController extends SWController
   {
     $data = $_POST;
     $dashboard_ids = array();
-    foreach ($data as $dashboard_title => $dashboard_id)
-    {
-      array_push($dashboard_ids, $dashboard_id);
-    }
-
-    $this->loggy->logDebug($this->log_tag . "API call, deleting saved dashboards " . implode(',', $dashboard_ids));
 
     $sw_db = new mysqli($this->_app_config['session_handler']['db_host'], $this->_app_config['session_handler']['db_user'], $this->_app_config['session_handler']['db_password'], $this->_app_config['session_handler']['database']);
     if (mysqli_connect_error())
     {
       throw new SWException('Saved dashboards database connect error: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
     }
-    $delete_dashboards_query = sprintf("DELETE FROM saved_dashboards WHERE id in ('%s')", implode(',', $dashboard_ids));
+    foreach ($data as $dashboard_title => $dashboard_id)
+    {
+      array_push($dashboard_ids, mysqli_real_escape_string($sw_db, $dashboard_id));
+    }
+    $this->loggy->logDebug($this->log_tag . "API call, deleting saved dashboards " . implode(',', $dashboard_ids));
+    $dashboard_ids_string = implode("','", $dashboard_ids);
+    $delete_dashboards_query = sprintf("DELETE FROM saved_dashboards WHERE id in ('%s')", $dashboard_ids_string);
+    $this->loggy->logDebug($this->log_tag . $delete_dashboards_query);
     $sw_db->query($delete_dashboards_query);
     if (mysqli_error($sw_db))
     {
