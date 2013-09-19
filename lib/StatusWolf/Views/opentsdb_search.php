@@ -626,11 +626,11 @@
       $('#active-aggregation-type' + metric_num).text(method_map[metric.agg_type]);
       $('#active-downsample-type' + metric_num).text(method_map[metric.ds_type]);
       $('#downsample-interval-options' + metric_num + ' li span[data-value="' + metric.ds_interval + '"]').parent('li').click();
-      if (!metric.lerp || metric.lerp === "false")
+      if (metric.lerp || metric.lerp !== "false")
       {
         $('input#lerp-button' + metric_num).siblings('label').click();
         $('input#lerp-button' + metric_num).parent('.push-button').removeClass('pushed');
-        $('input#lerp-button' + metric_num).siblings('label').children('span.iconic').addClass('iconic-x-alt red').removeClass('iconic-check-alt green');
+        $('input#lerp-button' + metric_num).siblings('label').children('span.iconic').addClass('iconic-x-alt green').removeClass('iconic-check-alt red');
         $('input#lerp-button' + metric_num).siblings('label').children('span.binary-label').text('No');
       }
       if (metric.rate && metric.rate !== "false")
