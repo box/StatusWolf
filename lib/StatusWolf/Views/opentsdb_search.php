@@ -143,7 +143,7 @@
         <th>Metric</th>
         <th>Aggregation</th>
         <th colspan="2"><span class="info-tooltip" title="Downsampling is performed exclusively by StatusWolf, OpenTSDB downsampling can be idiosyncratic and has been shown to return unexpected graphs.">Downsampling <span class="iconic-info"></span></span></th>
-        <th>Interpolation</th>
+        <th><span class="info-tooltip" id="lerp-info" title="Interpolation should be disabled unless you are absolutely sure that you need it. Click for more info">Interpolation <span class="iconic-info"></span></span></th>
         <th>Rate</th>
         <th>Right Axis</th>
       </tr>
@@ -171,7 +171,7 @@
         <td width="10%" style="padding-right: 0;">
           <div class="dropdown ad-hoc-button">
             <span class="flexy" data-toggle="dropdown">
-              <div class="ad-hoc-button-label" id="active-downsample-type1">Maximum Value</div>
+              <div class="ad-hoc-button-label" id="active-downsample-type1">Sum</div>
               <span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span>
             </span>
             <ul class="dropdown-menu" id="downsample-type-options1" role="menu" aria-labelledby="dLabel">
@@ -199,17 +199,17 @@
             </ul>
           </div>
         </td>
-        <td width="7.5%">
-          <div class="push-button binary pushed">
-            <input type="checkbox" id="lerp-button1" name="lerp1" checked><label for="lerp-button1"><span class="iconic iconic-check-alt green"></span><span class="binary-label"> Yes</span></label>
+        <td width="9%">
+          <div class="push-button binary">
+            <input type="checkbox" id="lerp-button1" name="lerp1"><label for="lerp-button1"><span class="iconic iconic-check-alt red"></span><span class="binary-label"> No</span></label>
           </div>
         </td>
-        <td width="7.5%">
+        <td width="7%">
           <div class="push-button binary">
             <input type="checkbox" id="rate-button1" name="rate1"><label for="rate-button1"><span class="iconic iconic-x-alt red"></span><span class="binary-label"> No</span></label>
           </div>
         </td>
-        <td width="7.55%">
+        <td width="7%">
           <div class="push-button binary">
             <input type="checkbox" id="y2-button1" name="y2-1"><label for="y2-button1"><span class="iconic iconic-x-alt red"></span><span class="binary-label"> No</span></label>
           </div>
@@ -230,7 +230,7 @@
         print "<li><span>Maximum Value</span></li>\n<li><span>Standard Deviation</span></li>\n</ul></div></td>";
         print '<td style="padding-right: 0;">' . "\n";
         print '<div class="dropdown ad-hoc-button">' . "\n" . '<span class="flexy" data-toggle="dropdown">' . "\n";
-        print '<div class="ad-hoc-button-label" id="active-downsample-type' . $i . '">Maximum Value</div>' . "\n";
+        print '<div class="ad-hoc-button-label" id="active-downsample-type' . $i . '">Sum</div>' . "\n";
         print '<span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span>' . "\n</span>\n</span>";
         print '<ul class="dropdown-menu" id="downsample-type-options' . $i . '" role="menu" aria-labelledby="dLabel">' . "\n";
         print "<li><span>Sum</span></li>\n<li><span>Average</span></li>\n";
@@ -248,10 +248,10 @@
         print '<li><span data-value="240">4 hours</span></li>' . "\n";
         print '<li><span data-value="720">12 hours</span></li>' . "\n";
         print '<li><span data-value="1440">1 day</span></li>' . "\n</ul>\n</div>\n</td>\n";
-        print '<td>' . "\n" . '<div class="push-button binary pushed">' . "\n";
-        print '<input type="checkbox" id="lerp-button' . $i . '" name="lerp' . $i . '" checked>';
-        print '<label for="lerp-button' . $i . '"><span class="iconic iconic-check-alt green"></span>';
-        print '<span class="binary-label"> Yes</span></label>' . "\n</div>\n</td>\n";
+        print '<td>' . "\n" . '<div class="push-button binary">' . "\n";
+        print '<input type="checkbox" id="lerp-button' . $i . '" name="lerp' . $i . '">';
+        print '<label for="lerp-button' . $i . '"><span class="iconic iconic-check-alt red"></span>';
+        print '<span class="binary-label"> No</span></label>' . "\n</div>\n</td>\n";
         print '<td>' . "\n" . '<div class="push-button binary">' . "\n";
         print '<input type="checkbox" id="rate-button' . $i . '" name="rate' . $i . '">';
         print '<label for="rate-button' . $i . '"><span class="iconic iconic-x-alt red"></span>';
@@ -266,12 +266,41 @@
   </div>
 </div>
 
+<div id="lerp-info-popup" class="popup mfp-hide">
+  <h5>OpenTSDB Interpolation and StatusWolf</h5>
+  <div class="popup-form-data">
+    <p id="lerp-doc">With Linear Interpolation (LERP) enabled during a query, OpenTSDB will try to return suitable
+    data for every metric group for every timestamp returned. For example, if you have a metric that is fed by
+    100 servers, and every server reports every 60 seconds, those servers will be sending data at slightly different
+    points for every interval. For simplicity, let's assume 50 hosts report at 15 seconds past the top of the minute
+    and the other 50 at 45 seconds past the top of the minute. For that 1-minute interval OpenTSDB will return 2 data
+    points, but only half the servers reported for each one, so OpenTSDB will interpolate the data for the missing
+    50 at each timestamp. Once that data passes into StatusWolf for downsampling this will have the net effect of
+    roughly doubling the metric numbers that you would expect to see.</p>
+    <p><a href="http://opentsdb.net/query-execution.html" target="new">See also OpenTSDB's query documentation</a></p>
+  </div>
+</div>
+
 <script type="text/javascript">
 
   var sw_conf = eval('(<?php echo json_encode($sw_conf); ?>)');
   var query_data = {};
   var query_url = '';
   var incoming_query_data = <?php if ($incoming_query_data) { echo json_encode($incoming_query_data); } else { echo 'null'; } ?>;
+
+  $('#lerp-info').magnificPopup({
+    items: {
+      src: '#lerp-info-popup'
+      ,type: 'inline'
+    }
+    ,preloader: false
+    ,mainClass: 'popup-animate'
+    ,callbacks: {
+      close: function() {
+        $('#lerp-info-popup').remove();
+      }
+    }
+  });
 
   // Add the styles for the ad-hoc search
   $('head').append('<link href="<?php echo URL; ?>app/css/datetimepicker.css" rel="stylesheet">')

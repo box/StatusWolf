@@ -254,6 +254,10 @@
     min-width: 350px;
 }
 
+#lerp-info-popup {
+    max-width: 800px;
+}
+
 /*
  * ========================================
  * ad-hoc widget is bigger than the default
