@@ -490,7 +490,7 @@
           '<h4>Downsampling</h4>' +
           '<div class="dropdown graph-widget-button">' +
           '<span data-toggle="dropdown">' +
-          '<div class="graph-widget-button-label" id="active-downsample-type' + tab_tag + '">Maximum Value</div>' +
+          '<div class="graph-widget-button-label" id="active-downsample-type' + tab_tag + '">Sum</div>' +
           '<span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span></span>' +
           '<ul class="dropdown-menu" id="downsample-type-options' + tab_tag + '" role="menu" aria-labelledby="dLabel">' +
           '<li><span>Sum</span></li>' +
@@ -511,10 +511,10 @@
           '<li><span data-value="1440">1 day</span></li></ul></div></td></tr>');
         tab_table.append('<tr><td width="32%"><div class="graph-widget-form-item menu-label">' +
           '<h4>Interpolation</h4>' +
-          '<div class="push-button binary pushed">' +
-          '<input type="checkbox" id="lerp-button' + tab_tag + '" name="lerp' + tab_tag + '" checked>' +
-          '<label for="lerp-button' + tab_tag + '"><span class="iconic iconic-check-alt green"></span>' +
-          '<span class="binary-label">Yes</span></label></div></div></td>' +
+          '<div class="push-button binary info-tooltip" title="Interpolation should be disabled unless you are absolutely sure that you need it.">' +
+          '<input type="checkbox" id="lerp-button' + tab_tag + '" name="lerp' + tab_tag + '">' +
+          '<label for="lerp-button' + tab_tag + '"><span class="iconic iconic-check-alt red"></span>' +
+          '<span class="binary-label">No</span></label></div></div></td>' +
           '<td width="30%"><div class="graph-widget-form-item menu-label">' +
           '<h4>Right Axis</h4>' +
           '<div class="push-button binary">' +
@@ -545,6 +545,9 @@
       $('ul.dropdown-menu').on('click', 'li', function() {
         widget.dropdown_menu_handler(this, widget_num);
       });
+
+      $('.info-tooltip').tooltip({placement: 'bottom'});
+      $('.info-tooltip').hover(function() {$(this).css('cursor', 'default')});
 
       return tab_num;
     }
