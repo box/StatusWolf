@@ -672,6 +672,7 @@
     var methods = {'sum': 'sum', 'average': 'avg', 'minimum value': 'min', 'maximum value': 'max', 'standard deviation': 'dev'};
     query_data.title = $('input[name="search-title-input"]').val();
     $('#graph-title').empty();
+    $('#legend-master').empty();
 
     if (typeof autoupdate_interval !== "undefined")
     {
@@ -1450,7 +1451,7 @@
 
     if (graph_labels.length > 15)
     {
-      $('#legend').css({
+      $('#legend-master').css({
         '-webkit-columns': 'auto 4'
         ,'-moz-columns': 'auto 4'
         ,columns: 'auto 4'
@@ -1458,7 +1459,7 @@
     }
     else if (graph_labels.length > 10)
     {
-      $('#legend').css({
+      $('#legend-master').css({
         '-webkit-columns': 'auto 3'
         ,'-moz-columns': 'auto 3'
         ,columns: 'auto 3'
@@ -1466,7 +1467,7 @@
     }
     else if (graph_labels.length > 5)
     {
-      $('#legend').css({
+      $('#legend-master').css({
         '-webkit-columns': 'auto 2'
         ,'-moz-columns': 'auto 2'
         ,columns: 'auto 2'
@@ -1485,7 +1486,6 @@
         ,{
           labels: graph_labels
           ,labelsDiv: 'legend'
-          ,legend: 'always'
           ,axisLabelsFontSize: 13
           ,labelsKMB: true
           ,labelsDivWidth: g_width
@@ -1518,6 +1518,7 @@
           ,connectSeparatedPoints: true
         }
     );
+
     // Set up the right axis labels, if requested
     var right_axis = '';
     console.log('checking for right axis data');
@@ -1566,6 +1567,10 @@
       })
     }
     $('.dygraph-xlabel').parent().css('top', '40%');
+
+    $.each(g.colorsMap_, function(legend_key, color) {
+      $('#legend-master').append('<span style="color: ' + color + '"><b>' + legend_key + '</b></span>');
+    });
 
     console.log('checking for auto-update');
     // Set the interval for adding new data if Auto Update is selected

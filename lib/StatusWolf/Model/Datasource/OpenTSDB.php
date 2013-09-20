@@ -200,6 +200,7 @@ class OpenTSDB extends TimeSeriesData {
    */
   public function get_raw_data(array $query_bits)
   {
+    $search_metrics = Array();
     // Make sure we were passed query building blocks
     if (empty($query_bits))
     {
@@ -236,8 +237,11 @@ class OpenTSDB extends TimeSeriesData {
           }
           $qkey .= $metric['name'];
 
+          $search_metrics[$metric['name']] = Array();
+
           if (array_key_exists('tags', $metric) && is_array($metric['tags']))
           {
+            $search_metrics[$metric['name']] = $metric['tags'];
             $qkey .= '{';
             foreach ($metric['tags'] as $tag)
             {
@@ -383,7 +387,7 @@ class OpenTSDB extends TimeSeriesData {
       $graph_data[$series_key][] = array('timestamp' => $timestamp, 'value' => $value);
     }
 
-    $legend = $this->_normalize_legend(array_keys($graph_data));
+    $legend = $this->_normalize_legend(array_keys($graph_data), $search_metrics);
 
     foreach ($graph_data as $series => $data)
     {
@@ -474,47 +478,36 @@ class OpenTSDB extends TimeSeriesData {
    *
    * @param array $graph_data
    */
-  protected function _normalize_legend($raw_legends)
+  protected function _normalize_legend($raw_legends, $query_metrics)
   {
     $save_metric_names = false;
     $metrics = Array();
     $legend_pool = Array();
-    $unique_tags = Array();
-    $tag_dupes = Array();
+
     $this->loggy->logDebug($this->log_tag . "Normalizing legend");
     $this->loggy->logDebug($this->log_tag . implode(', ', $raw_legends));
-    foreach ($raw_legends as $series)
+
+    $query_metrics_tags = Array();
+    foreach($query_metrics as $metric => $metric_tags)
     {
-      $series_bits = explode(' ', $series);
-      $metric = array_shift($series_bits);
-      if (!in_array($metric, $metrics))
+      $query_metrics_tags[$metric] = Array();
+      foreach ($metric_tags as $mtag)
       {
-        $metrics[] = $metric;
-      }
-      $legend_pool[$series] = array_merge(array($metric), $series_bits);
-      foreach ($series_bits as $tag)
-      {
-        if(!in_array($tag, $tag_dupes))
-        {
-          if (in_array($tag, $unique_tags))
-          {
-            $tag_dupes[] = $tag;
-            $unique_tags = array_diff($unique_tags, array($tag));
-          }
-          else
-          {
-            $unique_tags[] = $tag;
-          }
-        }
+        $bits = explode('=', $mtag);
+        array_push($query_metrics_tags[$metric], $bits[0]);
       }
     }
 
-    $this->loggy->logDebug($this->log_tag . "Metrics: " . implode(', ', $metrics) . "(" . count($metrics) . " metrics)");
-    $this->loggy->logDebug($this->log_tag . "Tag dupes: " . implode(', ', $tag_dupes));
-    $this->loggy->logDebug($this->log_tag . "Unique tags: " . implode(', ', $unique_tags));
-    $this->loggy->logDebug($this->log_tag . "All the legend bits: " . json_encode($legend_pool));
+    foreach ($raw_legends as $raw_bits)
+    {
+      $legend_pool[$raw_bits] = explode(' ', $raw_bits);
+    }
 
-    if (count($metrics) > 1)
+    $this->loggy->logDebug($this->log_tag . "Metrics: " . implode(', ', array_keys($query_metrics)) . "(" . count($query_metrics) . " metrics)");
+    $this->loggy->logDebug($this->log_tag . "All the legend bits: " . json_encode($legend_pool));
+    $this->loggy->logDebug($this->log_tag . "Query tags: " . json_encode($query_metrics_tags));
+
+    if (count($query_metrics) > 1)
     {
       $save_metric_names = true;
     }
@@ -526,12 +519,20 @@ class OpenTSDB extends TimeSeriesData {
       {
         $legend_string = $legend_bits[0] . ' ';
       }
-      array_shift($legend_bits);
-      foreach ($legend_bits as $tag)
+      $metric_name = array_shift($legend_bits);
+      if (count($query_metrics_tags[$metric_name]) < 1 && !$save_metric_names)
       {
-        if (in_array($tag, $unique_tags))
+        $legend_string = $metric_name;
+      }
+      else
+      {
+        foreach ($legend_bits as $tag)
         {
-          $legend_string = $legend_string . $tag . ' ';
+          $tag_bits = explode('=', $tag);
+          if (in_array($tag_bits[0], $query_metrics_tags[$metric_name]))
+          {
+            $legend_string = $legend_string . $tag . ' ';
+          }
         }
       }
       $legends[$series] = trim($legend_string);
