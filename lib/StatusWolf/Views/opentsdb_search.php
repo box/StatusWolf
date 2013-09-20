@@ -287,6 +287,8 @@
   var query_data = {};
   var query_url = '';
   var incoming_query_data = <?php if ($incoming_query_data) { echo json_encode($incoming_query_data); } else { echo 'null'; } ?>;
+  console.log('incoming query');
+  console.log(incoming_query_data);
 
   $('#lerp-info').magnificPopup({
     items: {
@@ -626,12 +628,12 @@
       $('#active-aggregation-type' + metric_num).text(method_map[metric.agg_type]);
       $('#active-downsample-type' + metric_num).text(method_map[metric.ds_type]);
       $('#downsample-interval-options' + metric_num + ' li span[data-value="' + metric.ds_interval + '"]').parent('li').click();
-      if (!metric.lerp || metric.lerp === "false")
+      if (metric.lerp && metric.lerp !== "false")
       {
         $('input#lerp-button' + metric_num).siblings('label').click();
-        $('input#lerp-button' + metric_num).parent('.push-button').removeClass('pushed');
-        $('input#lerp-button' + metric_num).siblings('label').children('span.iconic').addClass('iconic-x-alt red').removeClass('iconic-check-alt green');
-        $('input#lerp-button' + metric_num).siblings('label').children('span.binary-label').text('No');
+        $('input#lerp-button' + metric_num).parent('.push-button').addClass('pushed');
+        $('input#lerp-button' + metric_num).siblings('label').children('span.iconic').addClass('iconic-x-alt green').removeClass('iconic-check-alt red');
+        $('input#lerp-button' + metric_num).siblings('label').children('span.binary-label').text('Yes');
       }
       if (metric.rate && metric.rate !== "false")
       {
@@ -661,6 +663,7 @@
   // Function to build the graph when the form Go button is activated
   function go_click_handler(event)
   {
+    console.log('Go button activated');
     query_data = {};
     query_data.datasource = 'OpenTSDB';
     query_data.downsample_master_interval = 0;
@@ -678,6 +681,7 @@
     }
     // Validate the input before we do anything else
 
+    console.log('date range validation');
     // Date range validation
     var start, end;
     if ($('input:radio[name=date-span]:checked').val() == 'date-search')
@@ -726,6 +730,7 @@
     query_data['start_time'] = start;
     query_data['end_time'] = end;
 
+    console.log('looking for auto-update flag');
     // Check for auto-update flag
     if ($('input:checkbox[name=auto-update]:checked').val() === 'on')
     {
@@ -736,6 +741,7 @@
       query_data['auto_update'] = false;
     }
 
+    console.log('looking for history options');
     // Check for history display options
     query_data.history_graph = $('input:radio[name=history-graph]:checked').val();
     if (query_data.history_graph === 'no')
@@ -748,6 +754,8 @@
     }
     query_data['metrics'] = [];
 
+    console.log('validating metrics');
+    console.log(query_data);
     // Validate metrics to search on
     if (query_data['metrics_count'] > 1)
     {
@@ -857,6 +865,7 @@
       query_data['metrics'].push(build_metric);
     }
 
+    console.log('checking for input errors');
     // If we made it this far without errors in the form input, then
     // we build us a graph
     if (input_error == false)
@@ -872,6 +881,8 @@
       graph_element.append('<div id="status-box" style="width: 100%; text-align: center;"><p id="status-message"></p></div>');
       $('#status-box').append('<p id=chuck style="margin: 0 25px"></p>');
 
+      console.log('Checking for incoming query data');
+      console.log(incoming_query_data);
       if (incoming_query_data !== null && typeof incoming_query_data !== "undefined")
       {
         if (typeof incoming_query_data === "string" && incoming_query_data.length > 1)
@@ -882,6 +893,7 @@
         {
           var incoming_query = incoming_query_data;
         }
+        console.log('checking for form changes');
         var form_change = 0;
         if (incoming_query.metrics.length == query_data.metrics.length)
         {
@@ -915,6 +927,9 @@
             {
               delete metric.history_graph;
             }
+            console.log('comparing query strings');
+            console.log('incoming: ' + JSON.stringify(incoming_query.metrics[i]));
+            console.log('current: ' + JSON.stringify(query_data.metrics[i]));
             if (JSON.stringify(incoming_query.metrics[i]) != JSON.stringify(query_data.metrics[i]))
             {
               form_change++;
@@ -928,9 +943,10 @@
 
         if (form_change > 0)
         {
+          console.log('form has changed!');
           window.history.pushState("", "StatusWolf", "/adhoc/");
           delete incoming_query;
-          incoming_query_data = '';
+          incoming_query_data = null;
         }
       }
       init_query(query_data);
@@ -949,6 +965,7 @@
               function(data)
               {
                 build_graph(data.graphdata, data.querydata);
+                console.log('Graph built!');
               }
               // fail: Show error image and error message
               ,function(status)
@@ -1315,11 +1332,13 @@
     var end = parseInt(data.end);
     query_url = data.query_url;
     query_data.cache_key = data.cache_key;
+    var legend_map = data.legend;
     delete data.start;
     delete data.end;
     delete data.query_url;
     delete data.cache_key;
     delete data.query_cache;
+    delete data.legend;
     if (query_data.history_graph === "anomaly")
     {
       var anomalies = data.anomalies;
@@ -1333,6 +1352,7 @@
       buckets[i] = [];
     }
 
+    console.log(legend_map);
     for (var series in data) {
       if (data.hasOwnProperty(series))
       {
@@ -1340,7 +1360,8 @@
         {
           query_data.metrics[0]['history_graph'] = "anomaly";
         }
-        labels.push(series);
+        console.log('legend for series ' + series + ': ' + legend_map.series);
+        labels.push(legend_map[series]);
 
         var data_holder = {};
         data[series].forEach(function(series_data, index) {
@@ -1378,6 +1399,7 @@
     }
 
     var parsed_data = {graphdata: graph_data, querydata: query_data};
+    console.log(parsed_data);
 
     parse_object.resolve(parsed_data);
 
@@ -1388,6 +1410,8 @@
   // Function to build the graph from the OpenTSDB metric data
   function build_graph(data, query_data)
   {
+
+    console.log('Building graph');
 
     $('.widget-footer-button.hidden').removeClass('hidden');
 
@@ -1424,9 +1448,36 @@
       labels_map[label_bits[0]].push(label);
     });
 
+    if (graph_labels.length > 15)
+    {
+      $('#legend').css({
+        '-webkit-columns': 'auto 4'
+        ,'-moz-columns': 'auto 4'
+        ,columns: 'auto 4'
+      });
+    }
+    else if (graph_labels.length > 10)
+    {
+      $('#legend').css({
+        '-webkit-columns': 'auto 3'
+        ,'-moz-columns': 'auto 3'
+        ,columns: 'auto 3'
+      })
+    }
+    else if (graph_labels.length > 5)
+    {
+      $('#legend').css({
+        '-webkit-columns': 'auto 2'
+        ,'-moz-columns': 'auto 2'
+        ,columns: 'auto 2'
+      })
+    }
+
     var x_space = $('#graphdiv').width() / 12;
     var y_space = $('#graphdiv').height() / 12;
     var g_width = $('#graphdiv').innerWidth() * .95;
+
+    console.log('Handing off to Dygraph');
 
     g = new Dygraph(
         document.getElementById('graphdiv')
@@ -1469,6 +1520,7 @@
     );
     // Set up the right axis labels, if requested
     var right_axis = '';
+    console.log('checking for right axis data');
     $.each(query_data.metrics, function(i, metric) {
       if (metric.y2 == true)
       {
@@ -1493,6 +1545,7 @@
       }
     });
 
+    console.log('checking for anomalies');
     // Set up the anomaly highlighting if requested
     if (query_data.history_graph == "anomaly")
     {
@@ -1514,6 +1567,7 @@
     }
     $('.dygraph-xlabel').parent().css('top', '40%');
 
+    console.log('checking for auto-update');
     // Set the interval for adding new data if Auto Update is selected
     if (query_data['auto_update'])
     {

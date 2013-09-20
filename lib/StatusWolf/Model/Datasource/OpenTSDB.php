@@ -383,6 +383,8 @@ class OpenTSDB extends TimeSeriesData {
       $graph_data[$series_key][] = array('timestamp' => $timestamp, 'value' => $value);
     }
 
+    $legend = $this->_normalize_legend(array_keys($graph_data));
+
     foreach ($graph_data as $series => $data)
     {
       foreach ($data as $key => $row)
@@ -461,6 +463,81 @@ class OpenTSDB extends TimeSeriesData {
     $this->ts_data['query_url'] = $this->tsdb_query_url;
     $this->ts_data['start'] = $this->start_time;
     $this->ts_data['end'] = $this->end_time;
+    $this->ts_data['legend'] = $legend;
+
+  }
+
+  /**
+   * OpenTSDB::_normalize_legend()
+   *
+   * Reduces the series names to make them more meaningful and readable on the resulting graphs
+   *
+   * @param array $graph_data
+   */
+  protected function _normalize_legend($raw_legends)
+  {
+    $save_metric_names = false;
+    $metrics = Array();
+    $legend_pool = Array();
+    $unique_tags = Array();
+    $tag_dupes = Array();
+    $this->loggy->logDebug($this->log_tag . "Normalizing legend");
+    $this->loggy->logDebug($this->log_tag . implode(', ', $raw_legends));
+    foreach ($raw_legends as $series)
+    {
+      $series_bits = explode(' ', $series);
+      $metric = array_shift($series_bits);
+      if (!in_array($metric, $metrics))
+      {
+        $metrics[] = $metric;
+      }
+      $legend_pool[$series] = array_merge(array($metric), $series_bits);
+      foreach ($series_bits as $tag)
+      {
+        if(!in_array($tag, $tag_dupes))
+        {
+          if (in_array($tag, $unique_tags))
+          {
+            $tag_dupes[] = $tag;
+            $unique_tags = array_diff($unique_tags, array($tag));
+          }
+          else
+          {
+            $unique_tags[] = $tag;
+          }
+        }
+      }
+    }
+
+    $this->loggy->logDebug($this->log_tag . "Metrics: " . implode(', ', $metrics) . "(" . count($metrics) . " metrics)");
+    $this->loggy->logDebug($this->log_tag . "Tag dupes: " . implode(', ', $tag_dupes));
+    $this->loggy->logDebug($this->log_tag . "Unique tags: " . implode(', ', $unique_tags));
+    $this->loggy->logDebug($this->log_tag . "All the legend bits: " . json_encode($legend_pool));
+
+    if (count($metrics) > 1)
+    {
+      $save_metric_names = true;
+    }
+
+    foreach ($legend_pool as $series => $legend_bits)
+    {
+      $legend_string = '';
+      if ($save_metric_names)
+      {
+        $legend_string = $legend_bits[0] . ' ';
+      }
+      array_shift($legend_bits);
+      foreach ($legend_bits as $tag)
+      {
+        if (in_array($tag, $unique_tags))
+        {
+          $legend_string = $legend_string . $tag . ' ';
+        }
+      }
+      $legends[$series] = trim($legend_string);
+    }
+
+    return $legends;
 
   }
 
