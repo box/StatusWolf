@@ -512,6 +512,11 @@ function save_click_handler(event, confirmation, dashboard_id)
       widget_main = $(widget_container).children('div.widget').children('div.widget-front').children('div.widget-main');
       $(widget_container).removeClass('shrink-widget');
     }
-    $(widget_main).css('height', ($(widget_container).innerHeight() - ($('.widget-title').height() + $('.widget-footer').height())));
+    var graph_div = $(widget_main).children('div.graph-widget-graphdiv');
+    var graph_legend = $(widget_main).children('div.graph-widget-legend-container');
+    $(widget_main).css('height', ($(widget_container).innerHeight() - 10));
+    $(graph_div).css('height', ($(widget_main).innerHeight() - $(graph_legend).outerHeight(true)));
+    $(graph_legend).css('width', $(widget_main).innerWidth());
   })
+
 </script>

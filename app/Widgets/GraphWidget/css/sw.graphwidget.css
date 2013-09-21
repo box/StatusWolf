@@ -118,7 +118,7 @@
 }
 
 .widget-main {
-    top: 30px;
+    top: 0;
 }
 
 .metric-input-textbox {
@@ -186,4 +186,29 @@ ul.nav-tabs {
 
 .tab-table .push-button {
     height: 18px;
+}
+
+.graph-widget-legend-container {
+    position: relative;
+    bottom: 0;
+    height: 50px;
+    overflow: auto;
+    font-size: .75em;
+    line-height: 1.2em;
+    color: rgba(205, 205, 205, .75);
+    background-color: rgba(51, 51, 51, 0.25);
+    border-top: 1px solid rgb(51, 51, 51);
+    padding: 10px 0 0 0;
+    margin-top: 15px;
+}
+
+.legend-master {
+    position: relative;
+    top: 0;
+    width: 95%;
+    margin: 0 auto;
+}
+
+.legend-master > span {
+    display: block;
 }
