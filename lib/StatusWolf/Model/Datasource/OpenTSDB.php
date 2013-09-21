@@ -200,6 +200,7 @@ class OpenTSDB extends TimeSeriesData {
    */
   public function get_raw_data(array $query_bits)
   {
+    $search_metrics = Array();
     // Make sure we were passed query building blocks
     if (empty($query_bits))
     {
@@ -236,8 +237,11 @@ class OpenTSDB extends TimeSeriesData {
           }
           $qkey .= $metric['name'];
 
+          $search_metrics[$metric['name']] = Array();
+
           if (array_key_exists('tags', $metric) && is_array($metric['tags']))
           {
+            $search_metrics[$metric['name']] = $metric['tags'];
             $qkey .= '{';
             foreach ($metric['tags'] as $tag)
             {
@@ -383,6 +387,8 @@ class OpenTSDB extends TimeSeriesData {
       $graph_data[$series_key][] = array('timestamp' => $timestamp, 'value' => $value);
     }
 
+    $legend = $this->_normalize_legend(array_keys($graph_data), $search_metrics);
+
     foreach ($graph_data as $series => $data)
     {
       foreach ($data as $key => $row)
@@ -461,6 +467,78 @@ class OpenTSDB extends TimeSeriesData {
     $this->ts_data['query_url'] = $this->tsdb_query_url;
     $this->ts_data['start'] = $this->start_time;
     $this->ts_data['end'] = $this->end_time;
+    $this->ts_data['legend'] = $legend;
+
+  }
+
+  /**
+   * OpenTSDB::_normalize_legend()
+   *
+   * Reduces the series names to make them more meaningful and readable on the resulting graphs
+   *
+   * @param array $graph_data
+   */
+  protected function _normalize_legend($raw_legends, $query_metrics)
+  {
+    $save_metric_names = false;
+    $metrics = Array();
+    $legend_pool = Array();
+
+    $this->loggy->logDebug($this->log_tag . "Normalizing legend");
+    $this->loggy->logDebug($this->log_tag . implode(', ', $raw_legends));
+
+    $query_metrics_tags = Array();
+    foreach($query_metrics as $metric => $metric_tags)
+    {
+      $query_metrics_tags[$metric] = Array();
+      foreach ($metric_tags as $mtag)
+      {
+        $bits = explode('=', $mtag);
+        array_push($query_metrics_tags[$metric], $bits[0]);
+      }
+    }
+
+    foreach ($raw_legends as $raw_bits)
+    {
+      $legend_pool[$raw_bits] = explode(' ', $raw_bits);
+    }
+
+    $this->loggy->logDebug($this->log_tag . "Metrics: " . implode(', ', array_keys($query_metrics)) . "(" . count($query_metrics) . " metrics)");
+    $this->loggy->logDebug($this->log_tag . "All the legend bits: " . json_encode($legend_pool));
+    $this->loggy->logDebug($this->log_tag . "Query tags: " . json_encode($query_metrics_tags));
+
+    if (count($query_metrics) > 1)
+    {
+      $save_metric_names = true;
+    }
+
+    foreach ($legend_pool as $series => $legend_bits)
+    {
+      $legend_string = '';
+      if ($save_metric_names)
+      {
+        $legend_string = $legend_bits[0] . ' ';
+      }
+      $metric_name = array_shift($legend_bits);
+      if (count($query_metrics_tags[$metric_name]) < 1 && !$save_metric_names)
+      {
+        $legend_string = $metric_name;
+      }
+      else
+      {
+        foreach ($legend_bits as $tag)
+        {
+          $tag_bits = explode('=', $tag);
+          if (in_array($tag_bits[0], $query_metrics_tags[$metric_name]))
+          {
+            $legend_string = $legend_string . $tag . ' ';
+          }
+        }
+      }
+      $legends[$series] = trim($legend_string);
+    }
+
+    return $legends;
 
   }
 

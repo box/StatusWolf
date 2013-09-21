@@ -28,7 +28,8 @@
             </div>
             <div class="widget-main">
               <div id="graph-title" class="graph-title" style="width: 99%; height: 99%;"></div>
-              <div id="graphdiv" class="graphdiv" style="width: 99%; height: 99%;"></div>
+              <div id="graphdiv" class="graphdiv" style="width: 99%;"></div>
+              <div id="graph-legend" class="graph-legend"><div id="legend-master"></div></div>
             </div>
             <div class="flexy widget-footer">
               <div class="widget-footer-button left-button" id="ad-hoc-edit" onClick="$(this).parents('.widget').addClass('flipped')">
@@ -446,10 +447,14 @@
 
       $(document).ready(function() {
         $('.widget-main').css('height', ($('#ad-hoc-widget').innerHeight() - ($('.widget-title').height() + $('.widget-footer').height())));
+        $('#graphdiv').css('height', ($('.widget-main').innerHeight() - $('#graph-legend').outerHeight(true)));
+        $('#graph-legend').css('width', ($('.widget-main').innerWidth()));
       });
 
       $(window).resize(function() {
         $('.widget-main').css('height', ($('#ad-hoc-widget').innerHeight() - ($('.widget-title').height() + $('.widget-footer').height())));
+        $('#graphdiv').css('height', ($('.widget-main').innerHeight() - $('#graph-legend').outerHeight(true)));
+        $('#graph-legend').css('width', ($('.widget-main').innerWidth()));
       });
 
     </script>
