@@ -40,7 +40,7 @@
 .graph-widget-button {
     display: inline-block;
     font-size: .8em;
-    line-height: 1.5em;
+    line-height: 1.8em;
     text-align: right;
     height: 18px;
     margin-top: 2px;
@@ -186,6 +186,7 @@ ul.nav-tabs {
 
 .tab-table .push-button {
     height: 18px;
+    line-height: 2em;
 }
 
 .graph-widget-legend-container {
