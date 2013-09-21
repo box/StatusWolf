@@ -228,7 +228,6 @@
 		}
 
 		,resize_graph: function() {
-      console.log('Triggering resize event');
 			var evt = document.createEvent('UIEvents');
 			evt.initUIEvent('resize', true, false,window,0);
 			window.dispatchEvent(evt);
@@ -576,7 +575,6 @@
     {
       var user_id = document._session_data.user_id;
       var api_url = widget.options.sw_url + 'api/get_saved_searches';
-      console.log('building saved search menu for user id ' + user_id);
 
       api_query = {user_id: user_id};
       $.ajax({
@@ -613,7 +611,6 @@
         {
           var search_bits = search_name.split('-');
           var search_id = search_bits[1];
-          console.log('loading saved search #' + search_id);
           $.ajax({
             url: widget.options.sw_url + "api/load_saved_search/" + search_id
             ,type: 'GET'
@@ -634,8 +631,6 @@
     ,populate_search_form: function(query_data, widget, force_prompt_user)
     {
 
-      console.log('populating search form');
-      console.log(query_data);
       var prompt_user = false;
       var widget_num = widget.uuid;
       if (typeof force_prompt_user !== "undefined")
@@ -663,7 +658,6 @@
           query_data.history_graph = 'no';
         }
       }
-      console.log(query_data);
 
       if (typeof query_data.title !== "undefined" && query_data.title.length > 1)
       {
@@ -725,13 +719,9 @@
         $.each(query_data['metrics'], function(i, metric) {
           metric_num = i + 1;
           metric_string = metric.name;
-          console.log('loading query data for metric ' + metric_num + ', ' + metric_string);
           if (metric_num > 1)
           {
             var metric_tab = $('div#tab' + widget.uuid + '-' + metric_num);
-            console.log('checking for tab' + widget.uuid + '-' + metric_num);
-            console.log(metric_tab);
-            console.log(metric_tab.length);
             if (metric_tab.length == 0)
             {
               widget.metric_count = widget.add_tab(widget, i, widget.uuid);
@@ -826,7 +816,6 @@
         });
         if (typeof input_history === "undefined")
         {
-          console.log('unable to determine history type')
           input_error = true;
         }
 
@@ -866,7 +855,6 @@
         }
         else
         {
-          console.log('getting time span');
           end = new Date.now().getTime();
           end = parseInt(end / 1000);
           var span = parseInt($(input_time_span).attr('data-ms'));
@@ -896,17 +884,14 @@
         widget.query_data.history_graph = $(input_history).val();
         if (widget.query_data.history_graph === 'no')
         {
-          console.log('doing the no history metric shuffle for ' + widget.metric_count + ' metrics');
           widget.query_data['metrics_count'] = widget.metric_count;
           for (i=1; i<=widget.query_data['metrics_count']; i++)
           {
             var build_metric = {};
             var metric_bits = $('input:text[name=metric'+ widget_num + '-' + i + ']').val().split(' ');
-            console.log(metric_bits);
             build_metric.name = metric_bits.shift();
             if (build_metric.name.length < 1)
             {
-              console.log('no tags, moving on');
               continue;
             }
             if (metric_bits.length > 0)
@@ -939,10 +924,8 @@
 
             widget.query_data['metrics'].push(build_metric);
           }
-          console.log(widget.query_data['metrics']);
           if (widget.query_data['metrics'].length < 1)
           {
-            console.log('no metrics found, back to you');
             widget.sw_graphwidget_searchform.find('ul#tab-list' + widget_num + ' a[href="#tab' + widget_num + '-1"]').click();
             $('input:text[name="metric'+ widget_num + '-1"]').css('border-color', 'red').css('background-color', 'rgb(255, 200, 200)').focus();
             alert("You must specify at least one metric to search for");
@@ -1009,7 +992,6 @@
 
       // If we made it this far without errors in the form input, then
       // we build us a graph
-      console.log('checking for input error state (' + input_error + ')' );
       if (input_error == false)
       {
         var graph_element = $('#graphdiv' + widget_num);
@@ -1028,7 +1010,6 @@
       }
       else
       {
-        console.log('input error still exists, keeping the form visible');
         if (! widget_element.children('.widget').hasClass('flipped'))
         {
           widget_element.children('.widget').addClass('flipped');
@@ -1149,10 +1130,8 @@
     ,get_opentsdb_data: function(query_data, widget)
     {
 
-      console.log(widget.ajax_request);
       if (typeof widget.ajax_request !== 'undefined')
       {
-        console.log('Previous request still in flight, aborting');
         widget.ajax_request.abort();
       }
 
@@ -1196,7 +1175,6 @@
 
       var status = widget.sw_graphwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num).children('#status-message' + widget_num);
 
-      console.log(widget.ajax_request);
       if (typeof widget.ajax_request !== 'undefined')
       {
         console.log('Previous request still in flight, aborting');
@@ -1299,7 +1277,6 @@
 
       var status = widget.sw_graphwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num).children('#status-message' + widget_num);
 
-      console.log(widget.ajax_request);
       if (typeof widget.ajax_request !== 'undefined')
       {
         console.log('Previous request still in flight, aborting');
@@ -1419,8 +1396,6 @@
 
     ,process_timeseries_data: function(data, query_data, widget)
     {
-
-      console.log(query_data);
 
       var parse_object = new $.Deferred();
       var status = widget.sw_graphwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num).children('#status-message' + widget_num);
@@ -1686,7 +1661,6 @@
           query_data.start_time = new_start;
           query_data.end_time = new_end;
           query_data.new_query = false;
-          console.log('updating graph for widget ' + widget.element.attr('id'));
           $.when(widget.opentsdb_search(query_data, widget)).then(function(data)
           {
             $.when(widget.process_timeseries_data(data, query_data, widget)).then(

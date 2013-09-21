@@ -189,8 +189,6 @@ foreach($widgets as $widget_key)
     {
       if (typeof dashboard_config === "string" && dashboard_config.length > 1)
       {
-        console.log('loading saved dashboard');
-        console.log(dashboard_config);
         if (dashboard_config.match(/Not Allowed/))
         {
           $('.container').append('<div id="not-allowed-popup" class="popup"><h5>Not Allowed</h5><div class="popup-form-data">You do not have permission to view this dashboard</div></div>');
@@ -246,19 +244,14 @@ foreach($widgets as $widget_key)
         {
           dashboard_config = eval('(' + dashboard_config + ')');
         }
-        console.log(dashboard_config);
         $('title').text(dashboard_config.title + ' - StatusWolf');
         $('input#dashboard-title').val(dashboard_config.title);
         $.each(dashboard_config.widgets, function(widget_id, query_data) {
-          console.log('adding widget ' + widget_id);
           if (query_data.widget_type === "graphwidget")
           {
             $('#dash-container').append('<div class="widget-container" id="' + widget_id + '" data-widget-type="' + query_data.widget_type + '">');
-            console.log(widget_id);
             new_widget = $('div#' + widget_id).graphwidget({sw_url: '<?php echo URL; ?>'});
             widget_object = $(new_widget).data('sw-' + new_widget.attr('data-widget-type'));
-            console.log('created widget ' + widget_object.uuid);
-            console.log('populating widget ' + widget_object.uuid);
             widget_object.populate_search_form(query_data, widget_object);
             $('#' + widget_id).removeClass('transparent');
           }
@@ -281,7 +274,6 @@ foreach($widgets as $widget_key)
       ,mainClass: 'popup-animate'
       ,callbacks: {
         open: function() {
-          console.log('Opening save dashboard dialog');
           setTimeout(function() {
             $('.container').addClass('blur');
             $('.navbar').addClass('blur');
@@ -316,20 +308,15 @@ foreach($widgets as $widget_key)
 
   function clone_widget(widget)
   {
-    console.log(widget);
     var username = "<?php echo $_session_data['username'] ?>";
     var widget_id = "widget" + md5(username + new Date.now().getTime());
     var widget_element = $(widget.element);
     var widget_type = $(widget_element).attr('data-widget-type');
-    console.log(widget_type);
     if (widget_type === "graphwidget")
     {
       $('#dash-container').append('<div class="widget-container" id="' + widget_id + '" data-widget-type="' + widget_type + '">');
-      console.log(widget_id);
       new_widget = $('div#' + widget_id).graphwidget({sw_url: '<?php echo URL; ?>'});
       new_widget_object = $(new_widget).data('sw-' + new_widget.attr('data-widget-type'));
-      console.log('created widget ' + new_widget_object.uuid);
-      console.log('populating widget ' + new_widget_object.uuid);
       new_widget_object.populate_search_form(widget.query_data, new_widget_object, 'clone');
       $('#' + widget_id).removeClass('transparent');
     }
@@ -410,8 +397,6 @@ function save_click_handler(event, confirmation, dashboard_id)
       ,user_id: document._session_data.user_id
       ,widgets: dashboard_widgets };
 
-    console.log(dashboard_config);
-
     save_dash_url = "<?php echo URL; ?>api/save_dashboard/" + dashboard_id;
     if (confirmation > 0)
     {
@@ -427,7 +412,6 @@ function save_click_handler(event, confirmation, dashboard_id)
         {
           data = eval('(' + data + ')');
         }
-        console.log(data);
         if (data.query_result === "Error")
         {
           switch (data.query_info)
