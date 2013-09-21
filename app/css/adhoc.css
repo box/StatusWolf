@@ -322,6 +322,14 @@ input[name="search-title-input"] {
     display: inline-block;
 }
 
+.widget-main {
+    top: 35px;
+}
+
+.bowlG {
+    padding-top: 25%;
+}
+
 @-moz-document url-prefix() {
     #date-span-inputs {
         position: absolute;
