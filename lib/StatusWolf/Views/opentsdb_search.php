@@ -1135,6 +1135,8 @@
             delete metric_data[0]['query_url'];
             current_keys = Object.keys(metric_data[0]);
             current_key = 'Current - ' + current_keys[0];
+            metric_data.legend = [];
+            metric_data.legend[current_key] = 'Current';
             metric_data[current_key] = metric_data[0][current_keys[0]];
             delete metric_data[0];
             var past_query = $.extend(true, {}, query_data);
@@ -1177,6 +1179,7 @@
           delete metric_data[1].query_url;
           past_keys = Object.keys(metric_data[1]);
           past_key = 'Previous - ' + past_keys[0];
+          metric_data.legend[past_key] = 'Previous';
           metric_data[past_key] = metric_data[1][past_keys[0]];
           delete metric_data[1];
           $.each(metric_data[past_key], function(index, entry) {

@@ -825,6 +825,7 @@
         var date_span_option = widget_element.find('input:radio[name="date-span"]:checked').val();
         if (date_span_option === 'date-search')
         {
+          console.log('date search - checking start and end times');
           if ($(input_dates).children('div#start-time' + widget_num).children('input[name="start-time"]').val().length < 1)
           {
             $(input_dates).children('div#start-time' + widget_num).children('input[name="start-time"]').css('border-color', 'red').css('background-color', 'rgb(255, 200, 200)').focus();
@@ -855,6 +856,7 @@
         }
         else
         {
+          console.log('span search - getting start and end times');
           end = new Date.now().getTime();
           end = parseInt(end / 1000);
           var span = parseInt($(input_time_span).attr('data-ms'));
@@ -1213,8 +1215,10 @@
             delete metric_data[0]['end'];
             metric_data.query_url = metric_data[0]['query_url'];
             delete metric_data[0]['query_url'];
-            current_keys = Object.keys(metric_data[0]);
+            current_keys = Object.keys(metric_data[0])
             current_key = 'Current - ' + current_keys[0];
+            metric_data.legend = [];
+            metric_data.legend[current_key] = 'Current';
             metric_data[current_key] = metric_data[0][current_keys[0]];
             delete metric_data[0];
             var past_query = $.extend(true, {}, query_data);
@@ -1257,6 +1261,7 @@
             delete metric_data[1].query_url;
             past_keys = Object.keys(metric_data[1]);
             past_key = 'Previous - ' + past_keys[0];
+            metric_data.legend[past_key] = 'Previous';
             metric_data[past_key] = metric_data[1][past_keys[0]];
             delete metric_data[1];
             $.each(metric_data[past_key], function(index, entry) {
