@@ -30,7 +30,6 @@
 				,sw_graphwidget_close
 				,sw_graphwidget_fronttitle
 				,sw_graphwidget_backtitle
-				,sw_graphwidget_frontfooter
 				,sw_graphwidget_backfooter
 				,sw_graphwidget_frontmain
 				,sw_graphwidget_backmain
@@ -71,9 +70,6 @@
 			sw_graphwidget_frontmain = (this.sw_graphwidget_frontmain = $('<div>'))
 				.addClass('widget-main')
 				.appendTo(sw_graphwidget_front);
-			sw_graphwidget_frontfooter = (this.sw_graphwidget_frontfooter = $('<div>'))
-				.addClass('flexy widget-footer nodisplay')
-				.appendTo(sw_graphwidget_front);
 			sw_graphwidget_backtitle = (this.sw_graphwidget_backtitle = $('<div>'))
 				.addClass('flexy widget-title')
 				.appendTo(sw_graphwidget_back);
@@ -86,8 +82,36 @@
 
 			// Define the standard buttons for the graph widget
 			// Buttons that will go in the title bar:
-			sw_graphwidget_legend = (this.sw_graphwidget_legend = $('<div>'))
-				.addClass('graph-widget-legend glue4')
+      sw_graphwidget_maximizebutton = (this.sw_graphwidget_maximize_button = $('<div>'))
+        .addClass("widget-title-button left-button fullscreen-out info-tooltip")
+        .attr('title', 'Maximize Widget')
+        .append('<span class="maximize-me iconic iconic-fullscreen">')
+        .click(function(event) {
+          event.preventDefault();
+          that.maximize_widget();
+        })
+        .appendTo(sw_graphwidget_fronttitle);
+
+      sw_graphwidget_editparamsbutton = (this.sw_graphwidget_editparamsbutton = $('<div>'))
+        .addClass("widget-title-button left-button info-tooltip")
+        .attr('title', 'Edit Parameters')
+        .click(function() {
+          sw_graphwidget.addClass("flipped");
+        })
+        .append('<span class="iconic iconic-pen-alt2"></span>')
+        .appendTo(sw_graphwidget_fronttitle);
+
+      sw_graphwidget_clonebutton = (this.sw_graphwidget_clonebutton = $('<div>'))
+        .addClass("widget-title-button left-button info-tooltip")
+        .attr('title', 'Clone Widget')
+        .click(function() {
+          clone_widget(that);
+        })
+        .append('<span class="iconic iconic-new-window"></span>')
+        .appendTo(sw_graphwidget_fronttitle);
+
+      sw_graphwidget_legend = (this.sw_graphwidget_legend = $('<div>'))
+				.addClass('legend-hover glue4')
 				.appendTo(sw_graphwidget_fronttitle);
 
 			sw_graphwidget_close = (this.sw_graphwidget_close = $('<div>'))
@@ -124,33 +148,6 @@
 				.appendTo(sw_graphwidget_backtitle);
 
 			// Buttons that will go in the footer bar
-			sw_graphwidget_editparamsbutton = (this.sw_graphwidget_editparamsbutton = $('<div>'))
-				.addClass("widget-footer-button left-button")
-				.click(function() {
-					sw_graphwidget.addClass("flipped");
-				})
-				.append('<span class="iconic iconic-pen-alt2"><span class="font-reset"> Edit Params</span></span>')
-				.appendTo(sw_graphwidget_frontfooter);
-
-      sw_graphwidget_clonebutton = (this.sw_graphwidget_clonebutton = $('<div>'))
-        .addClass("widget-footer-button left-button")
-        .click(function() {
-          clone_widget(that);
-        })
-        .append('<span class="iconic iconic-new-window"><span class="font-reset"> Clone Widget</span></span>')
-        .appendTo(sw_graphwidget_frontfooter);
-
-			sw_graphwidget_frontfooter.append('<div class="glue1">');
-
-			sw_graphwidget_maximizebutton = (this.sw_graphwidget_maximize_button = $('<div>'))
-				.addClass("widget-footer-button right-button fullscreen-out")
-				.append('<span class="maximize-me iconic iconic-fullscreen">')
-				.click(function(event) {
-					event.preventDefault();
-					that.maximize_widget();
-				})
-				.appendTo(sw_graphwidget_frontfooter);
-
 			sw_graphwidget_querycancelbutton = (this.sw_graphwidget_querycancelbutton = $('<div>'))
 				.addClass("widget-footer-button left-button query_cancel")
 				.click(function() {
@@ -177,13 +174,6 @@
 			sw_graphwidget_datasource = $.trim($(sw_graphwidget_datasourcemenu).children('span.widget-title-button').children('span.active-datasource').text().toLowerCase());
       that.build_search_form(that);
 
-      sw_graphwidget.mouseenter(function() {
-        sw_graphwidget_fronttitle.removeClass('nodisplay');
-        sw_graphwidget_frontfooter.removeClass('nodisplay');
-      }).mouseleave(function() {
-        sw_graphwidget_fronttitle.addClass('nodisplay');
-        sw_graphwidget_frontfooter.addClass('nodisplay');
-      });
 		}
 
 		,_destroy: function() {
@@ -385,10 +375,10 @@
           })
           .append('<span class="iconic iconic-plus-alt"><span class="font-reset"> Add Metric</span></span>');
 
-        widget.sw_graphwidget_fronttitle.children('.graph-widget-legend').attr('id', 'legend' + widget_num);
+        widget.sw_graphwidget_fronttitle.children('.legend-hover').attr('id', 'legend-hover' + widget_num);
         $(widget_element).children('.widget').children('.widget-front').children('.widget-main')
           .append('<div id="graph-title' + widget_num + '" class="graph-title">')
-          .append('<div id="graphdiv' + widget_num + '" class="graph-widget-graphdiv" style="width: 99%;">')
+          .append('<div id="graphdiv' + widget_num + '" class="graphdiv" style="width: 99%;">')
           .append('<div id="graph-legend-container' + widget_num + '" class="graph-widget-legend-container hidden"><div id="legend-master' + widget_num + '" class="legend-master"></div></div>');
 
         var auto_update = $(widget_element).find('div.auto-update').children('div.push-button');
@@ -449,7 +439,7 @@
         });
 
         var widget_height = $(widget_element).children('.widget').innerHeight();
-        var main_height = widget_height - (widget.sw_graphwidget_fronttitle.height() + widget.sw_graphwidget_frontfooter.height());
+        var main_height = widget_height;
         widget.sw_graphwidget_frontmain.css('height', main_height);
         widget.sw_graphwidget_backmain.css('height', main_height);
 
@@ -1000,7 +990,7 @@
         // Make sure the graph display div is empty
         graph_element.empty();
         // Clear the graph legend
-        $('#legend' + widget_num).empty();
+        $('#legend-hover' + widget_num).empty();
         // Load the waiting spinner
         graph_element.append('<div class="bowlG">' +
           '<div class="bowl_ringG"><div class="ball_holderG">' +
@@ -1511,8 +1501,8 @@
 
       var graphdiv_id = 'graphdiv' + widget.uuid;
       var graph_title_id = 'graph-title' + widget.uuid;
-      widget.sw_graphwidget_frontmain.css('height', (widget.sw_graphwidget.innerHeight() - 10));
-      widget.sw_graphwidget_frontmain.children('.graph-widget-graphdiv').css('height', (widget.sw_graphwidget_frontmain.innerHeight() - widget.sw_graphwidget_frontmain.children('.graph-widget-legend-container').outerHeight(true)));
+      widget.sw_graphwidget_frontmain.css('height', widget.sw_graphwidget.innerHeight());
+      widget.sw_graphwidget_frontmain.children('.graphdiv').css('height', (widget.sw_graphwidget_frontmain.innerHeight() - widget.sw_graphwidget_frontmain.children('.graph-widget-legend-container').outerHeight(true)));
       widget.sw_graphwidget_frontmain.children('.graph-widget-legend-container').css('width', widget.sw_graphwidget_frontmain.innerWidth())
         .removeClass('hidden');
 
@@ -1568,7 +1558,7 @@
         ,dygraph_format
         ,{
           labels: graph_labels
-          ,labelsDiv: 'legend' + widget.uuid
+          ,labelsDiv: 'legend-hover' + widget.uuid
           ,axisLabelsFontSize: 13
           ,labelsKMB: true
           ,labelsDivWidth: g_width
@@ -1704,6 +1694,27 @@
           });
         }, 300 * 1000);
       }
+
+      console.log(widget.g);
+      widget.sw_graphwidget_frontmain.mouseenter(function() {
+        var graphdiv = widget.sw_graphwidget_frontmain.children('div.graphdiv');
+        var title_bar = widget.sw_graphwidget_fronttitle;
+        title_bar.removeClass('nodisplay');
+        graphdiv.css({
+          height: graphdiv.height() - title_bar.outerHeight()
+          ,top: title_bar.outerHeight() + 10
+        });
+        widget.g.resize();
+      }).mouseleave(function() {
+          var graphdiv = widget.sw_graphwidget_frontmain.children('div.graphdiv');
+          var title_bar = widget.sw_graphwidget_fronttitle;
+          graphdiv.css({
+            height: graphdiv.height() + title_bar.outerHeight()
+            ,top: '10px'
+          });
+          title_bar.addClass('nodisplay');
+          widget.g.resize();
+        });
 
     }
 

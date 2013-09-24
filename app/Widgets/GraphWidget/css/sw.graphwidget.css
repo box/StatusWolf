@@ -167,7 +167,7 @@ ul.nav-tabs {
     padding-top: 20%;
 }
 
-.graph-widget-legend {
+.legend-hover {
     height: 100%;
     overflow: hidden;
     font-size: .8em;
@@ -176,7 +176,7 @@ ul.nav-tabs {
     padding: 0px 20px;
 }
 
-.graph-widget-legend span {
+.legend-hover span {
     margin-left: 15px;
 }
 
@@ -190,7 +190,7 @@ ul.nav-tabs {
 }
 
 .graph-widget-legend-container {
-    position: relative;
+    position: absolute;
     bottom: 0;
     height: 50px;
     overflow: auto;

@@ -180,20 +180,12 @@
     width: 100%;
 }
 
-.fullscreen-out {
-    display: inline-block;
-    position: absolute;
-    top: 0;
-    right: 0;
-}
-
 .widget-main {
     width: 100%;
     height: 82%;
     position: absolute;
     left: 0;
     padding: 0;
-    top: 10px;
 }
 
 .widget-back {
@@ -299,7 +291,7 @@
 }
 
 .graphdiv {
-    position: absolute;
-    top: 0;
+    position: relative;
+    top: 10px;
     left: 0;
 }
