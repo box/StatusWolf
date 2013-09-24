@@ -275,7 +275,7 @@
     position: relative;
 }
 
-#graph-legend {
+#legend-container {
     position: absolute;
     bottom: 0;
     height: 100px;
@@ -289,14 +289,14 @@
     margin-top: 15px;
 }
 
-#legend-master {
+#legend {
     position: relative;
     top: 0;
     width: 95%;
     margin: 0 auto;
 }
 
-#legend-master > span {
+# > span {
     display: block;
 }
 

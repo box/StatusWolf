@@ -497,7 +497,7 @@ function save_click_handler(event, confirmation, dashboard_id)
       $(widget_container).removeClass('shrink-widget');
     }
     var graph_div = $(widget_main).children('div.graph-widget-graphdiv');
-    var graph_legend = $(widget_main).children('div.graph-widget-legend-container');
+    var graph_legend = $(widget_main).children('div.legend-container');
     $(widget_main).css('height', ($(widget_container).innerHeight() - 10));
     $(graph_div).css('height', ($(widget_main).innerHeight() - $(graph_legend).outerHeight(true)));
     $(graph_legend).css('width', $(widget_main).innerWidth());

@@ -33,7 +33,7 @@
 				,sw_graphwidget_backfooter
 				,sw_graphwidget_frontmain
 				,sw_graphwidget_backmain
-				,sw_graphwidget_legend
+				,sw_graphwidget_legend_hover
 				,sw_graphwidget_savedsearchesmenu
 				,sw_graphwidget_datasourcemenu
 				,sw_graphwidget_searchform
@@ -110,7 +110,7 @@
         .append('<span class="iconic iconic-new-window"></span>')
         .appendTo(sw_graphwidget_fronttitle);
 
-      sw_graphwidget_legend = (this.sw_graphwidget_legend = $('<div>'))
+      sw_graphwidget_highlight = (this.sw_graphwidget_legend_hover = $('<div>'))
 				.addClass('legend-hover glue4')
 				.appendTo(sw_graphwidget_fronttitle);
 
@@ -190,8 +190,8 @@
 			this.sw_graphwidget_editparamsbutton.remove();
       this.sw_graphwidget_clonebutton.remove();
 			this.sw_graphwidget_close.remove();
-			this.sw_graphwidget_frontfooter.remove();
 			this.sw_graphwidget_frontmain.remove();
+      this.sw_graphwidget_legend_hover.remove();
 			this.sw_graphwidget_fronttitle.remove();
 			this.sw_graphwidget_front.remove();
 			this.sw_graphwidget_back.remove();
@@ -379,7 +379,7 @@
         $(widget_element).children('.widget').children('.widget-front').children('.widget-main')
           .append('<div id="graph-title' + widget_num + '" class="graph-title">')
           .append('<div id="graphdiv' + widget_num + '" class="graphdiv" style="width: 99%;">')
-          .append('<div id="graph-legend-container' + widget_num + '" class="graph-widget-legend-container hidden"><div id="legend-master' + widget_num + '" class="legend-master"></div></div>');
+          .append('<div id="legend-container' + widget_num + '" class="legend-container hidden"><div id="legend' + widget_num + '" class="legend"></div></div>');
 
         var auto_update = $(widget_element).find('div.auto-update').children('div.push-button');
         $(auto_update).children('input').attr('id', 'auto-update-button' + widget_num);
@@ -780,7 +780,7 @@
       var input_error = false;
 
       $('#graph-title' + widget_num).empty();
-      $('#legend-master' + widget_num).empty();
+      $('#legend' + widget_num).empty();
 
       if (typeof widget.autoupdate_interval !== "undefined")
       {
@@ -1502,8 +1502,8 @@
       var graphdiv_id = 'graphdiv' + widget.uuid;
       var graph_title_id = 'graph-title' + widget.uuid;
       widget.sw_graphwidget_frontmain.css('height', widget.sw_graphwidget.innerHeight());
-      widget.sw_graphwidget_frontmain.children('.graphdiv').css('height', (widget.sw_graphwidget_frontmain.innerHeight() - widget.sw_graphwidget_frontmain.children('.graph-widget-legend-container').outerHeight(true)));
-      widget.sw_graphwidget_frontmain.children('.graph-widget-legend-container').css('width', widget.sw_graphwidget_frontmain.innerWidth())
+      widget.sw_graphwidget_frontmain.children('.graphdiv').css('height', (widget.sw_graphwidget_frontmain.innerHeight() - widget.sw_graphwidget_frontmain.children('.legend-container').outerHeight(true)));
+      widget.sw_graphwidget_frontmain.children('.legend-container').css('width', widget.sw_graphwidget_frontmain.innerWidth())
         .removeClass('hidden');
 
       $('#' + graph_title_id).empty();
@@ -1526,7 +1526,7 @@
 
       if (graph_labels.length > 9)
       {
-        $('#legend-master' + widget.uuid).css({
+        $('#legend' + widget.uuid).css({
           '-webkit-columns': 'auto 4'
           ,'-moz-columns': 'auto 4'
           ,columns: 'auto 4'
@@ -1534,7 +1534,7 @@
       }
       else if (graph_labels.length > 6)
       {
-        $('#legend-master' + widget.uuid).css({
+        $('#legend' + widget.uuid).css({
           '-webkit-columns': 'auto 2'
           ,'-moz-columns': 'auto 3'
           ,columns: 'auto 3'
@@ -1542,7 +1542,7 @@
       }
       else if (graph_labels.length > 3)
       {
-        $('#legend-master' + widget.uuid).css({
+        $('#legend' + widget.uuid).css({
           '-webkit-columns': 'auto 2'
           ,'-moz-columns': 'auto 2'
           ,columns: 'auto 2'
@@ -1642,7 +1642,7 @@
       $('.dygraph-xlabel').parent().css('top', '40%');
 
       $.each(widget.g.colorsMap_, function(legend_key, color) {
-        $('#legend-master' + widget.uuid).append('<span style="color: ' + color + '"><b>' + legend_key + '</b></span>');
+        $('#legend' + widget.uuid).append('<span style="color: ' + color + '"><b>' + legend_key + '</b></span>');
       });
 
       // Set the interval for adding new data if Auto Update is selected
@@ -1698,7 +1698,7 @@
       console.log(widget.g);
       widget.sw_graphwidget_frontmain.mouseenter(function() {
         var graphdiv = widget.sw_graphwidget_frontmain.children('div.graphdiv');
-        var legend_box = widget.sw_graphwidget_frontmain.children('div.graph-widget-legend-container');
+        var legend_box = widget.sw_graphwidget_frontmain.children('div.legend-container');
         var title_bar = widget.sw_graphwidget_fronttitle;
         title_bar.removeClass('nodisplay');
         graphdiv.css({
@@ -1708,7 +1708,7 @@
         widget.g.resize();
       }).mouseleave(function() {
           var graphdiv = widget.sw_graphwidget_frontmain.children('div.graphdiv');
-          var legend_box = widget.sw_graphwidget_frontmain.children('div.graph-widget-legend-container');
+          var legend_box = widget.sw_graphwidget_frontmain.children('div.legend-container');
           var title_bar = widget.sw_graphwidget_fronttitle;
           graphdiv.css({
             height: widget.sw_graphwidget_frontmain.innerHeight() - (legend_box.outerHeight(true))

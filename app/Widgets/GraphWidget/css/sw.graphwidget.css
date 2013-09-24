@@ -189,7 +189,7 @@ ul.nav-tabs {
     line-height: 2em;
 }
 
-.graph-widget-legend-container {
+.legend-container {
     position: absolute;
     bottom: 0;
     height: 50px;
@@ -203,13 +203,13 @@ ul.nav-tabs {
     margin-top: 15px;
 }
 
-.legend-master {
+.legend {
     position: relative;
     top: 0;
     width: 95%;
     margin: 0 auto;
 }
 
-.legend-master > span {
+.legend > span {
     display: block;
 }
