@@ -1698,18 +1698,20 @@
       console.log(widget.g);
       widget.sw_graphwidget_frontmain.mouseenter(function() {
         var graphdiv = widget.sw_graphwidget_frontmain.children('div.graphdiv');
+        var legend_box = widget.sw_graphwidget_frontmain.children('div.graph-widget-legend-container');
         var title_bar = widget.sw_graphwidget_fronttitle;
         title_bar.removeClass('nodisplay');
         graphdiv.css({
-          height: graphdiv.height() - title_bar.outerHeight()
+          height: widget.sw_graphwidget_frontmain.innerHeight() - (legend_box.outerHeight(true) + title_bar.outerHeight())
           ,top: title_bar.outerHeight() + 10
         });
         widget.g.resize();
       }).mouseleave(function() {
           var graphdiv = widget.sw_graphwidget_frontmain.children('div.graphdiv');
+          var legend_box = widget.sw_graphwidget_frontmain.children('div.graph-widget-legend-container');
           var title_bar = widget.sw_graphwidget_fronttitle;
           graphdiv.css({
-            height: graphdiv.height() + title_bar.outerHeight()
+            height: widget.sw_graphwidget_frontmain.innerHeight() - (legend_box.outerHeight(true))
             ,top: '10px'
           });
           title_bar.addClass('nodisplay');
