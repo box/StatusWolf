@@ -90,12 +90,11 @@
 			// Define the standard buttons for the graph widget
 			// Buttons that will go in the title bar:
       sw_graphwidget_maximizebutton = (this.sw_graphwidget_maximize_button = $('<div>'))
-        .addClass("widget-title-button left-button fullscreen-out info-tooltip")
-        .attr('title', 'Maximize Widget')
+        .addClass("widget-title-button left-button fullscreen-out")
         .append('<span class="maximize-me iconic iconic-fullscreen">')
         .click(function(event) {
           event.preventDefault();
-          that.maximize_widget();
+          that.maximize_widget(that);
         })
         .appendTo(sw_graphwidget_fronttitle);
 
@@ -215,29 +214,34 @@
       return base_uri;
     }
 
-		,maximize_widget: function() {
-			if ($(this.sw_graphwidget_container).hasClass('maximize-widget'))
+		,maximize_widget: function(widget) {
+			if ($(widget.sw_graphwidget_container).hasClass('maximize-widget'))
 			{
-				$(this.sw_graphwidget_container).removeClass('maximize-widget').addClass('shrink-widget');
+				$(widget.sw_graphwidget_container).removeClass('maximize-widget');
 				$('body').removeClass('no-overflow');
 				$('.navbar').removeClass('hidden');
-				$(this.sw_graphwidget_container).children('span.maximize-me').removeClass('iconic-fullscreen-exit').addClass('iconic-fullscreen');
-				this.resize_graph();
+				$(widget.sw_graphwidget_container).children('span.maximize-me').removeClass('iconic-fullscreen-exit').addClass('iconic-fullscreen');
+				widget.resize_graph(widget);
 			}
 			else
 			{
-				$(this.sw_graphwidget_container).addClass('maximize-widget');
+        $(window).scrollTop(0);
+				$(widget.sw_graphwidget_container).addClass('maximize-widget');
 				$('.navbar').addClass('hidden');
 				$('body').addClass('no-overflow');
-				$(this.sw_graphwidget_container).children('span.maximize-me').removeClass('iconic-fullscreen').addClass('iconic-fullscreen-exit');
-				this.resize_graph();
+				$(widget.sw_graphwidget_container).children('span.maximize-me').removeClass('iconic-fullscreen').addClass('iconic-fullscreen-exit');
+				widget.resize_graph(widget);
 			}
 		}
 
-		,resize_graph: function() {
-			var evt = document.createEvent('UIEvents');
-			evt.initUIEvent('resize', true, false,window,0);
-			window.dispatchEvent(evt);
+		,resize_graph: function(widget) {
+      var widget_main = widget.sw_graphwidget_frontmain
+          graph_div = widget.sw_graphwidget_frontmain.children('div.graphdiv');
+          graph_legend = widget.sw_graphwidget_frontmain.children('div.legend-container');
+      graph_legend.css('width', widget_main.innerWidth());
+      widget_main.css('height', widget.sw_graphwidget.innerHeight());
+      graph_div.css('height', widget_main.innerHeight() - (graph_legend.outerHeight(true) + widget.sw_graphwidget_fronttitle.outerHeight()));
+      widget.g.resize();
 		}
 
     ,hide_legend: function(widget, button)

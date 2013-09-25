@@ -483,25 +483,4 @@ function save_click_handler(event, confirmation, dashboard_id)
     });
   }
 
-  $(window).resize(function() {
-    var widget_container = $('div.maximize-widget'),
-        widget_main;
-    if (widget_container.length > 0)
-    {
-      $(this).scrollTop(0);
-      widget_main = $(widget_container).children('div.widget').children('div.widget-front').children('div.widget-main');
-    }
-    else
-    {
-      widget_container = $('div.shrink-widget');
-      widget_main = $(widget_container).children('div.widget').children('div.widget-front').children('div.widget-main');
-      $(widget_container).removeClass('shrink-widget');
-    }
-    var graph_div = $(widget_main).children('div.graph-widget-graphdiv');
-    var graph_legend = $(widget_main).children('div.legend-container');
-    $(widget_main).css('height', ($(widget_container).innerHeight() - 10));
-    $(graph_div).css('height', ($(widget_main).innerHeight() - $(graph_legend).outerHeight(true)));
-    $(graph_legend).css('width', $(widget_main).innerWidth());
-  })
-
 </script>
