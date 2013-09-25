@@ -42,8 +42,7 @@
                 <span class="iconic iconic-share"><span class="font-reset"> Share Search</span></span>
               </div><div class="widget-footer-button right-button hidden" id="save-popup-button">
                 <span class="iconic iconic-download"><span class="font-reset"> Save Search</span></span>
-              </div>
-              <div class="widget-footer-button right-button fullscreen-out" id="fullscreen"><span id="fullscreen-button" class="iconic iconic-fullscreen"> </span></div>
+              </div><div class="widget-footer-button right-button fullscreen-out" id="fullscreen"><span id="fullscreen-button" class="iconic iconic-fullscreen"> </span></div>
             </div>
           </div>
           <div class="widget-back" id="ad-hoc-back">
@@ -160,7 +159,7 @@
         show_datasource_form(datasource);
       });
 
-      $('#save-popup-button').css('margin-right', $('#fullscreen').outerWidth());
+//      $('#save-popup-button').css('margin-right', $('#fullscreen').outerWidth());
 
       $('#fullscreen').click(function() {
         if ($('.widget-container').hasClass('maximize-widget'))
@@ -169,9 +168,16 @@
           $('.navbar').removeClass('hidden');
           $('body').removeClass('no-overflow');
           $('#fullscreen-button').removeClass('iconic-fullscreen-exit').addClass('iconic-fullscreen');
-          var evt = document.createEvent('UIEvents');
-          evt.initUIEvent('resize', true, false,window,0);
-          window.dispatchEvent(evt);
+          $('#legend-container').css('width', $('.widget-main').innerWidth());
+          // For some unknown reason when the graph is returned to normal size there is a 14 pixel discrepancy
+          // in the height of the master container that is magically fixed after resizing the graph itself, so
+          // the has to be run twice to get the correct dimensions for everything...
+          $('.widget-main').css('height', $('#ad-hoc-widget').height() - ($('.widget-title').height() + $('.widget-footer').height()));
+          $('#graphdiv').css('height', $('.widget-main').innerHeight() - $('#legend-container').outerHeight(true));
+          g.resize();
+          $('.widget-main').css('height', $('#ad-hoc-widget').height() - ($('.widget-title').height() + $('.widget-footer').height()));
+          $('#graphdiv').css('height', $('.widget-main').innerHeight() - $('#legend-container').outerHeight(true));
+          g.resize();
         }
         else
         {
@@ -179,9 +185,10 @@
           $('.navbar').addClass('hidden');
           $('body').addClass('no-overflow');
           $('#fullscreen-button').removeClass('iconic-fullscreen').addClass('iconic-fullscreen-exit');
-          var evt = document.createEvent('UIEvents');
-          evt.initUIEvent('resize', true, false,window,0);
-          window.dispatchEvent(evt);
+          $('.widget-main').css('height', $('#ad-hoc-widget').height() - ($('.widget-title').height() + $('.widget-footer').height()));
+          $('#graphdiv').css('height', $('.widget-main').innerHeight() - $('#legend-container').outerHeight(true));
+          $('#legend-container').css('width', $('.widget-main').innerWidth());
+          g.resize();
         }
 
       });
@@ -446,15 +453,9 @@
       }
 
       $(document).ready(function() {
-        $('.widget-main').css('height', ($('#ad-hoc-widget').innerHeight() - ($('.widget-title').height() + $('.widget-footer').height())));
-        $('#graphdiv').css('height', ($('.widget-main').innerHeight() - $('#legend-container').outerHeight(true)));
-        $('#legend-container').css('width', ($('.widget-main').innerWidth()));
-      });
-
-      $(window).resize(function() {
-        $('.widget-main').css('height', ($('#ad-hoc-widget').innerHeight() - ($('.widget-title').height() + $('.widget-footer').height())));
-        $('#graphdiv').css('height', ($('.widget-main').innerHeight() - $('#legend-container').outerHeight(true)));
-        $('#legend-container').css('width', ($('.widget-main').innerWidth()));
+        $('.widget-main').css('height', $('#ad-hoc-widget').height() - ($('.widget-title').height() + $('.widget-footer').height()));
+        $('#graphdiv').css('height', $('.widget-main').innerHeight() - $('#legend-container').outerHeight(true));
+        $('#legend-container').css('width', $('.widget-main').innerWidth());
       });
 
     </script>
