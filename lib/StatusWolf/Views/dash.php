@@ -250,7 +250,7 @@ foreach($widgets as $widget_key)
           if (query_data.widget_type === "graphwidget")
           {
             $('#dash-container').append('<div class="widget-container" id="' + widget_id + '" data-widget-type="' + query_data.widget_type + '">');
-            new_widget = $('div#' + widget_id).graphwidget({sw_url: '<?php echo URL; ?>'});
+            new_widget = $('div#' + widget_id).graphwidget(query_data.options);
             widget_object = $(new_widget).data('sw-' + new_widget.attr('data-widget-type'));
             widget_object.populate_search_form(query_data, widget_object);
             $('#' + widget_id).removeClass('transparent');
@@ -296,7 +296,7 @@ foreach($widgets as $widget_key)
     $('#dash-container').append('<div class="widget-container" id="' + widget_id + '" data-widget-type="' + widget_type + '">');
     if (widget_type === "graphwidget")
     {
-      widget = $('#' + widget_id).graphwidget({sw_url: '<?php echo URL; ?>'});
+      widget = $('#' + widget_id).graphwidget();
       setTimeout(function() {
         widget.data('sw-graphwidget').sw_graphwidget_editparamsbutton.click();
       }, 250);
@@ -315,7 +315,7 @@ foreach($widgets as $widget_key)
     if (widget_type === "graphwidget")
     {
       $('#dash-container').append('<div class="widget-container" id="' + widget_id + '" data-widget-type="' + widget_type + '">');
-      new_widget = $('div#' + widget_id).graphwidget({sw_url: '<?php echo URL; ?>'});
+      new_widget = $('div#' + widget_id).graphwidget(widget.options);
       new_widget_object = $(new_widget).data('sw-' + new_widget.attr('data-widget-type'));
       new_widget_object.populate_search_form(widget.query_data, new_widget_object, 'clone');
       $('#' + widget_id).removeClass('transparent');
@@ -373,12 +373,13 @@ function save_click_handler(event, confirmation, dashboard_id)
         var widget_id = $(widget).attr('id');
         if (typeof sw_widget.query_data === "undefined")
         {
-          console.log('no query data defined for this widget');
+          console.log('no query data defined for widget ' + widget_id);
         }
         else
         {
           dashboard_widgets[widget_id] = sw_widget.query_data;
           dashboard_widgets[widget_id]['widget_type'] = $(widget).attr('data-widget-type');
+          dashboard_widgets[widget_id]['options'] = sw_widget.options;
         }
       })
     }

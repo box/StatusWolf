@@ -17,6 +17,8 @@
 			disabled: null
 			,label: null
       ,datasource: "OpenTSDB"
+      ,legend: "on"
+      ,sw_url: null
 		}
 		,_create: function() {
 
@@ -43,6 +45,11 @@
 				,sw_graphwidget_querycancelbutton
 				,sw_graphwidget_gobutton
 				,sw_graphwidget_datasource;
+
+      if (this.options.sw_url === null)
+      {
+        this.options.sw_url = this.get_sw_url();
+      }
 
 			sw_graphwidget_container = (this.sw_graphwidget_container = $(this.element));
 			$(sw_graphwidget_container).addClass('transparent');
@@ -198,6 +205,16 @@
 			this.sw_graphwidget.remove();
 		}
 
+    ,get_sw_url: function() {
+      var base_uri = window.location.origin + '/';
+      var path_bits = window.location.pathname.toString().split('/');
+      if (path_bits[1] !== "dashboard")
+      {
+        base_uri += path_bits[1] + '/';
+      }
+      return base_uri;
+    }
+
 		,maximize_widget: function() {
 			if ($(this.sw_graphwidget_container).hasClass('maximize-widget'))
 			{
@@ -222,6 +239,47 @@
 			evt.initUIEvent('resize', true, false,window,0);
 			window.dispatchEvent(evt);
 		}
+
+    ,hide_legend: function(widget, button)
+    {
+      if (typeof button === "undefined")
+      {
+        button = widget.sw_graphwidget_frontmain.children('div.legend-container').children('button.legend-toggle');
+      }
+      var differential = $(button).parents('div.legend-container').outerHeight(true) - $(button).parents('div.legend-container').height();
+      $(button).removeClass('legend-hide');
+      $(button).addClass('legend-show');
+      $(button).siblings('div.legend').addClass('nodisplay');
+      $(button).parents('div.legend-container').addClass('hidden-legend');
+      $(button).parents('div.legend-container').siblings('div.graphdiv')
+        .css('height', widget.sw_graphwidget_frontmain.innerHeight() - differential);
+      $(button).children('span.iconic').removeClass('rotate-90').addClass('rotate-90r');
+      if (typeof widget.g !== "undefined")
+      {
+        widget.g.resize();
+      }
+      widget.options.legend = 'off';
+    }
+
+    ,show_legend: function(widget, button)
+    {
+      if (typeof button === "undefined")
+      {
+        button = widget.sw_graphwidget_frontmain.children('div.legend-container').children('button.legend-toggle');
+      }
+      $(button).removeClass('legend-show');
+      $(button).addClass('legend-hide');
+      $(button).parents('div.legend-container').removeClass('hidden-legend');
+      $(button).siblings('div.legend').removeClass('nodisplay');
+      $(button).parents('div.legend-container').siblings('div.graphdiv')
+        .css('height', widget.sw_graphwidget_frontmain.innerHeight() - $(button).parents('div.legend-container').outerHeight(true));
+      $(button).children('span.iconic').removeClass('rotate-90r').addClass('rotate-90');
+      if (typeof widget.g !== "undefined")
+      {
+        widget.g.resize();
+      }
+      widget.options.legend = 'on'
+    }
 
     ,build_search_form: function(widget)
     {
@@ -380,30 +438,20 @@
         widget.sw_graphwidget_frontmain.append('<div id="graph-title' + widget_num + '" class="graph-title">')
           .append('<div id="graphdiv' + widget_num + '" class="graphdiv" style="width: 99%;">')
           .append('<div id="legend-container' + widget_num + '" class="legend-container hidden">' +
-            '<button type="button" class="legend-hide"><span class="iconic iconic-play rotate-90"></span></button>' +
+            '<button type="button" class="legend-toggle legend-hide"><span class="iconic iconic-play rotate-90"></span></button>' +
             '<div id="legend' + widget_num + '" class="legend"></div></div>');
 
+        if (widget.options.legend === "off")
+        {
+          widget.hide_legend(widget);
+        }
+
         widget.sw_graphwidget_frontmain.on('click', 'button.legend-hide', function() {
-          var differential = $(this).parents('div.legend-container').outerHeight(true) - $(this).parents('div.legend-container').height();
-          $(this).removeClass('legend-hide');
-          $(this).addClass('legend-show');
-          $(this).siblings('div.legend').addClass('nodisplay');
-          $(this).parents('div.legend-container').addClass('hidden-legend');
-          $(this).parents('div.legend-container').siblings('div.graphdiv')
-            .css('height', widget.sw_graphwidget_frontmain.innerHeight() - differential);
-          $(this).children('span.iconic').removeClass('rotate-90').addClass('rotate-90r');
-          widget.g.resize();
+          widget.hide_legend(widget, this);
         });
 
         widget.sw_graphwidget_frontmain.on('click', 'button.legend-show', function() {
-          $(this).removeClass('legend-show');
-          $(this).addClass('legend-hide');
-          $(this).parents('div.legend-container').removeClass('hidden-legend');
-          $(this).siblings('div.legend').removeClass('nodisplay');
-          $(this).parents('div.legend-container').siblings('div.graphdiv')
-            .css('height', widget.sw_graphwidget_frontmain.innerHeight() - $(this).parents('div.legend-container').outerHeight(true));
-          $(this).children('span.iconic').removeClass('rotate-90r').addClass('rotate-90');
-          widget.g.resize();
+          widget.show_legend(widget, this);
         });
 
         var auto_update = $(widget_element).find('div.auto-update').children('div.push-button');
@@ -573,7 +621,7 @@
       $('.info-tooltip-right').tooltip({placement: 'right'});
       $('.info-tooltip-left').tooltip({placement: 'left'});
       $('.info-tooltip-top').tooltip({placement: 'top'});
-      $('.info-tooltip').hover(function() {$(this).css('cursor', 'default')});
+//      $('.info-tooltip').hover(function() {$(this).css('cursor', 'default')});
 
       return tab_num;
     }
