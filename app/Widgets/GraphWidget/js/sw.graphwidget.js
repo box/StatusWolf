@@ -376,10 +376,35 @@
           .append('<span class="iconic iconic-plus-alt"><span class="font-reset"> Add Metric</span></span>');
 
         widget.sw_graphwidget_fronttitle.children('.legend-hover').attr('id', 'legend-hover' + widget_num);
-        $(widget_element).children('.widget').children('.widget-front').children('.widget-main')
-          .append('<div id="graph-title' + widget_num + '" class="graph-title">')
+
+        widget.sw_graphwidget_frontmain.append('<div id="graph-title' + widget_num + '" class="graph-title">')
           .append('<div id="graphdiv' + widget_num + '" class="graphdiv" style="width: 99%;">')
-          .append('<div id="legend-container' + widget_num + '" class="legend-container hidden"><div id="legend' + widget_num + '" class="legend"></div></div>');
+          .append('<div id="legend-container' + widget_num + '" class="legend-container hidden">' +
+            '<button type="button" class="legend-hide"><span class="iconic iconic-play rotate-90"></span></button>' +
+            '<div id="legend' + widget_num + '" class="legend"></div></div>');
+
+        widget.sw_graphwidget_frontmain.on('click', 'button.legend-hide', function() {
+          var differential = $(this).parents('div.legend-container').outerHeight(true) - $(this).parents('div.legend-container').height();
+          $(this).removeClass('legend-hide');
+          $(this).addClass('legend-show');
+          $(this).siblings('div.legend').addClass('nodisplay');
+          $(this).parents('div.legend-container').addClass('hidden-legend');
+          $(this).parents('div.legend-container').siblings('div.graphdiv')
+            .css('height', widget.sw_graphwidget_frontmain.innerHeight() - differential);
+          $(this).children('span.iconic').removeClass('rotate-90').addClass('rotate-90r');
+          widget.g.resize();
+        });
+
+        widget.sw_graphwidget_frontmain.on('click', 'button.legend-show', function() {
+          $(this).removeClass('legend-show');
+          $(this).addClass('legend-hide');
+          $(this).parents('div.legend-container').removeClass('hidden-legend');
+          $(this).siblings('div.legend').removeClass('nodisplay');
+          $(this).parents('div.legend-container').siblings('div.graphdiv')
+            .css('height', widget.sw_graphwidget_frontmain.innerHeight() - $(this).parents('div.legend-container').outerHeight(true));
+          $(this).children('span.iconic').removeClass('rotate-90r').addClass('rotate-90');
+          widget.g.resize();
+        });
 
         var auto_update = $(widget_element).find('div.auto-update').children('div.push-button');
         $(auto_update).children('input').attr('id', 'auto-update-button' + widget_num);
@@ -545,6 +570,9 @@
       });
 
       $('.info-tooltip').tooltip({placement: 'bottom'});
+      $('.info-tooltip-right').tooltip({placement: 'right'});
+      $('.info-tooltip-left').tooltip({placement: 'left'});
+      $('.info-tooltip-top').tooltip({placement: 'top'});
       $('.info-tooltip').hover(function() {$(this).css('cursor', 'default')});
 
       return tab_num;
@@ -1695,22 +1723,21 @@
         }, 300 * 1000);
       }
 
-      console.log(widget.g);
-      widget.sw_graphwidget_frontmain.mouseenter(function() {
-        var graphdiv = widget.sw_graphwidget_frontmain.children('div.graphdiv');
-        var legend_box = widget.sw_graphwidget_frontmain.children('div.legend-container');
+      widget.sw_graphwidget_frontmain.children('div.graphdiv').mouseenter(function() {
+//        var graphdiv = widget.sw_graphwidget_frontmain.children('div.graphdiv');
+        var legend_box = $(this).siblings('div.legend-container');
         var title_bar = widget.sw_graphwidget_fronttitle;
         title_bar.removeClass('nodisplay');
-        graphdiv.css({
+        $(this).css({
           height: widget.sw_graphwidget_frontmain.innerHeight() - (legend_box.outerHeight(true) + title_bar.outerHeight())
           ,top: title_bar.outerHeight() + 10
         });
         widget.g.resize();
       }).mouseleave(function() {
-          var graphdiv = widget.sw_graphwidget_frontmain.children('div.graphdiv');
-          var legend_box = widget.sw_graphwidget_frontmain.children('div.legend-container');
+//          var graphdiv = widget.sw_graphwidget_frontmain.children('div.graphdiv');
+          var legend_box = $(this).siblings('div.legend-container');
           var title_bar = widget.sw_graphwidget_fronttitle;
-          graphdiv.css({
+          $(this).css({
             height: widget.sw_graphwidget_frontmain.innerHeight() - (legend_box.outerHeight(true))
             ,top: '10px'
           });

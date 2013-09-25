@@ -295,3 +295,49 @@
     top: 10px;
     left: 0;
 }
+
+.legend-hide, .legend-show {
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    width: 20px;
+    height: 10px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    text-decoration: none;
+    text-align: center;
+    padding: 0 0 18px 10px;
+    color: rgba(205, 205, 205, 0.25);
+}
+
+.legend-show {
+    top: -14px;
+}
+
+.legend-hide:hover, .legend-hide:focus,
+.legend-show:hover, .legend-show:focus {
+    color: rgba(205, 205, 205, 1);
+}
+
+.legend-hide:active, .legend-show:active {
+    color: rgb(234, 234, 234);
+}
+
+button.legend-hide, button.legend-show {
+    overflow: visible;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    display: block;
+    padding: 0;
+    z-index: 506;
+}
+
+.hidden-legend {
+    height: 0;
+    padding: 0;
+    overflow: visible;
+}
