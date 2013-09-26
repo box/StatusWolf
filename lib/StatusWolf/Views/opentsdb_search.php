@@ -558,13 +558,18 @@
     }
   });
 
-  function populate_form(query_data)
+  function populate_form(query_data, update_only)
   {
 
     $('title').text(query_data.title + ' - StatusWolf');
 
     var prompt_user = false;
     var method_map = {sum: 'Sum', avg: 'Average', min: 'Minimum Value', max: 'Maximum Value', dev: 'Standard Deviation'};
+
+    if (typeof update_only === "undefined")
+    {
+      update_only = false;
+    }
 
     if (typeof query_data.title !== "undefined" && query_data.title.length > 1)
     {
@@ -612,6 +617,7 @@
       {
         $('input:text[name="start-time"]').val(new Date(start_in * 1000).toString('yyyy/MM/dd HH:mm:ss'));
         $('input:text[name="end-time"]').val(new Date(end_in * 1000).toString('yyyy/MM/dd HH:mm:ss'));
+        $('input#date-search.section-toggle').click();
       }
       else
       {
@@ -658,7 +664,7 @@
     {
       $('.widget').addClass('flipped');
     }
-    else
+    else if (!update_only)
     {
       go_click_handler();
     }

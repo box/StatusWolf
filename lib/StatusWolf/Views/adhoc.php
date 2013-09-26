@@ -38,7 +38,9 @@
                 <span class="iconic iconic-target"><span class="font-reset"> Get Raw Datasource URL</span></span>
               </div>
               <div class="glue1"></div>
-              <div class="widget-footer-button right-button hidden" id="share-search">
+              <div class="widget-footer-button right-button hidden" id="show-visible-span" onclick="use_this_time_range(g.xAxisRange())">
+                <span>Use this time range</span>
+              </div><div class="widget-footer-button right-button hidden" id="share-search">
                 <span class="iconic iconic-share"><span class="font-reset"> Share Search</span></span>
               </div><div class="widget-footer-button right-button hidden" id="save-popup-button">
                 <span class="iconic iconic-download"><span class="font-reset"> Save Search</span></span>
@@ -138,6 +140,8 @@
         <div class="widget-footer-button" id="confirm-save-button"><span class="iconic iconic-download"><span class="font-reset"> Overwrite</span></span></div>
       </div>
     </div>
+
+    <div id="range-set-popup" class="popup mfp-hide"><div class="popup-form-data"></div></div>
 
     <script type="text/javascript" src="<?php echo URL; ?>app/js/sw_lib.js"></script>
     <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/dygraph-combined.js"></script>
@@ -450,6 +454,55 @@
             }
           }
         });
+      }
+
+      function use_this_time_range(range)
+      {
+        var span_adjust = false;
+        query_data.start_time = parseInt(range[0] / 1000);
+        query_data.end_time = parseInt(range[1] / 1000);
+        query_data.time_span = query_data.end_time - query_data.start_time;
+        if (query_data.time_span < 600)
+        {
+          query_data.start_time = query_data.end_time - 600;
+          var span_adjust = true;
+        }
+        query_data.period = "date-search"
+        populate_form(query_data, true);
+
+        $.magnificPopup.open({
+          items: {
+            src: '#range-set-popup'
+            ,type: 'inline'
+          }
+          ,preloader: false
+          ,removalDelay: 300
+          ,mainClass: 'popup-animate'
+          ,callbacks: {
+            beforeOpen: function() {
+              var popup_text = 'Search range has been set to ' + $('input:text[name="start-time"]').val() + ' - ' + $('input:text[name="end-time"]').val();
+              if (span_adjust)
+              {
+                popup_text += ' (10 minute minimum search span)';
+              }
+              $('#range-set-popup').children('div.popup-form-data').text(popup_text);
+            }
+            ,open: function() {
+              setTimeout(function() {
+                $('.navbar').addClass('blur');
+                $('.container').addClass('blur');
+              }, 150);
+            }
+            ,close: function() {
+              $('.container').removeClass('blur');
+              $('.navbar').removeClass('blur');
+            }
+          }
+        });
+        setTimeout(function() {
+          $.magnificPopup.close();
+        }, 1500);
+
       }
 
       $(document).ready(function() {
