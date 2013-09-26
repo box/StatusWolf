@@ -725,6 +725,10 @@ ul.nav-tabs {
     content: '\2718';
 }
 
+.iconic-cog:before {
+    content: '\2699';
+}
+
 .iconic-download:before {
     content: '\e042';
 }

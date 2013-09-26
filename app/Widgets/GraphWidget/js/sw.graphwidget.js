@@ -42,6 +42,7 @@
 				,sw_graphwidget_editparamsbutton
         ,sw_graphwidget_clonebutton
 				,sw_graphwidget_maximizebutton
+        ,sw_graphwidget_action
 				,sw_graphwidget_querycancelbutton
 				,sw_graphwidget_gobutton
 				,sw_graphwidget_datasource;
@@ -116,6 +117,14 @@
         .append('<span class="iconic iconic-new-window"></span>')
         .appendTo(sw_graphwidget_fronttitle);
 
+      sw_graphwidget_action = (this.sw_graphwidget_action = $('<div>'))
+        .addClass('dropdown widget-title-dropdown')
+        .append('<span class="widget-title-button left-button" data-toggle="dropdown">' +
+          '<span class="iconic iconic-cog"></span></span>' +
+          '<ul class="dropdown-menu widget-action-options" role="menu">' +
+          '<li data-action="usespan"><span>Use this time span for all widgets</span></li></ul>')
+        .appendTo(sw_graphwidget_fronttitle);
+
       sw_graphwidget_highlight = (this.sw_graphwidget_legend_hover = $('<div>'))
 				.addClass('legend-hover glue4')
 				.appendTo(sw_graphwidget_fronttitle);
@@ -137,9 +146,9 @@
 			sw_graphwidget_savedsearchesmenu = (this.sw_graphwidget_savedsearchesmenu = $('<div>'))
 				.addClass('dropdown widget-title-dropdown saved-searches-menu')
 				.append('<span class="widget-title-button left-button" data-toggle="dropdown">' +
-				'<span class="widget-button-label">Saved Searches </span>' +
-				'<span class="iconic iconic-play rotate-90"></span></span>' +
-				'<ul class="dropdown-menu saved-searches-options" role="menu" aria-labelledby="dLabel"></ul>')
+				  '<span class="widget-button-label">Saved Searches </span>' +
+				  '<span class="iconic iconic-play rotate-90"></span></span>' +
+				  '<ul class="dropdown-menu saved-searches-options" role="menu" aria-labelledby="dLabel"></ul>')
 				.appendTo(sw_graphwidget_backtitle);
 
 			sw_graphwidget_backtitle.append('<div class="glue1">');
@@ -150,7 +159,7 @@
 					'<span class="widget-button-label active-datasource">OpenTSDB </span>' +
 					'<span class="iconic iconic-play rotate-90"></span></span>' +
 					'<ul class="dropdown-menu menu-left datasource-options" role="menu" aria-labelledby="dLabel">' +
-					'<li><span>OpenTSDB</span></li></ul>')
+					'<li data-action="set-datasource"><span>OpenTSDB</span></li></ul>')
 				.appendTo(sw_graphwidget_backtitle);
 
 			// Buttons that will go in the footer bar
@@ -180,7 +189,19 @@
 			sw_graphwidget_datasource = $.trim($(sw_graphwidget_datasourcemenu).children('span.widget-title-button').children('span.active-datasource').text().toLowerCase());
       that.build_search_form(that);
 
-		}
+      $(sw_graphwidget).on('click', 'li[data-action]', function() {
+        if ($(this).attr('data-action') === "usespan")
+        {
+          console.log(that.sw_graphwidget_containerid);
+          that.set_all_spans(this, that);
+        }
+        else
+        {
+          that.dropdown_menu_handler(this, that);
+        }
+      });
+
+    }
 
 		,_destroy: function() {
 			console.log('_destroy called');
@@ -192,6 +213,7 @@
 			this.sw_graphwidget_backfooter.remove();
 			this.sw_graphwidget_backmain.remove();
 			this.sw_graphwidget_backtitle.remove();
+      this.sw_graphwidget_action.remove();
 			this.sw_graphwidget_maximize_button.remove();
 			this.sw_graphwidget_editparamsbutton.remove();
       this.sw_graphwidget_clonebutton.remove();
@@ -295,34 +317,34 @@
 
         widget.metric_count = 0;
 
-        var anomaly_span_menu = '<li><span data-ms=600>10 minutes</span></li>' +
-          '<li><span data-ms=1800>30 minutes</span></li>' +
-          '<li><span data-ms=3600>1 Hour</span></li>' +
-          '<li><span data-ms=7200>2 Hours</span></li>' +
-          '<li><span data-ms=14400>4 Hours</span></li>' +
-          '<li><span data-ms=28800>8 Hours</span></li>' +
-          '<li><span data-ms=43200>12 Hours</span></li>' +
-          '<li><span data-ms=86400>1 Day</span></li>'
-          ,wow_span_menu = '<li><span data-ms=600>10 minutes</span></li>' +
-            '<li><span data-ms=1800>30 minutes</span></li>' +
-            '<li><span data-ms=3600>1 Hour</span></li>' +
-            '<li><span data-ms=7200>2 Hours</span></li>' +
-            '<li><span data-ms=14400>4 Hours</span></li>' +
-            '<li><span data-ms=28800>8 Hours</span></li>' +
-            '<li><span data-ms=43200>12 Hours</span></li>' +
-            '<li><span data-ms=86400>1 Day</span></li>' +
-            '<li><span data-ms=604800>1 Week</span></li>'
-          ,long_span_menu = '<li><span data-ms="600">10 minutes</span></li>' +
-            '<li><span data-ms=1800>30 minutes</span></li>' +
-            '<li><span data-ms=3600>1 Hour</span></li>' +
-            '<li><span data-ms=7200>2 Hours</span></li>' +
-            '<li><span data-ms=14400>4 Hours</span></li>' +
-            '<li><span data-ms=28800>8 Hours</span></li>' +
-            '<li><span data-ms=43200>12 Hours</span></li>' +
-            '<li><span data-ms=86400>1 Day</span></li>' +
-            '<li><span data-ms=604800>1 Week</span></li>' +
-            '<li><span data-ms=1209600>2 Weeks</span></li>' +
-            '<li><span data-ms=2592000>1 Month</span></li>';
+        var anomaly_span_menu = '<li data-action="set-span"><span data-ms=600>10 minutes</span></li>' +
+          '<li data-action="set-span"><span data-ms=1800>30 minutes</span></li>' +
+          '<li data-action="set-span"><span data-ms=3600>1 Hour</span></li>' +
+          '<li data-action="set-span"><span data-ms=7200>2 Hours</span></li>' +
+          '<li data-action="set-span"><span data-ms=14400>4 Hours</span></li>' +
+          '<li data-action="set-span"><span data-ms=28800>8 Hours</span></li>' +
+          '<li data-action="set-span"><span data-ms=43200>12 Hours</span></li>' +
+          '<li data-action="set-span"><span data-ms=86400>1 Day</span></li>'
+          ,wow_span_menu = '<li data-action="set-span"><span data-ms=600>10 minutes</span></li>' +
+            '<li data-action="set-span"><span data-ms=1800>30 minutes</span></li>' +
+            '<li data-action="set-span"><span data-ms=3600>1 Hour</span></li>' +
+            '<li data-action="set-span"><span data-ms=7200>2 Hours</span></li>' +
+            '<li data-action="set-span"><span data-ms=14400>4 Hours</span></li>' +
+            '<li data-action="set-span"><span data-ms=28800>8 Hours</span></li>' +
+            '<li data-action="set-span"><span data-ms=43200>12 Hours</span></li>' +
+            '<li data-action="set-span"><span data-ms=86400>1 Day</span></li>' +
+            '<li data-action="set-span"><span data-ms=604800>1 Week</span></li>'
+          ,long_span_menu = '<li data-action="set-span"><span data-ms="600">10 minutes</span></li>' +
+            '<li data-action="set-span"><span data-ms=1800>30 minutes</span></li>' +
+            '<li data-action="set-span"><span data-ms=3600>1 Hour</span></li>' +
+            '<li data-action="set-span"><span data-ms=7200>2 Hours</span></li>' +
+            '<li data-action="set-span"><span data-ms=14400>4 Hours</span></li>' +
+            '<li data-action="set-span"><span data-ms=28800>8 Hours</span></li>' +
+            '<li data-action="set-span"><span data-ms=43200>12 Hours</span></li>' +
+            '<li data-action="set-span"><span data-ms=86400>1 Day</span></li>' +
+            '<li data-action="set-span"><span data-ms=604800>1 Week</span></li>' +
+            '<li data-action="set-span"><span data-ms=1209600>2 Weeks</span></li>' +
+            '<li data-action="set-span"><span data-ms=2592000>1 Month</span></li>';
 
         $('#' + widget_element.attr('id') + ' .widget-title .saved-searches-menu')
           .after('<h3 id="search-title' + widget_num +'" class="search-title search-title-prompt"></h3>' +
@@ -526,9 +548,6 @@
           statuswolf_button(this);
         });
 
-        $('ul.dropdown-menu').on('click', 'li', function() {
-          widget.dropdown_menu_handler(this, widget_num);
-        });
       }
     }
 
@@ -555,11 +574,11 @@
           '<span data-toggle="dropdown"><div class="graph-widget-button-label" id="active-aggregation-type' + tab_tag + '">Sum</div>' +
           '<span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span></span>' +
           '<ul class="dropdown-menu" id="aggregation-type=options' + tab_tag + '" role="menu" aria-labelledby="dLabel">' +
-          '<li><span>Sum</span></li>' +
-          '<li><span>Average</span></li>' +
-          '<li><span>Minimum Value</span></li>' +
-          '<li><span>Maximum Value</span></li>' +
-          '<li><span>Standard Deviation</span></li>' +
+          '<li data-action="set-agg-type"><span>Sum</span></li>' +
+          '<li data-action="set-agg-type"><span>Average</span></li>' +
+          '<li data-action="set-agg-type"><span>Minimum Value</span></li>' +
+          '<li data-action="set-agg-type"><span>Maximum Value</span></li>' +
+          '<li data-action="set-agg-type"><span>Standard Deviation</span></li>' +
           '</ul></div></td>' +
           '<td colspan="2"><div class="graph-widget-form-item menu-label" id="downsample' + tab_tag + '" style="margin-right: 0; margin-left: 40px;">' +
           '<h4>Downsampling</h4>' +
@@ -568,22 +587,22 @@
           '<div class="graph-widget-button-label" id="active-downsample-type' + tab_tag + '">Sum</div>' +
           '<span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span></span>' +
           '<ul class="dropdown-menu" id="downsample-type-options' + tab_tag + '" role="menu" aria-labelledby="dLabel">' +
-          '<li><span>Sum</span></li>' +
-          '<li><span>Average</span></li>' +
-          '<li><span>Minimum Value</span></li>' +
-          '<li><span>Maximum Value</span></li></ul></div>' +
+          '<li data-action="set-ds-type"><span>Sum</span></li>' +
+          '<li data-action="set-ds-type"><span>Average</span></li>' +
+          '<li data-action="set-ds-type"><span>Minimum Value</span></li>' +
+          '<li data-action="set-ds-type"><span>Maximum Value</span></li></ul></div>' +
           '<div class="dropdown graph-widget-button">' +
           '<span data-toggle="dropdown">' +
           '<div class="graph-widget-button-label ds-interval" id="active-downsample-interval' + tab_tag + '" data-value="1">1 minute</div>' +
           '<span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span></span>' +
           '<ul class="dropdown-menu ds-values" id="downsample-interval-options' + tab_tag + '" role="menu" aria-labelledby="dLabel">' +
-          '<li><span data-value="1">1 minute</span></li>' +
-          '<li><span data-value="10">10 minutes</span></li>' +
-          '<li><span data-value="30">30 minutes</span></li>' +
-          '<li><span data-value="60">1 hour</span></li>' +
-          '<li><span data-value="240">4 hours</span></li>' +
-          '<li><span data-value="720">12 hours</span></li>' +
-          '<li><span data-value="1440">1 day</span></li></ul></div></td></tr>');
+          '<li data-action="set-ds-span"><span data-value="1">1 minute</span></li>' +
+          '<li data-action="set-ds-span"><span data-value="10">10 minutes</span></li>' +
+          '<li data-action="set-ds-span"><span data-value="30">30 minutes</span></li>' +
+          '<li data-action="set-ds-span"><span data-value="60">1 hour</span></li>' +
+          '<li data-action="set-ds-span"><span data-value="240">4 hours</span></li>' +
+          '<li data-action="set-ds-span"><span data-value="720">12 hours</span></li>' +
+          '<li data-action="set-ds-span"><span data-value="1440">1 day</span></li></ul></div></td></tr>');
         tab_table.append('<tr><td width="32%"><div class="graph-widget-form-item menu-label">' +
           '<h4>Interpolation</h4>' +
           '<div class="push-button binary info-tooltip" title="Interpolation should be disabled unless you are absolutely sure that you need it.">' +
@@ -617,10 +636,6 @@
         statuswolf_button(this);
       });
 
-      $('ul.dropdown-menu').on('click', 'li', function() {
-        widget.dropdown_menu_handler(this, widget_num);
-      });
-
       $('.info-tooltip').tooltip({placement: 'bottom'});
       $('.info-tooltip-right').tooltip({placement: 'right'});
       $('.info-tooltip-left').tooltip({placement: 'left'});
@@ -630,14 +645,39 @@
       return tab_num;
     }
 
-    ,dropdown_menu_handler: function(item, widget_num)
+    ,set_all_spans: function(item, widget)
     {
+      console.log("using my time span for everybody");
+      var widget_id = widget.sw_graphwidget_containerid;
+      console.log(widget_id);
+      var widget_list = $('.widget-container[data-widget-type="graphwidget"]');
+      $.each(widget_list, function(i, action_widget_element) {
+        var action_widget_id = '#' + $(action_widget_element).attr('id');
+        console.log(action_widget_id + ' - ' + widget_id);
+        if ( action_widget_id !== widget_id)
+        {
+          console.log('Not me, setting span for ' + action_widget_id);
+          var action_widget = $('#' + $(action_widget_element).attr('id')).data('sw-graphwidget');
+          action_widget.query_data.period = widget.query_data.period;
+          action_widget.query_data.time_span = widget.query_data.time_span;
+          action_widget.query_data.end_time = widget.query_data.end_time;
+          action_widget.query_data.start_time = widget.query_data.start_time;
+          action_widget.populate_search_form(action_widget.query_data, action_widget);
+        }
+      })
+    }
+
+    ,dropdown_menu_handler: function(item, widget)
+    {
+      console.log($(item));
+      console.log($(item).text());
       var button = $(item).parent().parent().children('span');
+      var action = $(item).attr('data-action');
       $(button).children('.graph-widget-button-label').text($(item).text());
       $(button).children('div.ds-interval').attr('data-value', $(item).children('span').attr('data-value'));
-      if ($(item).parent().attr('id') === "time-span-options" + widget_num)
+      if ($(item).parent().attr('id') === "time-span-options" + widget.uuid)
       {
-        $(button).children('div#time-span' + widget_num).attr('data-ms', $(item).children('span').attr('data-ms')).text();
+        $(button).children('div#time-span' + widget.uuid).attr('data-ms', $(item).children('span').attr('data-ms')).text();
       }
     }
 
