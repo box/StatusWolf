@@ -192,7 +192,6 @@
       $(sw_graphwidget).on('click', 'li[data-action]', function() {
         if ($(this).attr('data-action') === "usespan")
         {
-          console.log(that.sw_graphwidget_containerid);
           that.set_all_spans(this, that);
         }
         else
@@ -647,16 +646,12 @@
 
     ,set_all_spans: function(item, widget)
     {
-      console.log("using my time span for everybody");
       var widget_id = widget.sw_graphwidget_containerid;
-      console.log(widget_id);
       var widget_list = $('.widget-container[data-widget-type="graphwidget"]');
       $.each(widget_list, function(i, action_widget_element) {
         var action_widget_id = '#' + $(action_widget_element).attr('id');
-        console.log(action_widget_id + ' - ' + widget_id);
         if ( action_widget_id !== widget_id)
         {
-          console.log('Not me, setting span for ' + action_widget_id);
           var action_widget = $('#' + $(action_widget_element).attr('id')).data('sw-graphwidget');
           action_widget.query_data.period = widget.query_data.period;
           action_widget.query_data.time_span = widget.query_data.time_span;
@@ -669,8 +664,6 @@
 
     ,dropdown_menu_handler: function(item, widget)
     {
-      console.log($(item));
-      console.log($(item).text());
       var button = $(item).parent().parent().children('span');
       var action = $(item).attr('data-action');
       $(button).children('.graph-widget-button-label').text($(item).text());
