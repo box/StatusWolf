@@ -140,6 +140,7 @@ foreach($widgets as $widget_key)
 <script type="text/javascript">
 
   $('title').text('Dashboard - StatusWolf');
+  $('div#dashboard_title').remove();
 
   var _session_data = '<?php echo json_encode($_session_data); ?>';
   if (typeof(_session_data) == "string")
@@ -246,6 +247,7 @@ foreach($widgets as $widget_key)
         }
         $('title').text(dashboard_config.title + ' - StatusWolf');
         $('input#dashboard-title').val(dashboard_config.title);
+        $('div#dashboard-menu').after('<div id="dashboard-title">' + dashboard_config.title + '</div>');
         $.each(dashboard_config.widgets, function(widget_id, query_data) {
           if (query_data.widget_type === "graphwidget")
           {
