@@ -201,6 +201,9 @@ class OpenTSDB extends TimeSeriesData {
   public function get_raw_data(array $query_bits)
   {
     $search_metrics = Array();
+    $downsample_interval = Array();
+    $downsample_type = Array();
+
     // Make sure we were passed query building blocks
     if (empty($query_bits))
     {
@@ -252,20 +255,30 @@ class OpenTSDB extends TimeSeriesData {
           }
           $metric_keys[$qkey] = $metric['name'];
           $query_bits['key'] = $query_bits['key'] . $qkey;
+
+          if (array_key_exists('ds_interval', $metric))
+          {
+            $downsample_interval[$metric['name']] = $metric['ds_interval'];
+          }
+          else
+          {
+            $downsample_interval[$metric['name']] = $this->downsample_interval;
+          }
+
+          if (array_key_exists('ds_type', $metric))
+          {
+            $downsample_type[$metric['name']] = $metric['ds_type'];
+          }
+          else
+          {
+            $downsample_type[$metric['name']] = $this->downsample_type;
+          }
+
         }
       }
       else
       {
         throw new SWException('No query found to search on');
-      }
-
-      if (array_key_exists('ds_interval', $metric))
-      {
-        $this->downsample_interval = $metric['ds_interval'];
-      }
-      if (array_key_exists('ds_type', $metric))
-      {
-        $this->downsample_type = $metric['ds_type'];
       }
 
     }
@@ -278,7 +291,7 @@ class OpenTSDB extends TimeSeriesData {
     }
     else
     {
-      $cache_key = md5($query_bits['key'] . $this->downsample_interval . $this->downsample_type . $_SESSION['_sw_authsession']['username']);
+      $cache_key = md5($query_bits['key'] . time() . $_SESSION['_sw_authsession']['username']);
     }
 
     $this->loggy->logDebug(json_encode($query_bits));
@@ -391,6 +404,7 @@ class OpenTSDB extends TimeSeriesData {
 
     foreach ($graph_data as $series => $data)
     {
+      $series_metric = explode(' ', $series)[0];
       foreach ($data as $key => $row)
       {
         $timestamp[$key] = $row['timestamp'];
@@ -398,8 +412,8 @@ class OpenTSDB extends TimeSeriesData {
       }
       $this->loggy->logDebug($this->log_tag . 'sorting data, ' . count($timestamp) . ' timestamps, ' . count($value) . ' values');
       array_multisort($timestamp, SORT_ASC, $value, SORT_ASC, $data);
-      $this->loggy->logDebug($this->log_tag . 'Calling downsampler, interval: ' . $this->downsample_interval . ' method: ' . $this->downsample_type);
-      $downsampler = new TimeSeriesDownsample($this->downsample_interval, $this->downsample_type);
+      $this->loggy->logDebug($this->log_tag . 'Calling downsampler, interval: ' . $downsample_interval[$series_metric] . ' method: ' . $downsample_type[$series_metric]);
+      $downsampler = new TimeSeriesDownsample($downsample_interval[$series_metric], $downsample_type[$series_metric]);
       $downsampler->ts_object = @$this;
       $this->loggy->logDebug($this->log_tag . 'Downsampling data, start: ' . $this->_start_timestamp . ', end: ' . $this->_end_timestamp);
       $graph_data[$series] = $downsampler->downsample($data, $this->_start_timestamp, $this->_end_timestamp);
@@ -507,34 +521,20 @@ class OpenTSDB extends TimeSeriesData {
     $this->loggy->logDebug($this->log_tag . "All the legend bits: " . json_encode($legend_pool));
     $this->loggy->logDebug($this->log_tag . "Query tags: " . json_encode($query_metrics_tags));
 
-    if (count($query_metrics) > 1)
-    {
-      $save_metric_names = true;
-    }
-
     foreach ($legend_pool as $series => $legend_bits)
     {
       $legend_string = '';
-      if ($save_metric_names)
-      {
-        $legend_string = $legend_bits[0] . ' ';
-      }
       $metric_name = array_shift($legend_bits);
-      if (count($query_metrics_tags[$metric_name]) < 1 && !$save_metric_names)
+      $legend_string = $metric_name . ' ';
+      foreach ($legend_bits as $tag)
       {
-        $legend_string = $metric_name;
-      }
-      else
-      {
-        foreach ($legend_bits as $tag)
+        $tag_bits = explode('=', $tag);
+        if (in_array($tag_bits[0], $query_metrics_tags[$metric_name]))
         {
-          $tag_bits = explode('=', $tag);
-          if (in_array($tag_bits[0], $query_metrics_tags[$metric_name]))
-          {
-            $legend_string = $legend_string . $tag . ' ';
-          }
+          $legend_string = $legend_string . $tag . ' ';
         }
       }
+
       $legends[$series] = trim($legend_string);
     }
 
