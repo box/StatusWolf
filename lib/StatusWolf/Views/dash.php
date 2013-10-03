@@ -69,7 +69,7 @@ else
     <form onsubmit="return false;">
       <h5 style="display: inline-block;">Title: </h5>
       <div class="popup-form-data" style="display: inline-block">
-        <input type="text" class="input" id="dashboard-title" name="dashboard-title" value="" style="width: 250px;">
+        <input type="text" class="input" id="save-dashboard-title" name="dashboard-title" value="" style="width: 250px;">
       </div>
       <div class="push-button" style="display: inline-block; margin-left: 10px;">
         <input type="checkbox" id="shared" name="shared"><label for="shared"><span class="iconic iconic-x-alt red"></span><span class="binary-label"> Shared Dashboard</span></label>
@@ -246,7 +246,7 @@ foreach($widgets as $widget_key)
           dashboard_config = eval('(' + dashboard_config + ')');
         }
         $('title').text(dashboard_config.title + ' - StatusWolf');
-        $('input#dashboard-title').val(dashboard_config.title);
+        $('input#save-dashboard-title').val(dashboard_config.title);
         $('div#dashboard-menu').after('<div id="dashboard-title">' + dashboard_config.title + '</div>');
         $.each(dashboard_config.widgets, function(widget_id, query_data) {
           if (query_data.widget_type === "graphwidget")
@@ -271,7 +271,7 @@ foreach($widgets as $widget_key)
         ,type: 'inline'
       }
       ,preloader: false
-      ,focus: '#dashboard-title'
+      ,focus: '#save-dashboard-title'
       ,removalDelay: 300
       ,mainClass: 'popup-animate'
       ,callbacks: {
@@ -394,7 +394,7 @@ function save_click_handler(event, confirmation, dashboard_id)
       dashboard_id = md5("dashboard" + document._session_data.username + new Date.now().getTime());
     }
     dashboard_config = { id: dashboard_id
-      ,title: $('input#dashboard-title').val()
+      ,title: $('input#save-dashboard-title').val()
       ,shared: $('#shared').prop('checked')?1:0
       ,username: document._session_data.username
       ,user_id: document._session_data.user_id
