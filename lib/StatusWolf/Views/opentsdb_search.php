@@ -1513,6 +1513,7 @@
 
     // Set up the right axis labels, if requested
     var right_axis = '';
+    var right_axis_labels = [];
     $.each(query_data.metrics, function(i, metric) {
       if (metric.y2 == true)
       {
@@ -1533,9 +1534,13 @@
             axis_bits[label]['axis'] = right_axis;
           }
           g.updateOptions(axis_bits);
+          right_axis_labels.push(label);
         });
       }
     });
+
+//    $('#legend').children('span:contains("' + label + '")')
+//        .append('<span class="iconic iconic-play">');
 
     // Set up the anomaly highlighting if requested
     if (query_data.history_graph == "anomaly")
@@ -1559,7 +1564,21 @@
     $('.dygraph-xlabel').parent().css('top', '40%');
 
     $.each(g.colorsMap_, function(legend_key, color) {
-      $('#legend').append('<span style="color: ' + color + '"><b>' + legend_key + '</b></span>');
+      if (right_axis.length > 0)
+      {
+        if ($.inArray(legend_key, right_axis_labels) >= 0)
+        {
+          $('#legend').append('<span style="color: ' + color + '"><b>' + legend_key + ' </b><span class="iconic iconic-play"></span></span>');
+        }
+        else
+        {
+          $('#legend').append('<span style="color: ' + color + '"><span class="iconic iconic-play rotate-180"></span><b> ' + legend_key + '</b></span>');
+        }
+      }
+      else
+      {
+        $('#legend').append('<span style="color: ' + color + '"><b>' + legend_key + '</b></span>');
+      }
     });
 
     // Set the interval for adding new data if Auto Update is selected

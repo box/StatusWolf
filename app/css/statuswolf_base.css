@@ -66,6 +66,12 @@ ul, ol {
     transform: rotate(-90deg);
 }
 
+.rotate-180 {
+    -webkit-transform: rotate(180deg);
+    -moz-tansform: rotate(180deg);
+    transform: rotate(180deg);
+}
+
 .flexy {
     display: -webkit-box;
     -webkit-box-orient: horizontal;
