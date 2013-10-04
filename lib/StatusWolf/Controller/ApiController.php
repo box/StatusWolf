@@ -475,6 +475,7 @@ class ApiController extends SWController
       if($confirm === "Confirm")
       {
         $confirm_save = true;
+        $new_dashboard = false;
       }
       else
       {
@@ -506,6 +507,10 @@ class ApiController extends SWController
           echo json_encode(array("query_result" => "Error", "query_info" => "Title", "dashboard_id" => $raw_query_data['id']));
           $saved_dashboard_db->close();
           return;
+        }
+        else
+        {
+          $new_dashboard = true;
         }
       }
     }
@@ -554,7 +559,7 @@ class ApiController extends SWController
         $usermap[$usermap_entry['id']] = $usermap_entry['username'];
       }
     }
-    $shared_dashboards_query = sprintf("SELECT * FROM saved_dashboards WHERE shared=1");
+    $shared_dashboards_query = sprintf("SELECT dr.count, sd.* FROM dashboard_rank dr, saved_dashboards sd WHERE sd.id = dr.id AND shared=1 ORDER BY dr.count DESC");
     $shared_dashboards_result = $dashboard_db->query($shared_dashboards_query);
     if ($shared_dashboards_result->num_rows && $shared_dashboards_result->num_rows > 0)
     {
@@ -596,6 +601,14 @@ class ApiController extends SWController
           $this->loggy->logDebug($this->log_tag . 'Dashboard config found, loading');
           $dashboard_config = $dashboard_data;
           $dashboard_config['widgets'] = unserialize($dashboard_data['widgets']);
+          $this->loggy->logDebug($this->log_tag . 'Updating dashboard rank');
+          $update_rank_query = sprintf("UPDATE dashboard_rank SET count=count+1 WHERE id='%s'", $dash_id);
+          $rank_result = $sw_db->query($update_rank_query);
+          $transaction_id = $sw_db->insert_id;
+          if (mysqli_error($sw_db))
+          {
+            throw new SWException('Error updating dashboard rank: ' . mysqli_errno($sw_db) . ' ' . mysqli_error($sw_db));
+          }
         }
       }
       else

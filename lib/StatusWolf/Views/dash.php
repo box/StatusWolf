@@ -15,48 +15,6 @@ $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
 $_sw_conf = SWConfig::read_values('statuswolf');
 $db_conf = $_sw_conf['session_handler'];
 
-// Check whether we're loading a saved dashboard
-if (array_key_exists('dashboard_id', $_session_data['data']))
-{
-  $sw_db = new mysqli($db_conf['db_host'], $db_conf['db_user'], $db_conf['db_password'], $db_conf['database']);
-  if (mysqli_connect_error())
-  {
-    throw new SWException('Unable to connect to shared search database: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
-  }
-  // Pull the config for the dashboard from the database
-  $this->loggy->logDebug($this->log_tag . "Loading saved dashboard id " . $_session_data['data']['dashboard_id']);
-  $dashboard_query = sprintf("SELECT * FROM saved_dashboards WHERE id='%s'", $_session_data['data']['dashboard_id']);
-  if ($dashboard_result = $sw_db->query($dashboard_query))
-  {
-    if ($dashboard_result->num_rows && $dashboard_result->num_rows > 0)
-    {
-      $dashboard_data = $dashboard_result->fetch_assoc();
-      // If this isn't a shared dashboard, make sure the current user owns it
-      if ($dashboard_data['shared'] == 0 && $dashboard_data['user_id'] != $_session_data['user_id'])
-      {
-        $this->loggy->logDebug($this->log_tag . 'Access violation, user id ' . $_session_data['user_id'] . ' trying to view private dashboard owned by user id ' . $dashboard_data['user_id']);
-        $dashboard_config = 'Not Allowed';
-      }
-      else
-      {
-        $this->loggy->logDebug($this->log_tag . 'Dashboard config found, loading');
-        $dashboard_config = $dashboard_data;
-        $incoming_widgets = unserialize($dashboard_data['widgets']);
-        $dashboard_config['widgets'] = $incoming_widgets;
-      }
-    }
-    else
-    {
-      $this->loggy->logDebug($this->log_tag . 'Dashboard id ' . $_session_data['data']['dashboard_id'] . ' was not found');
-      $dashboard_config = 'Not Found';
-    }
-  }
-}
-else
-{
-  $dashboard_config = null;
-}
-
 ?>
 
 <link rel="stylesheet" href="<?php echo URL; ?>app/css/widget_base.css">
@@ -177,7 +135,7 @@ foreach($widgets as $widget_key)
   $('div#dashboard_title').remove();
 
   var _session_data = '<?php echo json_encode($_session_data); ?>';
-  if (typeof(_session_data) == "string")
+  if (typeof _session_data == "string")
   {
     document._session_data = eval('(' + _session_data + ')');
   }
@@ -186,7 +144,7 @@ foreach($widgets as $widget_key)
     document._session_data = _session_data
   }
   var _sw_conf = '<?php echo json_encode($_sw_conf); ?>';
-  if (typeof(_sw_conf) == "string")
+  if (typeof _sw_conf == "string")
   {
     document._sw_conf = eval('(' + _sw_conf + ')');
   }
@@ -196,7 +154,15 @@ foreach($widgets as $widget_key)
   }
 
   // Grab the config for the dashboard we're loading (if there is one)
-  var dashboard_config = <?php if ($dashboard_config) { echo json_encode($dashboard_config); } else { echo 'null'; } ?>;
+  if (typeof document._session_data.data.dashboard_id !== "undefined")
+  {
+    console.log('loading dashboard ' + document._session_data.data.dashboard_id);
+    $.when(get_dashboard_config(document._session_data.data.dashboard_id)).then(
+        function(data) {
+          build_dashboard(data);
+        }
+    );
+  }
 
   $(document).ready(function() {
     var widgets = eval('(<?php echo json_encode($widget_list); ?>)');
@@ -257,91 +223,6 @@ foreach($widgets as $widget_key)
         }
       });
     });
-
-    // Is there a valid dashboard config to load?
-    if (dashboard_config !== null && typeof dashboard_config !== "undefined")
-    {
-      if (typeof dashboard_config === "string" && dashboard_config.length > 1)
-      {
-        // Alert if the user doesn't own the dashboard they tried to load
-        if (dashboard_config.match(/Not Allowed/))
-        {
-          $('.container').append('<div id="not-allowed-popup" class="popup"><h5>Not Allowed</h5><div class="popup-form-data">You do not have permission to view this dashboard</div></div>');
-          $.magnificPopup.open({
-            items: {
-              src: '#not-allowed-popup'
-              ,type: 'inline'
-            }
-            ,preloader: false
-            ,removalDelay: 300
-            ,mainClass: 'popup-animate'
-            ,callbacks: {
-              open: function() {
-                $('.navbar').addClass('blur');
-                $('.container').addClass('blur');
-              }
-              ,close: function() {
-                $('.container').removeClass('blur');
-                $('.navbar').removeClass('blur');
-                window.history.pushState("", "StatusWolf", "/dashboard/");
-              }
-            }
-          });
-        }
-        // Alert if the user tried to load a non-existent dashboard
-        else if(dashboard_config.match(/Not Found/))
-        {
-          $('.container').append('<div id="not-found-popup" class="popup"><h5>Not Found</h5><div class="popup-form-data">The dashboard was not found.</div></div>');
-          $.magnificPopup.open({
-            items: {
-              src: '#not-found-popup'
-              ,type: 'inline'
-            }
-            ,preloader: false
-            ,removalDelay: 300
-            ,mainClass: 'popup-animate'
-            ,callbacks: {
-              open: function() {
-                $('.navbar').addClass('blur');
-                $('.container').addClass('blur');
-              }
-              ,close: function() {
-                $('.container').removeClass('blur');
-                $('.navbar').removeClass('blur');
-                window.history.pushState("", "StatusWolf", "/dashboard/");
-              }
-            }
-          });
-        }
-      }
-      else
-      {
-        // Load us up a dashboard
-        if (typeof(dashboard_config) === "string")
-        {
-          dashboard_config = eval('(' + dashboard_config + ')');
-        }
-        // Set the browser tab title, put the dashboard name in the nav bar
-        $('title').text(dashboard_config.title + ' - StatusWolf');
-        $('input#dashboard-title').val(dashboard_config.title);
-        $('div#dashboard-menu').after('<div id="dashboard-title">' + dashboard_config.title + '</div>');
-
-        $.each(dashboard_config.widgets, function(widget_id, query_data) {
-          if (query_data.widget_type === "graphwidget")
-          {
-            $('#dash-container').append('<div class="widget-container" id="' + widget_id + '" data-widget-type="' + query_data.widget_type + '">');
-            new_widget = $('div#' + widget_id).graphwidget(query_data.options);
-            widget_object = $(new_widget).data('sw-' + new_widget.attr('data-widget-type'));
-            widget_object.populate_search_form(query_data, widget_object);
-            $('#' + widget_id).removeClass('transparent');
-          }
-          else
-          {
-            console.log('unknown widget type: ' + query_data.widget_type);
-          }
-        });
-      }
-    }
 
     // Handler for the save dashboard dialog
     $('#save-dashboard-menu-choice').magnificPopup({
@@ -441,7 +322,7 @@ foreach($widgets as $widget_key)
       alert('Blank dashboard, saving you from yourself and refusing to save this...');
     }
     // If this is a brand new dashboard, create an id for it
-    if (typeof(dashboard_id) == "undefined")
+    if (typeof dashboard_id == "undefined")
     {
       dashboard_id = md5("dashboard" + document._session_data.username + new Date.now().getTime());
     }
@@ -463,7 +344,7 @@ foreach($widgets as $widget_key)
       ,dataType: 'json'
       ,data: dashboard_config
       ,success: function(data) {
-        if (typeof(data) == "string")
+        if (typeof data == "string")
         {
           data = eval('(' + data + ')');
         }
@@ -614,4 +495,110 @@ foreach($widgets as $widget_key)
     return dashboard_menu.promise();
   }
 
+  // Fetch the config for a requested saved dashboard
+  function get_dashboard_config(dash_id)
+  {
+    var api_url = '<?php echo URL; ?>api/load_saved_dashboard/' + dash_id;
+
+    console.log('get_dashboard_config - ' + dash_id);
+    var dashboard_config = new $.Deferred();
+
+    dashboard_config_query = $.ajax({
+        url: api_url
+        ,type: 'GET'
+        ,dataType: 'json'
+      })
+      ,chain = dashboard_config_query.then(function(data) {
+        console.log(data);
+        return(data);
+      });
+    chain.done(function(data) {
+      console.log(data)
+      dashboard_config.resolve(data);
+    });
+
+    return dashboard_config.promise();
+
+  }
+
+  // Load up the requested saved dashboard
+  function build_dashboard(dashboard_config)
+  {
+    if (typeof dashboard_config.error !== "undefined")
+    {
+      // Alert if the user doesn't own the dashboard they tried to load
+      if (dashboard_config.error === "Not Allowed")
+      {
+        $('.container').append('<div id="not-allowed-popup" class="popup"><h5>Not Allowed</h5><div class="popup-form-data">You do not have permission to view this dashboard</div></div>');
+        $.magnificPopup.open({
+          items: {
+            src: '#not-allowed-popup'
+            ,type: 'inline'
+          }
+          ,preloader: false
+          ,removalDelay: 300
+          ,mainClass: 'popup-animate'
+          ,callbacks: {
+            open: function() {
+              $('.navbar').addClass('blur');
+              $('.container').addClass('blur');
+            }
+            ,close: function() {
+              $('.container').removeClass('blur');
+              $('.navbar').removeClass('blur');
+              window.history.pushState("", "StatusWolf", "/dashboard/");
+            }
+          }
+        });
+      }
+      // Alert if the user tried to load a non-existent dashboard
+      else if(dashboard_config.error === "Not Found")
+      {
+        $('.container').append('<div id="not-found-popup" class="popup"><h5>Not Found</h5><div class="popup-form-data">The dashboard was not found.</div></div>');
+        $.magnificPopup.open({
+          items: {
+            src: '#not-found-popup'
+            ,type: 'inline'
+          }
+          ,preloader: false
+          ,removalDelay: 300
+          ,mainClass: 'popup-animate'
+          ,callbacks: {
+            open: function() {
+              $('.navbar').addClass('blur');
+              $('.container').addClass('blur');
+            }
+            ,close: function() {
+              $('.container').removeClass('blur');
+              $('.navbar').removeClass('blur');
+              window.history.pushState("", "StatusWolf", "/dashboard/");
+            }
+          }
+        });
+      }
+    }
+    else
+    {
+      // Load us up a dashboard
+      // Set the browser tab title, put the dashboard name in the nav bar
+      $('title').text(dashboard_config.title + ' - StatusWolf');
+      $('input#dashboard-title').val(dashboard_config.title);
+      $('div#dashboard-menu').after('<div id="dashboard-title">' + dashboard_config.title + '</div>');
+
+      $.each(dashboard_config.widgets, function(widget_id, query_data) {
+        if (query_data.widget_type === "graphwidget")
+        {
+          $('#dash-container').append('<div class="widget-container" id="' + widget_id + '" data-widget-type="' + query_data.widget_type + '">');
+          new_widget = $('div#' + widget_id).graphwidget(query_data.options);
+          widget_object = $(new_widget).data('sw-' + new_widget.attr('data-widget-type'));
+          widget_object.populate_search_form(query_data, widget_object);
+          $('#' + widget_id).removeClass('transparent');
+        }
+        else
+        {
+          console.log('unknown widget type: ' + query_data.widget_type);
+        }
+      });
+    }
+  }
 </script>
