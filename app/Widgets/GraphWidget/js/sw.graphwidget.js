@@ -73,7 +73,7 @@
 			// Each face has a title bar, a main content area,
 			// and a footer bar
 			sw_graphwidget_fronttitle = (this.sw_graphwidget_fronttitle = $('<div>'))
-				.addClass('flexy widget-title nodisplay')
+				.addClass('flexy widget-title')
 				.appendTo(sw_graphwidget_front);
 			sw_graphwidget_frontmain = (this.sw_graphwidget_frontmain = $('<div>'))
 				.addClass('widget-main')
@@ -1108,6 +1108,7 @@
         graph_element.append('<div class="bowlG">' +
           '<div class="bowl_ringG"><div class="ball_holderG">' +
           '<div class="ballG"></div></div></div></div>');
+        widget.sw_graphwidget_fronttitle.removeClass('nodisplay');
         $(widget.element).children('.widget').removeClass('flipped');
         graph_element.append('<div id="status-box' + widget_num + '" style="width: 100%; text-align: center;">' +
           '<p id="status-message' + widget_num + '"></p></div>');
@@ -1667,7 +1668,7 @@
       var g_width = $('#' + graphdiv_id).innerWidth() * .95;
 
       widget.g = new Dygraph(
-        document.getElementById('graphdiv' + widget.uuid)
+        document.getElementById(graphdiv_id)
         ,dygraph_format
         ,{
           labels: graph_labels
@@ -1757,6 +1758,13 @@
       $.each(widget.g.colorsMap_, function(legend_key, color) {
         $('#legend' + widget.uuid).append('<span style="color: ' + color + '"><b>' + legend_key + '</b></span>');
       });
+
+      widget.sw_graphwidget_fronttitle.addClass('nodisplay');
+      $('#' + graphdiv_id).css({
+        height: widget.sw_graphwidget_frontmain.innerHeight() - ($('#' + graphdiv_id).siblings('div.legend-container').outerHeight(true))
+        ,top: '10px'
+      });
+      widget.g.resize();
 
       // Set the interval for adding new data if Auto Update is selected
       if (query_data['auto_update'])
