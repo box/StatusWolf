@@ -513,11 +513,9 @@ foreach($widgets as $widget_key)
         ,dataType: 'json'
       })
       ,chain = dashboard_config_query.then(function(data) {
-        console.log(data);
         return(data);
       });
     chain.done(function(data) {
-      console.log(data)
       dashboard_config.resolve(data);
     });
 
