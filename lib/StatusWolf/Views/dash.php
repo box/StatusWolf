@@ -312,6 +312,10 @@ foreach($widgets as $widget_key)
         {
           dashboard_widgets[widget_id] = sw_widget.query_data;
           dashboard_widgets[widget_id]['widget_type'] = $(widget).attr('data-widget-type');
+          if (typeof sw_widget.options.sw_url !== "undefined")
+          {
+            delete(sw_widget.options.sw_url);
+          }
           dashboard_widgets[widget_id]['options'] = sw_widget.options;
         }
       })
@@ -589,6 +593,10 @@ foreach($widgets as $widget_key)
         if (query_data.widget_type === "graphwidget")
         {
           $('#dash-container').append('<div class="widget-container" id="' + widget_id + '" data-widget-type="' + query_data.widget_type + '">');
+          if (typeof query_data.options.sw_url !== "undefined")
+          {
+            delete(query_data.options.sw_url);
+          }
           new_widget = $('div#' + widget_id).graphwidget(query_data.options);
           widget_object = $(new_widget).data('sw-' + new_widget.attr('data-widget-type'));
           widget_object.populate_search_form(query_data, widget_object);
