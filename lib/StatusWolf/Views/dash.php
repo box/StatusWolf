@@ -591,7 +591,7 @@ foreach($widgets as $widget_key)
         if (query_data.widget_type === "graphwidget")
         {
           $('#dash-container').append('<div class="widget-container" id="' + widget_id + '" data-widget-type="' + query_data.widget_type + '">');
-          if (typeof query_data.options.sw_url !== "undefined")
+          if (typeof query_data.options !== "undefined" && typeof query_data.options.sw_url !== "undefined")
           {
             delete(query_data.options.sw_url);
           }
