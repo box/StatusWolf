@@ -642,6 +642,7 @@ class ApiController extends SWController
     $this->loggy->logDebug($this->log_tag . "API call, deleting saved dashboards " . implode(',', $dashboard_ids));
     $dashboard_ids_string = implode("','", $dashboard_ids);
     $delete_dashboards_query = sprintf("DELETE FROM saved_dashboards WHERE id in ('%s')", $dashboard_ids_string);
+    $delete_rank_query = sprintf("DELETE FROM dashboard_rank WHERE id in ('%s')", $dashboard_ids_string);
     $this->loggy->logDebug($this->log_tag . $delete_dashboards_query);
     $sw_db->query($delete_dashboards_query);
     if (mysqli_error($sw_db))
@@ -652,6 +653,13 @@ class ApiController extends SWController
     {
       echo json_encode($dashboard_ids);
     }
+    $sw_db->query($delete_rank_query);
+    if (mysqli_error($sw_db))
+    {
+      throw new SWException('Session open error: ' . mysqli_errno($sw_db) . ' ' . mysqli_error($sw_db));
+    }
+
+    $sw_db->close();
 
   }
 
