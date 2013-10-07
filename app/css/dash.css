@@ -28,6 +28,43 @@
     padding-bottom: 10px;
 }
 
+#dashboard-list-popup {
+    margin-bottom: 15px;
+    max-height: 500px;
+    overflow: hidden;
+}
+
+#my-dashboards-box, #shared-dashboards-box {
+    display: inline-block;
+}
+
+#my-dashboard-list, #shared-dashboard-list {
+    font-size: .75em;
+    line-height: 2em;
+    max-height: 450px;
+    min-width: 300px;
+    overflow: auto;
+    vertical-align: top;
+}
+
+#dashboard-list-popup table {
+    margin-right: 20px;
+    border-spacing: 0;
+}
+
+#dashboard-list-popup table tr.dashboard-item:hover {
+    background-color: rgba(205, 205, 205, 0.10);
+}
+
+#dashboard-list-popup table tr th {
+    font-size: 1em;
+    padding: 5px;
+}
+
+#dashboard-list-popup table tr td {
+    padding: 3px 5px;
+}
+
 .widget-container {
     display: inline-block;
 }
