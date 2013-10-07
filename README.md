@@ -1,11 +1,11 @@
 StatusWolf
 ==========
 
-> ## Version 0.5 now available
+> ## Version 0.7.3 now available
 >
-> This version adds the dashboard interface and includes the ability
-> to save, share, and load dashboards. See
-> [this note](https://github.com/box/StatusWolf/wiki/Version-0.5-Upgrade)
+> This version makes some updates to the saved dashboards menu and adds a new
+> table to the schema. See
+> [this note](https://github.com/box/StatusWolf/wiki/StatusWolf-v0.7.3-Upgrade-Note)
 > in the wiki for instructions on creating the new database table
 > necessary to support the update.
 
