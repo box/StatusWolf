@@ -523,11 +523,14 @@ class ApiController extends SWController
     {
       throw new SWException('Error saving search: ' . mysqli_errno($saved_dashboard_db) . ' ' . mysqli_error($saved_dashboard_db));
     }
-    $rank_result = $saved_dashboard_db->query($add_dashboard_rank_query);
-    $rank_transaction_id = $saved_dashboard_db->insert_id;
-    if (mysqli_error($saved_dashboard_db))
+    if ($new_dashboard)
     {
-      throw new SWException('Error adding dashboard to rank table: ' . mysqli_errno($saved_dashboard_db) . ' ' . mysqli_error($saved_dashboard_db) );
+      $rank_result = $saved_dashboard_db->query($add_dashboard_rank_query);
+      $rank_transaction_id = $saved_dashboard_db->insert_id;
+      if (mysqli_error($saved_dashboard_db))
+      {
+        throw new SWException('Error adding dashboard to rank table: ' . mysqli_errno($saved_dashboard_db) . ' ' . mysqli_error($saved_dashboard_db) );
+      }
     }
 
     echo json_encode(array("query_result", "Success"));
