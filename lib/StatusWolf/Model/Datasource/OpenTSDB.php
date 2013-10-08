@@ -404,7 +404,8 @@ class OpenTSDB extends TimeSeriesData {
 
     foreach ($graph_data as $series => $data)
     {
-      $series_metric = explode(' ', $series)[0];
+      $series_parts = explode(' ', $series);
+      $series_metric = $series_parts[0];
       foreach ($data as $key => $row)
       {
         $timestamp[$key] = $row['timestamp'];
