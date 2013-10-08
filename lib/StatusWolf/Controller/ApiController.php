@@ -411,7 +411,6 @@ class ApiController extends SWController
   function load_saved_search($query_bits)
   {
 
-    $this->loggy->logDebug($this->log_tag . "Loading saved search id #" . $search_id);
     $db_conf = $this->_app_config['session_handler'];
 
     $sw_db = new mysqli($db_conf['db_host'], $db_conf['db_user'], $db_conf['db_password'], $db_conf['database']);
@@ -420,6 +419,7 @@ class ApiController extends SWController
       throw new SWException('Unable to connect to shared search database: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
     }
     $search_id = mysqli_real_escape_string($sw_db, array_shift($query_bits));
+    $this->loggy->logDebug($this->log_tag . "Loading saved search id #" . $search_id);
     $saved_search_query = sprintf("SELECT * FROM saved_searches WHERE id='%s'", $search_id);
     if ($result = $sw_db->query($saved_search_query))
     {
@@ -515,12 +515,19 @@ class ApiController extends SWController
       }
     }
     $save_dashboard_query = sprintf("REPLACE INTO saved_dashboards VALUES('%s', '%s', '%s', '%s', '%s')", $dashboard_id, $dashboard_config['title'], $dashboard_config['user_id'], $dashboard_config['shared'], $widgets_string);
+    $add_dashboard_rank_query = sprintf("INSERT INTO dashboard_rank VALUES('%s','0')", $dashboard_id);
     $this->loggy->logDebug($this->log_tag . $save_dashboard_query);
     $save_result = $saved_dashboard_db->query($save_dashboard_query);
     $transaction_id = $saved_dashboard_db->insert_id;
     if (mysqli_error($saved_dashboard_db))
     {
       throw new SWException('Error saving search: ' . mysqli_errno($saved_dashboard_db) . ' ' . mysqli_error($saved_dashboard_db));
+    }
+    $rank_result = $saved_dashboard_db->query($add_dashboard_rank_query);
+    $rank_transaction_id = $saved_dashboard_db->insert_id;
+    if (mysqli_error($saved_dashboard_db))
+    {
+      throw new SWException('Error adding dashboard to rank table: ' . mysqli_errno($saved_dashboard_db) . ' ' . mysqli_error($saved_dashboard_db) );
     }
 
     echo json_encode(array("query_result", "Success"));
