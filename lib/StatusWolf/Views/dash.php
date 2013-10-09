@@ -584,7 +584,7 @@ foreach($widgets as $widget_key)
       // Load us up a dashboard
       // Set the browser tab title, put the dashboard name in the nav bar
       $('title').text(dashboard_config.title + ' - StatusWolf');
-      $('input#dashboard-title').val(dashboard_config.title);
+      $('input#save-dashboard-title').val(dashboard_config.title);
       $('div#dashboard-menu').after('<div id="dashboard-title">' + dashboard_config.title + '</div>');
 
       $.each(dashboard_config.widgets, function(widget_id, query_data) {
