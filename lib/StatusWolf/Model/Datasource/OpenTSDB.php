@@ -212,11 +212,13 @@ class OpenTSDB extends TimeSeriesData {
     }
     else
     {
+
+      // Large datasets can suck up extra memory and take longer to return
       ini_set('memory_limit', '2G');
       set_time_limit(300);
 
       // Make sure we have a metric name to search on and build the metric
-      // string with downsampler, aggregator, rate & interpolation info
+      // string with aggregator, rate & interpolation info
       if (array_key_exists('metrics', $query_bits))
       {
         $query_bits['key'] = '';
@@ -256,6 +258,9 @@ class OpenTSDB extends TimeSeriesData {
           $metric_keys[$qkey] = $metric['name'];
           $query_bits['key'] = $query_bits['key'] . $qkey;
 
+          // Every metric should have an associated downsample type and
+          // interval, but check just in case and set to the default
+          // if not found
           if (array_key_exists('ds_interval', $metric))
           {
             $downsample_interval[$metric['name']] = $metric['ds_interval'];
@@ -283,8 +288,10 @@ class OpenTSDB extends TimeSeriesData {
 
     }
 
+    // Set up the query cache
     $new_cache = true;
 
+    // Does the query already reference an existing cache file?
     if (array_key_exists('cache_key', $query_bits))
     {
       $cache_key = $query_bits['cache_key'];
@@ -305,6 +312,8 @@ class OpenTSDB extends TimeSeriesData {
       $this->_query_cache = CACHE . 'query_cache' . DS . $cache_key . '.cache';
     }
 
+    // If this is a new query but references an existing cache file, clean
+    // it out and start over
     $this->loggy->logDebug($this->log_tag . 'Incoming new query setting: ' . $query_bits['new_query']);
     if (array_key_exists('new_query', $query_bits) && $query_bits['new_query'] === "true")
     {
@@ -315,6 +324,9 @@ class OpenTSDB extends TimeSeriesData {
       }
     }
 
+    // The new query should overlap the cached data, e.g. for a graph
+    // that is auto-updating. If it doesn't, wipe the cache and search
+    // for the full time span period instead of just the updates
     if (file_exists($this->_query_cache))
     {
       $new_cache = false;
@@ -328,12 +340,14 @@ class OpenTSDB extends TimeSeriesData {
       $this->loggy->logDebug($this->log_tag . 'cache ends at ' . $cache_end_stamp . ', minimum threshold is ' . $span_threshold);
       if ($cache_end_stamp < $span_threshold)
       {
+        $this->loggy->logDebug($this->log_tag . 'Cached data is out of date, starting over');
         $new_cache = true;
         unlink($this->_query_cache);
         $query_bits['start_time'] = $span_threshold;
       }
     }
 
+    // Fetch the metric data from the OpenTSDB API via Curl
     $query_url = $this->_build_url($query_bits);
     $curl = new Curl($query_url);
 
@@ -362,6 +376,8 @@ class OpenTSDB extends TimeSeriesData {
 
     foreach ($data as $line)
     {
+      // Break up each returned line into its component parts to extract
+      // the metric name, the timestamp, any tags and the metric value
       $fields = explode(' ', $line);
       $metric = array_shift($fields);
       $timestamp = array_shift($fields);
@@ -389,6 +405,8 @@ class OpenTSDB extends TimeSeriesData {
         }
       }
       $series_key = $metric . ' ' . $tag_key;
+      // OpenTSDB returns more data than is actually requested, so trim off
+      // any points that are outside the requested range
       if (($timestamp < $this->_start_timestamp) || ($timestamp > $this->_end_timestamp))
       {
         continue;
@@ -411,19 +429,23 @@ class OpenTSDB extends TimeSeriesData {
         $timestamp[$key] = $row['timestamp'];
         $value[$key] = $row['value'];
       }
+      // Sort the data to make sure it's all in timestamp order
       $this->loggy->logDebug($this->log_tag . 'sorting data, ' . count($timestamp) . ' timestamps, ' . count($value) . ' values');
       array_multisort($timestamp, SORT_ASC, $value, SORT_ASC, $data);
+      // Downsample the data
       $this->loggy->logDebug($this->log_tag . 'Calling downsampler, interval: ' . $downsample_interval[$series_metric] . ' method: ' . $downsample_type[$series_metric]);
       $downsampler = new TimeSeriesDownsample($downsample_interval[$series_metric], $downsample_type[$series_metric]);
       $downsampler->ts_object = @$this;
       $this->loggy->logDebug($this->log_tag . 'Downsampling data, start: ' . $this->_start_timestamp . ', end: ' . $this->_end_timestamp);
       $graph_data[$series] = $downsampler->downsample($data, $this->_start_timestamp, $this->_end_timestamp);
+      // New cache? No data gymnastics needed
       if ($new_cache)
       {
         continue;
       }
       else
       {
+        // Updating existing cache? Combine the new data with the cached data
         $this->loggy->logDebug($this->log_tag . 'Updating data for series ' . $series);
         if (array_key_exists($series, $cached_query_data))
         {
@@ -446,6 +468,8 @@ class OpenTSDB extends TimeSeriesData {
             }
           }
 
+          // Trim off the same number of points from the beginning of the
+          // cached data as we're adding to the end
           $this->loggy->logDebug($this->log_tag . 'Trimming ' . count($graph_data[$series]) . ' points from cached data');
           array_splice($cached_query_data[$series], 0, count($graph_data[$series]));
           $new_series_data = array_merge($cached_query_data[$series], $graph_data[$series]);
@@ -463,6 +487,8 @@ class OpenTSDB extends TimeSeriesData {
       file_put_contents($this->_query_cache, serialize($graph_data));
     }
     $cached_keys = array_keys($graph_data);
+    // Set the object's start and end time to the new start and end
+    // of the cached data
     foreach ($cached_keys as $my_key)
     {
       if ((empty($this->start_time)) || ($graph_data[$my_key][0]['timestamp'] < $this->start_time))
