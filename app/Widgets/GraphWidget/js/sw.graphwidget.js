@@ -204,6 +204,10 @@
 
 		,_destroy: function() {
 			console.log('_destroy called');
+      if (typeof this.autoupdate_interval !== "undefined")
+      {
+        clearInterval(this.autoupdate_interval);
+      }
 			this.sw_graphwidget_gobutton.remove();
 			this.sw_graphwidget_querycancelbutton.remove();
 			this.sw_graphwidget_searchform.remove();
@@ -1786,7 +1790,7 @@
       if (query_data['auto_update'])
       {
         console.log('setting auto-update timer');
-        autoupdate_interval = setInterval(function() {
+        widget.autoupdate_interval = setInterval(function() {
           var new_start = parseInt(series_times[0]);
           var new_end = new Date.now().getTime();
           new_end = parseInt(new_end / 1000);
