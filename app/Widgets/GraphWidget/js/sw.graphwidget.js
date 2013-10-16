@@ -652,6 +652,7 @@
     {
       var widget_id = widget.sw_graphwidget_containerid;
       var widget_list = $('.widget-container[data-widget-type="graphwidget"]');
+      console.log('setting all widgets to span from ' + widget_id);
       $.each(widget_list, function(i, action_widget_element) {
         var action_widget_id = '#' + $(action_widget_element).attr('id');
         if ( action_widget_id !== widget_id)
@@ -748,7 +749,7 @@
       {
         query_data.period = 'date-search';
       }
-      else
+      else if (typeof query_data.period === "undefined" && typeof query_data.time_span !== "undefined")
       {
         query_data.period = 'span-search';
       }
@@ -812,6 +813,12 @@
         }
         else
         {
+          var el = $('input[data-target="graph-widget-dates' + widget_num + '"]').parent('label');
+          $(el).parent('div.toggle-button').addClass('toggle-on');
+          $(el).parent('div.toggle-button').siblings('div.toggle-button').removeClass('toggle-on');
+          $(el).children('input').attr('checked', 'Checked');
+          $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
+          $('input[data-target="graph-widget-dates' + widget_num + '"]').click();
           if ((start_in = parseInt(query_data['start_time'])) && (end_in = parseInt(query_data['end_time'])))
           {
             $('div#start-time' + widget_num).children('input').val(new Date(start_in * 1000).toString('yyyy/MM/dd HH:mm:ss'));
