@@ -30,7 +30,6 @@
 				,sw_graphwidget_front
 				,sw_graphwidget_back
 				,sw_graphwidget_close
-				,sw_graphwidget_fronttitle
 				,sw_graphwidget_backtitle
 				,sw_graphwidget_backfooter
 				,sw_graphwidget_frontmain
@@ -72,9 +71,6 @@
 
 			// Each face has a title bar, a main content area,
 			// and a footer bar
-			sw_graphwidget_fronttitle = (this.sw_graphwidget_fronttitle = $('<div>'))
-				.addClass('flexy widget-title')
-				.appendTo(sw_graphwidget_front);
 			sw_graphwidget_frontmain = (this.sw_graphwidget_frontmain = $('<div>'))
 				.addClass('widget-main')
 				.appendTo(sw_graphwidget_front);
@@ -90,47 +86,50 @@
 
 			// Define the standard buttons for the graph widget
 			// Buttons that will go in the title bar:
-      sw_graphwidget_maximizebutton = (this.sw_graphwidget_maximize_button = $('<div>'))
-        .addClass("widget-title-button left-button fullscreen-out")
-        .append('<span class="maximize-me iconic iconic-fullscreen">')
-        .click(function(event) {
-          event.preventDefault();
-          that.maximize_widget(that);
-        })
-        .appendTo(sw_graphwidget_fronttitle);
-
-      sw_graphwidget_editparamsbutton = (this.sw_graphwidget_editparamsbutton = $('<div>'))
-        .addClass("widget-title-button left-button info-tooltip")
-        .attr('title', 'Edit Parameters')
-        .click(function() {
-          sw_graphwidget.addClass("flipped");
-        })
-        .append('<span class="iconic iconic-pen-alt2"></span>')
-        .appendTo(sw_graphwidget_fronttitle);
-
-      sw_graphwidget_clonebutton = (this.sw_graphwidget_clonebutton = $('<div>'))
-        .addClass("widget-title-button left-button info-tooltip")
-        .attr('title', 'Clone Widget')
-        .click(function() {
-          clone_widget(that);
-        })
-        .append('<span class="iconic iconic-new-window"></span>')
-        .appendTo(sw_graphwidget_fronttitle);
+//      sw_graphwidget_maximizebutton = (this.sw_graphwidget_maximize_button = $('<div>'))
+//        .addClass("widget-title-button left-button fullscreen-out")
+//        .append('<span class="maximize-me iconic iconic-fullscreen">')
+//        .click(function(event) {
+//          event.preventDefault();
+//          that.maximize_widget(that);
+//        })
+//        .appendTo(sw_graphwidget_fronttitle);
+//
+//      sw_graphwidget_editparamsbutton = (this.sw_graphwidget_editparamsbutton = $('<div>'))
+//        .addClass("widget-title-button left-button info-tooltip")
+//        .attr('title', 'Edit Parameters')
+//        .click(function() {
+//          sw_graphwidget.addClass("flipped");
+//        })
+//        .append('<span class="iconic iconic-pen-alt2"></span>')
+//        .appendTo(sw_graphwidget_fronttitle);
+//
+//      sw_graphwidget_clonebutton = (this.sw_graphwidget_clonebutton = $('<div>'))
+//        .addClass("widget-title-button left-button info-tooltip")
+//        .attr('title', 'Clone Widget')
+//        .click(function() {
+//          clone_widget(that);
+//        })
+//        .append('<span class="iconic iconic-new-window"></span>')
+//        .appendTo(sw_graphwidget_fronttitle);
 
       sw_graphwidget_action = (this.sw_graphwidget_action = $('<div>'))
-        .addClass('dropdown widget-title-dropdown')
-        .append('<span class="widget-title-button left-button" data-toggle="dropdown">' +
+        .addClass('action-widget dropdown')
+        .append('<span data-toggle="dropdown">' +
           '<span class="iconic iconic-cog"></span></span>' +
           '<ul class="dropdown-menu widget-action-options" role="menu">' +
-          '<li data-action="usespan"><span>Use this time span for all widgets</span></li></ul>')
-        .appendTo(sw_graphwidget_fronttitle);
-
-      sw_graphwidget_highlight = (this.sw_graphwidget_legend_hover = $('<div>'))
-				.addClass('legend-hover glue4')
-				.appendTo(sw_graphwidget_fronttitle);
+          '<li data-menu-action="maximize_widget"><span class="maximize-me">Maximize</span></li>' +
+          '<li data-menu-action="edit_params"><span>Edit Parameters</span></li>' +
+          '<li class="clone-widget"><span>Clone Widget</span></li>' +
+          '<li data-menu-action="set_all_spans"><span>Use this time span for all widgets</span></li></ul>')
+        .appendTo(sw_graphwidget_frontmain);
+      $('li.clone-widget').click(function()
+      {
+        clone_widget(that);
+      });
 
 			sw_graphwidget_close = (this.sw_graphwidget_close = $('<div>'))
-				.addClass('widget-title-button right-button close-widget')
+				.addClass('close-widget')
 				.click(function(event) {
 					event.preventDefault();
 					$(sw_graphwidget_container).addClass('transparent');
@@ -141,7 +140,7 @@
 					}, 600);
 				})
 				.append('<span class="iconic iconic-x">')
-				.appendTo(sw_graphwidget_fronttitle);
+				.appendTo(sw_graphwidget_frontmain);
 
 			sw_graphwidget_savedsearchesmenu = (this.sw_graphwidget_savedsearchesmenu = $('<div>'))
 				.addClass('dropdown widget-title-dropdown saved-searches-menu')
@@ -189,15 +188,10 @@
 			sw_graphwidget_datasource = $.trim($(sw_graphwidget_datasourcemenu).children('span.widget-title-button').children('span.active-datasource').text().toLowerCase());
       that.build_search_form(that);
 
-      $(sw_graphwidget).on('click', 'li[data-action]', function() {
-        if ($(this).attr('data-action') === "usespan")
-        {
-          that.set_all_spans(this, that);
-        }
-        else
-        {
-          that.dropdown_menu_handler(this, that);
-        }
+      $(sw_graphwidget).on('click', 'li[data-menu-action]', function(event) {
+        event.preventDefault();
+        var action = $(this).attr('data-menu-action');
+        that[action](this, that);
       });
 
     }
@@ -223,7 +217,6 @@
 			this.sw_graphwidget_close.remove();
 			this.sw_graphwidget_frontmain.remove();
       this.sw_graphwidget_legend_hover.remove();
-			this.sw_graphwidget_fronttitle.remove();
 			this.sw_graphwidget_front.remove();
 			this.sw_graphwidget_back.remove();
 			this.sw_graphwidget.remove();
@@ -239,13 +232,13 @@
       return base_uri;
     }
 
-		,maximize_widget: function(widget) {
+		,maximize_widget: function(element, widget) {
 			if ($(widget.sw_graphwidget_container).hasClass('maximize-widget'))
 			{
 				$(widget.sw_graphwidget_container).removeClass('maximize-widget');
 				$('body').removeClass('no-overflow');
 				$('.navbar').removeClass('hidden');
-				$(widget.sw_graphwidget_container).children('span.maximize-me').removeClass('iconic-fullscreen-exit').addClass('iconic-fullscreen');
+				$('#' + widget.element.attr('id') + ' span.maximize-me').text('Maximize');
 				widget.resize_graph(widget);
 			}
 			else
@@ -254,7 +247,7 @@
 				$(widget.sw_graphwidget_container).addClass('maximize-widget');
 				$('.navbar').addClass('hidden');
 				$('body').addClass('no-overflow');
-				$(widget.sw_graphwidget_container).children('span.maximize-me').removeClass('iconic-fullscreen').addClass('iconic-fullscreen-exit');
+				$('#' + widget.element.attr('id') + ' span.maximize-me').text('Minimize');
 				widget.resize_graph(widget);
 			}
 		}
@@ -265,9 +258,13 @@
           graph_legend = widget.sw_graphwidget_frontmain.children('div.legend-container');
       graph_legend.css('width', widget_main.innerWidth());
       widget_main.css('height', widget.sw_graphwidget.innerHeight());
-      graph_div.css('height', widget_main.innerHeight() - (graph_legend.outerHeight(true) + widget.sw_graphwidget_fronttitle.outerHeight()));
-      widget.g.resize();
+      graph_div.css('height', widget_main.innerHeight() - graph_legend.outerHeight(true));
 		}
+
+    ,edit_params: function(element, widget)
+    {
+      widget.sw_graphwidget.addClass('flipped');
+    }
 
     ,hide_legend: function(widget, button)
     {
@@ -462,10 +459,7 @@
           })
           .append('<span class="iconic iconic-plus-alt"><span class="font-reset"> Add Metric</span></span>');
 
-        widget.sw_graphwidget_fronttitle.children('.legend-hover').attr('id', 'legend-hover' + widget_num);
-
-        widget.sw_graphwidget_frontmain.append('<div id="graph-title' + widget_num + '" class="graph-title">')
-          .append('<div id="graphdiv' + widget_num + '" class="graphdiv" style="width: 99%;">')
+        widget.sw_graphwidget_frontmain.append('<div id="graphdiv' + widget_num + '" class="graphdiv" style="width: 99%;">')
           .append('<div id="legend-container' + widget_num + '" class="legend-container hidden">' +
             '<button type="button" class="legend-toggle legend-hide"><span class="iconic iconic-play rotate-90"></span></button>' +
             '<div id="legend' + widget_num + '" class="legend"></div></div>');
@@ -1112,7 +1106,6 @@
         graph_element.append('<div class="bowlG">' +
           '<div class="bowl_ringG"><div class="ball_holderG">' +
           '<div class="ballG"></div></div></div></div>');
-        widget.sw_graphwidget_fronttitle.removeClass('nodisplay');
         $(widget.element).children('.widget').removeClass('flipped');
         graph_element.append('<div id="status-box' + widget_num + '" style="width: 100%; text-align: center;">' +
           '<p id="status-message' + widget_num + '"></p></div>');
@@ -1137,6 +1130,7 @@
       if (widget.options.datasource === "OpenTSDB")
       {
 
+        var graph_type = 'line';
         // Start deferred query for metric data
         $.when(widget.opentsdb_search(query_data, widget)).then(
           // done: Send the data over to be parsed
@@ -1146,7 +1140,8 @@
               // done: Build the graph
               function(data)
               {
-                widget.build_line_graph(data.graphdata, data.querydata, widget);
+//                widget.build_line_graph(data.graphdata, data.querydata, widget);
+                widget.build_graph(data.graphdata, data.querydata, widget, graph_type);
               }
               // fail: Show error image and error message
               ,function(status)
@@ -1535,60 +1530,38 @@
 
       status.html('<p>Parsing Metric Data</p>');
 
-      for (var i = start; i <= end; i = i + bucket_interval)
+      var empty_value = null;
+      if (typeof document._sw_conf.graphing.treat_null_as_zero !== "undefined" && document._sw_conf.graphing_treat_null_as_zero === 1)
       {
-        buckets[i] = [];
+        empty_value = 0;
       }
 
-      for (var series in data) {
-        if (data.hasOwnProperty(series))
-        {
-          if (data[series] !== null)
-          {
-            if (query_data.history_graph == "anomaly")
-            {
-              query_data.metrics[0]['history_graph'] = "anomaly";
-            }
-            labels.push(legend_map[series]);
+//      for (var i = start; i <= end; i = i + bucket_interval)
+//      {
+//        buckets[i] = [];
+//      }
 
-            var data_holder = {};
-            data[series].forEach(function(series_data, index) {
-              data_holder[series_data['timestamp']] = series_data['value'];
-            });
+      var graph_data = [];
+      $.each(data, function(series, series_data)
+      {
+        console.log(series_data);
+        graph_data.push({name: series, values: series_data});
+//        $.each(series_data, function(i, point_data)
+//        {
+//          graph_data[series][point_data['timestamp']] = point_data['value'];
+//        });
+//        $.each(buckets, function(bucket)
+//        {
+//          if (graph_data[series][bucket] === "undefined")
+//          {
+//            graph_data[series][bucket] = empty_value;
+//          }
+//        })
+      });
 
-            for (var timestamp in buckets)
-            {
-              if (buckets.hasOwnProperty(timestamp))
-              {
-                if (data_holder[timestamp] != undefined)
-                {
-                  buckets[timestamp].push(data_holder[timestamp]);
-                }
-                else if (typeof document._sw_conf.graphing.treat_null_as_zero !== "undefined" && document._sw_conf.graphing.treat_null_as_zero === "1")
-                {
-                  buckets[timestamp].push(0);
-                }
-                else
-                {
-                  buckets[timestamp].push(null);
-                }
-              }
-            }
-          }
-          else
-          {
-            console.log(series + ' is null, skipping');
-          }
-
-        }
-
-        var graph_data = {};
-        graph_data.labels = labels;
-        graph_data.data = buckets;
-        if (query_data.history_graph == "anomaly")
-        {
-          graph_data.anomalies = anomalies;
-        }
+      if (query_data.history_graph == "anomaly")
+      {
+        graph_data.anomalies = anomalies;
       }
 
       var parsed_data = {graphdata: graph_data, querydata: query_data};
@@ -1779,7 +1752,6 @@
         }
       });
 
-      widget.sw_graphwidget_fronttitle.addClass('nodisplay');
       $('#' + graphdiv_id).css({
         height: widget.sw_graphwidget_frontmain.innerHeight() - ($('#' + graphdiv_id).siblings('div.legend-container').outerHeight(true))
         ,top: '10px'
@@ -1860,5 +1832,147 @@
 
     }
 
+    ,build_graph: function(data, query_data, widget, type)
+    {
+
+      $.each(data, function(s, d)
+      {
+        console.log(d.values);
+        $.each(d.values, function(v)
+        {
+          d.values[v]['date'] = new Date(d.values[v]['timestamp'] * 1000);
+        })
+      });
+
+
+      console.log(data);
+      console.log(query_data);
+
+      var margin = {top: 0, right: 5, bottom: 20, left: 55};
+
+      var graphdiv = $('#' + widget.element.attr('id') + ' .graphdiv').empty();
+      var graphdiv_offset = graphdiv.position().top;
+      widget.svg = d3.select('#' + graphdiv.attr('id')).append('svg')
+        .append('g')
+        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+      widget.sw_graphwidget_frontmain.css('height', widget.sw_graphwidget.innerHeight());
+      widget.sw_graphwidget_frontmain.children('.graphdiv').css('height', (widget.sw_graphwidget_frontmain.innerHeight() - (widget.sw_graphwidget_frontmain.children('.legend-container').outerHeight(true) + graphdiv_offset)));
+      widget.sw_graphwidget_frontmain.children('.legend-container').css('width', widget.sw_graphwidget_frontmain.innerWidth())
+        .removeClass('hidden');
+
+      widget.graph = {};
+
+      widget.graph.x = d3.time.scale()
+        .range([0, (graphdiv.innerWidth() - margin.left - margin.right)]);
+
+      widget.graph.y = d3.scale.linear()
+        .range([(graphdiv.innerHeight() - margin.top - margin.bottom), 0]);
+
+      widget.graph.x_axis = d3.svg.axis()
+        .scale(widget.graph.x)
+        .orient('bottom')
+        .tickSize(-(graphdiv.innerHeight() - margin.top - margin.bottom), 0)
+        .tickPadding(8)
+        .tickFormat(d3.time.format('%H:%M'));
+
+      widget.graph.y_axis = d3.svg.axis()
+        .scale(widget.graph.y)
+        .orient('left')
+        .ticks(5)
+        .tickSize(-(graphdiv.innerWidth() - margin.left - margin.right), 0)
+        .tickPadding(5)
+        .tickFormat(d3.format('.3s'));
+
+      widget.graph.x.domain([
+        d3.min(data, function(d) { return d3.min(d.values, function(v) { return v.date; })})
+        ,d3.max(data, function(d) { return d3.max(d.values, function(v) { return v.date; })})
+        ]);
+
+      widget.graph.y.domain([
+        0, d3.max(data, function(d) { return d3.max(d.values, function(v) { return v.value; })})
+      ]);
+
+      var color = d3.scale.ordinal()
+        .domain(function(data) { return data.name; })
+        .range(swcolors.Wheel_DarkBG[5]);
+
+      console.log(widget.graph.x.domain());
+      console.log(widget.graph.y.domain());
+
+      widget.graph.line = d3.svg.line()
+        .interpolate('linear')
+        .x(function(d) { return widget.graph.x(d.date); })
+        .y(function(d) { return widget.graph.y(+d.value); });
+
+      widget.svg.append('g')
+        .attr('class', 'x axis')
+        .attr('transform', 'translate(0,' + ($('#' + graphdiv.attr('id') + ' svg').innerHeight() - margin.bottom) + ')')
+        .call(widget.graph.x_axis)
+        .append('text')
+        .attr('class', 'graph-title')
+        .attr('text-anchor', 'middle')
+        .attr('x', widget.graph.x.range()[1] / 2)
+        .attr('y', margin.bottom - widget.graph.y.range()[0] / 2)
+        .text(query_data.title);
+
+      widget.svg.append('g')
+        .attr('class', 'y axis')
+        .call(widget.graph.y_axis);
+
+      widget.graph.metric = widget.svg.selectAll('.metric')
+        .data(data)
+        .enter().append('g')
+        .attr('class', 'metric');
+
+      widget.graph.metric.append('path')
+        .attr('class', 'line')
+        .attr('d', function(d) { return widget.graph.line(d.values); })
+        .style('stroke', function(d) { return color(d.name)});
+
+//      widget.sw_graphwidget_frontmain.children('div.graphdiv').mouseenter(function() {
+//        var legend_box = $(this).siblings('div.legend-container');
+//        var title_bar = widget.sw_graphwidget_fronttitle;
+//        title_bar.removeClass('nodisplay');
+//        $(this).css({
+//          height: widget.sw_graphwidget_frontmain.innerHeight() - (legend_box.outerHeight(true) + title_bar.outerHeight())
+//          ,top: title_bar.outerHeight() + 10
+//        });
+//      }).mouseleave(function() {
+//          var legend_box = $(this).siblings('div.legend-container');
+//          var title_bar = widget.sw_graphwidget_fronttitle;
+//          $(this).css({
+//            height: widget.sw_graphwidget_frontmain.innerHeight() - (legend_box.outerHeight(true))
+//            ,top: '10px'
+//          });
+//          title_bar.addClass('nodisplay');
+//        });
+
+//      widget.sw_graphwidget_frontmain.mouseenter(function(event)
+//      {
+//        event.stopImmediatePropagation();
+//        var graphdiv = $(this).children('div.graphdiv');
+//        var legend_box = graphdiv.siblings('div.legend-container');
+//        var title_bar = widget.sw_graphwidget_fronttitle;
+//        title_bar.removeClass('nodisplay');
+//        graphdiv.css({
+//          height: widget.sw_graphwidget_frontmain.innerHeight() - (legend_box.outerHeight(true) + title_bar.outerHeight())
+//          ,top: title_bar.outerHeight() + 10
+//        });
+//      })
+//        .mouseleave(function(event)
+//        {
+//          event.stopImmediatePropagation()
+//          var graphdiv = $(this).children('div.graphdiv');
+//          var legend_box = graphdiv.siblings('div.legend-container');
+//          var title_bar = widget.sw_graphwidget_fronttitle;
+//          graphdiv.css({
+//            height: widget.sw_graphwidget_frontmain.innerHeight() - legend_box.outerHeight(true)
+//            ,top: '10px'
+//          });
+//          title_bar.addClass('nodisplay');
+//        });
+
+    }
 	})
 }(jQuery));

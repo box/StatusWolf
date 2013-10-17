@@ -453,6 +453,8 @@ class OpenTSDB extends TimeSeriesData {
           // beginning of the current search - accounts for time span changes
           if ($cached_query_data[$series][0]['timestamp'] > $graph_data[$series][0]['timestamp'])
           {
+            $this->loggy->logDebug($this->log_tag . "Data start is before cache start");
+            $this->loggy->logDebug($this->log_tag . "Cache start: " . $cached_query_data[$series][0]['timestamp'] . ", Data start: " . $graph_data[$series][0]['timestamp']);
             unset($cached_query_data[$series]);
           }
           else
@@ -473,6 +475,7 @@ class OpenTSDB extends TimeSeriesData {
           $this->loggy->logDebug($this->log_tag . 'Trimming ' . count($graph_data[$series]) . ' points from cached data');
           array_splice($cached_query_data[$series], 0, count($graph_data[$series]));
           $new_series_data = array_merge($cached_query_data[$series], $graph_data[$series]);
+          $this->loggy->logDebug($this->log_tag . 'Adding ' . count($graph_data[$series]) . ' new points to cached data (Now ' . count($new_series_data) . ' points)');
           $new_cache_data[$series] = $new_series_data;
         }
       }
@@ -480,10 +483,12 @@ class OpenTSDB extends TimeSeriesData {
 
     if (!empty($new_cache_data))
     {
+      $this->loggy->logDebug($this->log_tag . 'Saving updated cache data');
       file_put_contents($this->_query_cache, serialize($new_cache_data));
     }
     else
     {
+      $this->loggy->logDebug($this->log_tag . "No cached data, saving current query to cache");
       file_put_contents($this->_query_cache, serialize($graph_data));
     }
     $cached_keys = array_keys($graph_data);
