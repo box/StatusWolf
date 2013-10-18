@@ -261,10 +261,26 @@
 		,resize_graph: function(widget) {
       var widget_main = widget.sw_graphwidget_frontmain
           graph_div = widget.sw_graphwidget_frontmain.children('div.graphdiv');
+          graph_div_offset = graph_div.position().top;
           graph_legend = widget.sw_graphwidget_frontmain.children('div.legend-container');
       graph_legend.css('width', widget_main.innerWidth());
       widget_main.css('height', widget.sw_graphwidget.innerHeight());
-      graph_div.css('height', widget_main.innerHeight() - graph_legend.outerHeight(true));
+      graph_div.css('height', widget_main.innerHeight() - graph_legend.outerHeight(true) - graph_div_offset);
+      widget.graph.width = graph_div.innerWidth() - widget.graph.margin.left - widget.graph.margin.right;
+      widget.graph.height = graph_div.innerHeight() - widget.graph.margin.top - widget.graph.margin.bottom;
+      d3.select(widget.svg.node())
+        .style('height', widget.graph.height)
+        .style('width', widget.graph.width);
+      widget.graph.y.range([widget.graph.height, 0]);
+      widget.graph.y_axis.tickSize(-widget.graph.width, 0);
+      widget.svg.select('.y.axis').call(widget.graph.y_axis);
+      widget.graph.x.range([0, widget.graph.width]);
+      widget.graph.x_axis.tickSize(-widget.graph.height, 0);
+      widget.svg.select('.x.axis').attr('transform', 'translate(0,' + widget.graph.height + ')').call(widget.graph.x_axis);
+      widget.svg.select('.x.axis text.graph-title')
+        .attr('x', widget.graph.x.range()[1] / 2)
+        .attr('y', widget.graph.margin.bottom - widget.graph.y.range()[0] / 2);
+      widget.graph.metric.selectAll('.line').attr('d', function(d) { return widget.graph.line(d.values); });
 		}
 
     ,edit_params: function(element, widget)
@@ -286,9 +302,9 @@
       $(button).parents('div.legend-container').siblings('div.graphdiv')
         .css('height', widget.sw_graphwidget_frontmain.innerHeight() - differential);
       $(button).children('span.iconic').removeClass('rotate-90').addClass('rotate-90r');
-      if (typeof widget.g !== "undefined")
+      if (typeof widget.svg !== "undefined")
       {
-        widget.g.resize();
+        widget.resize_graph(widget);
       }
       widget.options.legend = 'off';
     }
@@ -306,9 +322,9 @@
       $(button).parents('div.legend-container').siblings('div.graphdiv')
         .css('height', widget.sw_graphwidget_frontmain.innerHeight() - $(button).parents('div.legend-container').outerHeight(true));
       $(button).children('span.iconic').removeClass('rotate-90r').addClass('rotate-90');
-      if (typeof widget.g !== "undefined")
+      if (typeof widget.svg !== "undefined")
       {
-        widget.g.resize();
+        widget.resize_graph(widget);
       }
       widget.options.legend = 'on'
     }
@@ -1850,35 +1866,37 @@
         })
       });
 
+      widget.graph = {};
 
       console.log(data);
       console.log(query_data);
 
-      var margin = {top: 0, right: 5, bottom: 20, left: 55};
+      widget.graph.margin = {top: 0, right: 5, bottom: 20, left: 55};
 
       var graphdiv = $('#' + widget.element.attr('id') + ' .graphdiv').empty();
       var graphdiv_offset = graphdiv.position().top;
       widget.svg = d3.select('#' + graphdiv.attr('id')).append('svg')
         .append('g')
-        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+        .attr('transform', 'translate(' + widget.graph.margin.left + ',' + widget.graph.margin.top + ')');
 
       widget.sw_graphwidget_frontmain.css('height', widget.sw_graphwidget.innerHeight());
       widget.sw_graphwidget_frontmain.children('.graphdiv').css('height', (widget.sw_graphwidget_frontmain.innerHeight() - (widget.sw_graphwidget_frontmain.children('.legend-container').outerHeight(true) + graphdiv_offset)));
       widget.sw_graphwidget_frontmain.children('.legend-container').css('width', widget.sw_graphwidget_frontmain.innerWidth())
         .removeClass('hidden');
 
-      widget.graph = {};
+      widget.graph.width = (graphdiv.innerWidth() - widget.graph.margin.left - widget.graph.margin.right);
+      widget.graph.height = (graphdiv.innerHeight() - widget.graph.margin.top - widget.graph.margin.bottom);
 
       widget.graph.x = d3.time.scale()
-        .range([0, (graphdiv.innerWidth() - margin.left - margin.right)]);
+        .range([0, widget.graph.width]);
 
       widget.graph.y = d3.scale.linear()
-        .range([(graphdiv.innerHeight() - margin.top - margin.bottom), 0]);
+        .range([widget.graph.height, 0]);
 
       widget.graph.x_axis = d3.svg.axis()
         .scale(widget.graph.x)
         .orient('bottom')
-        .tickSize(-(graphdiv.innerHeight() - margin.top - margin.bottom), 0)
+        .tickSize(-widget.graph.height, 0)
         .tickPadding(8)
         .tickFormat(d3.time.format('%H:%M'));
 
@@ -1886,7 +1904,7 @@
         .scale(widget.graph.y)
         .orient('left')
         .ticks(5)
-        .tickSize(-(graphdiv.innerWidth() - margin.left - margin.right), 0)
+        .tickSize(-widget.graph.width, 0)
         .tickPadding(5)
         .tickFormat(d3.format('.3s'));
 
@@ -1896,7 +1914,7 @@
         ]);
 
       widget.graph.y.domain([
-        0, d3.max(data, function(d) { return d3.max(d.values, function(v) { return v.value; })})
+        0, (d3.max(data, function(d) { return d3.max(d.values, function(v) { return v.value; })}) * 1.05)
       ]);
 
       var color = d3.scale.ordinal()
@@ -1913,13 +1931,13 @@
 
       widget.svg.append('g')
         .attr('class', 'x axis')
-        .attr('transform', 'translate(0,' + ($('#' + graphdiv.attr('id') + ' svg').innerHeight() - margin.bottom) + ')')
+        .attr('transform', 'translate(0,' + ($('#' + graphdiv.attr('id') + ' svg').innerHeight() - widget.graph.margin.bottom) + ')')
         .call(widget.graph.x_axis)
         .append('text')
         .attr('class', 'graph-title')
         .attr('text-anchor', 'middle')
         .attr('x', widget.graph.x.range()[1] / 2)
-        .attr('y', margin.bottom - widget.graph.y.range()[0] / 2)
+        .attr('y', widget.graph.margin.bottom - widget.graph.y.range()[0] / 2)
         .text(query_data.title);
 
       widget.svg.append('g')
