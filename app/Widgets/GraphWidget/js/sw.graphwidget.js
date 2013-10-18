@@ -1122,7 +1122,7 @@
         widget.sw_graphwidget_fronttitle.removeClass('nodisplay');
         $(widget.element).children('.widget').removeClass('flipped');
         graph_element.append('<div id="status-box' + widget_num + '" style="width: 100%; text-align: center;">' +
-          '<p id="status-message' + widget_num + '"></p></div>');
+          '<p id="status-message' + widget_num + '" class="status-message"></p></div>');
         widget.init_query(widget.query_data, widget);
       }
       else
@@ -1158,8 +1158,9 @@
               // fail: Show error image and error message
               ,function(status)
               {
-                widget.sw_graphwidget_frontmain.children('#graphdiv' + widget_num).children('.bowlG').html(widget.options.sw_url + 'app/img/error.png" style="width: 60px; height: 30px;">');
-                widget.sw_graphwidget_frontmain.find('#status-message' + widget_num).text(status);
+                $('#' + widget.element.attr('id') + ' .bowlG')
+                  .html('<img src="' + widget.options.sw_url + 'app/img/error.png" style="width: 60px; height: 30px;">');
+                $('#' + widget.element.attr('id') + ' .status-message').text(status[1]);
               }
             );
           }
@@ -1600,7 +1601,14 @@
 
       var parsed_data = {graphdata: graph_data, querydata: query_data};
 
-      parse_object.resolve(parsed_data);
+      if (typeof parse_object.graphdata === "undefined")
+      {
+        parse_object.reject(['0', 'Query returned no data']);
+      }
+      else
+      {
+        parse_object.resolve(parsed_data);
+      }
 
       return parse_object.promise();
 
