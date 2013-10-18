@@ -188,10 +188,16 @@
 			sw_graphwidget_datasource = $.trim($(sw_graphwidget_datasourcemenu).children('span.widget-title-button').children('span.active-datasource').text().toLowerCase());
       that.build_search_form(that);
 
-      $(sw_graphwidget).on('click', 'li[data-menu-action]', function(event) {
+      $(sw_graphwidget).on('click', 'li[data-menu-action]', function(event)
+      {
         event.preventDefault();
         var action = $(this).attr('data-menu-action');
         that[action](this, that);
+      });
+
+      $(sw_graphwidget).on('click', 'li[data-action]', function()
+      {
+        that.dropdown_menu_handler(this, that);
       });
 
     }
