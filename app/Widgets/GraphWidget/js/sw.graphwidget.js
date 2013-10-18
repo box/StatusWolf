@@ -1601,7 +1601,7 @@
 
       var parsed_data = {graphdata: graph_data, querydata: query_data};
 
-      if (typeof parse_object.graphdata === "undefined")
+      if (typeof parsed_data.graphdata === "undefined")
       {
         parse_object.reject(['0', 'Query returned no data']);
       }
