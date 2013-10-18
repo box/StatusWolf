@@ -112,14 +112,19 @@ function authenticate_session($app_config) {
 // Create authentication object
   $sw_auth = new Auth('Multiple', $auth_options, 'login');
 
+  require_once "Log.php";
+  require_once "Log/observer.php";
   if (array_key_exists('enableLogging', $auth_options) && $auth_options['enableLogging'])
   {
-    require_once "Log.php";
-    require_once "Log/observer.php";
     $debug_log_observer = new SWAuthLogObserver(AUTH_LOG_DEBUG);
     $sw_auth->attachLogObserver($debug_log_observer);
-    $sw_auth->logger->setBacktraceDepth(2);
   }
+  else
+  {
+    $info_log_observer = new SWAuthLogObserver(AUTH_LOG_INFO);
+    $sw_auth->attachLogObserver($info_log_observer);
+  }
+  $sw_auth->logger->setBacktraceDepth(2);
 
 // Set callback function for successful login attempts
   $sw_auth->setLoginCallback('login_succeeded');
