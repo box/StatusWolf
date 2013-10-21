@@ -260,7 +260,7 @@ foreach($widgets as $widget_key)
     {
       widget = $('#' + widget_id).graphwidget();
       setTimeout(function() {
-        widget.data('sw-graphwidget').sw_graphwidget_editparamsbutton.click();
+        widget.data('sw-graphwidget').sw_graphwidget.addClass('flipped');
       }, 250);
     }
     setTimeout(function() {
