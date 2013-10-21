@@ -1867,9 +1867,7 @@
 
       widget.graph = {};
 
-      console.log(data);
-      console.log(query_data);
-
+      widget.graph.data = data;
       widget.graph.margin = {top: 0, right: 5, bottom: 20, left: 55};
 
       var graphdiv = $('#' + widget.element.attr('id') + ' .graphdiv').empty();
@@ -1917,7 +1915,7 @@
         0, (d3.max(data, function(d) { return d3.max(d.values, function(v) { return v.value; })}) * 1.05)
       ]);
 
-      var color = d3.scale.ordinal()
+      widget.graph.color = d3.scale.ordinal()
         .domain(function(data) { return data.name; })
         .range(swcolors.Wheel_DarkBG[5]);
 
@@ -1951,7 +1949,8 @@
       widget.graph.metric.append('path')
         .attr('class', 'line')
         .attr('d', function(d) { return widget.graph.line(d.values); })
-        .style('stroke', function(d) { return color(d.name); });
+        .attr('data-name', function(d) { return d.name; })
+        .style('stroke', function(d) { return widget.graph.color(d.name); });
 
       widget.graph.labels = [];
       $.each(data, function(i,d)
@@ -1986,52 +1985,35 @@
 
       $.each(widget.graph.labels, function(i, label)
       {
-        var item_color = color(label);
+        var item_color = widget.graph.color(label);
         legend_box.append('<span style="color: ' + item_color + '">' + label + '</span>');
       });
 
-//      widget.sw_graphwidget_frontmain.children('div.graphdiv').mouseenter(function() {
-//        var legend_box = $(this).siblings('div.legend-container');
-//        var title_bar = widget.sw_graphwidget_fronttitle;
-//        title_bar.removeClass('nodisplay');
-//        $(this).css({
-//          height: widget.sw_graphwidget_frontmain.innerHeight() - (legend_box.outerHeight(true) + title_bar.outerHeight())
-//          ,top: title_bar.outerHeight() + 10
-//        });
-//      }).mouseleave(function() {
-//          var legend_box = $(this).siblings('div.legend-container');
-//          var title_bar = widget.sw_graphwidget_fronttitle;
-//          $(this).css({
-//            height: widget.sw_graphwidget_frontmain.innerHeight() - (legend_box.outerHeight(true))
-//            ,top: '10px'
-//          });
-//          title_bar.addClass('nodisplay');
-//        });
-
-//      widget.sw_graphwidget_frontmain.mouseenter(function(event)
-//      {
-//        event.stopImmediatePropagation();
-//        var graphdiv = $(this).children('div.graphdiv');
-//        var legend_box = graphdiv.siblings('div.legend-container');
-//        var title_bar = widget.sw_graphwidget_fronttitle;
-//        title_bar.removeClass('nodisplay');
-//        graphdiv.css({
-//          height: widget.sw_graphwidget_frontmain.innerHeight() - (legend_box.outerHeight(true) + title_bar.outerHeight())
-//          ,top: title_bar.outerHeight() + 10
-//        });
-//      })
-//        .mouseleave(function(event)
-//        {
-//          event.stopImmediatePropagation()
-//          var graphdiv = $(this).children('div.graphdiv');
-//          var legend_box = graphdiv.siblings('div.legend-container');
-//          var title_bar = widget.sw_graphwidget_fronttitle;
-//          graphdiv.css({
-//            height: widget.sw_graphwidget_frontmain.innerHeight() - legend_box.outerHeight(true)
-//            ,top: '10px'
-//          });
-//          title_bar.addClass('nodisplay');
-//        });
+      legend_box.children('span')
+        .css('cursor', 'pointer')
+        .on('mouseover', function()
+        {
+          $(this).css('font-weight', 'bold');
+          var moved_metric = d3.select('#' + widget.element.attr('id') + " svg>g>g.metric>path[data-name='" + $(this).text() + "']");
+          var moved_metric_node = moved_metric.node();
+          var moved_metric_data = moved_metric.data();
+          var moved_metric_parent = $(moved_metric_node).parent();
+          d3.select(moved_metric_parent).node().remove();
+          var new_metric = d3.select('#' + widget.element.attr('id') + ' svg>g').append('g', 'g.metric');
+          new_metric.attr('class', 'metric').data(moved_metric_data);
+          new_metric.append('path')
+            .attr('class', 'line')
+            .attr('d', function(d) { return widget.graph.line(d.values); })
+            .attr('data-name', $(this).text())
+            .style('stroke', function(d) { return widget.graph.color(d.name); })
+            .style('stroke-width', '3px');
+        })
+        .on('mouseout', function()
+        {
+          $(this).css('font-weight', 'normal');
+          d3.select('#' + widget.element.attr('id') + " g.metric>path[data-name='" + $(this).text() + "']").style('stroke-width', '1.5px');
+        }
+      );
 
     }
 	})
