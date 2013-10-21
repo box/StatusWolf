@@ -274,6 +274,7 @@
       widget.graph.y.range([widget.graph.height, 0]);
       widget.graph.y_axis.tickSize(-widget.graph.width, 0);
       widget.svg.select('.y.axis').call(widget.graph.y_axis);
+      widget.svg.selectAll('.y.axis text').attr('dy', '0.75em');
       widget.graph.x.range([0, widget.graph.width]);
       widget.graph.x_axis.tickSize(-widget.graph.height, 0);
       widget.svg.select('.x.axis').attr('transform', 'translate(0,' + widget.graph.height + ')').call(widget.graph.x_axis);
@@ -1566,7 +1567,6 @@
       var graph_data = [];
       $.each(data, function(series, series_data)
       {
-        console.log(series_data);
         graph_data.push({name: series, values: series_data});
 //        $.each(series_data, function(i, point_data)
 //        {
@@ -1859,7 +1859,6 @@
 
       $.each(data, function(s, d)
       {
-        console.log(d.values);
         $.each(d.values, function(v)
         {
           d.values[v]['date'] = new Date(d.values[v]['timestamp'] * 1000);
@@ -1875,6 +1874,7 @@
 
       var graphdiv = $('#' + widget.element.attr('id') + ' .graphdiv').empty();
       var graphdiv_offset = graphdiv.position().top;
+      var legend_box = $('#' + widget.element.attr('id') + ' .legend');
       widget.svg = d3.select('#' + graphdiv.attr('id')).append('svg')
         .append('g')
         .attr('transform', 'translate(' + widget.graph.margin.left + ',' + widget.graph.margin.top + ')');
@@ -1921,9 +1921,6 @@
         .domain(function(data) { return data.name; })
         .range(swcolors.Wheel_DarkBG[5]);
 
-      console.log(widget.graph.x.domain());
-      console.log(widget.graph.y.domain());
-
       widget.graph.line = d3.svg.line()
         .interpolate('linear')
         .x(function(d) { return widget.graph.x(d.date); })
@@ -1944,6 +1941,8 @@
         .attr('class', 'y axis')
         .call(widget.graph.y_axis);
 
+      widget.svg.selectAll('.y.axis text').attr('dy', '0.75em');
+
       widget.graph.metric = widget.svg.selectAll('.metric')
         .data(data)
         .enter().append('g')
@@ -1952,7 +1951,44 @@
       widget.graph.metric.append('path')
         .attr('class', 'line')
         .attr('d', function(d) { return widget.graph.line(d.values); })
-        .style('stroke', function(d) { return color(d.name)});
+        .style('stroke', function(d) { return color(d.name); });
+
+      widget.graph.labels = [];
+      $.each(data, function(i,d)
+      {
+        widget.graph.labels.push(d.name);
+      });
+
+      if (widget.graph.labels.length > 9)
+      {
+        legend_box.css({
+          '-webkit-columns': 'auto 4'
+          ,'-moz-columns': 'auto 4'
+          ,columns: 'auto 4'
+        });
+      }
+      else if (widget.graph.labels.length > 6)
+      {
+        legend_box.css({
+          '-webkit-columns': 'auto 2'
+          ,'-moz-columns': 'auto 3'
+          ,columns: 'auto 3'
+        });
+      }
+      else if (widget.graph.labels.length > 3)
+      {
+        legend_box.css({
+          '-webkit-columns': 'auto 2'
+          ,'-moz-columns': 'auto 2'
+          ,columns: 'auto 2'
+        });
+      }
+
+      $.each(widget.graph.labels, function(i, label)
+      {
+        var item_color = color(label);
+        legend_box.append('<span style="color: ' + item_color + '">' + label + '</span>');
+      });
 
 //      widget.sw_graphwidget_frontmain.children('div.graphdiv').mouseenter(function() {
 //        var legend_box = $(this).siblings('div.legend-container');
