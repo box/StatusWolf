@@ -263,6 +263,10 @@ select {
     opacity: 0;
 }
 
+.fade {
+    opacity: .25;
+}
+
 .maximize {
     position: absolute;
     top: 0;

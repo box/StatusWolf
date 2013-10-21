@@ -1995,25 +1995,41 @@
         {
           $(this).css('font-weight', 'bold');
           var moved_metric = d3.select('#' + widget.element.attr('id') + " svg>g>g.metric>path[data-name='" + $(this).text() + "']");
-          var moved_metric_node = moved_metric.node();
-          var moved_metric_data = moved_metric.data();
-          var moved_metric_parent = $(moved_metric_node).parent();
-          d3.select(moved_metric_parent).node().remove();
-          var new_metric = d3.select('#' + widget.element.attr('id') + ' svg>g').append('g', 'g.metric');
-          new_metric.attr('class', 'metric').data(moved_metric_data);
-          new_metric.append('path')
-            .attr('class', 'line')
-            .attr('d', function(d) { return widget.graph.line(d.values); })
-            .attr('data-name', $(this).text())
-            .style('stroke', function(d) { return widget.graph.color(d.name); })
-            .style('stroke-width', '3px');
+          if (!moved_metric.classed('hidden'))
+          {
+            var moved_metric_node = moved_metric.node();
+            var moved_metric_data = moved_metric.data();
+            var moved_metric_parent = $(moved_metric_node).parent();
+            d3.select(moved_metric_parent).node().remove();
+            var new_metric = d3.select('#' + widget.element.attr('id') + ' svg>g').append('g', 'g.metric');
+            new_metric.attr('class', 'metric').data(moved_metric_data);
+            new_metric.append('path')
+              .attr('class', 'line')
+              .attr('d', function(d) { return widget.graph.line(d.values); })
+              .attr('data-name', $(this).text())
+              .style('stroke', function(d) { return widget.graph.color(d.name); })
+              .style('stroke-width', '3px');
+          }
         })
         .on('mouseout', function()
         {
           $(this).css('font-weight', 'normal');
           d3.select('#' + widget.element.attr('id') + " g.metric>path[data-name='" + $(this).text() + "']").style('stroke-width', '1.5px');
-        }
-      );
+        })
+        .on('click', function()
+        {
+          var metric_line = d3.select('#' + widget.element.attr('id') + " svg>g>g.metric>path[data-name='" + $(this).text() + "']");
+          if (metric_line.classed('hidden'))
+          {
+            $(this).removeClass('fade');
+            metric_line.classed('hidden', false);
+          }
+          else
+          {
+            $(this).addClass('fade');
+            metric_line.classed('hidden', true);
+          }
+        });
 
     }
 	})
