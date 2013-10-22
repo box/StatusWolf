@@ -1952,6 +1952,23 @@
         .attr('data-name', function(d) { return d.name; })
         .style('stroke', function(d) { return widget.graph.color(d.name); });
 
+      widget.graph.metric.select('path.line')
+        .on('mouseover', function()
+        {
+          d3.select(this).style('stroke-width', '3px');
+          var legend_item = $("span[title='" + $(this).attr('data-name') + "']");
+          var legend_box = legend_item.parent();
+          legend_item.detach();
+          legend_box.prepend(legend_item);
+          legend_item.css('font-weight', 'bold');
+        })
+        .on('mouseout', function()
+        {
+          d3.select(this).style('stroke-width', '1.5px');
+          $("span[title='" + $(this).attr('data-name') + "']").css('font-weight', 'normal');
+        });
+
+
       widget.graph.labels = [];
       $.each(data, function(i,d)
       {
@@ -1986,7 +2003,7 @@
       $.each(widget.graph.labels, function(i, label)
       {
         var item_color = widget.graph.color(label);
-        legend_box.append('<span style="color: ' + item_color + '">' + label + '</span>');
+        legend_box.append('<span title="' + label + '" style="color: ' + item_color + '">' + label + '</span>');
       });
 
       legend_box.children('span')
