@@ -1950,11 +1950,11 @@
         .attr('class', 'line')
         .attr('d', function(d) { return widget.graph.line(d.values); })
         .attr('data-name', function(d) { return d.name; })
-        .style('stroke', function(d) { return widget.graph.color(d.name); });
-
-      widget.graph.metric.select('path.line')
+        .style('stroke', function(d) { return widget.graph.color(d.name); })
         .on('mouseover', function()
         {
+          var e = d3.event;
+          console.log(e);
           d3.select(this).style('stroke-width', '3px');
           var legend_item = $("span[title='" + $(this).attr('data-name') + "']");
           var legend_box = legend_item.parent();
@@ -1968,6 +1968,25 @@
           $("span[title='" + $(this).attr('data-name') + "']").css('font-weight', 'normal');
         });
 
+      widget.graph.dots = widget.svg.selectAll('.dots')
+        .data(data)
+        .enter().append('g')
+        .attr('class', 'dots')
+        .attr('data-name', function(d) { return d.name; });
+      widget.graph.dots.each(function(d, i)
+      {
+        console.log(d);
+        var series = d.name;
+        d3.select(this).selectAll('.dot')
+        .data(d.values)
+        .enter().append('circle')
+        .attr('class', 'dot')
+        .attr('r', 1.5)
+        .attr('cx', function(d) { return widget.graph.x(d.date); })
+        .attr('cy', function(d) { return widget.graph.y(d.value); })
+        .style('fill', 'none')
+        .style('stroke', function(d) { return (widget.graph.color(series))});
+      });
 
       widget.graph.labels = [];
       $.each(data, function(i,d)
@@ -2036,15 +2055,18 @@
         .on('click', function()
         {
           var metric_line = d3.select('#' + widget.element.attr('id') + " svg>g>g.metric>path[data-name='" + $(this).text() + "']");
+          var metric_dots = d3.select('#' + widget.element.attr('id') + " svg>g>g.dots[data-name='" + $(this).text() + "']");
           if (metric_line.classed('hidden'))
           {
             $(this).removeClass('fade');
             metric_line.classed('hidden', false);
+            metric_dots.classed('hidden', false);
           }
           else
           {
             $(this).addClass('fade');
             metric_line.classed('hidden', true);
+            metric_dots.classed('hidden', true);
           }
         });
 
