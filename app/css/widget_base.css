@@ -55,6 +55,11 @@
     z-index: 2;
 }
 
+.graphdiv .tooltip-inner {
+    font-size: 0.6em;
+    font-weight: bold;
+}
+
 .widget-title {
     border-bottom: 1px solid rgba(205, 205, 205, 0.1);
     position: absolute;
