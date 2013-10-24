@@ -17,7 +17,7 @@ if (!defined('DS'))
 
 if (!defined('ROOT'))
 {
-	define('ROOT', dirname(dirname(dirname(__FILE__))) . DS);
+	define('ROOT', dirname(dirname($_SERVER['SCRIPT_FILENAME'])) . DS);
 }
 
 if (!defined('WIDGETS'))
