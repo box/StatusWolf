@@ -288,65 +288,6 @@ class OpenTSDB extends TimeSeriesData {
 
     }
 
-    // Set up the query cache
-    $new_cache = true;
-
-    // Does the query already reference an existing cache file?
-    if (array_key_exists('cache_key', $query_bits))
-    {
-      $cache_key = $query_bits['cache_key'];
-    }
-    else
-    {
-      $cache_key = md5($query_bits['key'] . time() . $_SESSION['_sw_authsession']['username']);
-    }
-
-    $this->loggy->logDebug(json_encode($query_bits));
-    if ($query_bits['history_graph'] === "wow" && array_key_exists('previous', $query_bits) && $query_bits['previous'])
-    {
-      $this->loggy->logDebug($this->log_tag . 'Creating cache file for week-over-week data');
-      $this->_query_cache = CACHE . 'query_cache' . DS . $cache_key . '_wow.cache';
-    }
-    else
-    {
-      $this->_query_cache = CACHE . 'query_cache' . DS . $cache_key . '.cache';
-    }
-
-    // If this is a new query but references an existing cache file, clean
-    // it out and start over
-    $this->loggy->logDebug($this->log_tag . 'Incoming new query setting: ' . $query_bits['new_query']);
-    if (array_key_exists('new_query', $query_bits) && $query_bits['new_query'] === "true")
-    {
-      if (file_exists($this->_query_cache))
-      {
-        $this->loggy->logDebug($this->log_tag . 'Resetting query cache');
-        unlink($this->_query_cache);
-      }
-    }
-
-    // The new query should overlap the cached data, e.g. for a graph
-    // that is auto-updating. If it doesn't, wipe the cache and search
-    // for the full time span period instead of just the updates
-    if (file_exists($this->_query_cache))
-    {
-      $new_cache = false;
-      $cached_query_data = file_get_contents($this->_query_cache);
-      $cached_query_data = unserialize($cached_query_data);
-      $span_threshold = $query_bits['end_time'] - $query_bits['time_span'];
-      $cached_series_keys = array_keys($cached_query_data);
-      $last_cache_entry = array_slice($cached_query_data[$cached_series_keys[0]], -1);
-      $cache_end_stamp = $last_cache_entry[0]['timestamp'];
-      $this->loggy->logDebug($this->log_tag . 'Checking to make sure cached data is current');
-      $this->loggy->logDebug($this->log_tag . 'cache ends at ' . $cache_end_stamp . ', minimum threshold is ' . $span_threshold);
-      if ($cache_end_stamp < $span_threshold)
-      {
-        $this->loggy->logDebug($this->log_tag . 'Cached data is out of date, starting over');
-        $new_cache = true;
-        unlink($this->_query_cache);
-        $query_bits['start_time'] = $span_threshold;
-      }
-    }
-
     // Fetch the metric data from the OpenTSDB API via Curl
     $query_url = $this->_build_url($query_bits);
     $curl = new Curl($query_url);
@@ -437,83 +378,20 @@ class OpenTSDB extends TimeSeriesData {
       $downsampler = new TimeSeriesDownsample($downsample_interval[$series_metric], $downsample_type[$series_metric]);
       $downsampler->ts_object = @$this;
       $this->loggy->logDebug($this->log_tag . 'Downsampling data, start: ' . $this->_start_timestamp . ', end: ' . $this->_end_timestamp);
+      $ds_timer_start = time();
       $graph_data[$series] = $downsampler->downsample($data, $this->_start_timestamp, $this->_end_timestamp);
-      // New cache? No data gymnastics needed
-      if ($new_cache)
-      {
-        continue;
-      }
-      else
-      {
-        // Updating existing cache? Combine the new data with the cached data
-        $this->loggy->logDebug($this->log_tag . 'Updating data for series ' . $series);
-        if (array_key_exists($series, $cached_query_data))
-        {
-          // Check beginning of cached data to make sure it falls before the
-          // beginning of the current search - accounts for time span changes
-          if ($cached_query_data[$series][0]['timestamp'] > $graph_data[$series][0]['timestamp'])
-          {
-            $this->loggy->logDebug($this->log_tag . "Data start is before cache start");
-            $this->loggy->logDebug($this->log_tag . "Cache start: " . $cached_query_data[$series][0]['timestamp'] . ", Data start: " . $graph_data[$series][0]['timestamp']);
-            unset($cached_query_data[$series]);
-          }
-          else
-          {
-            // Remove any overlap between the cached data and the new query
-            $new_data_start = $graph_data[$series][0]['timestamp'];
-            foreach ($cached_query_data[$series] as $i => $series_data)
-            {
-              if ($series_data['timestamp'] >= $new_data_start)
-              {
-                unset($cached_query_data[$series][$i]);
-              }
-            }
-          }
-
-          // Trim off the same number of points from the beginning of the
-          // cached data as we're adding to the end
-          $this->loggy->logDebug($this->log_tag . 'Trimming ' . count($graph_data[$series]) . ' points from cached data');
-          array_splice($cached_query_data[$series], 0, count($graph_data[$series]));
-          $new_series_data = array_merge($cached_query_data[$series], $graph_data[$series]);
-          $this->loggy->logDebug($this->log_tag . 'Adding ' . count($graph_data[$series]) . ' new points to cached data (Now ' . count($new_series_data) . ' points)');
-          $new_cache_data[$series] = $new_series_data;
-        }
-      }
-    }
-
-    if (!empty($new_cache_data))
-    {
-      $this->loggy->logDebug($this->log_tag . 'Saving updated cache data');
-      file_put_contents($this->_query_cache, serialize($new_cache_data));
-    }
-    else
-    {
-      $this->loggy->logDebug($this->log_tag . "No cached data, saving current query to cache");
-      file_put_contents($this->_query_cache, serialize($graph_data));
-    }
-    $cached_keys = array_keys($graph_data);
-    // Set the object's start and end time to the new start and end
-    // of the cached data
-    foreach ($cached_keys as $my_key)
-    {
-      if ((empty($this->start_time)) || ($graph_data[$my_key][0]['timestamp'] < $this->start_time))
-      {
-        $this->start_time = $graph_data[$my_key][0]['timestamp'];
-      }
-      $last_point = array_slice($graph_data[$my_key], -1);
-      if ((empty($this->end_time)) || ($last_point[0]['timestamp'] > $this->end_time))
-      {
-        $this->end_time = $last_point[0]['timestamp'];
-      }
+      $ds_timer_end = time();
+      $ds_total_time = $ds_timer_end - $ds_timer_start;
+      $this->loggy->logDebug($this->log_tag . 'Downsampling completed in ' . $ds_total_time . ' seconds');
     }
 
     $this->ts_data = $graph_data;
-    $this->ts_data['cache_key'] = $cache_key;
-    $this->ts_data['query_cache'] = $this->_query_cache;
     $this->ts_data['query_url'] = $this->tsdb_query_url;
     $this->ts_data['start'] = $this->start_time;
     $this->ts_data['end'] = $this->end_time;
     $this->ts_data['legend'] = $legend;
+
+    return;
 
   }
 

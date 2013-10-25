@@ -94,6 +94,7 @@ class TimeSeriesDownsample
 	{
 		if (empty($time_series))
 		{
+      $this->loggy->logDebug($this->log_tag . ' Nothing to Downsample!');
 			return null;
 		}
 

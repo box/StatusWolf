@@ -281,10 +281,10 @@
       widget.svg.select('.x.axis text.graph-title')
         .attr('x', widget.graph.x.range()[1] / 2)
         .attr('y', widget.graph.margin.bottom - widget.graph.y.range()[0] / 2);
-      widget.graph.dots.selectAll('.dot')
+      widget.svg.selectAll('.dots').selectAll('.dot')
         .attr('cx', function(d) { return widget.graph.x(d.date); })
         .attr('cy', function(d) { return widget.graph.y(d.value); });
-      widget.graph.metric.selectAll('path')
+      widget.svg.selectAll('.metric').selectAll('path')
         .attr('d', function(d) { return widget.graph.line(d.values); });
     }
 
@@ -1232,7 +1232,7 @@
       // Search current and previous week for metric data
       else if (query_data.history_graph == "wow")
       {
-        status.html('<p>Fetching Week-Over-Week Data</p>');
+        status.html('<p>Fetching Metric Data</p>');
         $.when(widget.get_opentsdb_data_wow(query_data, widget)
           .done(function(data) {
             query_object.resolve(data);
@@ -1270,7 +1270,7 @@
       widget.ajax_object = new $.Deferred();
 
       widget.ajax_request = $.ajax({
-          url: widget.options.sw_url + "adhoc/search/OpenTSDB"
+          url: widget.options.sw_url + "api/search/OpenTSDB"
           ,type: 'POST'
           ,data: query_data
           ,dataType: 'json'
@@ -1286,7 +1286,7 @@
           widget.ajax_request.abort();
           widget.ajax_object.reject(data[1])
         }
-        else if (Object.getOwnPropertyNames(data).length <= 5)
+        else if (Object.keys(data).length <= 4)
         {
           widget.ajax_request.abort();
           widget.ajax_object.reject(["0", "Query returned no data"]);
@@ -1318,27 +1318,34 @@
       var metric_data = {};
 
       widget.ajax_request = $.ajax({
-          url: widget.options.sw_url + "adhoc/search/OpenTSDB"
+          url: widget.options.sw_url + "api/search/OpenTSDB"
           ,type: 'POST'
           ,data: query_data
-          ,data_type: 'json'
+          ,dataType: 'json'
           ,timeout: 120000
         })
         ,chained = widget.ajax_request.then(function(data) {
-          metric_data[0] = eval('(' + data + ')');
+          console.log(data);
+          if (typeof data !== "object")
+          {
+            data = eval('(' + data + ')');
+            console.log(typeof data);
+            console.log(Object.keys(data));
+          }
+          metric_data[0] = data;
           if (metric_data[0][0] === "error")
           {
             widget.ajax_request.abort();
             widget.ajax_object.reject(metric_data[0][1])
           }
-          else if (Object.keys(metric_data[0]).length <= 5)
+          else if (Object.keys(metric_data[0]).length <= 4)
           {
             widget.ajax_request.abort();
             widget.ajax_object.reject(["0", "Current week query returned no data"]);
           }
           else
           {
-            status.html('<p>Fetching Metric Data</p>');
+            status.html('<p>Fetching Metric Data For Previous Week</p>');
             metric_data.start = metric_data[0]['start'];
             delete metric_data[0]['start'];
             metric_data.end = metric_data[0]['end'];
@@ -1357,10 +1364,10 @@
             past_query.start_time = past_query.end_time - query_span;
             past_query.previous = true;
             return $.ajax({
-              url: widget.options.sw_url + "adhoc/search/OpenTSDB"
+              url: widget.options.sw_url + "api/search/OpenTSDB"
               ,type: 'POST'
               ,data: past_query
-              ,data_type: 'json'
+              ,dataType: 'json'
               ,timeout: 120000
             });
           }
@@ -1373,13 +1380,17 @@
         }
         else
         {
-          metric_data[1] = eval('(' + data + ')');
+          if (typeof data !== "object")
+          {
+            data = eval('(' + data + ')');
+          }
+          metric_data[1] = data;
           if (metric_data[1][0] === "error")
           {
             widget.ajax_request.abort();
             widget.ajax_object.reject(metric_data[1][1])
           }
-          else if (Object.getOwnPropertyNames(metric_data[1]).length <= 5)
+          else if (Object.keys(metric_data[1]).length <= 4)
           {
             widget.ajax_request.abort();
             widget.ajax_object.reject(["0", "Previous week query returned no data"]);
@@ -1424,7 +1435,7 @@
       var data_for_detection = [];
 
       widget.ajax_request = $.ajax({
-          url: widget.options.sw_url + "adhoc/search/OpenTSDB"
+          url: widget.options.sw_url + "api/search/OpenTSDB"
           ,type: 'POST'
           ,data: query_data
           ,dataType: 'json'
@@ -1447,13 +1458,12 @@
             var past_query = $.extend(true, {}, query_data);
             past_query.end_time = metric_data.start - 1;
             past_query.start_time = past_query.end_time - document._sw_conf.anomalies.pre_anomaly_period;
-            past_query.cache_key = metric_data.cache_key + '_pre';
             status.html('<p>Fetching data for anomaly detection</p>');
             return $.ajax({
               url: widget.options.sw_url + "adhoc/search/OpenTSDB"
               ,type: 'POST'
               ,data: past_query
-              ,data_type: 'json'
+              ,dataType: 'json'
               ,timeout: 120000
             });
           }
@@ -1487,7 +1497,6 @@
             }
             else
             {
-              var pre_period_cache = pre_period_data.query_cache;
               delete pre_period_data;
               data_for_detection = {metric: query_data.metrics[0]['name'], cache: metric_data.query_cache, pre_cache: pre_period_cache};
               status.html('<p>Calculating anomalies</p>');
@@ -1495,7 +1504,7 @@
                 url: widget.options.sw_url + "api/detect_timeseries_anomalies"
                 ,type: 'POST'
                 ,data: data_for_detection
-                ,data_type: 'json'
+                ,dataType: 'json'
               });
             }
           }
@@ -1541,13 +1550,10 @@
       var start = parseInt(data.start);
       var end = parseInt(data.end);
       query_url = data.query_url;
-      query_data.cache_key = data.cache_key;
       var legend_map = data.legend;
       delete data.start;
       delete data.end;
       delete data.query_url;
-      delete data.cache_key;
-      delete data.query_cache;
       delete data.legend;
       if (query_data.history_graph == "anomaly")
       {
@@ -1911,16 +1917,16 @@
         .tickFormat(d3.format('.3s'));
 
       widget.graph.x.domain([
-        d3.min(data, function(d) { return d3.min(d.values, function(v) { return v.date; })})
-        ,d3.max(data, function(d) { return d3.max(d.values, function(v) { return v.date; })})
+        d3.min(widget.graph.data, function(d) { return d3.min(d.values, function(v) { return v.date; })})
+        ,d3.max(widget.graph.data, function(d) { return d3.max(d.values, function(v) { return v.date; })})
         ]);
 
       widget.graph.y.domain([
-        0, (d3.max(data, function(d) { return d3.max(d.values, function(v) { return v.value; })}) * 1.05)
+        0, (d3.max(widget.graph.data, function(d) { return d3.max(d.values, function(v) { return v.value; })}) * 1.05)
       ]);
 
       widget.graph.color = d3.scale.ordinal()
-        .domain(function(data) { return data.name; })
+        .domain(function(d) { return d.name; })
         .range(swcolors.Wheel_DarkBG[5]);
 
       widget.graph.line = d3.svg.line()
@@ -1943,14 +1949,21 @@
         .attr('class', 'y axis')
         .call(widget.graph.y_axis);
 
+      widget.svg.append('defs').append('clipPath')
+        .attr('id', 'clip' + widget.uuid)
+        .append('rect')
+        .attr('width', widget.graph.width)
+        .attr('height', widget.graph.height);
+
       widget.svg.selectAll('.y.axis text').attr('dy', '0.75em');
 
-      widget.graph.metric = widget.svg.selectAll('.metric')
-        .data(data)
+      var metric = widget.svg.selectAll('.metric')
+        .data(widget.graph.data)
         .enter().append('g')
-        .attr('class', 'metric');
+        .attr('class', 'metric')
+        .attr('clip-path', 'url(#clip' + widget.uuid + ')');
 
-      widget.graph.metric.append('path')
+      metric.append('path')
         .attr('class', 'line')
         .attr('d', function(d) { return widget.graph.line(d.values); })
         .attr('data-name', function(d) { return d.name; })
@@ -1958,27 +1971,8 @@
 
       widget.graph.tooltip_format = d3.time.format('%X');
 
-      widget.graph.dots = widget.svg.selectAll('.dots')
-        .data(data)
-        .enter().append('g')
-        .attr('class', 'dots')
-        .attr('data-name', function(d) { return d.name; });
-      widget.graph.dots.each(function(d, i)
-      {
-        var series = d.name;
-        d3.select(this).selectAll('.dot')
-        .data(d.values)
-        .enter().append('circle')
-        .classed('dot', 1)
-        .classed('transparent', 1)
-        .classed('info-tooltip-top', 1)
-        .attr('r', 3)
-        .attr('cx', function(d) { return widget.graph.x(d.date); })
-        .attr('cy', function(d) { return widget.graph.y(d.value); })
-        .attr('title', function(d) { return widget.graph.tooltip_format(d.date) + ' - ' + d.value; })
-        .style('fill', 'none')
-        .style('stroke-width', '3px')
-        .style('stroke', function(d) { return (widget.graph.color(series))})
+      widget.add_graph_dots(widget);
+      widget.svg.selectAll('.dots').selectAll('.dot')
         .on('mouseover', function()
         {
           var e = d3.event;
@@ -1993,11 +1987,10 @@
         {
           d3.select(this).classed('transparent', 1);
           $("span[title='" + $(this).parent().attr('data-name') + "']").css('font-weight', 'normal');
-          });
-      });
+        });
 
       widget.graph.labels = [];
-      $.each(data, function(i,d)
+      $.each(widget.graph.data, function(i,d)
       {
         widget.graph.labels.push(d.name);
       });
@@ -2078,11 +2071,122 @@
           }
         });
 
+      // Set the interval for adding new data if Auto Update is selected
+      if (query_data['auto_update'])
+      {
+        console.log('setting auto-update timer at ' + new Date.now().toTimeString());
+        widget.autoupdate_interval = setInterval(function() {
+          var last_point_bits = widget.graph.data[0].values.slice(-1);
+          var last_point = last_point_bits.pop();
+          var new_start = last_point.timestamp;
+          var new_end = new Date.now().getTime();
+          new_end = parseInt(new_end / 1000);
+          query_data.start_time = new_start;
+          query_data.end_time = new_end;
+          query_data.new_query = false;
+          $.when(widget.opentsdb_search(query_data, widget)).then(function(incoming_new_data)
+          {
+            $.when(widget.process_timeseries_data(incoming_new_data, query_data, widget)).then(
+              function(incoming_new_data)
+              {
+                var new_data = incoming_new_data.graphdata;
+                $.each(new_data, function(s, d)
+                {
+                  $.each(d.values, function(v)
+                  {
+                    d.values[v]['date'] = new Date(d.values[v]['timestamp'] * 1000);
+                  });
+                  console.log(d);
+                });
+                $.each(widget.graph.data, function(i, d) {
+                  $.each(new_data, function(ni, nd) {
+                    if (nd.name === d.name)
+                    {
+                      d.values = d.values.concat(nd.values);
+                    }
+                  });
+                  console.log(d);
+                });
+                var metrics = widget.svg.selectAll('.metric');
+                var trans_path = metrics.selectAll('path')
+                  .attr('transform', null)
+                  .attr('d', function(d) { return widget.graph.line(d.values); });
+                trans_path.each(function() {
+                  var offset = (widget.graph.width - this.getBBox().width);
+                  d3.select(this).attr('transform', 'translate(' + offset + ')'); });
+                $.each(widget.graph.data, function(i, d) {
+                  $.each(new_data, function(ni, nd) {
+                    if (nd.name === d.name)
+                    {
+                      d.values.splice(0, nd.values.length + 1);
+                    }
+                  });
+                });
+                widget.graph.x.domain([
+                  d3.min(widget.graph.data, function(d) { return d3.min(d.values, function(v) { return v.date; })})
+                  ,d3.max(widget.graph.data, function(d) { return d3.max(d.values, function(v) { return v.date; })})
+                ]);
+                widget.graph.y.domain([
+                  0, (d3.max(widget.graph.data, function(d) { return d3.max(d.values, function(v) { return v.value; })}) * 1.05)
+                ]);
+                widget.svg.select('.x.axis').call(widget.graph.x_axis);
+                widget.svg.select('.y.axis').call(widget.graph.y_axis);
+                widget.svg.selectAll('.dots').remove();
+                widget.add_graph_dots(widget);
+                widget.svg.selectAll('.dots').selectAll('.dot')
+                  .on('mouseover', function()
+                  {
+                    var e = d3.event;
+                    d3.select(this).classed('transparent', 0);
+                    var legend_item = $("span[title='" + $(this).parent().attr('data-name') + "']");
+                    var legend_box = legend_item.parent();
+                    legend_item.detach();
+                    legend_box.prepend(legend_item);
+                    legend_item.css('font-weight', 'bold');
+                  })
+                  .on('mouseout', function()
+                  {
+                    d3.select(this).classed('transparent', 1);
+                    $("span[title='" + $(this).parent().attr('data-name') + "']").css('font-weight', 'normal');
+                  });
+              }
+            );
+          });
+//        }, 120 * 1000);
+        }, 300 * 1000);
+      }
+
       $('.dot.info-tooltip').tooltip({placement: 'bottom', container: graphdiv});
       $('.dot.info-tooltip-right').tooltip({placement: 'right', container: graphdiv});
       $('.dot.info-tooltip-left').tooltip({placement: 'left', container: graphdiv});
       $('.dot.info-tooltip-top').tooltip({placement: 'top', container: graphdiv});
 
+    }
+
+    ,add_graph_dots: function(widget)
+    {
+      var dots = widget.svg.selectAll('.dots')
+        .data(widget.graph.data)
+        .enter().append('g')
+        .attr('class', 'dots')
+        .attr('data-name', function(d) { return d.name; });
+      dots.each(function(d, i)
+      {
+        var series = d.name;
+        d3.select(this).selectAll('.dot')
+          .data(d.values)
+          .enter().append('circle')
+          .classed('dot', 1)
+          .classed('transparent', 1)
+          .classed('info-tooltip-top', 1)
+          .attr('r', 3)
+          .attr('cx', function(d) { return widget.graph.x(d.date); })
+          .attr('cy', function(d) { return widget.graph.y(d.value); })
+          .attr('title', function(d) { return widget.graph.tooltip_format(d.date) + ' - ' + d.value; })
+          .style('fill', 'none')
+          .style('stroke-width', '3px')
+          .style('stroke', function() { return (widget.graph.color(series))});
+      });
     }
 	})
 }(jQuery));

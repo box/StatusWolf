@@ -397,7 +397,7 @@ class ApiController extends SWController
     if ($_adhoc_datasource = array_shift($url_path))
     {
       $_search_object = new $_adhoc_datasource();
-      print_r($_POST);
+      $this->loggy->logDebug($this->log_tag . json_encode($_POST));
       $_search_object->get_raw_data($_POST);
       $raw_data = $_search_object->read();
       echo json_encode($raw_data);
