@@ -2097,7 +2097,9 @@
                   .attr('d', function(d) { return widget.graph.line(d.values); });
                 trans_path.each(function() {
                   var offset = (widget.graph.width - this.getBBox().width);
-                  d3.select(this).attr('transform', 'translate(' + offset + ')'); });
+                  d3.select(this).transition()
+                    .ease('linear')
+                    .attr('transform', 'translate(' + offset + ')'); });
                 $.each(widget.graph.data, function(i, d) {
                   $.each(new_data, function(ni, nd) {
                     if (nd.name === d.name)
@@ -2113,8 +2115,12 @@
                 widget.graph.y.domain([
                   0, (d3.max(widget.graph.data, function(d) { return d3.max(d.values, function(v) { return v.value; })}) * 1.05)
                 ]);
-                widget.svg.select('.x.axis').call(widget.graph.x_axis);
-                widget.svg.select('.y.axis').call(widget.graph.y_axis);
+                widget.svg.select('.x.axis').transition()
+                  .ease('linear')
+                  .call(widget.graph.x_axis);
+                widget.svg.select('.y.axis').transition()
+                  .ease('linear')
+                  .call(widget.graph.y_axis);
                 widget.svg.selectAll('.dots').remove();
                 widget.add_graph_dots(widget);
               }
