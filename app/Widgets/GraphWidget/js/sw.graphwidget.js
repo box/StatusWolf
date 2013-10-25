@@ -1972,22 +1972,6 @@
       widget.graph.tooltip_format = d3.time.format('%X');
 
       widget.add_graph_dots(widget);
-      widget.svg.selectAll('.dots').selectAll('.dot')
-        .on('mouseover', function()
-        {
-          var e = d3.event;
-          d3.select(this).classed('transparent', 0);
-          var legend_item = $("span[title='" + $(this).parent().attr('data-name') + "']");
-          var legend_box = legend_item.parent();
-          legend_item.detach();
-          legend_box.prepend(legend_item);
-          legend_item.css('font-weight', 'bold');
-        })
-        .on('mouseout', function()
-        {
-          d3.select(this).classed('transparent', 1);
-          $("span[title='" + $(this).parent().attr('data-name') + "']").css('font-weight', 'normal');
-        });
 
       widget.graph.labels = [];
       $.each(widget.graph.data, function(i,d)
@@ -2133,33 +2117,12 @@
                 widget.svg.select('.y.axis').call(widget.graph.y_axis);
                 widget.svg.selectAll('.dots').remove();
                 widget.add_graph_dots(widget);
-                widget.svg.selectAll('.dots').selectAll('.dot')
-                  .on('mouseover', function()
-                  {
-                    var e = d3.event;
-                    d3.select(this).classed('transparent', 0);
-                    var legend_item = $("span[title='" + $(this).parent().attr('data-name') + "']");
-                    var legend_box = legend_item.parent();
-                    legend_item.detach();
-                    legend_box.prepend(legend_item);
-                    legend_item.css('font-weight', 'bold');
-                  })
-                  .on('mouseout', function()
-                  {
-                    d3.select(this).classed('transparent', 1);
-                    $("span[title='" + $(this).parent().attr('data-name') + "']").css('font-weight', 'normal');
-                  });
               }
             );
           });
 //        }, 120 * 1000);
         }, 300 * 1000);
       }
-
-      $('.dot.info-tooltip').tooltip({placement: 'bottom', container: graphdiv});
-      $('.dot.info-tooltip-right').tooltip({placement: 'right', container: graphdiv});
-      $('.dot.info-tooltip-left').tooltip({placement: 'left', container: graphdiv});
-      $('.dot.info-tooltip-top').tooltip({placement: 'top', container: graphdiv});
 
     }
 
@@ -2185,8 +2148,28 @@
           .attr('title', function(d) { return widget.graph.tooltip_format(d.date) + ' - ' + d.value; })
           .style('fill', 'none')
           .style('stroke-width', '3px')
-          .style('stroke', function() { return (widget.graph.color(series))});
+          .style('stroke', function() { return (widget.graph.color(series))})
+          .on('mouseover', function()
+          {
+            var e = d3.event;
+            d3.select(this).classed('transparent', 0);
+            var legend_item = $("span[title='" + $(this).parent().attr('data-name') + "']");
+            var legend_box = legend_item.parent();
+            legend_item.detach();
+            legend_box.prepend(legend_item);
+            legend_item.css('font-weight', 'bold');
+          })
+          .on('mouseout', function()
+          {
+            d3.select(this).classed('transparent', 1);
+            $("span[title='" + $(this).parent().attr('data-name') + "']").css('font-weight', 'normal');
+          });
       });
+      var graphdiv = $('#' + widget.element.attr('id') + ' .graphdiv');
+      $('.dot.info-tooltip').tooltip({placement: 'bottom', container: graphdiv});
+      $('.dot.info-tooltip-right').tooltip({placement: 'right', container: graphdiv});
+      $('.dot.info-tooltip-left').tooltip({placement: 'left', container: graphdiv});
+      $('.dot.info-tooltip-top').tooltip({placement: 'top', container: graphdiv});
     }
 	})
 }(jQuery));
