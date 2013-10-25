@@ -274,7 +274,6 @@
       widget.svg.select('#clip' + widget.uuid).select('rect')
         .attr('width', widget.graph.width)
         .attr('height', widget.graph.height);
-
       widget.graph.y.range([widget.graph.height, 0]);
       widget.graph.y_axis.tickSize(-widget.graph.width, 0);
       widget.svg.select('.y.axis').call(widget.graph.y_axis);
@@ -288,12 +287,10 @@
         .attr('x', widget.graph.x.range()[1] / 2)
         .attr('y', widget.graph.margin.bottom - widget.graph.y.range()[0] / 2);
       var dots = widget.svg.selectAll('.dots');
-      console.log(dots);
       dots.selectAll('.dot')
         .attr('cx', function(d) { return widget.graph.x(d.date); })
         .attr('cy', function(d) { return widget.graph.y(d.value); });
       var metric = widget.svg.selectAll('.metric');
-      console.log(metric)
       metric.selectAll('path')
         .attr('d', function(d) { return widget.graph.line(d.values); });
     }
@@ -2103,7 +2100,6 @@
               {
                 d.values[v]['date'] = new Date(d.values[v]['timestamp'] * 1000);
               });
-              console.log(d);
             });
             $.each(widget.graph.data, function(i, d) {
               $.each(new_data, function(ni, nd) {
@@ -2112,7 +2108,6 @@
                   d.values = d.values.concat(nd.values);
                 }
               });
-              console.log(d);
             });
             var metrics = widget.svg.selectAll('.metric');
             var trans_path = metrics.selectAll('path')
@@ -2120,9 +2115,7 @@
               .attr('d', function(d) { return widget.graph.line(d.values); });
             trans_path.each(function() {
               var offset = (widget.graph.width - this.getBBox().width);
-              d3.select(this).transition()
-                .ease('linear')
-                .attr('transform', 'translate(' + offset + ')'); });
+              d3.select(this).attr('transform', 'translate(' + offset + ')'); });
             $.each(widget.graph.data, function(i, d) {
               $.each(new_data, function(ni, nd) {
                 if (nd.name === d.name)
@@ -2138,12 +2131,8 @@
             widget.graph.y.domain([
               0, (d3.max(widget.graph.data, function(d) { return d3.max(d.values, function(v) { return v.value; })}) * 1.05)
             ]);
-            widget.svg.select('.x.axis').transition()
-              .ease('linear')
-              .call(widget.graph.x_axis);
-            widget.svg.select('.y.axis').transition()
-              .ease('linear')
-              .call(widget.graph.y_axis);
+            widget.svg.select('.x.axis').call(widget.graph.x_axis);
+            widget.svg.select('.y.axis').call(widget.graph.y_axis);
             widget.svg.selectAll('.y.axis text').attr('dy', '0.75em');
             widget.svg.selectAll('.dots').remove();
             widget.add_graph_dots(widget);
