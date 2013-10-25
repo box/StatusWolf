@@ -268,23 +268,33 @@
       graph_div.css('height', widget_main.innerHeight() - graph_legend.outerHeight(true) - graph_div_offset);
       widget.graph.width = graph_div.innerWidth() - widget.graph.margin.left - widget.graph.margin.right;
       widget.graph.height = graph_div.innerHeight() - widget.graph.margin.top - widget.graph.margin.bottom;
-      d3.select(widget.svg.node())
+      widget.svg
         .style('height', widget.graph.height)
         .style('width', widget.graph.width);
+      widget.svg.select('#clip' + widget.uuid).select('rect')
+        .attr('width', widget.graph.width)
+        .attr('height', widget.graph.height);
+
       widget.graph.y.range([widget.graph.height, 0]);
       widget.graph.y_axis.tickSize(-widget.graph.width, 0);
       widget.svg.select('.y.axis').call(widget.graph.y_axis);
       widget.svg.selectAll('.y.axis text').attr('dy', '0.75em');
       widget.graph.x.range([0, widget.graph.width]);
       widget.graph.x_axis.tickSize(-widget.graph.height, 0);
-      widget.svg.select('.x.axis').attr('transform', 'translate(0,' + widget.graph.height + ')').call(widget.graph.x_axis);
+      widget.svg.select('.x.axis')
+        .attr('transform', 'translate(0,' + widget.graph.height + ')')
+        .call(widget.graph.x_axis);
       widget.svg.select('.x.axis text.graph-title')
         .attr('x', widget.graph.x.range()[1] / 2)
         .attr('y', widget.graph.margin.bottom - widget.graph.y.range()[0] / 2);
-      widget.svg.selectAll('.dots').selectAll('.dot')
+      var dots = widget.svg.selectAll('.dots');
+      console.log(dots);
+      dots.selectAll('.dot')
         .attr('cx', function(d) { return widget.graph.x(d.date); })
         .attr('cy', function(d) { return widget.graph.y(d.value); });
-      widget.svg.selectAll('.metric').selectAll('path')
+      var metric = widget.svg.selectAll('.metric');
+      console.log(metric)
+      metric.selectAll('path')
         .attr('d', function(d) { return widget.graph.line(d.values); });
     }
 
@@ -2060,76 +2070,86 @@
       {
         console.log('setting auto-update timer at ' + new Date.now().toTimeString());
         widget.autoupdate_interval = setInterval(function() {
-          var last_point_bits = widget.graph.data[0].values.slice(-1);
-          var last_point = last_point_bits.pop();
-          var new_start = last_point.timestamp;
-          var new_end = new Date.now().getTime();
-          new_end = parseInt(new_end / 1000);
-          query_data.start_time = new_start;
-          query_data.end_time = new_end;
-          query_data.new_query = false;
-          $.when(widget.opentsdb_search(query_data, widget)).then(function(incoming_new_data)
-          {
-            $.when(widget.process_timeseries_data(incoming_new_data, query_data, widget)).then(
-              function(incoming_new_data)
-              {
-                var new_data = incoming_new_data.graphdata;
-                $.each(new_data, function(s, d)
-                {
-                  $.each(d.values, function(v)
-                  {
-                    d.values[v]['date'] = new Date(d.values[v]['timestamp'] * 1000);
-                  });
-                  console.log(d);
-                });
-                $.each(widget.graph.data, function(i, d) {
-                  $.each(new_data, function(ni, nd) {
-                    if (nd.name === d.name)
-                    {
-                      d.values = d.values.concat(nd.values);
-                    }
-                  });
-                  console.log(d);
-                });
-                var metrics = widget.svg.selectAll('.metric');
-                var trans_path = metrics.selectAll('path')
-                  .attr('transform', null)
-                  .attr('d', function(d) { return widget.graph.line(d.values); });
-                trans_path.each(function() {
-                  var offset = (widget.graph.width - this.getBBox().width);
-                  d3.select(this).transition()
-                    .ease('linear')
-                    .attr('transform', 'translate(' + offset + ')'); });
-                $.each(widget.graph.data, function(i, d) {
-                  $.each(new_data, function(ni, nd) {
-                    if (nd.name === d.name)
-                    {
-                      d.values.splice(0, nd.values.length + 1);
-                    }
-                  });
-                });
-                widget.graph.x.domain([
-                  d3.min(widget.graph.data, function(d) { return d3.min(d.values, function(v) { return v.date; })})
-                  ,d3.max(widget.graph.data, function(d) { return d3.max(d.values, function(v) { return v.date; })})
-                ]);
-                widget.graph.y.domain([
-                  0, (d3.max(widget.graph.data, function(d) { return d3.max(d.values, function(v) { return v.value; })}) * 1.05)
-                ]);
-                widget.svg.select('.x.axis').transition()
-                  .ease('linear')
-                  .call(widget.graph.x_axis);
-                widget.svg.select('.y.axis').transition()
-                  .ease('linear')
-                  .call(widget.graph.y_axis);
-                widget.svg.selectAll('.dots').remove();
-                widget.add_graph_dots(widget);
-              }
-            );
-          });
+          widget.update_graph(widget, 'line');
 //        }, 120 * 1000);
         }, 300 * 1000);
       }
 
+    }
+
+    ,update_graph: function(widget, type)
+    {
+      var last_point_bits = widget.graph.data[0].values.slice(-1);
+      var last_point = last_point_bits.pop();
+      var new_start = last_point.timestamp;
+      var new_end = new Date.now().getTime();
+      new_end = parseInt(new_end / 1000);
+      if ((new_end - new_start) > widget.query_data.time_span)
+      {
+        new_start = new_end - widget.query_data.time_span;
+      }
+      widget.query_data.start_time = new_start;
+      widget.query_data.end_time = new_end;
+      widget.query_data.new_query = false;
+      $.when(widget.opentsdb_search(widget.query_data, widget)).then(function(incoming_new_data)
+      {
+        $.when(widget.process_timeseries_data(incoming_new_data, widget.query_data, widget)).then(
+          function(incoming_new_data)
+          {
+            var new_data = incoming_new_data.graphdata;
+            $.each(new_data, function(s, d)
+            {
+              $.each(d.values, function(v)
+              {
+                d.values[v]['date'] = new Date(d.values[v]['timestamp'] * 1000);
+              });
+              console.log(d);
+            });
+            $.each(widget.graph.data, function(i, d) {
+              $.each(new_data, function(ni, nd) {
+                if (nd.name === d.name)
+                {
+                  d.values = d.values.concat(nd.values);
+                }
+              });
+              console.log(d);
+            });
+            var metrics = widget.svg.selectAll('.metric');
+            var trans_path = metrics.selectAll('path')
+              .attr('transform', null)
+              .attr('d', function(d) { return widget.graph.line(d.values); });
+            trans_path.each(function() {
+              var offset = (widget.graph.width - this.getBBox().width);
+              d3.select(this).transition()
+                .ease('linear')
+                .attr('transform', 'translate(' + offset + ')'); });
+            $.each(widget.graph.data, function(i, d) {
+              $.each(new_data, function(ni, nd) {
+                if (nd.name === d.name)
+                {
+                  d.values.splice(0, nd.values.length + 1);
+                }
+              });
+            });
+            widget.graph.x.domain([
+              d3.min(widget.graph.data, function(d) { return d3.min(d.values, function(v) { return v.date; })})
+              ,d3.max(widget.graph.data, function(d) { return d3.max(d.values, function(v) { return v.date; })})
+            ]);
+            widget.graph.y.domain([
+              0, (d3.max(widget.graph.data, function(d) { return d3.max(d.values, function(v) { return v.value; })}) * 1.05)
+            ]);
+            widget.svg.select('.x.axis').transition()
+              .ease('linear')
+              .call(widget.graph.x_axis);
+            widget.svg.select('.y.axis').transition()
+              .ease('linear')
+              .call(widget.graph.y_axis);
+            widget.svg.selectAll('.y.axis text').attr('dy', '0.75em');
+            widget.svg.selectAll('.dots').remove();
+            widget.add_graph_dots(widget);
+          }
+        );
+      });
     }
 
     ,add_graph_dots: function(widget)
