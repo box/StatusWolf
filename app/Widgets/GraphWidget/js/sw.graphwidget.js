@@ -2170,7 +2170,7 @@
         var name_span = legend_box.children('span[title="' + label + '"]');
         if (widget.graph.right_axis == true)
         {
-          $(name_span).prepend('<span class="iconic iconic-play" style="font-size: .75em"></span> ')
+          $(name_span).prepend('<span class="iconic iconic-play" style="font-size: .75em"></span> ');
           if (! d3.select('.metric path[data-name="' + label + '"]').classed('right'))
           {
             $(name_span).children('.iconic').addClass('rotate-180');
@@ -2183,7 +2183,7 @@
         .on('mouseover', function()
         {
           $(this).css('font-weight', 'bold');
-          var moved_metric = d3.select('#' + widget.element.attr('id') + " svg>g>g.metric>path[data-name='" + $(this).text() + "']");
+          var moved_metric = d3.select('#' + widget.element.attr('id') + ' path[data-name="' + $(this).attr('title') + '"]');
           var axis_position_class = 'left';
           if (moved_metric.classed('right'))
           {
@@ -2200,8 +2200,8 @@
             new_metric.append('path')
               .classed('line', 1)
               .classed(axis_position_class, 1)
-              .attr('d', function(d) { return widget.graph.line(d.values); })
-              .attr('data-name', $(this).text())
+              .attr('d', function(d) { if (d.axis === "right") { return widget.graph.line_right(d.values); } else { return widget.graph.line(d.values); }})
+              .attr('data-name', $(this).attr('title'))
               .style('stroke', function(d) { return widget.graph.color(widget.graph.legend_map[d.name]); })
               .style('stroke-width', '3px');
           }
@@ -2209,12 +2209,12 @@
         .on('mouseout', function()
         {
           $(this).css('font-weight', 'normal');
-          d3.select('#' + widget.element.attr('id') + " g.metric>path[data-name='" + $(this).text() + "']").style('stroke-width', '1.5px');
+          d3.select('#' + widget.element.attr('id') + ' path[data-name="' + $(this).attr('title') + '"]').style('stroke-width', '1.5px');
         })
         .on('click', function()
         {
-          var metric_line = d3.select('#' + widget.element.attr('id') + " svg>g>g.metric>path[data-name='" + $(this).text() + "']");
-          var metric_dots = d3.select('#' + widget.element.attr('id') + " svg>g>g.dots[data-name='" + $(this).text() + "']");
+          var metric_line = d3.select('#' + widget.element.attr('id') + " svg>g>g.metric>path[data-name='" + $(this).attr('title') + "']");
+          var metric_dots = d3.select('#' + widget.element.attr('id') + " svg>g>g.dots[data-name='" + $(this).attr('title') + "']");
           if (metric_line.classed('hidden'))
           {
             $(this).removeClass('fade');
@@ -2279,7 +2279,7 @@
             var metrics = widget.svg.selectAll('.metric');
             var trans_path = metrics.selectAll('path')
               .attr('transform', null)
-              .attr('d', function(d) { return widget.graph.line(d.values); });
+              .attr('d', function(d) { if (d.axis === "right") { return widget.graph.line_right(d.values) } else { return widget.graph.line(d.values); }});
             trans_path.each(function() {
               var offset = (widget.graph.width - this.getBBox().width);
               d3.select(this).attr('transform', 'translate(' + offset + ')'); });
