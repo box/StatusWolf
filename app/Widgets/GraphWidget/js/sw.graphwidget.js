@@ -2222,21 +2222,32 @@
             widget.svg.selectAll('.widget path').classed('fade', 0);
           }
         })
-        .on('click', function()
+        .on('click', function(e)
         {
           var metric_line = widget.svg.select('.metric path[data-name="' + $(this).attr('title') + '"]');
           var metric_dots = widget.svg.select('.dots[data-name="' + $(this).attr('title') + '"]');
-          if (metric_line.classed('hidden'))
+          if (e.altKey)
           {
+            legend_box.children('span').addClass('fade');
             $(this).removeClass('fade');
-            metric_line.classed('hidden', false);
-            metric_dots.classed('hidden', false);
+            widget.svg.selectAll('.metric path')
+              .classed('hidden', 1);
+            metric_line.classed('hidden', 0);
           }
           else
           {
-            $(this).addClass('fade');
-            metric_line.classed('hidden', true);
-            metric_dots.classed('hidden', true);
+            if (metric_line.classed('hidden'))
+            {
+              $(this).removeClass('fade');
+              metric_line.classed('hidden', false);
+              metric_dots.classed('hidden', false);
+            }
+            else
+            {
+              $(this).addClass('fade');
+              metric_line.classed('hidden', true);
+              metric_dots.classed('hidden', true);
+            }
           }
         });
 
