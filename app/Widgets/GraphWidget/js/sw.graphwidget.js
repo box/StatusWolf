@@ -2196,14 +2196,18 @@
             var moved_metric_parent = $(moved_metric_node).parent();
             d3.select(moved_metric_parent).node().remove();
             var new_metric = d3.select('#' + widget.element.attr('id') + ' svg>g').append('g', 'g.metric');
-            new_metric.classed('metric', 1).classed(axis_position_class, 1).data(moved_metric_data);
+            new_metric
+              .classed('metric', 1)
+              .classed(axis_position_class, 1)
+              .attr('clip-path', 'url(#clip' + widget.uuid + ')')
+              .data(moved_metric_data);
             new_metric.append('path')
               .classed('line', 1)
               .classed(axis_position_class, 1)
               .attr('d', function(d) { if (d.axis === "right") { return widget.graph.line_right(d.values); } else { return widget.graph.line(d.values); }})
               .attr('data-name', $(this).attr('title'))
               .style('stroke', function(d) { return widget.graph.color(widget.graph.legend_map[d.name]); })
-              .style('stroke-width', '3px');
+              .style('stroke-width', '3px')
           }
         })
         .on('mouseout', function()
