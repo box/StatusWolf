@@ -2137,7 +2137,7 @@
 
       widget.add_graph_dots(widget);
 
-      if (widget.graph.legend_map.length > 9)
+      if (Object.keys(widget.graph.legend_map).length > 9)
       {
         legend_box.css({
           '-webkit-columns': 'auto 4'
@@ -2145,7 +2145,7 @@
           ,columns: 'auto 4'
         });
       }
-      else if (widget.graph.legend_map.length > 6)
+      else if (Object.keys(widget.graph.legend_map).length > 6)
       {
         legend_box.css({
           '-webkit-columns': 'auto 2'
@@ -2153,7 +2153,7 @@
           ,columns: 'auto 3'
         });
       }
-      else if (widget.graph.legend_map.length > 3)
+      else if (Object.keys(widget.graph.legend_map).length > 3)
       {
         legend_box.css({
           '-webkit-columns': 'auto 2'
@@ -2182,42 +2182,50 @@
         .on('mouseover', function()
         {
           $(this).css('font-weight', 'bold');
-          var moved_metric = d3.select('#' + widget.element.attr('id') + ' path[data-name="' + $(this).attr('title') + '"]');
-          var axis_position_class = 'left';
-          if (moved_metric.classed('right'))
+          if (! $(this).hasClass('fade'))
           {
-            axis_position_class = 'right';
-          }
-          if (!moved_metric.classed('hidden'))
-          {
-            var moved_metric_node = moved_metric.node();
-            var moved_metric_data = moved_metric.data();
-            var moved_metric_parent = $(moved_metric_node).parent();
-            d3.select(moved_metric_parent).node().remove();
-            var new_metric = d3.select('#' + widget.element.attr('id') + ' svg>g').append('g', 'g.metric');
-            new_metric
-              .classed('metric', 1)
-              .classed(axis_position_class, 1)
-              .attr('clip-path', 'url(#clip' + widget.uuid + ')')
-              .data(moved_metric_data);
-            new_metric.append('path')
-              .classed('line', 1)
-              .classed(axis_position_class, 1)
-              .attr('d', function(d) { if (d.axis === "right") { return widget.graph.line_right(d.values); } else { return widget.graph.line(d.values); }})
-              .attr('data-name', $(this).attr('title'))
-              .style('stroke', function(d) { return widget.graph.color(widget.graph.legend_map[d.name]); })
-              .style('stroke-width', '3px')
+            widget.svg.selectAll('.metric path').classed('fade', 1);
+            var moved_metric = widget.svg.select('.metric path[data-name="' + $(this).attr('title') + '"]');
+            var axis_position_class = 'left';
+            if (moved_metric.classed('right'))
+            {
+              axis_position_class = 'right';
+            }
+            if (!moved_metric.classed('hidden'))
+            {
+              var moved_metric_node = moved_metric.node();
+              var moved_metric_data = moved_metric.data();
+              var moved_metric_parent = $(moved_metric_node).parent();
+              d3.select(moved_metric_parent).node().remove();
+              var new_metric = d3.select('#' + widget.element.attr('id') + ' svg>g').append('g', 'g.metric');
+              new_metric
+                .classed('metric', 1)
+                .classed(axis_position_class, 1)
+                .attr('clip-path', 'url(#clip' + widget.uuid + ')')
+                .data(moved_metric_data);
+              new_metric.append('path')
+                .classed('line', 1)
+                .classed(axis_position_class, 1)
+                .attr('d', function(d) { if (d.axis === "right") { return widget.graph.line_right(d.values); } else { return widget.graph.line(d.values); }})
+                .attr('data-name', $(this).attr('title'))
+                .style('stroke', function(d) { return widget.graph.color(widget.graph.legend_map[d.name]); })
+                .style('stroke-width', '3px')
+            }
           }
         })
         .on('mouseout', function()
         {
           $(this).css('font-weight', 'normal');
-          d3.select('#' + widget.element.attr('id') + ' path[data-name="' + $(this).attr('title') + '"]').style('stroke-width', '1.5px');
+          if (! $(this).hasClass('fade'))
+          {
+            widget.svg.select('.widget path[data-name="' + $(this).attr('title') + '"]').style('stroke-width', '1.5px');
+            widget.svg.selectAll('.widget path').classed('fade', 0);
+          }
         })
         .on('click', function()
         {
-          var metric_line = d3.select('#' + widget.element.attr('id') + " svg>g>g.metric>path[data-name='" + $(this).attr('title') + "']");
-          var metric_dots = d3.select('#' + widget.element.attr('id') + " svg>g>g.dots[data-name='" + $(this).attr('title') + "']");
+          var metric_line = widget.svg.select('.metric path[data-name="' + $(this).attr('title') + '"]');
+          var metric_dots = widget.svg.select('.dots[data-name="' + $(this).attr('title') + '"]');
           if (metric_line.classed('hidden'))
           {
             $(this).removeClass('fade');
