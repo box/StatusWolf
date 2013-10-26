@@ -278,6 +278,14 @@
       widget.graph.y_axis.tickSize(-widget.graph.width, 0);
       widget.svg.select('.y.axis').call(widget.graph.y_axis);
       widget.svg.selectAll('.y.axis text').attr('dy', '0.75em');
+      if (widget.graph.right_axis == true)
+      {
+        widget.graph.y1.range([widget.graph.height, 0]);
+        widget.svg.select('.y1.axis')
+          .attr('transform', 'translate(' + widget.graph.width + ', 0)')
+          .call(widget.graph.y_axis_right);
+        widget.svg.selectAll('.y1.axis text').attr('dy', '0.75em');
+      }
       widget.graph.x.range([0, widget.graph.width]);
       widget.graph.x_axis.tickSize(-widget.graph.height, 0);
       widget.svg.select('.x.axis')
@@ -289,10 +297,15 @@
       var dots = widget.svg.selectAll('.dots');
       dots.selectAll('.dot')
         .attr('cx', function(d) { return widget.graph.x(d.date); })
-        .attr('cy', function(d) { return widget.graph.y(d.value); });
-      var metric = widget.svg.selectAll('.metric');
+        .attr('cy', function(d) { if (d3.select(this).attr('data-axis') === "right") { return widget.graph.y1(d.value); } else { return widget.graph.y(+d.value); }});
+      var metric = widget.svg.selectAll('.metric.left');
       metric.selectAll('path')
         .attr('d', function(d) { return widget.graph.line(d.values); });
+      if (widget.graph.right_axis == true)
+      {
+        widget.svg.selectAll('.metric.right').selectAll('path')
+          .attr('d', function(d) { return widget.graph.line_right(d.values); });
+      }
     }
 
     ,edit_params: function(element, widget)
@@ -851,15 +864,16 @@
           }
         }
 
-        $.each(query_data['metrics'], function(i, metric) {
-          metric_num = i + 1;
+        var metric_num = 0;
+        $.each(query_data['metrics'], function(search_key, metric) {
+          metric_num++;
           metric_string = metric.name;
           if (metric_num > 1)
           {
             var metric_tab = $('div#tab' + widget.uuid + '-' + metric_num);
             if (metric_tab.length == 0)
             {
-              widget.metric_count = widget.add_tab(widget, i, widget.uuid);
+              widget.metric_count = widget.add_tab(widget, metric_num - 1, widget.uuid);
               $('input[name="metric' + widget_num + '-' + widget.metric_count + '"]').autocomplete({
                 minChars: 2
                 ,serviceUrl: widget.options.sw_url + 'api/tsdb_metric_list/'
@@ -1017,7 +1031,7 @@
         }
 
         // Check for history display options
-        widget.query_data['metrics'] = [];
+        widget.query_data.metrics = {};
         widget.query_data.history_graph = $(input_history).val();
         if (widget.query_data.history_graph === 'no')
         {
@@ -1059,7 +1073,8 @@
               build_metric.y2 = true;
             }
 
-            widget.query_data['metrics'].push(build_metric);
+            var search_key = md5(JSON.stringify(build_metric));
+            widget.query_data.metrics[search_key] = (build_metric);
           }
           if (widget.query_data['metrics'].length < 1)
           {
@@ -1121,7 +1136,8 @@
             {
               build_metric.y2 = true;
             }
-            widget.query_data['metrics'].push(build_metric);
+            var search_key = md5(JSON.stringify(build_metric));
+            widget.query_data.metrics[search_key] = (build_metric);
           }
         }
 
@@ -1557,11 +1573,9 @@
       var start = parseInt(data.start);
       var end = parseInt(data.end);
       query_url = data.query_url;
-      var legend_map = data.legend;
       delete data.start;
       delete data.end;
       delete data.query_url;
-      delete data.legend;
       if (query_data.history_graph == "anomaly")
       {
         var anomalies = data.anomalies;
@@ -1582,9 +1596,80 @@
 //      }
 
       var graph_data = [];
+      graph_data.legend_map = data.legend;
+      delete data.legend;
+
+      var tag_map = {};
+      $.each(query_data.metrics, function(search_key, search_data) {
+        tag_map[search_key] = {name: search_data.name, tags: [], tag_count: search_data.tags.length};
+        $.each(search_data.tags, function(i, tag) {
+          var tag_parts = tag.split('=');
+          if (tag_parts[1] === '*') {
+            tag_map[search_key].tags.push(tag_parts[0] + '=ALL');
+          }
+          else if (tag_parts[1].match(/\|/))
+          {
+            var matches = tag_parts[1].split('|');
+            $.each(matches, function(i, m)
+            {
+              tag_map[search_key].tags.push(tag_parts[0] + '=' + m);
+            });
+          }
+          else
+          {
+            tag_map[search_key].tags.push(tag);
+          }
+        });
+      });
       $.each(data, function(series, series_data)
       {
-        graph_data.push({name: series, values: series_data});
+        var series_key = graph_data.legend_map[series].split(' ');
+        var series_metric = series_key.shift();
+        var key_map = '';
+        $.each(tag_map, function(search_key, search_data)
+        {
+          if (series_metric === search_data.name)
+          {
+            var search_matched = 0;
+            $.each(search_data.tags, function(i, t)
+            {
+              if (t.match(/ALL/))
+              {
+                tleft = (t.split('='))[0]
+                $.each(series_key, function(i, k)
+                {
+                  if (k.match(/tleft/))
+                  {
+                    search_matched++;
+                  }
+                })
+              }
+              else
+              {
+                $.each(series_key, function(i, k)
+                {
+                  if (k === t)
+                  {
+                    search_matched++;
+                  }
+                });
+              }
+            });
+            if (search_matched == search_data.tag_count)
+            {
+              key_map = search_key;
+            }
+          }
+        });
+        var axis = 'left';
+        if (typeof key_map !== "undefined" && key_map.length > 0)
+        {
+          if (typeof query_data.metrics[key_map].y2 !== "undefined" && query_data.metrics[key_map].y2 == true)
+          {
+            axis = 'right';
+          }
+        }
+        graph_data.push({name: series, search_key: key_map, axis: axis, values: series_data});
 //        $.each(series_data, function(i, point_data)
 //        {
 //          graph_data[series][point_data['timestamp']] = point_data['value'];
@@ -1874,18 +1959,38 @@
     ,build_graph: function(data, query_data, widget, type)
     {
 
+      widget.graph = {};
+      widget.graph.legend_map = data.legend_map;
+      delete data.legend_map;
+
+      widget.graph.right_axis = false;
+      var data_right = [];
+      var data_left = [];
       $.each(data, function(s, d)
       {
         $.each(d.values, function(v)
         {
           d.values[v]['date'] = new Date(d.values[v]['timestamp'] * 1000);
-        })
+        });
+        if (d.axis === "right")
+        {
+          widget.graph.right_axis = true;
+          data_right.push(d);
+        }
+        else
+        {
+          data_left.push(d);
+        }
       });
 
-      widget.graph = {};
-
       widget.graph.data = data;
+      widget.graph.data_left = data_left;
       widget.graph.margin = {top: 0, right: 5, bottom: 20, left: 55};
+      if (widget.graph.right_axis == true)
+      {
+        widget.graph.margin.right = 55;
+        widget.graph.data_right = data_right;
+      }
 
       var graphdiv = $('#' + widget.element.attr('id') + ' .graphdiv').empty();
       var graphdiv_offset = graphdiv.position().top;
@@ -1929,17 +2034,39 @@
         ]);
 
       widget.graph.y.domain([
-        0, (d3.max(widget.graph.data, function(d) { return d3.max(d.values, function(v) { return v.value; })}) * 1.05)
+        0, (d3.max(widget.graph.data_left, function(d) { return d3.max(d.values, function(v) { return v.value; })}) * 1.05)
       ]);
 
+      if (widget.graph.right_axis == true)
+      {
+        widget.graph.y1 = d3.scale.linear()
+          .range([widget.graph.height, 0]);
+
+        widget.graph.y_axis_right = d3.svg.axis()
+          .scale(widget.graph.y1)
+          .orient('right')
+          .ticks(5)
+          .tickPadding(5)
+          .tickFormat(d3.format('.3s'));
+
+        widget.graph.y1.domain([
+          0, (d3.max(widget.graph.data_right, function(d) { return d3.max(d.values, function(v) { return v.value; })}) * 1.05)
+        ]);
+      }
+
       widget.graph.color = d3.scale.ordinal()
-        .domain(function(d) { return d.name; })
+        .domain(function(d) { return widget.graph.legend_map[d.name]; })
         .range(swcolors.Wheel_DarkBG[5]);
 
       widget.graph.line = d3.svg.line()
         .interpolate('linear')
         .x(function(d) { return widget.graph.x(d.date); })
         .y(function(d) { return widget.graph.y(+d.value); });
+
+      widget.graph.line_right = d3.svg.line()
+        .interpolate('linear')
+        .x(function(d) { return widget.graph.x(d.date); })
+        .y(function(d) { return widget.graph.y1(+d.value); });
 
       widget.svg.append('g')
         .attr('class', 'x axis')
@@ -1956,37 +2083,62 @@
         .attr('class', 'y axis')
         .call(widget.graph.y_axis);
 
+      widget.svg.selectAll('.y.axis text').attr('dy', '0.75em');
+
+      if (widget.graph.right_axis == true)
+      {
+        widget.svg.append('g')
+          .attr('class', 'y1 axis')
+          .attr('transform', 'translate(' + widget.graph.width + ',0)')
+          .call(widget.graph.y_axis_right);
+
+        widget.svg.selectAll('.y1.axis text').attr('dy', '0.75em');
+
+      }
+
       widget.svg.append('defs').append('clipPath')
         .attr('id', 'clip' + widget.uuid)
         .append('rect')
         .attr('width', widget.graph.width)
         .attr('height', widget.graph.height);
 
-      widget.svg.selectAll('.y.axis text').attr('dy', '0.75em');
-
-      var metric = widget.svg.selectAll('.metric')
-        .data(widget.graph.data)
+      var metric = widget.svg.selectAll('.metric.left')
+        .data(widget.graph.data_left)
         .enter().append('g')
-        .attr('class', 'metric')
+        .classed('metric', 1)
+        .classed('left', 1)
         .attr('clip-path', 'url(#clip' + widget.uuid + ')');
 
       metric.append('path')
-        .attr('class', 'line')
+        .classed('line', 1)
+        .classed('left', 1)
         .attr('d', function(d) { return widget.graph.line(d.values); })
-        .attr('data-name', function(d) { return d.name; })
-        .style('stroke', function(d) { return widget.graph.color(d.name); })
+        .attr('data-name', function(d) { return widget.graph.legend_map[d.name]; })
+        .style('stroke', function(d) { return widget.graph.color(widget.graph.legend_map[d.name]); });
+
+      if (widget.graph.right_axis == true)
+      {
+        var metric_right = widget.svg.selectAll('.metric.right')
+          .data(widget.graph.data_right)
+          .enter().append('g')
+          .classed('metric', 1)
+          .classed('right', 1)
+          .attr('clip-path', 'url(#clip' + widget.uuid + ')');
+
+        metric_right.append('path')
+          .classed('line', 1)
+          .classed('right', 1)
+          .attr('d', function(d) { return widget.graph.line_right(d.values); })
+          .attr('data-name', function(d) { return widget.graph.legend_map[d.name]; })
+          .style('stroke', function(d) { return widget.graph.color(widget.graph.legend_map[d.name]); });
+
+      }
 
       widget.graph.tooltip_format = d3.time.format('%X');
 
       widget.add_graph_dots(widget);
 
-      widget.graph.labels = [];
-      $.each(widget.graph.data, function(i,d)
-      {
-        widget.graph.labels.push(d.name);
-      });
-
-      if (widget.graph.labels.length > 9)
+      if (widget.graph.legend_map.length > 9)
       {
         legend_box.css({
           '-webkit-columns': 'auto 4'
@@ -1994,7 +2146,7 @@
           ,columns: 'auto 4'
         });
       }
-      else if (widget.graph.labels.length > 6)
+      else if (widget.graph.legend_map.length > 6)
       {
         legend_box.css({
           '-webkit-columns': 'auto 2'
@@ -2002,7 +2154,7 @@
           ,columns: 'auto 3'
         });
       }
-      else if (widget.graph.labels.length > 3)
+      else if (widget.graph.legend_map.length > 3)
       {
         legend_box.css({
           '-webkit-columns': 'auto 2'
@@ -2011,10 +2163,19 @@
         });
       }
 
-      $.each(widget.graph.labels, function(i, label)
+      $.each(widget.graph.legend_map, function(series, label)
       {
-        var item_color = widget.graph.color(label);
+        var item_color = widget.graph.color(widget.graph.legend_map[series]);
         legend_box.append('<span title="' + label + '" style="color: ' + item_color + '">' + label + '</span>');
+        var name_span = legend_box.children('span[title="' + label + '"]');
+        if (widget.graph.right_axis == true)
+        {
+          $(name_span).prepend('<span class="iconic iconic-play" style="font-size: .75em"></span> ')
+          if (! d3.select('.metric path[data-name="' + label + '"]').classed('right'))
+          {
+            $(name_span).children('.iconic').addClass('rotate-180');
+          }
+        }
       });
 
       legend_box.children('span')
@@ -2023,6 +2184,11 @@
         {
           $(this).css('font-weight', 'bold');
           var moved_metric = d3.select('#' + widget.element.attr('id') + " svg>g>g.metric>path[data-name='" + $(this).text() + "']");
+          var axis_position_class = 'left';
+          if (moved_metric.classed('right'))
+          {
+            axis_position_class = 'right';
+          }
           if (!moved_metric.classed('hidden'))
           {
             var moved_metric_node = moved_metric.node();
@@ -2030,12 +2196,13 @@
             var moved_metric_parent = $(moved_metric_node).parent();
             d3.select(moved_metric_parent).node().remove();
             var new_metric = d3.select('#' + widget.element.attr('id') + ' svg>g').append('g', 'g.metric');
-            new_metric.attr('class', 'metric').data(moved_metric_data);
+            new_metric.classed('metric', 1).classed(axis_position_class, 1).data(moved_metric_data);
             new_metric.append('path')
-              .attr('class', 'line')
+              .classed('line', 1)
+              .classed(axis_position_class, 1)
               .attr('d', function(d) { return widget.graph.line(d.values); })
               .attr('data-name', $(this).text())
-              .style('stroke', function(d) { return widget.graph.color(d.name); })
+              .style('stroke', function(d) { return widget.graph.color(widget.graph.legend_map[d.name]); })
               .style('stroke-width', '3px');
           }
         })
@@ -2124,16 +2291,35 @@
                 }
               });
             });
+            widget.graph.data_right = [];
+            widget.graph.data_left = [];
+            $.each(widget.graph.data, function(i, d) {
+              if (d.axis === "right")
+              {
+                widget.graph.data_right.push(d);
+              }
+              else
+              {
+                widget.graph.data_left.push(d)
+              }
+            });
             widget.graph.x.domain([
               d3.min(widget.graph.data, function(d) { return d3.min(d.values, function(v) { return v.date; })})
               ,d3.max(widget.graph.data, function(d) { return d3.max(d.values, function(v) { return v.date; })})
             ]);
             widget.graph.y.domain([
-              0, (d3.max(widget.graph.data, function(d) { return d3.max(d.values, function(v) { return v.value; })}) * 1.05)
+              0, (d3.max(widget.graph.data_left, function(d) { return d3.max(d.values, function(v) { return v.value; })}) * 1.05)
             ]);
             widget.svg.select('.x.axis').call(widget.graph.x_axis);
             widget.svg.select('.y.axis').call(widget.graph.y_axis);
             widget.svg.selectAll('.y.axis text').attr('dy', '0.75em');
+            if (widget.graph.right_axis == true)
+            {
+              widget.graph.y1.domain([
+                0, (d3.max(widget.graph.data_right, function(d) { return d3.max(d.values, function(v) { return v.value; })}) * 1.05)
+              ]);
+              widget.svg.selectAll('.y1.axis text').attr('dy', '0.75em');
+            }
             widget.svg.selectAll('.dots').remove();
             widget.add_graph_dots(widget);
           }
@@ -2147,10 +2333,11 @@
         .data(widget.graph.data)
         .enter().append('g')
         .attr('class', 'dots')
-        .attr('data-name', function(d) { return d.name; });
+        .attr('data-name', function(d) { return widget.graph.legend_map[d.name]; });
       dots.each(function(d, i)
       {
         var series = d.name;
+        var axis = d.axis;
         d3.select(this).selectAll('.dot')
           .data(d.values)
           .enter().append('circle')
@@ -2159,11 +2346,12 @@
           .classed('info-tooltip-top', 1)
           .attr('r', 3)
           .attr('cx', function(d) { return widget.graph.x(d.date); })
-          .attr('cy', function(d) { return widget.graph.y(d.value); })
+          .attr('cy', function(d) { if (axis === "right") { return widget.graph.y1(d.value); } else { return widget.graph.y(+d.value); }})
           .attr('title', function(d) { return widget.graph.tooltip_format(d.date) + ' - ' + d.value; })
+          .attr('data-axis', function() { if (axis === "right") { return 'right'; } else { return 'left'; }})
           .style('fill', 'none')
           .style('stroke-width', '3px')
-          .style('stroke', function() { return (widget.graph.color(series))})
+          .style('stroke', function() { return (widget.graph.color(widget.graph.legend_map[series]))})
           .on('mouseover', function()
           {
             var e = d3.event;

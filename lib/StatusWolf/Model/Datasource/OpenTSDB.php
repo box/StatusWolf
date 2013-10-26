@@ -222,7 +222,7 @@ class OpenTSDB extends TimeSeriesData {
       if (array_key_exists('metrics', $query_bits))
       {
         $query_bits['key'] = '';
-        foreach($query_bits['metrics'] as $metric)
+        foreach($query_bits['metrics'] as $search_key => $metric)
         {
           $qkey = '&m=';
           if (array_key_exists('agg_type', $metric))
