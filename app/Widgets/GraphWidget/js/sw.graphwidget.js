@@ -2203,7 +2203,8 @@
               .attr('d', function(d) { if (d.axis === "right") { return widget.graph.line_right(d.values); } else { return widget.graph.line(d.values); }})
               .attr('data-name', $(this).attr('title'))
               .style('stroke', function(d) { return widget.graph.color(widget.graph.legend_map[d.name]); })
-              .style('stroke-width', '3px');
+              .style('stroke-width', '3px')
+              .attr('clip-path', 'url(#clip' + widget.uuid + ')');
           }
         })
         .on('mouseout', function()
