@@ -336,9 +336,10 @@ class OpenTSDB extends TimeSeriesData {
       }
       else
       {
-        if (array_key_exists('tags', $query_bits['metrics'][0]))
+        $search_key = (array_keys($query_bits['metrics'])[0]);
+        if (array_key_exists('tags', $query_bits['metrics'][$search_key]))
         {
-          $tag_key = implode(' ', $query_bits['metrics'][0]['tags']);
+          $tag_key = implode(' ', $query_bits['metrics'][$search_key]['tags']);
         }
         else
         {
@@ -427,7 +428,7 @@ class OpenTSDB extends TimeSeriesData {
       $legend_pool[$raw_bits] = explode(' ', $raw_bits);
     }
 
-    $this->loggy->logDebug($this->log_tag . "Metrics: " . implode(', ', array_keys($query_metrics)) . "(" . count($query_metrics) . " metrics)");
+    $this->loggy->logDebug($this->log_tag . "Metrics: " . implode(', ', array_keys($query_metrics)) . " (" . count($query_metrics) . " metrics)");
     $this->loggy->logDebug($this->log_tag . "All the legend bits: " . json_encode($legend_pool));
     $this->loggy->logDebug($this->log_tag . "Query tags: " . json_encode($query_metrics_tags));
 

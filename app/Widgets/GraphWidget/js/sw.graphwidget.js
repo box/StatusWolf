@@ -1348,20 +1348,13 @@
           ,timeout: 120000
         })
         ,chained = widget.ajax_request.then(function(data) {
-          console.log(data);
-          if (typeof data !== "object")
-          {
-            data = eval('(' + data + ')');
-            console.log(typeof data);
-            console.log(Object.keys(data));
-          }
-          metric_data[0] = data;
-          if (metric_data[0][0] === "error")
+          current_data = data;
+          if (current_data[0] === "error")
           {
             widget.ajax_request.abort();
-            widget.ajax_object.reject(metric_data[0][1])
+            widget.ajax_object.reject(current_data[1])
           }
-          else if (Object.keys(metric_data[0]).length <= 4)
+          else if (Object.keys(current_data).length <= 4)
           {
             widget.ajax_request.abort();
             widget.ajax_object.reject(["0", "Current week query returned no data"]);
@@ -1369,18 +1362,18 @@
           else
           {
             status.html('<p>Fetching Metric Data For Previous Week</p>');
-            metric_data.start = metric_data[0]['start'];
-            delete metric_data[0]['start'];
-            metric_data.end = metric_data[0]['end'];
-            delete metric_data[0]['end'];
-            metric_data.query_url = metric_data[0]['query_url'];
-            delete metric_data[0]['query_url'];
-            current_keys = Object.keys(metric_data[0])
+            metric_data.start = current_data.start;
+            delete current_data.start;
+            metric_data.end = current_data.end;
+            delete current_data.end;
+            metric_data.query_url = current_data.query_url;
+            delete current_data.query_url;
+            current_keys = Object.keys(current_data)
             current_key = 'Current - ' + current_keys[0];
-            metric_data.legend = [];
-            metric_data.legend[current_key] = 'Current';
-            metric_data[current_key] = metric_data[0][current_keys[0]];
-            delete metric_data[0];
+            metric_data.legend = {};
+            metric_data.legend[current_key] = current_key;
+            metric_data[current_key] = current_data[current_keys[0]];
+            delete current_data;
             var past_query = $.extend(true, {}, query_data);
             var query_span = parseInt(query_data.end_time) - parseInt(query_data.start_time);
             past_query.end_time = parseInt(query_data.end_time - 604800);
@@ -1403,31 +1396,27 @@
         }
         else
         {
-          if (typeof data !== "object")
-          {
-            data = eval('(' + data + ')');
-          }
-          metric_data[1] = data;
-          if (metric_data[1][0] === "error")
+          past_data = data;
+          if (past_data[0] === "error")
           {
             widget.ajax_request.abort();
-            widget.ajax_object.reject(metric_data[1][1])
+            widget.ajax_object.reject(past_data[1])
           }
-          else if (Object.keys(metric_data[1]).length <= 4)
+          else if (Object.keys(past_data).length <= 4)
           {
             widget.ajax_request.abort();
             widget.ajax_object.reject(["0", "Previous week query returned no data"]);
           }
           else
           {
-            delete metric_data[1].start;
-            delete metric_data[1].end;
-            delete metric_data[1].query_url;
-            past_keys = Object.keys(metric_data[1]);
+            delete past_data.start;
+            delete past_data.end;
+            delete past_data.query_url;
+            past_keys = Object.keys(past_data);
             past_key = 'Previous - ' + past_keys[0];
-            metric_data.legend[past_key] = 'Previous';
-            metric_data[past_key] = metric_data[1][past_keys[0]];
-            delete metric_data[1];
+            metric_data.legend[past_key] = past_key;
+            metric_data[past_key] = past_data[past_keys[0]];
+            delete past_data;
             $.each(metric_data[past_key], function(index, entry) {
               entry.timestamp = parseInt(entry.timestamp + 604800);
             });
@@ -1599,77 +1588,86 @@
       graph_data.legend_map = data.legend;
       delete data.legend;
 
-      var tag_map = {};
-      $.each(query_data.metrics, function(search_key, search_data) {
-        tag_map[search_key] = {name: search_data.name, tags: [], tag_count: search_data.tags.length};
-        $.each(search_data.tags, function(i, tag) {
-          var tag_parts = tag.split('=');
-          if (tag_parts[1] === '*') {
-            tag_map[search_key].tags.push(tag_parts[0] + '=ALL');
-          }
-          else if (tag_parts[1].match(/\|/))
-          {
-            var matches = tag_parts[1].split('|');
-            $.each(matches, function(i, m)
-            {
-              tag_map[search_key].tags.push(tag_parts[0] + '=' + m);
-            });
-          }
-          else
-          {
-            tag_map[search_key].tags.push(tag);
-          }
-        });
-      });
-      $.each(data, function(series, series_data)
+      if (query_data.history_graph === "wow")
       {
-        var series_key = graph_data.legend_map[series].split(' ');
-        var series_metric = series_key.shift();
-        var key_map = '';
-        $.each(tag_map, function(search_key, search_data)
+        $.each(data, function(series, series_data)
         {
-          if (series_metric === search_data.name)
+          graph_data.push({name: series, search_key: (Object.keys(query_data.metrics))[0], axis: 'left', values: series_data});
+        })
+      }
+      else
+      {
+        var tag_map = {};
+        $.each(query_data.metrics, function(search_key, search_data) {
+          tag_map[search_key] = {name: search_data.name, tags: [], tag_count: search_data.tags.length};
+          $.each(search_data.tags, function(i, tag) {
+            var tag_parts = tag.split('=');
+            if (tag_parts[1] === '*') {
+              tag_map[search_key].tags.push(tag_parts[0] + '=ALL');
+            }
+            else if (tag_parts[1].match(/\|/))
+            {
+              var matches = tag_parts[1].split('|');
+              $.each(matches, function(i, m)
+              {
+                tag_map[search_key].tags.push(tag_parts[0] + '=' + m);
+              });
+            }
+            else
+            {
+              tag_map[search_key].tags.push(tag);
+            }
+          });
+        });
+        $.each(data, function(series, series_data)
+        {
+          var series_key = graph_data.legend_map[series].split(' ');
+          var series_metric = series_key.shift();
+          var key_map = '';
+          $.each(tag_map, function(search_key, search_data)
           {
-            var search_matched = 0;
-            $.each(search_data.tags, function(i, t)
+            if (series_metric === search_data.name)
             {
-              if (t.match(/ALL/))
+              var search_matched = 0;
+              $.each(search_data.tags, function(i, t)
               {
-                tleft = (t.split('='))[0]
-                $.each(series_key, function(i, k)
+                if (t.match(/ALL/))
                 {
-                  if (k.match(/tleft/))
+                  tleft = (t.split('='))[0]
+                  $.each(series_key, function(i, k)
                   {
-                    search_matched++;
-                  }
-                })
-              }
-              else
+                    if (k.match(/tleft/))
+                    {
+                      search_matched++;
+                    }
+                  })
+                }
+                else
+                {
+                  $.each(series_key, function(i, k)
+                  {
+                    if (k === t)
+                    {
+                      search_matched++;
+                    }
+                  });
+                }
+              });
+              if (search_matched == search_data.tag_count)
               {
-                $.each(series_key, function(i, k)
-                {
-                  if (k === t)
-                  {
-                    search_matched++;
-                  }
-                });
+                key_map = search_key;
               }
-            });
-            if (search_matched == search_data.tag_count)
+            }
+          });
+          var axis = 'left';
+          if (typeof key_map !== "undefined" && key_map.length > 0)
+          {
+            if (typeof query_data.metrics[key_map].y2 !== "undefined" && query_data.metrics[key_map].y2 == true)
             {
-              key_map = search_key;
+              axis = 'right';
             }
           }
-        });
-        var axis = 'left';
-        if (typeof key_map !== "undefined" && key_map.length > 0)
-        {
-          if (typeof query_data.metrics[key_map].y2 !== "undefined" && query_data.metrics[key_map].y2 == true)
-          {
-            axis = 'right';
-          }
-        }
-        graph_data.push({name: series, search_key: key_map, axis: axis, values: series_data});
+          graph_data.push({name: series, search_key: key_map, axis: axis, values: series_data});
 //        $.each(series_data, function(i, point_data)
 //        {
 //          graph_data[series][point_data['timestamp']] = point_data['value'];
@@ -1681,7 +1679,8 @@
 //            graph_data[series][bucket] = empty_value;
 //          }
 //        })
-      });
+        });
+      }
 
       if (query_data.history_graph == "anomaly")
       {
