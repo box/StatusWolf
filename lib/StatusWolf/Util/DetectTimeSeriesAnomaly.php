@@ -69,7 +69,7 @@ class DetectTimeSeriesAnomaly {
       }
 
       $series = key($query_bits['data']);
-      $query_bits['query_data']['end_time'] = $query_bits['data'][$series][0]['timestamp'] - 1;
+      $query_bits['query_data']['end_time'] = ($query_bits['data'][$series][0]['timestamp'] - 1) - WEEK;
       $query_bits['query_data']['start_time'] = $query_bits['query_data']['end_time'] - $this->_anomaly_config['pre_period'];
       $this->loggy->logDebug($this->log_tag . "Setting pre period start: " . $query_bits['query_data']['start_time'] . ', end: ' . $query_bits['query_data']['end_time']);
       $this->loggy->logDebug('Initiating query for pre-period data');
