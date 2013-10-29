@@ -258,9 +258,10 @@ foreach($widgets as $widget_key)
     $('#dash-container').append('<div class="widget-container" id="' + widget_id + '" data-widget-type="' + widget_type + '">');
     if (widget_type === "graphwidget")
     {
-      widget = $('#' + widget_id).graphwidget();
+      var widget_div = $('#' + widget_id).graphwidget();
+      var widget_object = $('#' + widget_div.attr('id')).data('sw-graphwidget');
       setTimeout(function() {
-        widget.data('sw-graphwidget').sw_graphwidget.addClass('flipped');
+        widget_object.sw_graphwidget.addClass('flipped');
       }, 250);
     }
     setTimeout(function() {
@@ -269,8 +270,9 @@ foreach($widgets as $widget_key)
   }
 
   // Add a new widget as a duplicate of the selected widget
-  function clone_widget(widget)
+  function clone_widget()
   {
+    var widget = this;
     var username = "<?php echo $_session_data['username'] ?>";
     var widget_id = "widget" + md5(username + new Date.now().getTime());
     var widget_element = $(widget.element);
@@ -594,9 +596,10 @@ foreach($widgets as $widget_key)
           {
             delete(query_data.options.sw_url);
           }
-          new_widget = $('div#' + widget_id).graphwidget(query_data.options);
-          widget_object = $(new_widget).data('sw-' + new_widget.attr('data-widget-type'));
-          widget_object.populate_search_form(query_data, widget_object);
+          var new_widget = $('div#' + widget_id).graphwidget(query_data.options);
+          var widget_object = $(new_widget).data('sw-' + new_widget.attr('data-widget-type'));
+//          widget_object.populate_search_form(query_data, widget_object);
+          widget_object.populate_search_form(query_data);
           $('#' + widget_id).removeClass('transparent');
         }
         else

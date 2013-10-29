@@ -142,7 +142,7 @@
 			sw_graphwidget_gobutton = (this.sw_graphwidget_gobutton = $('<div>'))
 				.addClass("widget-footer-button right-button go-button")
 				.click(function(event) {
-					that.go_click_handler(event, that);
+					that.go_click_handler(event);
 				})
 				.append('<span class="iconic iconic-bolt"><span class="font-reset"> Go</span></span>')
 				.appendTo(sw_graphwidget_backfooter);
@@ -153,7 +153,7 @@
 				.appendTo(sw_graphwidget_backmain);
 
 			sw_graphwidget_datasource = $.trim($(sw_graphwidget_datasourcemenu).children('span.widget-title-button').children('span.active-datasource').text().toLowerCase());
-      that.build_search_form(that);
+      that.build_search_form();
 
       $(sw_graphwidget).on('click', 'li[data-menu-action]', function(event)
       {
@@ -164,16 +164,16 @@
 
       $(sw_graphwidget).on('click', 'li[data-action]', function()
       {
-        that.dropdown_menu_handler(this, that);
+        that.dropdown_menu_handler(this);
       });
 
     }
 
 		,_destroy: function() {
 			console.log('_destroy called');
-      if (typeof this.autoupdate_interval !== "undefined")
+      if (typeof this.autoupdate_timer !== "undefined")
       {
-        clearInterval(this.autoupdate_interval);
+        clearTimeout(this.autoupdate_timer);
       }
 			this.sw_graphwidget_gobutton.remove();
 			this.sw_graphwidget_querycancelbutton.remove();
@@ -201,14 +201,15 @@
       return base_uri;
     }
 
-		,maximize_widget: function(element, widget) {
+		,maximize_widget: function(element) {
+      var widget = this;
 			if ($(widget.sw_graphwidget_container).hasClass('maximize-widget'))
 			{
 				$(widget.sw_graphwidget_container).removeClass('maximize-widget');
 				$('body').removeClass('no-overflow');
 				$('.navbar').removeClass('hidden');
 				$('#' + widget.element.attr('id') + ' span.maximize-me').text('Maximize');
-				widget.resize_graph(widget);
+				widget.resize_graph();
 			}
 			else
 			{
@@ -217,11 +218,12 @@
 				$('.navbar').addClass('hidden');
 				$('body').addClass('no-overflow');
 				$('#' + widget.element.attr('id') + ' span.maximize-me').text('Minimize');
-				widget.resize_graph(widget);
+				widget.resize_graph();
 			}
 		}
 
-		,resize_graph: function(widget) {
+		,resize_graph: function() {
+      var widget = this;
       var widget_main = widget.sw_graphwidget_frontmain
           graph_div = widget.sw_graphwidget_frontmain.children('div.graphdiv');
           graph_div_offset = graph_div.position().top;
@@ -278,13 +280,15 @@
       }
     }
 
-    ,edit_params: function(element, widget)
+    ,edit_params: function()
     {
+      var widget = this;
       widget.sw_graphwidget.addClass('flipped');
     }
 
-    ,hide_legend: function(widget, button)
+    ,hide_legend: function(button)
     {
+      var widget = this;
       if (typeof button === "undefined")
       {
         button = widget.sw_graphwidget_frontmain.children('div.legend-container').children('button.legend-toggle');
@@ -299,13 +303,14 @@
       $(button).children('span.iconic').removeClass('rotate-90').addClass('rotate-90r');
       if (typeof widget.svg !== "undefined")
       {
-        widget.resize_graph(widget);
+        widget.resize_graph();
       }
       widget.options.legend = 'off';
     }
 
-    ,show_legend: function(widget, button)
+    ,show_legend: function(button)
     {
+      var widget = this;
       if (typeof button === "undefined")
       {
         button = widget.sw_graphwidget_frontmain.children('div.legend-container').children('button.legend-toggle');
@@ -319,14 +324,15 @@
       $(button).children('span.iconic').removeClass('rotate-90r').addClass('rotate-90');
       if (typeof widget.svg !== "undefined")
       {
-        widget.resize_graph(widget);
+        widget.resize_graph();
       }
       widget.options.legend = 'on'
     }
 
-    ,build_search_form: function(widget)
+    ,build_search_form: function()
     {
 
+      var widget = this;
       if (widget.options.datasource === "OpenTSDB")
       {
         var widget_num = widget.uuid
@@ -461,7 +467,7 @@
         widget.sw_graphwidget_querycancelbutton.after('<div id="' + add_metric_button_id + '">');
         $('#' + add_metric_button_id).addClass('widget-footer-button left-button')
           .click(function() {
-            widget.metric_count = widget.add_tab(widget, widget.metric_count, widget_num);
+            widget.metric_count = widget.add_tab(widget.metric_count, widget_num);
             $('input[name="metric' + widget_num + '-' + widget.metric_count + '"]').autocomplete({
               minChars: 2
               ,serviceUrl: widget.options.sw_url + 'api/tsdb_metric_list/'
@@ -483,15 +489,15 @@
 
         if (widget.options.legend === "off")
         {
-          widget.hide_legend(widget);
+          widget.hide_legend();
         }
 
         widget.sw_graphwidget_frontmain.on('click', 'button.legend-hide', function() {
-          widget.hide_legend(widget, this);
+          widget.hide_legend(this);
         });
 
         widget.sw_graphwidget_frontmain.on('click', 'button.legend-show', function() {
-          widget.show_legend(widget, this);
+          widget.show_legend(this);
         });
 
         var auto_update = $(widget_element).find('div.auto-update').children('div.push-button');
@@ -542,7 +548,7 @@
           }
         });
 
-        widget.metric_count = widget.add_tab(widget, widget.metric_count, widget_num);
+        widget.metric_count = widget.add_tab(widget.metric_count, widget_num);
         $(form_div.children('.row3').find('.metric-autocomplete')).autocomplete({
           minChars: 2
           ,serviceUrl: widget.options.sw_url + 'api/tsdb_metric_list/'
@@ -556,7 +562,7 @@
         widget.sw_graphwidget_frontmain.css('height', main_height);
         widget.sw_graphwidget_backmain.css('height', main_height);
 
-        widget.build_saved_search_menu(widget);
+        widget.build_saved_search_menu();
 
         $('label').click(function() {
           statuswolf_button(this);
@@ -565,8 +571,9 @@
       }
     }
 
-    ,add_tab: function(widget, tab_num, widget_num)
+    ,add_tab: function(tab_num, widget_num)
     {
+      var widget = this;
       tab_num++;
 
       var tab_content = $('div#tab-content' + widget_num)
@@ -658,8 +665,9 @@
       return tab_num;
     }
 
-    ,set_all_spans: function(item, widget)
+    ,set_all_spans: function(item)
     {
+      var widget = this;
       var widget_id = widget.sw_graphwidget_containerid;
       var widget_list = $('.widget-container[data-widget-type="graphwidget"]');
       $.each(widget_list, function(i, action_widget_element) {
@@ -671,13 +679,14 @@
           action_widget.query_data.time_span = widget.query_data.time_span;
           action_widget.query_data.end_time = widget.query_data.end_time;
           action_widget.query_data.start_time = widget.query_data.start_time;
-          action_widget.populate_search_form(action_widget.query_data, action_widget);
+          action_widget.populate_search_form(action_widget.query_data);
         }
       })
     }
 
-    ,dropdown_menu_handler: function(item, widget)
+    ,dropdown_menu_handler: function(item)
     {
+      var widget = this;
       var button = $(item).parent().parent().children('span');
       var action = $(item).attr('data-action');
       $(button).children('.graph-widget-button-label').text($(item).text());
@@ -688,8 +697,9 @@
       }
     }
 
-    ,build_saved_search_menu: function(widget)
+    ,build_saved_search_menu: function()
     {
+      var widget = this;
       var user_id = document._session_data.user_id;
       var api_url = widget.options.sw_url + 'api/get_saved_searches';
 
@@ -737,7 +747,7 @@
               delete(saved_query.private);
               delete(saved_query.save_span);
               delete(saved_query.user_id);
-              widget.populate_search_form(saved_query, widget);
+              widget.populate_search_form(saved_query);
             }
           });
         }
@@ -745,9 +755,11 @@
       });
     }
 
-    ,populate_search_form: function(query_data, widget, force_prompt_user)
+//    ,populate_search_form: function(query_data, widget, force_prompt_user)
+  ,populate_search_form: function(query_data)
     {
 
+      var widget = this;
       var prompt_user = false;
       var widget_num = widget.uuid;
       if (typeof force_prompt_user !== "undefined")
@@ -842,7 +854,7 @@
             var metric_tab = $('div#tab' + widget.uuid + '-' + metric_num);
             if (metric_tab.length == 0)
             {
-              widget.metric_count = widget.add_tab(widget, metric_num - 1, widget.uuid);
+              widget.metric_count = widget.add_tab(metric_num - 1, widget.uuid);
               $('input[name="metric' + widget_num + '-' + widget.metric_count + '"]').autocomplete({
                 minChars: 2
                 ,serviceUrl: widget.options.sw_url + 'api/tsdb_metric_list/'
@@ -891,15 +903,16 @@
         }
         else
         {
-          widget.go_click_handler('', widget);
+          widget.go_click_handler();
         }
 
       }
     }
 
-    ,go_click_handler: function(event, widget)
+    ,go_click_handler: function(event)
     {
 
+      var widget = this;
       var widget_num = widget.uuid;
       var widget_element = $(widget.element);
       widget.query_data = {};
@@ -910,11 +923,11 @@
       $('#graph-title' + widget_num).empty();
       $('#legend' + widget_num).empty();
 
-      if (typeof widget.autoupdate_interval !== "undefined")
+      if (typeof widget.autoupdate_timer !== "undefined")
       {
         console.log('clearing auto-update timer');
-        clearInterval(widget.autoupdate_interval);
-        delete widget.autoupdate_interval;
+        clearTimeout(widget.autoupdate_timer);
+        delete widget.autoupdate_timer;
       }
 
       if (widget.options.datasource === "OpenTSDB")
@@ -1128,7 +1141,7 @@
         $(widget.element).children('.widget').removeClass('flipped');
         graph_element.append('<div id="status-box' + widget_num + '" style="width: 100%; text-align: center;">' +
           '<p id="status-message' + widget_num + '"></p></div>');
-        widget.init_query(widget);
+        widget.init_query();
       }
       else
       {
@@ -1141,9 +1154,10 @@
 
     }
 
-    ,init_query: function(widget)
+    ,init_query: function()
     {
 
+      var widget = this;
       widget_num = widget.uuid;
 
       if (widget.options.datasource === "OpenTSDB")
@@ -1151,16 +1165,15 @@
 
         var graph_type = 'line';
         // Start deferred query for metric data
-        $.when(widget.opentsdb_search(widget)).then(
+        $.when(widget.opentsdb_search()).then(
           // done: Send the data over to be parsed
           function(data)
           {
-            $.when(widget.process_timeseries_data(data, widget)).then(
+            $.when(widget.process_timeseries_data(data)).then(
               // done: Build the graph
               function(data)
               {
-                widget.query_data = data.querydata;
-                widget.build_graph(data.graphdata, widget, graph_type);
+                widget.build_graph(data, graph_type);
               }
               // fail: Show error image and error message
               ,function(status)
@@ -1200,10 +1213,10 @@
 
     }
 
-    ,opentsdb_search: function(widget)
+    ,opentsdb_search: function()
     {
 
-
+      var widget = this;
       var query_object = new $.Deferred();
       var widget_num = widget.uuid;
       var status = widget.sw_graphwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num).children('#status-message' + widget_num);
@@ -1212,7 +1225,7 @@
       if (widget.query_data.history_graph == "anomaly")
       {
         status.html('<p>Fetching Metric Data</p>');
-        $.when(widget.get_opentsdb_data_anomaly(widget)
+        $.when(widget.get_opentsdb_data_anomaly()
           .done(function(data) {
             query_object.resolve(data);
           })
@@ -1225,7 +1238,7 @@
       else if (widget.query_data.history_graph == "wow")
       {
         status.html('<p>Fetching Metric Data</p>');
-        $.when(widget.get_opentsdb_data_wow(widget)
+        $.when(widget.get_opentsdb_data_wow()
           .done(function(data) {
             query_object.resolve(data);
           })
@@ -1237,7 +1250,7 @@
       else
       {
         status.html('<p>Fetching Metric Data</p>');
-        $.when(widget.get_opentsdb_data(widget)
+        $.when(widget.get_opentsdb_data()
           .done(function(data) {
             query_object.resolve(data);
           })
@@ -1251,8 +1264,9 @@
 
     }
 
-    ,get_opentsdb_data: function(widget)
+    ,get_opentsdb_data: function()
     {
+      var widget = this;
 
       if (typeof widget.ajax_request !== 'undefined')
       {
@@ -1294,9 +1308,10 @@
 
     }
 
-    ,get_opentsdb_data_wow: function(widget)
+    ,get_opentsdb_data_wow: function()
     {
 
+      var widget = this;
       var status = widget.sw_graphwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num).children('#status-message' + widget_num);
 
       if (typeof widget.ajax_request !== 'undefined')
@@ -1399,9 +1414,10 @@
 
     }
 
-    ,get_opentsdb_data_anomaly: function(widget)
+    ,get_opentsdb_data_anomaly: function()
     {
 
+      var widget = this;
       var status = widget.sw_graphwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num).children('#status-message' + widget_num);
 
       if (typeof widget.ajax_request !== 'undefined')
@@ -1475,8 +1491,10 @@
 
     }
 
-    ,process_timeseries_data: function(data, widget)
+    ,process_timeseries_data: function(data)
     {
+
+      var widget = this;
 
       var parse_object = new $.Deferred();
       var status = widget.sw_graphwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num).children('#status-message' + widget_num);
@@ -1503,7 +1521,7 @@
       graph_data.legend_map = data.legend;
       delete data.legend;
 
-      if (widget.query_data.history_graph === "wow")
+      if (widget.query_data.history_graph !== "no")
       {
         $.each(data, function(series, series_data)
         {
@@ -1514,25 +1532,32 @@
       {
         var tag_map = {};
         $.each(widget.query_data.metrics, function(search_key, search_data) {
-          tag_map[search_key] = {name: search_data.name, tags: [], tag_count: search_data.tags.length};
-          $.each(search_data.tags, function(i, tag) {
-            var tag_parts = tag.split('=');
-            if (tag_parts[1] === '*') {
-              tag_map[search_key].tags.push(tag_parts[0] + '=ALL');
-            }
-            else if (tag_parts[1].match(/\|/))
-            {
-              var matches = tag_parts[1].split('|');
-              $.each(matches, function(i, m)
+          if (typeof search_data.tags !== "undefined")
+          {
+            tag_map[search_key] = {name: search_data.name, tags: [], tag_count: search_data.tags.length};
+            $.each(search_data.tags, function(i, tag) {
+              var tag_parts = tag.split('=');
+              if (tag_parts[1] === '*') {
+                tag_map[search_key].tags.push(tag_parts[0] + '=ALL');
+              }
+              else if (tag_parts[1].match(/\|/))
               {
-                tag_map[search_key].tags.push(tag_parts[0] + '=' + m);
-              });
-            }
-            else
-            {
-              tag_map[search_key].tags.push(tag);
-            }
-          });
+                var matches = tag_parts[1].split('|');
+                $.each(matches, function(i, m)
+                {
+                  tag_map[search_key].tags.push(tag_parts[0] + '=' + m);
+                });
+              }
+              else
+              {
+                tag_map[search_key].tags.push(tag);
+              }
+            });
+          }
+          else
+          {
+            tag_map[search_key] = 'NONE';
+          }
         });
         $.each(data, function(series, series_data)
         {
@@ -1543,34 +1568,41 @@
           {
             if (series_metric === search_data.name)
             {
-              var search_matched = 0;
-              $.each(search_data.tags, function(i, t)
-              {
-                if (t.match(/ALL/))
-                {
-                  tleft = (t.split('='))[0]
-                  $.each(series_key, function(i, k)
-                  {
-                    if (k.match(/tleft/))
-                    {
-                      search_matched++;
-                    }
-                  })
-                }
-                else
-                {
-                  $.each(series_key, function(i, k)
-                  {
-                    if (k === t)
-                    {
-                      search_matched++;
-                    }
-                  });
-                }
-              });
-              if (search_matched == search_data.tag_count)
+              if (search_data === "NONE")
               {
                 key_map = search_key;
+              }
+              else
+              {
+                var search_matched = 0;
+                $.each(search_data.tags, function(i, t)
+                {
+                  if (t.match(/ALL/))
+                  {
+                    tleft = (t.split('='))[0]
+                    $.each(series_key, function(i, k)
+                    {
+                      if (k.match(/tleft/))
+                      {
+                        search_matched++;
+                      }
+                    })
+                  }
+                  else
+                  {
+                    $.each(series_key, function(i, k)
+                    {
+                      if (k === t)
+                      {
+                        search_matched++;
+                      }
+                    });
+                  }
+                });
+                if (search_matched == search_data.tag_count)
+                {
+                  key_map = search_key;
+                }
               }
             }
           });
@@ -1591,7 +1623,7 @@
         graph_data.anomalies = anomalies;
       }
 
-      var parsed_data = {graphdata: graph_data, querydata: widget.query_data};
+      var parsed_data = graph_data;
 
       parse_object.resolve(parsed_data);
 
@@ -1599,8 +1631,10 @@
 
     }
 
-    ,build_graph: function(data, widget, type)
+    ,build_graph: function(data, type)
     {
+
+      var widget = this;
 
       widget.graph = {};
       widget.graph.legend_map = data.legend_map;
@@ -1779,7 +1813,7 @@
 
         widget.graph.tooltip_format = d3.time.format('%X');
 
-        widget.add_graph_dots(widget);
+        widget.add_graph_dots();
 
         if (Object.keys(widget.graph.legend_map).length > 9)
         {
@@ -1916,17 +1950,18 @@
         // Set the interval for adding new data if Auto Update is selected
         if (widget.query_data['auto_update'])
         {
-          console.log('setting auto-update timer at ' + new Date.now().toTimeString());
-          widget.autoupdate_interval = setInterval(function() {
-            widget.update_graph(widget, 'line');
+          console.log('setting auto-update timer for widget ' + widget.element.attr('id') + ' at ' + new Date.now().toTimeString());
+          widget.autoupdate_timer = setTimeout(function() {
+            widget.update_graph('line');
           }, 300 * 1000);
         }
 
       }
     }
 
-    ,update_graph: function(widget, type)
+    ,update_graph: function(type)
     {
+      var widget = this;
       if (widget.options.datasource = "OpenTSDB")
       {
         var last_point_bits = widget.graph.data[0].values.slice(-1);
@@ -1941,14 +1976,16 @@
         widget.query_data.start_time = new_start;
         widget.query_data.end_time = new_end;
         widget.query_data.new_query = false;
-        $.when(widget.opentsdb_search(widget)).then(function(incoming_new_data)
+        $.when(widget.opentsdb_search()).then(function(incoming_new_data)
         {
-          $.when(widget.process_timeseries_data(incoming_new_data, widget)).then(
+          $.when(widget.process_timeseries_data(incoming_new_data)).then(
             function(incoming_new_data)
             {
               if (type === "line")
               {
-                var new_data = incoming_new_data.graphdata;
+                var new_data = incoming_new_data;
+                delete(new_data.legend_map);
+                delete(incoming_new_data);
                 $.each(new_data, function(s, d)
                 {
                   $.each(d.values, function(v)
@@ -2014,16 +2051,22 @@
                     .attr('x', function(d) { return widget.graph.x(d.start_time) });
                 }
                 widget.svg.selectAll('.dots').remove();
-                widget.add_graph_dots(widget);
+                widget.add_graph_dots();
               }
             }
           );
         });
       }
+      console.log('Widget ' + widget.element.attr('id') + ' refreshed at ' + new Date.now().toTimeString());
+      widget.autoupdate_timer = setTimeout(function() {
+        widget.update_graph(widget, 'line');
+      }, 300 * 1000);
     }
 
-    ,add_graph_dots: function(widget)
+    ,add_graph_dots: function()
     {
+      var widget = this;
+
       var dots = widget.svg.selectAll('.dots')
         .data(widget.graph.data)
         .enter().append('g')
