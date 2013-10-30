@@ -140,6 +140,7 @@
 }
 
 .search-title {
+    overflow: hidden;
     margin-left: 10px;
     color: rgba(205, 205, 205, 0.6);
 }
