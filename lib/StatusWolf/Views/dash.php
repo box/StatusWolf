@@ -269,29 +269,6 @@ foreach($widgets as $widget_key)
     }, 100);
   }
 
-  // Add a new widget as a duplicate of the selected widget
-  function clone_widget()
-  {
-    var widget = this;
-    var username = "<?php echo $_session_data['username'] ?>";
-    var widget_id = "widget" + md5(username + new Date.now().getTime());
-    var widget_element = $(widget.element);
-    var widget_type = $(widget_element).attr('data-widget-type');
-    if (widget_type === "graphwidget")
-    {
-      $('#dash-container').append('<div class="widget-container" id="' + widget_id + '" data-widget-type="' + widget_type + '">');
-      new_widget = $('div#' + widget_id).graphwidget(widget.options);
-      new_widget_object = $(new_widget).data('sw-' + new_widget.attr('data-widget-type'));
-      new_widget_object.populate_search_form(widget.query_data, new_widget_object, 'clone');
-      $('#' + widget_id).removeClass('transparent');
-    }
-    else
-    {
-      console.log('unknown widget type: ' + widget_element.widget_type);
-    }
-
-  }
-
   // What to do when the user chooses "Save dashboard" from the menu
   function save_click_handler(event, confirmation, dashboard_id)
   {

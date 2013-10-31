@@ -92,7 +92,7 @@
         .appendTo(sw_graphwidget_frontmain);
       $('li.clone-widget').click(function()
       {
-        clone_widget(that);
+        that.clone_widget();
       });
 
 			sw_graphwidget_close = (this.sw_graphwidget_close = $('<div>'))
@@ -201,7 +201,22 @@
       return base_uri;
     }
 
-		,maximize_widget: function(element) {
+    // Add a new widget as a duplicate of the selected widget
+     ,clone_widget: function()
+      {
+        var widget = this;
+        var username = document._session_data.username;
+        var widget_id = "widget" + md5(username + new Date.now().getTime());
+        var widget_element = $(widget.element);
+        $('#dash-container').append('<div class="widget-container" id="' + widget_id + '" data-widget-type="graphwidget">');
+        new_widget = $('div#' + widget_id).graphwidget(widget.options);
+        new_widget_object = $(new_widget).data('sw-graphwidget');
+        new_widget_object.populate_search_form(widget.query_data, 'clone');
+        $('#' + widget_id).removeClass('transparent');
+      }
+
+
+  ,maximize_widget: function(element) {
       var widget = this;
 			if ($(widget.sw_graphwidget_container).hasClass('maximize-widget'))
 			{
@@ -783,7 +798,7 @@
     }
 
 //    ,populate_search_form: function(query_data, widget, force_prompt_user)
-  ,populate_search_form: function(query_data)
+  ,populate_search_form: function(query_data, force_prompt_user)
     {
 
       var widget = this;
