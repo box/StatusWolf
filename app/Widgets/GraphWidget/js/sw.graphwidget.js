@@ -239,6 +239,9 @@
       widget.svg.select('#clip' + widget.uuid).select('rect')
         .attr('width', widget.graph.width)
         .attr('height', widget.graph.height);
+      widget.graph.zoombox.selectAll('rect.background')
+        .attr('height', widget.graph.height)
+        .attr('width', widget.graph.width);
       widget.graph.y.range([widget.graph.height, 0]);
       widget.graph.y_axis.tickSize(-widget.graph.width, 0);
       widget.svg.select('.y.axis').call(widget.graph.y_axis);
@@ -1728,9 +1731,13 @@
           ,d3.max(widget.graph.data, function(d) { return d3.max(d.values, function(v) { return v.date; })})
           ]);
 
+        widget.graph.x_master_domain = widget.graph.x.domain();
+
         widget.graph.y.domain([
           0, (d3.max(widget.graph.data_left, function(d) { return d3.max(d.values, function(v) { return v.value; })}) * 1.05)
         ]);
+
+        widget.graph.y_master_domain = widget.graph.y.domain();
 
         if (widget.graph.right_axis == true)
         {
@@ -1996,6 +2003,43 @@
               .attr('fill', 'red')
               .attr('opacity', 0.25);
         }
+
+        widget.graph.brush = d3.svg.brush()
+          .x(widget.graph.x)
+          .y(widget.graph.y)
+          .on('brushend', function()
+          {
+            if (widget.graph.brush.empty())
+            {
+              widget.graph.x.domain(widget.graph.x_master_domain);
+              widget.graph.y.domain(widget.graph.y_master_domain);
+              widget.resize_graph();
+              widget.autoupdate_timer = setTimeout(function() {
+                widget.update_graph('line');
+              }, 300 * 1000);
+            }
+            else
+            {
+              widget.graph.x.domain([widget.graph.brush.extent()[0][0], widget.graph.brush.extent()[1][0]]);
+              widget.graph.y.domain([widget.graph.brush.extent()[0][1], widget.graph.brush.extent()[1][1]]);
+              widget.resize_graph();
+              widget.graph.zoombox.select('rect.extent')
+                .attr('x', 0)
+                .attr('y', 0)
+                .attr('height', 0)
+                .attr('width', 0);
+              clearTimeout(widget.autoupdate_timer);
+            }
+          });
+
+        widget.graph.zoombox = widget.svg.insert('g', '.metric')
+            .attr('class', 'brush');
+
+        widget.graph.zoombox.call(widget.graph.brush)
+          .selectAll('rect.background')
+            .attr('height', widget.graph.height)
+            .attr('width', widget.graph.width);
+
         // Set the interval for adding new data if Auto Update is selected
         if (widget.query_data['auto_update'])
         {

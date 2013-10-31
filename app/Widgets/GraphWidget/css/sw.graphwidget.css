@@ -243,3 +243,8 @@ path.line {
     font-size: 2.5em;
     font-weight: bold;
 }
+
+.brush .extent {
+    fill: rgba(64, 64, 64, 0.5);
+    shape-rendering: crispEdges;
+}
