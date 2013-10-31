@@ -693,11 +693,19 @@
         var action_widget_id = '#' + $(action_widget_element).attr('id');
         if ( action_widget_id !== widget_id)
         {
-          var action_widget = $('#' + $(action_widget_element).attr('id')).data('sw-graphwidget');
-          action_widget.query_data.period = widget.query_data.period;
+          var action_widget = $(action_widget_id).data('sw-graphwidget');
+          if (widget.graph.brush.empty() !== true)
+          {
+            action_widget.query_data.period = 'date-search';
+            action_widget.query_data.auto_update = false;
+          }
+          else
+          {
+            action_widget.query_data.period = widget.query_data.period;
+          }
           action_widget.query_data.time_span = widget.query_data.time_span;
-          action_widget.query_data.end_time = widget.query_data.end_time;
-          action_widget.query_data.start_time = widget.query_data.start_time;
+          action_widget.query_data.end_time = parseInt(widget.graph.x.domain()[1].getTime() / 1000);
+          action_widget.query_data.start_time = parseInt(widget.graph.x.domain()[0].getTime() / 1000);
           action_widget.populate_search_form(action_widget.query_data);
         }
       })
@@ -789,11 +797,13 @@
       {
         query_data.period = 'date-search';
       }
-      else
-      {
-        query_data.period = 'span-search';
-      }
 
+      if (query_data.auto_update !== true)
+      {
+        var el = $('input#auto-update-button' + widget_num);
+        el.parent().removeClass('pushed');
+        el.siblings('label').click();
+      }
       if (typeof query_data.history_graph === "undefined")
       {
         if (typeof query_data['history-graph'] !== "undefined")
@@ -853,7 +863,13 @@
         }
         else
         {
-          if ((start_in = parseInt(query_data['start_time'])) && (end_in = parseInt(query_data['end_time'])))
+          var el = $('input[data-target="graph-widget-dates' + widget_num + '"]').parent('label');
+          $(el).parent('div.toggle-button').addClass('toggle-on');
+          $(el).parent('div.toggle-button').siblings('div.toggle-button').removeClass('toggle-on');
+          $(el).children('input').attr('checked', 'Checked');
+          $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
+          $('input[data-target="graph-widget-dates' + widget_num + '"]').click();
+          if ((start_in = parseInt(query_data.start_time)) && (end_in = parseInt(query_data.end_time)))
           {
             $('div#start-time' + widget_num).children('input').val(new Date(start_in * 1000).toString('yyyy/MM/dd HH:mm:ss'));
             $('div#end-time' + widget_num).children('input').val(new Date(end_in * 1000).toString('yyyy/MM/dd HH:mm:ss'));
