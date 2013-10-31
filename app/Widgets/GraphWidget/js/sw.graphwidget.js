@@ -209,7 +209,8 @@
         var widget_id = "widget" + md5(username + new Date.now().getTime());
         var widget_element = $(widget.element);
         $('#dash-container').append('<div class="widget-container" id="' + widget_id + '" data-widget-type="graphwidget">');
-        new_widget = $('div#' + widget_id).graphwidget(widget.options);
+        var new_widget = $('div#' + widget_id).graphwidget(widget.options);
+        new_widget.addClass('cols-' + document._session_data.data.dashboard_columns);
         new_widget_object = $(new_widget).data('sw-graphwidget');
         new_widget_object.populate_search_form(widget.query_data, 'clone');
         $('#' + widget_id).removeClass('transparent');
@@ -272,21 +273,29 @@
       widget.graph.x.range([0, widget.graph.width]);
       widget.graph.x_axis.tickSize(-widget.graph.height, 0);
       widget.svg.select('.x.axis')
-        .attr('transform', 'translate(0,' + widget.graph.height + ')')
-        .call(widget.graph.x_axis);
-      var graph_title = widget.svg.select('.x.axis text.graph-title');
-      graph_title.attr('x', widget.graph.x.range()[1] / 2)
-        .attr('y', (widget.graph.margin.bottom - widget.graph.y.range()[0] / 2) - (graph_title.node().getBBox().height / 2));
-      if (! graph_title.selectAll('tspan').empty())
-      {
-        var offset = 0;
-        graph_title.selectAll('tspan').each(function()
-        {
-          d3.select(this).attr('x', graph_title.attr('x'))
-              .attr('y', parseInt(graph_title.attr('y')) + offset);
-          offset += widget.graph.title_height;
-        });
-      }
+          .attr('transform', 'translate(0,' + widget.graph.height + ')')
+          .call(widget.graph.x_axis)
+        .selectAll('text.graph-title')
+          .remove();
+      widget.svg.select('.x.axis')
+          .append('text')
+          .classed('graph-title', 1)
+          .classed('hidden', 1)
+          .attr('text-anchor', 'middle')
+          .text(widget.query_data.title);
+      widget.format_graph_title();
+//      graph_title.attr('x', widget.graph.x.range()[1] / 2)
+//        .attr('y', (widget.graph.margin.bottom - widget.graph.y.range()[0] / 2) - (graph_title.node().getBBox().height / 2));
+//      if (! graph_title.selectAll('tspan').empty())
+//      {
+//        var offset = 0;
+//        graph_title.selectAll('tspan').each(function()
+//        {
+//          d3.select(this).attr('x', graph_title.attr('x'))
+//              .attr('y', parseInt(graph_title.attr('y')) + offset);
+//          offset += widget.graph.title_height;
+//        });
+//      }
       var dots = widget.svg.selectAll('.dots');
       dots.selectAll('.dot')
         .attr('cx', function(d) { return widget.graph.x(d.date); })
@@ -1807,7 +1816,7 @@
           .attr('width', widget.graph.width)
           .attr('height', widget.graph.height);
 
-        var graph_title = widget.svg.append('g')
+        widget.svg.append('g')
             .attr('class', 'x axis')
             .attr('transform', 'translate(0,' + ($('#' + graphdiv.attr('id') + ' svg').innerHeight() - widget.graph.margin.bottom) + ')')
             .call(widget.graph.x_axis)
@@ -1815,41 +1824,9 @@
             .classed('graph-title', 1)
             .classed('hidden', 1)
             .attr('text-anchor', 'middle')
-            .attr('x', widget.graph.x.range()[1] / 2)
             .text(widget.query_data.title);
-        graph_title.attr('y', (widget.graph.margin.bottom - widget.graph.y.range()[0] / 2) - (graph_title.node().getBBox().height / 2));
-        var splits = parseInt(graph_title.node().getBBox().width / widget.svg.select('defs').select('rect').node().getBBox().width);
-        if (splits > 0)
-        {
-          var graph_title_atoms = widget.query_data.title.split(' ');
-          var atom_count = graph_title_atoms.length;
-          var target_length = widget.query_data.title.length / (splits + 1);
-          var title_parts = [];
-          for (i = 0; i <= splits; i++)
-          {
-            var temp_string = '';
-            while ((graph_title_atoms.length > 0)  && (graph_title_atoms < atom_count / 2 || temp_string.length < target_length))
-            {
-              temp_string += graph_title_atoms.shift() + ' ';
-            }
-            title_parts[i] = temp_string.trim();
-          }
-          graph_title.text('').selectAll('tspan')
-              .data(title_parts).enter()
-              .append('tspan')
-              .text(function(d) { return d; });
-          widget.graph.title_height = graph_title.node().getBBox().height;
-          var tspan_offset = 0;
-          graph_title.selectAll('tspan').each(function()
-          {
-            d3.select(this)
-                .attr('y', function() { return parseInt(graph_title.attr('y')) + tspan_offset; })
-                .attr('x', function() { return graph_title.attr('x'); });
-            tspan_offset += widget.graph.title_height;
-          });
-          graph_title.attr('y', (widget.graph.margin.bottom - widget.graph.y.range()[0] / 2) - (graph_title.node().getBBox().height / 2));
-        }
-        graph_title.classed('hidden', 0);
+
+        widget.format_graph_title();
 
         widget.svg.append('g')
             .attr('class', 'y axis')
@@ -1947,45 +1924,39 @@
           .on('mouseover', function()
           {
             $(this).css('font-weight', 'bold');
-            if (! $(this).hasClass('fade'))
+            widget.svg.selectAll('.metric path').classed('fade', 1);
+            var moved_metric = widget.svg.select('.metric path[data-name="' + $(this).attr('title') + '"]');
+            var axis_position_class = 'left';
+            if (moved_metric.classed('right'))
             {
-              widget.svg.selectAll('.metric path').classed('fade', 1);
-              var moved_metric = widget.svg.select('.metric path[data-name="' + $(this).attr('title') + '"]');
-              var axis_position_class = 'left';
-              if (moved_metric.classed('right'))
-              {
-                axis_position_class = 'right';
-              }
-              if (!moved_metric.classed('hidden'))
-              {
-                var moved_metric_node = moved_metric.node();
-                var moved_metric_data = moved_metric.data();
-                var moved_metric_parent = $(moved_metric_node).parent();
-                d3.select(moved_metric_parent).node().remove();
-                var new_metric = d3.select('#' + widget.element.attr('id') + ' svg>g').append('g', 'g.metric');
-                new_metric
-                    .classed('metric', 1)
-                    .classed(axis_position_class, 1)
-                    .attr('clip-path', 'url(#clip' + widget.uuid + ')')
-                    .data(moved_metric_data)
-                  .append('path')
-                    .classed('line', 1)
-                    .classed(axis_position_class, 1)
-                    .attr('d', function(d) { if (d.axis === "right") { return widget.graph.line_right(d.values); } else { return widget.graph.line(d.values); }})
-                    .attr('data-name', $(this).attr('title'))
-                    .style('stroke', function(d) { return widget.graph.color(widget.graph.legend_map[d.name]); })
-                    .style('stroke-width', '3px')
-              }
+              axis_position_class = 'right';
+            }
+            if (!moved_metric.classed('hidden'))
+            {
+              var moved_metric_node = moved_metric.node();
+              var moved_metric_data = moved_metric.data();
+              var moved_metric_parent = $(moved_metric_node).parent();
+              d3.select(moved_metric_parent).node().remove();
+              var new_metric = d3.select('#' + widget.element.attr('id') + ' svg>g').append('g', 'g.metric');
+              new_metric
+                  .classed('metric', 1)
+                  .classed(axis_position_class, 1)
+                  .attr('clip-path', 'url(#clip' + widget.uuid + ')')
+                  .data(moved_metric_data)
+                .append('path')
+                  .classed('line', 1)
+                  .classed(axis_position_class, 1)
+                  .attr('d', function(d) { if (d.axis === "right") { return widget.graph.line_right(d.values); } else { return widget.graph.line(d.values); }})
+                  .attr('data-name', $(this).attr('title'))
+                  .style('stroke', function(d) { return widget.graph.color(widget.graph.legend_map[d.name]); })
+                  .style('stroke-width', '3px')
             }
           })
           .on('mouseout', function()
           {
             $(this).css('font-weight', 'normal');
-            if (! $(this).hasClass('fade'))
-            {
-              widget.svg.select('.widget path[data-name="' + $(this).attr('title') + '"]').style('stroke-width', '1.5px');
-              widget.svg.selectAll('.widget path').classed('fade', 0);
-            }
+            widget.svg.select('.widget path[data-name="' + $(this).attr('title') + '"]').style('stroke-width', '1.5px');
+            widget.svg.selectAll('.metric path').classed('fade', 0);
           })
           .on('click', function(e)
           {
@@ -2235,6 +2206,47 @@
       $('.dot.info-tooltip-right').tooltip({placement: 'right', container: graphdiv});
       $('.dot.info-tooltip-left').tooltip({placement: 'left', container: graphdiv});
       $('.dot.info-tooltip-top').tooltip({placement: 'top', container: graphdiv});
+    }
+
+    ,format_graph_title: function()
+    {
+      var widget = this;
+      var graph_title = widget.svg.select('text.graph-title');
+      graph_title
+          .attr('x', widget.graph.x.range()[1] / 2)
+          .attr('y', (widget.graph.margin.bottom - widget.graph.y.range()[0] / 2) - (graph_title.node().getBBox().height / 2));
+      var splits = parseInt(graph_title.node().getBBox().width / widget.svg.select('defs').select('rect').node().getBBox().width);
+      if (splits > 0)
+      {
+        var graph_title_atoms = widget.query_data.title.split(' ');
+        var atom_count = graph_title_atoms.length;
+        var target_length = widget.query_data.title.length / (splits + 1);
+        var title_parts = [];
+        for (i = 0; i <= splits; i++)
+        {
+          var temp_string = '';
+          while ((graph_title_atoms.length > 0)  && (graph_title_atoms < atom_count / 2 || temp_string.length < target_length))
+          {
+            temp_string += graph_title_atoms.shift() + ' ';
+          }
+          title_parts[i] = temp_string.trim();
+        }
+        graph_title.text('').selectAll('tspan')
+          .data(title_parts).enter()
+          .append('tspan')
+          .text(function(d) { return d; });
+        widget.graph.title_height = graph_title.node().getBBox().height;
+        var tspan_offset = 0;
+        graph_title.selectAll('tspan').each(function()
+        {
+          d3.select(this)
+            .attr('y', function() { return parseInt(graph_title.attr('y')) + tspan_offset; })
+            .attr('x', function() { return graph_title.attr('x'); });
+          tspan_offset += widget.graph.title_height;
+        });
+        graph_title.attr('y', (widget.graph.margin.bottom - widget.graph.y.range()[0] / 2) - (graph_title.node().getBBox().height / 2));
+      }
+      graph_title.classed('hidden', 0);
     }
 	})
 }(jQuery));

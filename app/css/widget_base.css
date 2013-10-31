@@ -9,7 +9,7 @@
     -moz-perspective: 1000;
     perspective: 1000;
     padding: 0;
-    width: 48%;
+    /*width: 48%;*/
     height: 350px;
     margin: 5px 10px;
     border-top-right-radius: 3px;
@@ -19,6 +19,14 @@
     -webkit-transition: all 0.5s linear;
     -moz-transition: all 0.5s linear;
     transition: all 0.5s linear;
+}
+
+.widget-container.cols-2 {
+    width: 48%;
+}
+
+.widget-container.cols-3 {
+    width: 31%;
 }
 
 .widget {

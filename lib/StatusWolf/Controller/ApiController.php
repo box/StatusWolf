@@ -514,7 +514,7 @@ class ApiController extends SWController
         }
       }
     }
-    $save_dashboard_query = sprintf("REPLACE INTO saved_dashboards VALUES('%s', '%s', '%s', '%s', '%s')", $dashboard_id, $dashboard_config['title'], $dashboard_config['user_id'], $dashboard_config['shared'], $widgets_string);
+    $save_dashboard_query = sprintf("REPLACE INTO saved_dashboards VALUES('%s', '%s', '%s', '%s', '%s', '%s')", $dashboard_id, $dashboard_config['title'], $dashboard_config['columns'], $dashboard_config['user_id'], $dashboard_config['shared'], $widgets_string);
     $add_dashboard_rank_query = sprintf("INSERT INTO dashboard_rank VALUES('%s','0')", $dashboard_id);
     $this->loggy->logDebug($this->log_tag . $save_dashboard_query);
     $save_result = $saved_dashboard_db->query($save_dashboard_query);
@@ -670,6 +670,53 @@ class ApiController extends SWController
     }
 
     $sw_db->close();
+
+  }
+
+  protected function session_data($query_bits)
+  {
+
+    if (!$action = strtolower(array_shift($query_bits)))
+    {
+      $action = 'get';
+    }
+    if ($action === "get")
+    {
+      if (!empty($query_bits))
+      {
+        $data_key = array_shift($query_bits);
+        echo json_encode(array($data_key => $_SESSION[SWConfig::read_values('auth.sessionName')]['data'][$data_key]));
+      }
+      else
+      {
+        echo json_encode($_SESSION[SWConfig::read_values('auth.sessionName')]['data']);
+      }
+    }
+    else if ($action === "set")
+    {
+      if (!empty($query_bits))
+      {
+        $update_me = array_shift($query_bits);
+        $data = explode('=', $update_me);
+        if (empty($data[1]))
+        {
+          echo json_encode(array('Error' => 'No value provided'));
+        }
+        else
+        {
+          $_SESSION[SWConfig::read_values('auth.sessionName')]['data'][$data[0]] = $data[1];
+          echo json_encode(array($data[0] => $_SESSION[SWConfig::read_values('auth.sessionName')]['data'][$data[0]]));
+        }
+      }
+      else
+      {
+        echo json_encode(array('Error' => 'No session data provided for set function'));
+      }
+    }
+    else
+    {
+      echo json_encode(array('Error' => 'Unknown action: ' . $action));
+    }
 
   }
 

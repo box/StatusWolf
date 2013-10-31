@@ -186,6 +186,36 @@ foreach($widgets as $widget_key)
     $('#load-dashboard-menu-item').append('<ul class="dropdown-menu sub-menu" id="load-dashboard-menu-options">');
     $('#dashboard-menu-options').append('<li id="save-dashboard-menu-choice"><span>Save Dashboard</span></li>');
 
+    $('#dashboard-menu').after('<div class="dashboard-columns menu-btn" id="three-cols" data-columns="3"><span class="menu-label">III</span></div>');
+    $('#three-cols').css('right', $('#user-menu').outerWidth());
+    $('#dashboard-menu').after('<div class="dashboard-columns menu-btn pushed" id="two-cols" data-columns="2"><span class="menu-label">II</span></div>');
+    $('#two-cols').css('right', ($('#user-menu').outerWidth() + $('#three-cols').outerWidth()));
+    console.log(document._session_data.data.dashboard_columns);
+    if (document._session_data.data.dashboard_columns !== "2" && document._session_data.data.dashboard_columns !== "3")
+    {
+      console.log('setting dashboard columns');
+      document._session_data.data.dashboard_columns = "2";
+    }
+    else
+    {
+      var button = $('.dashboard-columns[data-columns="' + document._session_data.data.dashboard_columns + '"]');
+      column_toggle(button);
+    }
+    $('.dashboard-columns').click(function() {
+      column_toggle(this);
+      if ($('.widget-container').length > 0)
+      {
+        setTimeout(function()
+        {
+          $.each($('.widget-container'), function(i, widget)
+          {
+            widget_object = $(widget).data('sw-graphwidget');
+            widget_object.resize_graph();
+          });
+        }, 1000);
+      }
+    });
+
     // Add the sub menu for the list of saved dashboards
     $.when(build_dashboard_list_menu()).then(
       function(data)
@@ -249,13 +279,41 @@ foreach($widgets as $widget_key)
 
   });
 
+  function column_toggle(button)
+  {
+    if (!$(button).hasClass('pushed'))
+    {
+      $(button).toggleClass('pushed');
+      $(button).siblings('.dashboard-columns').toggleClass('pushed');
+      document._session_data.data.dashboard_columns = $(button).attr('data-columns');
+      $.ajax({
+        url: '<?php echo URL; ?>api/session_data/set/dashboard_columns=' + $(button).attr('data-columns')
+        ,type: 'GET'
+        ,dataType: 'json'
+        ,done: function(data) {
+          console.log(typeof data);
+          console.log(data);
+        }
+      })
+      if ($('.widget-container').length > 0)
+      {
+        $.each($('.widget-container'), function(i, widget)
+        {
+          $(widget).removeClass('cols-2').removeClass('cols-3');
+          $(widget).addClass('cols-' + document._session_data.data.dashboard_columns);
+        });
+      }
+    }
+  }
+
   // Add a widget to the dashboard
   function add_widget(widget_type)
   {
     var username = "<?php echo $_session_data['username'] ?>";
     var widget_id = "widget" + md5(username + new Date.now().getTime());
     var widget;
-    $('#dash-container').append('<div class="widget-container" id="' + widget_id + '" data-widget-type="' + widget_type + '">');
+    var cols = document._session_data.data.dashboard_columns;
+    $('#dash-container').append('<div class="widget-container cols-' + cols + '" id="' + widget_id + '" data-widget-type="' + widget_type + '">');
     if (widget_type === "graphwidget")
     {
       var widget_div = $('#' + widget_id).graphwidget();
@@ -313,6 +371,7 @@ foreach($widgets as $widget_key)
       ,shared: $('#shared').prop('checked')?1:0
       ,username: document._session_data.username
       ,user_id: document._session_data.user_id
+      ,columns: parseInt(document._session_data.data.dashboard_columns)
       ,widgets: dashboard_widgets };
 
     save_dash_url = "<?php echo URL; ?>api/save_dashboard/" + dashboard_id;
@@ -559,6 +618,17 @@ foreach($widgets as $widget_key)
     }
     else
     {
+      console.log(dashboard_config.columns);
+      if (typeof dashboard_config.columns !== "undefined" && dashboard_config.columns !== null)
+      {
+        console.log('found columns spec');
+        if (dashboard_config.columns !== document._session_data.data.dashboard_columns)
+        {
+          var button = $('.dashboard-columns[data-columns="' + dashboard_config.columns + '"]');
+          column_toggle(button);
+        }
+      }
+      var cols = document._session_data.data.dashboard_columns;
       // Load us up a dashboard
       // Set the browser tab title, put the dashboard name in the nav bar
       $('title').text(dashboard_config.title + ' - StatusWolf');
@@ -568,7 +638,7 @@ foreach($widgets as $widget_key)
       $.each(dashboard_config.widgets, function(widget_id, query_data) {
         if (query_data.widget_type === "graphwidget")
         {
-          $('#dash-container').append('<div class="widget-container" id="' + widget_id + '" data-widget-type="' + query_data.widget_type + '">');
+          $('#dash-container').append('<div class="widget-container cols-' + cols + '" id="' + widget_id + '" data-widget-type="' + query_data.widget_type + '">');
           if (typeof query_data.options !== "undefined" && typeof query_data.options.sw_url !== "undefined")
           {
             delete(query_data.options.sw_url);
