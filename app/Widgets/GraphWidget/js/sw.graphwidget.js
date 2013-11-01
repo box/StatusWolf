@@ -822,12 +822,26 @@
         query_data.period = 'date-search';
       }
 
-      if (query_data.auto_update !== true)
+      var auto_update_input = $('input#auto-update-button' + widget_num);
+      if (query_data.auto_update)
       {
-        var el = $('input#auto-update-button' + widget_num);
-        el.parent().removeClass('pushed');
-        el.siblings('label').click();
+        auto_update_input.parent().addClass('pushed');
+        if (!auto_update_input.prop('checked'))
+        {
+          auto_update_input.prop('checked', true);
+          auto_update_input.siblings('label').click();
+        }
       }
+      else
+      {
+        auto_update_input.parent().removeClass('pushed');
+        if (auto_update_input.prop('checked'))
+        {
+          auto_update_input.prop('checked', false);
+          auto_update_input.siblings('label').click();
+        }
+      }
+
       if (typeof query_data.history_graph === "undefined")
       {
         if (typeof query_data['history-graph'] !== "undefined")
@@ -2154,7 +2168,7 @@
       }
       console.log('Widget ' + widget.element.attr('id') + ' refreshed at ' + new Date.now().toTimeString());
       widget.autoupdate_timer = setTimeout(function() {
-        widget.update_graph(widget, 'line');
+        widget.update_graph('line');
       }, 300 * 1000);
     }
 

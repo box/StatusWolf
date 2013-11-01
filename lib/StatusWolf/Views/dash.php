@@ -291,10 +291,8 @@ foreach($widgets as $widget_key)
         ,type: 'GET'
         ,dataType: 'json'
         ,done: function(data) {
-          console.log(typeof data);
-          console.log(data);
         }
-      })
+      });
       if ($('.widget-container').length > 0)
       {
         $.each($('.widget-container'), function(i, widget)
