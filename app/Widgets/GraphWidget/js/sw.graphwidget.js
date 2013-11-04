@@ -286,18 +286,6 @@
           .attr('text-anchor', 'middle')
           .text(widget.query_data.title);
       widget.format_graph_title();
-//      graph_title.attr('x', widget.graph.x.range()[1] / 2)
-//        .attr('y', (widget.graph.margin.bottom - widget.graph.y.range()[0] / 2) - (graph_title.node().getBBox().height / 2));
-//      if (! graph_title.selectAll('tspan').empty())
-//      {
-//        var offset = 0;
-//        graph_title.selectAll('tspan').each(function()
-//        {
-//          d3.select(this).attr('x', graph_title.attr('x'))
-//              .attr('y', parseInt(graph_title.attr('y')) + offset);
-//          offset += widget.graph.title_height;
-//        });
-//      }
       var dots = widget.svg.selectAll('.dots');
       dots.selectAll('.dot')
         .attr('cx', function(d) { return widget.graph.x(d.date); })
@@ -2107,7 +2095,6 @@
         widget.query_data.start_time = new_start;
         widget.query_data.end_time = new_end;
         widget.query_data.new_query = false;
-        console.log(widget.graph);
         $.when(widget.opentsdb_search()).then(function(incoming_new_data)
         {
           $.when(widget.process_timeseries_data(incoming_new_data)).then(
@@ -2140,26 +2127,7 @@
                       d.values.splice(0, nd.values.length + 1);
                     }
                   });
-//                  if (d.axis === "right")
-//                  {
-//                    widget.graph.data_right.push(d);
-//                  }
-//                  else
-//                  {
-//                    widget.graph.data_left.push(d)
-//                  }
                 });
-//                $.each(widget.graph.data, function(i, d) {
-//                  $.each(new_data, function(ni, nd) {
-//                    if (nd.name === d.name)
-//                    {
-//                      d.values.splice(0, nd.values.length + 1);
-//                    }
-//                  });
-//                });
-                console.log(new_data);
-                console.log(widget.graph.data_left);
-                console.log(widget.graph.data_right);
                 if (widget.graph.right_axis == true)
                 {
                   widget.graph.x.domain([
@@ -2189,13 +2157,6 @@
                 }
                 widget.svg.selectAll('.metric path')
                   .attr('d', function(d) { if (d.axis === "right") { return widget.graph.line_right(d.values); } else { return widget.graph.line(d.values); } });
-//                var metrics = widget.svg.selectAll('.metric');
-//                var trans_path = metrics.selectAll('path')
-//                  .attr('transform', null)
-//                  .attr('d', function(d) { if (d.axis === "right") { return widget.graph.line_right(d.values) } else { return widget.graph.line(d.values); }});
-//                trans_path.each(function() {
-//                  var offset = (widget.graph.width - this.getBBox().width);
-//                  d3.select(this).attr('transform', 'translate(' + offset + ')'); });
 
                 if (widget.query_data['history_graph'] === "anomaly")
                 {
