@@ -186,9 +186,9 @@ foreach($widgets as $widget_key)
     $('#load-dashboard-menu-item').append('<ul class="dropdown-menu sub-menu" id="load-dashboard-menu-options">');
     $('#dashboard-menu-options').append('<li id="save-dashboard-menu-choice"><span>Save Dashboard</span></li>');
 
-    $('#dashboard-menu').after('<div class="dashboard-columns menu-btn" id="three-cols" data-columns="3"><span class="menu-label">III</span></div>');
+    $('#dashboard-menu').after('<div class="dashboard-columns menu-btn info-tooltip" id="three-cols" title="Set 3-Column Layout" data-columns="3"><span class="menu-label">III</span></div>');
     $('#three-cols').css('right', $('#user-menu').outerWidth());
-    $('#dashboard-menu').after('<div class="dashboard-columns menu-btn pushed" id="two-cols" data-columns="2"><span class="menu-label">II</span></div>');
+    $('#dashboard-menu').after('<div class="dashboard-columns menu-btn info-tooltip pushed" id="two-cols" title="Set 2-Column Layout" data-columns="2"><span class="menu-label">II</span></div>');
     $('#two-cols').css('right', ($('#user-menu').outerWidth() + $('#three-cols').outerWidth()));
     console.log(document._session_data.data.dashboard_columns);
     if (document._session_data.data.dashboard_columns !== "2" && document._session_data.data.dashboard_columns !== "3")
@@ -215,6 +215,8 @@ foreach($widgets as $widget_key)
         }, 1000);
       }
     });
+
+    $('.dashboard-columns.info-tooltip').tooltip({placement: 'bottom', delay: {show: 500, hide: 100}});
 
     // Add the sub menu for the list of saved dashboards
     $.when(build_dashboard_list_menu()).then(
