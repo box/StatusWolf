@@ -222,6 +222,7 @@
 			if ($(widget.sw_graphwidget_container).hasClass('maximize-widget'))
 			{
 				$(widget.sw_graphwidget_container).removeClass('maximize-widget');
+        $(widget.sw_graphwidget_container).addClass('cols-' + document._session_data.data.dashboard_columns);
 				$('body').removeClass('no-overflow');
 				$('.navbar').removeClass('hidden');
 				$('#' + widget.element.attr('id') + ' span.maximize-me').text('Maximize');
@@ -230,7 +231,8 @@
 			else
 			{
         $(window).scrollTop(0);
-				$(widget.sw_graphwidget_container).addClass('maximize-widget');
+        $(widget.sw_graphwidget_container).removeClass('cols-' + document._session_data.data.dashboard_columns);
+        $(widget.sw_graphwidget_container).addClass('maximize-widget');
 				$('.navbar').addClass('hidden');
 				$('body').addClass('no-overflow');
 				$('#' + widget.element.attr('id') + ' span.maximize-me').text('Minimize');
@@ -1711,7 +1713,12 @@
 
       widget.graph = {};
       widget.graph.legend_map = data.legend_map;
-      delete data.legend_map;
+      delete(data.legend_map);
+      if (widget.query_data['history_graph'] === "anomaly")
+      {
+        widget.graph.anomalies = data.anomalies;
+        delete(data.anomalies);
+      }
 
       widget.graph.right_axis = false;
       var data_right = [];
@@ -1733,14 +1740,18 @@
         }
       });
 
-      widget.graph.data = data;
+//      widget.graph.data = data;
       widget.graph.data_left = data_left;
       widget.graph.margin = {top: 0, right: 5, bottom: 20, left: 55};
+      delete(data_left);
+
       if (widget.graph.right_axis == true)
       {
         widget.graph.margin.right = 55;
         widget.graph.data_right = data_right;
+        delete(data_right);
       }
+      delete(data);
 
       var graphdiv = $('#' + widget.element.attr('id') + ' .graphdiv').empty();
       var graphdiv_offset = graphdiv.position().top;
@@ -1780,10 +1791,21 @@
             .tickPadding(5)
             .tickFormat(d3.format('.3s'));
 
-        widget.graph.x.domain([
-          d3.min(widget.graph.data, function(d) { return d3.min(d.values, function(v) { return v.date; })})
-          ,d3.max(widget.graph.data, function(d) { return d3.max(d.values, function(v) { return v.date; })})
+        if (widget.graph.right_axis == true)
+        {
+          widget.graph.x.domain([
+            d3.min(widget.graph.data_left.concat(widget.graph.data_right), function(d) { return d3.min(d.values, function(v) { return v.date; })})
+            ,d3.max(widget.graph.data_left.concat(widget.graph.data_right), function(d) { return d3.max(d.values, function(v) { return v.date; })})
           ]);
+        }
+        else
+        {
+          widget.graph.x.domain([
+            d3.min(widget.graph.data_left, function(d) { return d3.min(d.values, function(v) { return v.date; })})
+            ,d3.max(widget.graph.data_left, function(d) { return d3.max(d.values, function(v) { return v.date; })})
+          ]);
+
+        }
 
         widget.graph.x_master_domain = widget.graph.x.domain();
 
@@ -2003,12 +2025,12 @@
 
         if (widget.query_data['history_graph'] === "anomaly")
         {
-          $.each(widget.graph.data.anomalies, function(i, anomaly) {
+          $.each(widget.graph.anomalies, function(i, anomaly) {
             anomaly.start_time = new Date(parseInt(anomaly.start) * 1000);
             anomaly.end_time = new Date(parseInt(anomaly.end) * 1000);
           });
           widget.svg.selectAll('.anomaly-bars')
-              .data(widget.graph.data.anomalies)
+              .data(widget.graph.anomalies)
               .enter().insert('g', ':first-child')
               .classed('anomaly-bars', 1)
             .append('rect')
@@ -2073,7 +2095,7 @@
       var widget = this;
       if (widget.options.datasource = "OpenTSDB")
       {
-        var last_point_bits = widget.graph.data[0].values.slice(-1);
+        var last_point_bits = widget.graph.data_left[0].values.slice(-1);
         var last_point = last_point_bits.pop();
         var new_start = last_point.timestamp;
         var new_end = new Date.now().getTime();
@@ -2085,6 +2107,7 @@
         widget.query_data.start_time = new_start;
         widget.query_data.end_time = new_end;
         widget.query_data.new_query = false;
+        console.log(widget.graph);
         $.when(widget.opentsdb_search()).then(function(incoming_new_data)
         {
           $.when(widget.process_timeseries_data(incoming_new_data)).then(
@@ -2093,7 +2116,13 @@
               if (type === "line")
               {
                 var new_data = incoming_new_data;
+                delete(incoming_new_data);
                 delete(new_data.legend_map);
+                if (widget.query_data['history_graph'] === "anomaly")
+                {
+                  widget.graph.anomalies = widget.graph.anomalies.concat(new_data.anomalies);
+                  delete(new_data.anomalies);
+                }
                 delete(incoming_new_data);
                 $.each(new_data, function(s, d)
                 {
@@ -2102,45 +2131,49 @@
                     d.values[v]['date'] = new Date(d.values[v]['timestamp'] * 1000);
                   });
                 });
-                $.each(widget.graph.data, function(i, d) {
+
+                $.each(widget.graph.data_left.concat(widget.graph.data_right), function(i, d) {
                   $.each(new_data, function(ni, nd) {
                     if (nd.name === d.name)
                     {
                       d.values = d.values.concat(nd.values);
-                    }
-                  });
-                });
-                var metrics = widget.svg.selectAll('.metric');
-                var trans_path = metrics.selectAll('path')
-                  .attr('transform', null)
-                  .attr('d', function(d) { if (d.axis === "right") { return widget.graph.line_right(d.values) } else { return widget.graph.line(d.values); }});
-                trans_path.each(function() {
-                  var offset = (widget.graph.width - this.getBBox().width);
-                  d3.select(this).attr('transform', 'translate(' + offset + ')'); });
-                $.each(widget.graph.data, function(i, d) {
-                  $.each(new_data, function(ni, nd) {
-                    if (nd.name === d.name)
-                    {
                       d.values.splice(0, nd.values.length + 1);
                     }
                   });
+//                  if (d.axis === "right")
+//                  {
+//                    widget.graph.data_right.push(d);
+//                  }
+//                  else
+//                  {
+//                    widget.graph.data_left.push(d)
+//                  }
                 });
-                widget.graph.data_right = [];
-                widget.graph.data_left = [];
-                $.each(widget.graph.data, function(i, d) {
-                  if (d.axis === "right")
-                  {
-                    widget.graph.data_right.push(d);
-                  }
-                  else
-                  {
-                    widget.graph.data_left.push(d)
-                  }
-                });
-                widget.graph.x.domain([
-                  d3.min(widget.graph.data, function(d) { return d3.min(d.values, function(v) { return v.date; })})
-                  ,d3.max(widget.graph.data, function(d) { return d3.max(d.values, function(v) { return v.date; })})
-                ]);
+//                $.each(widget.graph.data, function(i, d) {
+//                  $.each(new_data, function(ni, nd) {
+//                    if (nd.name === d.name)
+//                    {
+//                      d.values.splice(0, nd.values.length + 1);
+//                    }
+//                  });
+//                });
+                console.log(new_data);
+                console.log(widget.graph.data_left);
+                console.log(widget.graph.data_right);
+                if (widget.graph.right_axis == true)
+                {
+                  widget.graph.x.domain([
+                    d3.min(widget.graph.data_left.concat(widget.graph.data_right), function(d) { return d3.min(d.values, function(v) { return v.date; })})
+                    ,d3.max(widget.graph.data_left.concat(widget.graph.data_right), function(d) { return d3.max(d.values, function(v) { return v.date; })})
+                  ]);
+                }
+                else
+                {
+                  widget.graph.x.domain([
+                    d3.min(widget.graph.data_left, function(d) { return d3.min(d.values, function(v) { return v.date; })})
+                    ,d3.max(widget.graph.data_left, function(d) { return d3.max(d.values, function(v) { return v.date; })})
+                  ]);
+                }
                 widget.graph.y.domain([
                   0, (d3.max(widget.graph.data_left, function(d) { return d3.max(d.values, function(v) { return v.value; })}) * 1.05)
                 ]);
@@ -2154,6 +2187,16 @@
                   ]);
                   widget.svg.selectAll('.y1.axis text').attr('dy', '0.75em');
                 }
+                widget.svg.selectAll('.metric path')
+                  .attr('d', function(d) { if (d.axis === "right") { return widget.graph.line_right(d.values); } else { return widget.graph.line(d.values); } });
+//                var metrics = widget.svg.selectAll('.metric');
+//                var trans_path = metrics.selectAll('path')
+//                  .attr('transform', null)
+//                  .attr('d', function(d) { if (d.axis === "right") { return widget.graph.line_right(d.values) } else { return widget.graph.line(d.values); }});
+//                trans_path.each(function() {
+//                  var offset = (widget.graph.width - this.getBBox().width);
+//                  d3.select(this).attr('transform', 'translate(' + offset + ')'); });
+
                 if (widget.query_data['history_graph'] === "anomaly")
                 {
                   widget.svg.selectAll('.anomaly-bars').selectAll('rect')
@@ -2177,7 +2220,7 @@
       var widget = this;
 
       var dots = widget.svg.selectAll('.dots')
-        .data(widget.graph.data)
+        .data(widget.graph.right_axis ? widget.graph.data_left.concat(widget.graph.data_right) : widget.graph.data_left)
         .enter().append('g')
         .attr('class', 'dots')
         .attr('data-name', function(d) { return widget.graph.legend_map[d.name]; });
