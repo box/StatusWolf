@@ -426,32 +426,45 @@ foreach($widgets as $widget_key)
                     $('#failure-popup').remove();
                   }
                 }
-              })
+              });
               setTimeout(function() {
                 $.magnificPopup.close();
               }, 750);
           }
         }
-        $.magnificPopup.open({
-          items: {
-            src: '#success-popup'
-            ,type: 'inline'
-          }
-          ,preloader: false
-          ,removalDelay: 300
-          ,mainClass: 'popup-animate'
-          ,callbacks: {
-            open: function() {
-              $('.navbar').addClass('blur');
-              $('.container').addClass('blur');
+        else
+        {
+          // Update the sub menu for the list of saved dashboards
+          $.when(build_dashboard_list_menu()).then(
+              function(data)
+              {
+                if (data[1] > data[0])
+                {
+                  $('#load-dashboard-menu-options').append('<li id="full-dashboard-list"><span>More...</span></li>')
+                }
+              }
+          );
+          $.magnificPopup.open({
+            items: {
+              src: '#success-popup'
+              ,type: 'inline'
             }
-            ,close: function() {
-              $('.container').removeClass('blur');
-              $('.navbar').removeClass('blur');
-              $('#success-popup').remove();
+            ,preloader: false
+            ,removalDelay: 300
+            ,mainClass: 'popup-animate'
+            ,callbacks: {
+              open: function() {
+                $('.navbar').addClass('blur');
+                $('.container').addClass('blur');
+              }
+              ,close: function() {
+                $('.container').removeClass('blur');
+                $('.navbar').removeClass('blur');
+                $('#success-popup').remove();
+              }
             }
-          }
-        });
+          });
+        }
         setTimeout(function() {
           $.magnificPopup.close();
         }, 750);
