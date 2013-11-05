@@ -87,12 +87,13 @@
           '<ul class="dropdown-menu widget-action-options" role="menu">' +
           '<li data-menu-action="maximize_widget"><span class="maximize-me">Maximize</span></li>' +
           '<li data-menu-action="edit_params"><span>Edit Parameters</span></li>' +
-          '<li class="clone-widget"><span>Clone Widget</span></li>' +
+          '<li class="clone-widget" data-parent="' + that.element.attr('id') + '"><span>Clone Widget</span></li>' +
           '<li data-menu-action="set_all_spans"><span>Use this time span for all widgets</span></li></ul>')
         .appendTo(sw_graphwidget_frontmain);
-      $('li.clone-widget').click(function()
+      $('li.clone-widget').click(function(event)
       {
-        that.clone_widget();
+        event.stopImmediatePropagation();
+        that.clone_widget($(this).attr('data-parent'));
       });
 
 			sw_graphwidget_close = (this.sw_graphwidget_close = $('<div>'))
@@ -202,18 +203,20 @@
     }
 
     // Add a new widget as a duplicate of the selected widget
-     ,clone_widget: function()
+     ,clone_widget: function(widget_id)
       {
-        var widget = this;
+        var widget = $('#' + widget_id).data('sw-graphwidget');
+        console.log('Cloning widget ' + widget.element.attr('id'));
         var username = document._session_data.username;
-        var widget_id = "widget" + md5(username + new Date.now().getTime());
-        var widget_element = $(widget.element);
-        $('#dash-container').append('<div class="widget-container" id="' + widget_id + '" data-widget-type="graphwidget">');
-        var new_widget = $('div#' + widget_id).graphwidget(widget.options);
+        var new_widget_id = "widget" + md5(username + new Date.now().getTime());
+        console.log('Adding new widget ' + new_widget_id);
+        $('#dash-container').append('<div class="widget-container" id="' + new_widget_id + '" data-widget-type="graphwidget">');
+        var new_widget = $('div#' + new_widget_id).graphwidget(widget.options);
         new_widget.addClass('cols-' + document._session_data.data.dashboard_columns);
         new_widget_object = $(new_widget).data('sw-graphwidget');
         new_widget_object.populate_search_form(widget.query_data, 'clone');
-        $('#' + widget_id).removeClass('transparent');
+        $('#' + new_widget_id).removeClass('transparent');
+        $('#search-title' + new_widget_object.uuid).css('width', $('#search-title' + widget.uuid).width());
       }
 
 
@@ -845,7 +848,7 @@
         }
       }
 
-      if (typeof query_data.title !== "undefined" && query_data.title.length > 1)
+      if (typeof query_data.title !== "undefined" && query_data.title.length > 1 && force_prompt_user !== "clone")
       {
         $('h3#search-title' + widget.uuid).text(query_data.title).removeClass('search-title-prompt');
         $('.widget-title > input[name="search-title-input' + widget.uuid + '"]').val(query_data.title);
@@ -2119,17 +2122,17 @@
                   });
                 });
 
-                $.each(widget.graph.data_left.concat(widget.graph.data_right), function(i, d) {
-                  $.each(new_data, function(ni, nd) {
-                    if (nd.name === d.name)
-                    {
-                      d.values = d.values.concat(nd.values);
-                      d.values.splice(0, nd.values.length + 1);
-                    }
-                  });
-                });
                 if (widget.graph.right_axis == true)
                 {
+                  $.each(widget.graph.data_left.concat(widget.graph.data_right), function(i, d) {
+                    $.each(new_data, function(ni, nd) {
+                      if (nd.name === d.name)
+                      {
+                        d.values = d.values.concat(nd.values);
+                        d.values.splice(0, nd.values.length + 1);
+                      }
+                    });
+                  });
                   widget.graph.x.domain([
                     d3.min(widget.graph.data_left.concat(widget.graph.data_right), function(d) { return d3.min(d.values, function(v) { return v.date; })})
                     ,d3.max(widget.graph.data_left.concat(widget.graph.data_right), function(d) { return d3.max(d.values, function(v) { return v.date; })})
@@ -2137,6 +2140,15 @@
                 }
                 else
                 {
+                  $.each(widget.graph.data_left, function(i, d) {
+                    $.each(new_data, function(ni, nd) {
+                      if (nd.name === d.name)
+                      {
+                        d.values = d.values.concat(nd.values);
+                        d.values.splice(0, nd.values.length + 1);
+                      }
+                    });
+                  });
                   widget.graph.x.domain([
                     d3.min(widget.graph.data_left, function(d) { return d3.min(d.values, function(v) { return v.date; })})
                     ,d3.max(widget.graph.data_left, function(d) { return d3.max(d.values, function(v) { return v.date; })})
