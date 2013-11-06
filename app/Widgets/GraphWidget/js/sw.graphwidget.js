@@ -861,26 +861,6 @@
         query_data.period = 'date-search';
       }
 
-      var auto_update_input = $('input#auto-update-button' + widget_num);
-      if (query_data.auto_update)
-      {
-        auto_update_input.parent().addClass('pushed');
-        if (!auto_update_input.prop('checked'))
-        {
-          auto_update_input.prop('checked', true);
-          auto_update_input.siblings('label').click();
-        }
-      }
-      else
-      {
-        auto_update_input.parent().removeClass('pushed');
-        if (auto_update_input.prop('checked'))
-        {
-          auto_update_input.prop('checked', false);
-          auto_update_input.siblings('label').click();
-        }
-      }
-
       if (typeof query_data.history_graph === "undefined")
       {
         if (typeof query_data['history-graph'] !== "undefined")
@@ -904,11 +884,28 @@
       {
         var method_map = {sum: 'Sum', avg: 'Average', min: 'Minimum Value', max: 'Maximum Value', dev: 'Standard Deviation'};
 
-        if (query_data['auto_update'] === "true") {
-          $('label[for="auto-update-button' + widget_num + '"]').click();
-          $('label[for="auto-update-button' + widget_num + '"]').parent('.push-button').addClass('pushed');
-          $('label[for="auto-update-button' + widget_num + '"]').children('span.iconic').removeClass('iconic-x-alt red').addClass('iconic-check-alt green');
+        var auto_update_input = $('input#auto-update-button' + widget_num);
+        if (query_data.auto_update === "true")
+        {
+          auto_update_input.parent().addClass('pushed');
+          if (!auto_update_input.prop('checked'))
+          {
+            auto_update_input.siblings('label').click();
+            auto_update_input.prop('checked', true);
+            auto_update_input.children('span.iconic').removeClass('iconic-x-alt red').addClass('iconic-check-alt green');
+          }
         }
+        else
+        {
+          auto_update_input.parent().removeClass('pushed');
+          if (auto_update_input.prop('checked'))
+          {
+            auto_update_input.siblings('label').click();
+            auto_update_input.prop('checked', false);
+            auto_update_input.children('span.iconic').removeClass('iconix-check-alt green').addClass('iconic-x-alt red');
+          }
+        }
+
         if (query_data.history_graph.match(/anomaly/))
         {
           var el = $('input[data-target="history-anomaly' + widget_num + '"]').parent('label');
@@ -958,7 +955,7 @@
         }
 
         var metric_num = 0;
-        $.each(query_data['metrics'], function(search_key, metric) {
+        $.each(query_data.metrics, function(search_key, metric) {
           metric_num++;
           metric_string = metric.name;
           if (metric_num > 1)
@@ -1136,15 +1133,29 @@
           for (i=1; i<=widget.query_data['metrics_count']; i++)
           {
             var build_metric = {};
-            var metric_bits = $('input:text[name=metric'+ widget_num + '-' + i + ']').val().split(' ');
-            build_metric.name = metric_bits.shift();
-            if (build_metric.name.length < 1)
+            var metric_bits = [];
+            var metric_search_string = $('input:text[name=metric'+ widget_num + '-' + i + ']').val();
+            // Check for OpenTSDB-style tags (metric.name{tag1=foo,tag2=bar})
+            if (metric_search_string.match('{'))
             {
-              continue;
+              metric_bits = metric_search_string.split('{')
+              build_metric.name = metric_bits.shift();
+              var metric_tag_string = metric_bits.shift();
+              metric_tag_string = metric_tag_string.substring(0, metric_tag_string.length - 1);
+              build_metric.tags = metric_tag_string.split(',');
             }
-            if (metric_bits.length > 0)
+            else
             {
-              build_metric.tags = metric_bits;
+              metric_bits = metric_search_string.split(' ');
+              build_metric.name = metric_bits.shift();
+              if (build_metric.name.length < 1)
+              {
+                continue;
+              }
+              if (metric_bits.length > 0)
+              {
+                build_metric.tags = metric_bits;
+              }
             }
             var agg_type = $('#active-aggregation-type' + widget_num + '-' + i).text().toLowerCase();
             var ds_type = $('#active-downsample-type' + widget_num + '-' + i).text().toLowerCase();
