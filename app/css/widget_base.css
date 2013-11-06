@@ -235,6 +235,7 @@
 
 .widget-back .widget-main {
     top: 35px;
+    overflow: hidden;
 }
 
 .widget-back .widget-title-head h4 {
@@ -292,13 +293,13 @@
 .general-options-table {
     width: 99%;
     margin-top: 15px;
-    border-spacing: 10px;
+    border-spacing: 25px;
 }
 
 .tab-table {
     width: 99%;
     margin-top: 5px;
-    border-spacing: 10px;
+    border-spacing: 25px;
 }
 
 .datasource-menu {

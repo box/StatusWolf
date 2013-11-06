@@ -50,7 +50,6 @@
 			sw_graphwidget_container = (this.sw_graphwidget_container = $(this.element));
 			$(sw_graphwidget_container).addClass('transparent');
 
-
 			sw_graphwidget = (this.sw_graphwidget = $('<div>'))
 				.addClass(sw_graphwidget_classes)
 				.appendTo(this.element);
@@ -69,12 +68,14 @@
 			// and a footer bar
 			sw_graphwidget_frontmain = (this.sw_graphwidget_frontmain = $('<div>'))
 				.addClass('widget-main')
+        .addClass('front')
 				.appendTo(sw_graphwidget_front);
 			sw_graphwidget_backtitle = (this.sw_graphwidget_backtitle = $('<div>'))
 				.addClass('flexy widget-title')
 				.appendTo(sw_graphwidget_back);
 			sw_graphwidget_backmain = (this.sw_graphwidget_backmain = $('<div>'))
 				.addClass('widget-main')
+        .addClass('back')
 				.appendTo(sw_graphwidget_back);
 			sw_graphwidget_backfooter = (this.sw_graphwidget_backfooter = $('<div>'))
 				.addClass('flexy widget-footer')
@@ -133,7 +134,7 @@
 			sw_graphwidget_querycancelbutton = (this.sw_graphwidget_querycancelbutton = $('<div>'))
 				.addClass("widget-footer-button left-button query_cancel")
 				.click(function() {
-					sw_graphwidget.removeClass("flipped")
+					that.flip_to_front();
 				})
 				.append('<span class="iconic iconic-x-alt"><span class="font-reset"> Cancel</span></span>')
 				.appendTo(sw_graphwidget_backfooter);
@@ -215,8 +216,8 @@
         new_widget.addClass('cols-' + document._session_data.data.dashboard_columns);
         new_widget_object = $(new_widget).data('sw-graphwidget');
         new_widget_object.populate_search_form(widget.query_data, 'clone');
-        $('#' + new_widget_id).removeClass('transparent');
         $('#search-title' + new_widget_object.uuid).css('width', $('#search-title' + widget.uuid).width());
+        $('#' + new_widget_object.element.attr('id')).removeClass('transparent');
       }
 
 
@@ -313,7 +314,52 @@
     ,edit_params: function()
     {
       var widget = this;
+      widget.start_height = widget.sw_graphwidget.parent().height();
+      widget.start_width = widget.sw_graphwidget.parent().width();
+      widget.widget_position = widget.sw_graphwidget.parent().position();
       widget.sw_graphwidget.addClass('flipped');
+      $('div.container').after('<div class="bodyshade transparent">');
+      setTimeout(function()
+      {
+        widget.sw_graphwidget.parent().css({position: 'absolute', height: widget.start_height + 'px', width: widget.start_width + 'px', top: widget.widget_position.top, left: widget.widget_position.left, 'z-index': '9999'})
+          .after('<div class="spacer-box" style="display: inline-block; width: ' +  widget.start_width +
+            'px; height: ' + widget.start_height +
+            'px; margin: ' + widget.sw_graphwidget.parent().css('margin') + '"></div>');
+        widget.sw_graphwidget.parent().css({top: '15%', left: '15%', height: '500px', width: '800px'});
+        $('div.bodyshade').removeClass('transparent');
+      }, 700);
+    }
+
+    ,flip_to_front: function()
+    {
+      var widget = this;
+      if ($('div.bodyshade').length > 0)
+      {
+        $('div.bodyshade').addClass('transparent');
+        widget.sw_graphwidget.parent().css({width: widget.start_width, height: '', top: widget.widget_position.top, left: widget.widget_position.left});
+        setTimeout(function()
+        {
+          widget.sw_graphwidget.parent().css({position: '', top: '', left: '', 'z-index': '', height: '', width: ''})
+            .siblings('div.spacer-box').remove();
+          $('div.bodyshade').remove();
+        }, 600);
+        setTimeout(function()
+        {
+          if (typeof widget.svg !== "undefined")
+          {
+            widget.resize_graph();
+          }
+          widget.sw_graphwidget.removeClass('flipped');
+        }, 700);
+      }
+      else
+      {
+        widget.sw_graphwidget.removeClass('flipped');
+        if ($('#' + widget.element.attr('id')).hasClass('transparent'))
+        {
+          $('#' + widget.element.attr('id')).removeClass('transparent');
+        }
+      }
     }
 
     ,hide_legend: function(button)
@@ -596,7 +642,7 @@
         var widget_height = $(widget_element).children('.widget').innerHeight();
         var main_height = widget_height;
         widget.sw_graphwidget_frontmain.css('height', main_height);
-        widget.sw_graphwidget_backmain.css('height', main_height);
+//        widget.sw_graphwidget_backmain.css('height', main_height);
 
         widget.build_saved_search_menu();
 
@@ -664,7 +710,7 @@
           '<h4>Interpolation</h4>' +
           '<div class="push-button binary info-tooltip" title="Interpolation should be disabled unless you are absolutely sure that you need it.">' +
           '<input type="checkbox" id="lerp-button' + tab_tag + '" name="lerp' + tab_tag + '">' +
-          '<label for="lerp-button' + tab_tag + '"><span class="iconic iconic-check-alt red"></span>' +
+          '<label for="lerp-button' + tab_tag + '"><span class="iconic iconic-x-alt red"></span>' +
           '<span class="binary-label">No</span></label></div></div></td>' +
           '<td width="30%"><div class="graph-widget-form-item menu-label">' +
           '<h4>Right Axis</h4>' +
@@ -965,7 +1011,10 @@
         });
         if (prompt_user)
         {
-          $(widget.element).children('.widget').addClass('flipped');
+          setTimeout(function()
+          {
+            widget.edit_params();
+          }, 500);
         }
         else
         {
@@ -1204,16 +1253,19 @@
         graph_element.append('<div class="bowlG">' +
           '<div class="bowl_ringG"><div class="ball_holderG">' +
           '<div class="ballG"></div></div></div></div>');
-        $(widget.element).children('.widget').removeClass('flipped');
         graph_element.append('<div id="status-box' + widget_num + '" style="width: 100%; text-align: center;">' +
           '<p id="status-message' + widget_num + '"></p></div>');
         widget.init_query();
+        setTimeout(function()
+        {
+          widget.flip_to_front();
+        }, 250);
       }
       else
       {
         if (! widget_element.children('.widget').hasClass('flipped'))
         {
-          widget_element.children('.widget').addClass('flipped');
+          widget.edit_params();
         }
       }
 

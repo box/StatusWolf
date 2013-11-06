@@ -33,14 +33,9 @@
     padding: 2px 0;
 }
 
-.graph-widget-form-item h4 {
-    font-size: .8em;
-}
-
 .graph-widget-button {
     display: inline-block;
-    font-size: .8em;
-    line-height: 1.8em;
+    line-height: 1.5em;
     text-align: right;
     height: 18px;
     margin-top: 2px;
@@ -106,7 +101,7 @@
 .graph-widget-dates, .graph-widget-time-span {
     position: absolute;
     top: 0;
-    margin-top: 5px;
+    margin-top: 20px;
 }
 
 .widget-title {
@@ -187,7 +182,6 @@ ul.nav-tabs {
 
 .tab-table .push-button {
     height: 18px;
-    line-height: 2em;
 }
 
 .legend-container {

@@ -190,10 +190,8 @@ foreach($widgets as $widget_key)
     $('#three-cols').css('right', $('#user-menu').outerWidth());
     $('#dashboard-menu').after('<div class="dashboard-columns menu-btn info-tooltip pushed" id="two-cols" title="Set 2-Column Layout" data-columns="2"><span class="menu-label">II</span></div>');
     $('#two-cols').css('right', ($('#user-menu').outerWidth() + $('#three-cols').outerWidth()));
-    console.log(document._session_data.data.dashboard_columns);
     if (document._session_data.data.dashboard_columns !== "2" && document._session_data.data.dashboard_columns !== "3")
     {
-      console.log('setting dashboard columns');
       document._session_data.data.dashboard_columns = "2";
     }
     else
@@ -319,7 +317,7 @@ foreach($widgets as $widget_key)
       var widget_div = $('#' + widget_id).graphwidget();
       var widget_object = $('#' + widget_div.attr('id')).data('sw-graphwidget');
       setTimeout(function() {
-        widget_object.sw_graphwidget.addClass('flipped');
+        widget_object.edit_params();
       }, 250);
     }
     setTimeout(function() {
@@ -660,7 +658,7 @@ foreach($widgets as $widget_key)
           var widget_object = $(new_widget).data('sw-' + new_widget.attr('data-widget-type'));
 //          widget_object.populate_search_form(query_data, widget_object);
           widget_object.populate_search_form(query_data);
-          $('#' + widget_id).removeClass('transparent');
+//          $('#' + widget_id).removeClass('transparent');
         }
         else
         {

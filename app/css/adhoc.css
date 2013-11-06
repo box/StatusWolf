@@ -7,10 +7,6 @@
     margin-right: 15px;
 }
 
-.ad-hoc-form-item h4 {
-    font-size: .75em;
-}
-
 .ad-hoc-form-row {
     display: -webkit-box;
     -webkit-box-orient: horizontal;
@@ -35,7 +31,6 @@
 
 .ad-hoc-button {
     display: inline-block;
-    font-size: .8em;
     line-height: 1.5em;
     height: 100%;
     padding: 2px 10px;
@@ -126,6 +121,7 @@
 
 #ad-hoc-search-form {
     padding-left: 35px;
+    font-size: .8em;
 }
 
 #active-aggregation-type, #active-downsample-type {
@@ -140,7 +136,7 @@
 
 #ad-hoc-dates, #ad-hoc-time-span {
     position: absolute;
-    top: 9px;
+    top: 24px;
     margin-left: 25px;
     -webkit-box-flex: 4;
     box-flex: 4;
@@ -155,9 +151,10 @@
 #auto-update {
     -webkit-box-pack: start;
     box-pack: start;
-    margin-top: 4px;
+    margin-top: 1px;
     margin-right: 10px;
     display: inline-block;
+    white-space: nowrap;
 }
 
 .widget-title-dropdown {
