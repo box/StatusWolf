@@ -143,8 +143,11 @@ ul.nav-tabs {
     padding-left: 8px;
 }
 
-.dropdown-menu.saved-searches-options,
-.dropdown-menu.widget-action-options {
+.dropdown-menu.saved-searches-options {
+    min-width: 300px;
+}
+
+.dropdown-menu.sub-menu.graphwidget-options-menu {
     min-width: 300px;
 }
 

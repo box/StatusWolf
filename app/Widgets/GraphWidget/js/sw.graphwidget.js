@@ -85,11 +85,15 @@
         .addClass('action-widget dropdown')
         .append('<span data-toggle="dropdown">' +
           '<span class="iconic iconic-cog"></span></span>' +
-          '<ul class="dropdown-menu widget-action-options" role="menu">' +
+          '<ul class="dropdown-menu sub-menu-item widget-action-options" role="menu">' +
           '<li data-menu-action="maximize_widget"><span class="maximize-me">Maximize</span></li>' +
           '<li data-menu-action="edit_params"><span>Edit Parameters</span></li>' +
           '<li class="clone-widget" data-parent="' + that.element.attr('id') + '"><span>Clone Widget</span></li>' +
-          '<li data-menu-action="set_all_spans"><span>Use this time span for all widgets</span></li></ul>')
+          '<li class="dropdown"><span>Options</span><span class="iconic iconic-play"></span>' +
+          '<ul class="dropdown-menu sub-menu graphwidget-options-menu">' +
+          '<li data-menu-action="set_all_spans"><span>Use this time span for all Graph Widgets</span></li>' +
+          '<li data-menu-action="set_all_tags_form"><span>Set tags for all Graph Widgets</span></li>' +
+          '<li data-menu-action="add_tags_to_all_form"><span>Add tag(s) to all Graph Widgets</span></li></ul></li></ul>')
         .appendTo(sw_graphwidget_frontmain);
       $('li.clone-widget').click(function(event)
       {
@@ -176,6 +180,10 @@
       if (typeof this.autoupdate_timer !== "undefined")
       {
         clearTimeout(this.autoupdate_timer);
+      }
+      if (typeof this.ajax_request !== "undefined")
+      {
+        this.ajax_request.abort();
       }
 			this.sw_graphwidget_gobutton.remove();
 			this.sw_graphwidget_querycancelbutton.remove();
@@ -752,7 +760,8 @@
       var widget = this;
       var widget_id = widget.sw_graphwidget_containerid;
       var widget_list = $('.widget-container[data-widget-type="graphwidget"]');
-      $.each(widget_list, function(i, action_widget_element) {
+      $.each(widget_list, function(i, action_widget_element)
+      {
         var action_widget_id = '#' + $(action_widget_element).attr('id');
         if ( action_widget_id !== widget_id)
         {
@@ -772,6 +781,152 @@
           action_widget.populate_search_form(action_widget.query_data);
         }
       })
+    }
+
+    ,set_all_tags_form: function(item)
+    {
+      var widget = this;
+      var widget_list = $('.widget-container[data-widget-type="graphwidget"]');
+      var tags_popup = '<div class="popup" id="set-all-tags-popup">' +
+        '<div id="set-all-tags-box"><div id="set-all-tags-head"><h4>Set tags for all Graph Widgets</h4></div>' +
+        '<div id="set-all-tags-info"><p>Replaces any existing tags for the searches in all Graph Widgets with the tags specified here.</p></div>' +
+        '<div id="set-all-tags-form" style="margin-bottom: 25px;"><div class="popup-form-data"><form onsubmit="return false;">' +
+        '<input type="text" class="input" id="new-tags" name="new-tags" value="" style="width: 500px;" onkeypress="if (event.which === 13) { $.magnificPopup.instance.items[0].data.set_all_tags(); }">' +
+        '</form></div></div>' +
+        '<div class="flexy widget-footer" style="margin-top: 10px;">' +
+        '<div class="widget-footer-button" id="cancel-set-all-tags" onClick="$.magnificPopup.close()"><span class="iconic iconic-x-alt"><span class="font-reset"> Cancel</span></span></div>' +
+        '<div class="glue1"></div>' +
+        '<div class="widget-footer-button" id="set-all-tags-button" onClick="$.magnificPopup.instance.items[0].data.set_all_tags()">' +
+        '<span class="iconic iconic-download"><span class="font-reset"> Save</span></span></div>' +
+        '</div>';
+      $.magnificPopup.open({
+        items: {
+          src: tags_popup
+          ,type: 'inline'
+          ,set_all_tags: function()
+          {
+            var new_tag_string = $('input#new-tags').val();
+            if (new_tag_string.length > 0)
+            {
+              var new_tags = [];
+              if (new_tag_string.match(','))
+              {
+                new_tags = new_tag_string.split(',');
+              }
+              else
+              {
+                new_tags = new_tag_string.split(' ');
+              }
+              widget_list = $('.widget-container[data-widget-type="graphwidget"]');
+              $.each(widget_list, function(i, widget_element)
+              {
+                var widget_id = '#' + $(widget_element).attr('id');
+                var widget = $(widget_id).data('sw-graphwidget');
+                $.each(widget.query_data.metrics, function(search_key, search_params)
+                {
+                  search_params.tags = new_tags;
+                });
+                widget.populate_search_form(widget.query_data);
+              });
+            }
+            $.magnificPopup.close();
+          }
+        }
+        ,preloader: false
+        ,removalDelay: 300
+        ,mainClass: 'popup-animate'
+        ,callBacks: {
+          open: function() {
+            setTimeout(function()
+            {
+              $('.container').addClass('blur');
+              $('.navbar').addClass('blur');
+            }, 150);
+          }
+          ,close: function()
+          {
+            $('.container').removeClass('blur');
+            $('.navbar').addClass('blur');
+          }
+          ,afterClose: function()
+          {
+            $('#set-all-tags-popup').remove();
+          }
+        }
+      });
+    }
+
+    ,add_tags_to_all_form: function(item)
+    {
+      var widget = this;
+      var widget_list = $('.widget-container[data-widget-type="graphwidget"]');
+      var tags_popup = '<div class="popup" id="add-tags-popup">' +
+        '<div id="add-tags-box"><div id="add-tags-head"><h4>Set tags for all Graph Widgets</h4></div>' +
+        '<div id="add-tags-info"><p>Add tag(s) specified here to all Graph Widgets.</p></div>' +
+        '<div id="add-tags-form" style="margin-bottom: 25px;"><div class="popup-form-data"><form onsubmit="return false;">' +
+        '<input type="text" class="input" id="new-tags" name="new-tags" value="" style="width: 500px;" onkeypress="if (event.which === 13) { $.magnificPopup.instance.items[0].data.add_tag_to_all(); }">' +
+        '</form></div></div>' +
+        '<div class="flexy widget-footer" style="margin-top: 10px;">' +
+        '<div class="widget-footer-button" id="cancel-add-tags" onClick="$.magnificPopup.close()"><span class="iconic iconic-x-alt"><span class="font-reset"> Cancel</span></span></div>' +
+        '<div class="glue1"></div>' +
+        '<div class="widget-footer-button" id="add-tags-button" onClick="$.magnificPopup.instance.items[0].data.add_tag_to_all()">' +
+        '<span class="iconic iconic-download"><span class="font-reset"> Save</span></span></div>' +
+        '</div>';
+      $.magnificPopup.open({
+        items: {
+          src: tags_popup
+          ,type: 'inline'
+          ,add_tag_to_all: function()
+          {
+            var new_tag_string = $('input#new-tags').val();
+            if (new_tag_string.length > 0)
+            {
+              var new_tags = [];
+              if (new_tag_string.match(','))
+              {
+                new_tags = new_tag_string.split(',');
+              }
+              else
+              {
+                new_tags = new_tag_string.split(' ');
+              }
+              widget_list = $('.widget-container[data-widget-type="graphwidget"]');
+              $.each(widget_list, function(i, widget_element)
+              {
+                var widget_id = '#' + $(widget_element).attr('id');
+                var widget = $(widget_id).data('sw-graphwidget');
+                $.each(widget.query_data.metrics, function(search_key, search_params)
+                {
+                  search_params.tags.push(new_tags);
+                });
+                widget.populate_search_form(widget.query_data);
+              });
+            }
+            $.magnificPopup.close();
+          }
+        }
+        ,preloader: false
+        ,removalDelay: 300
+        ,mainClass: 'popup-animate'
+        ,callBacks: {
+          open: function() {
+            setTimeout(function()
+            {
+              $('.container').addClass('blur');
+              $('.navbar').addClass('blur');
+            }, 150);
+          }
+          ,close: function()
+          {
+            $('.container').removeClass('blur');
+            $('.navbar').addClass('blur');
+          }
+          ,afterClose: function()
+          {
+            $('#set-all-tags-popup').remove();
+          }
+        }
+      });
     }
 
     ,dropdown_menu_handler: function(item)
@@ -1057,7 +1212,7 @@
             }
           }
         });
-        
+
         if (prompt_user)
         {
           setTimeout(function()
