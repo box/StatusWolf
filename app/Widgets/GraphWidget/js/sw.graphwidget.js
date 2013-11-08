@@ -196,7 +196,7 @@
     ,get_sw_url: function() {
       var base_uri = window.location.origin + '/';
       var path_bits = window.location.pathname.toString().split('/');
-      if (path_bits[1] !== "dashboard")
+      if (path_bits[1] !== "dashboard" && path_bits[1] !== "adhoc")
       {
         base_uri += path_bits[1] + '/';
       }
@@ -1628,7 +1628,7 @@
       var parse_object = new $.Deferred();
       var status = widget.sw_graphwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num).children('#status-message' + widget_num);
 
-      query_url = data.query_url;
+      widget.query_url = data.query_url;
       delete data.start;
       delete data.end;
       delete data.query_url;

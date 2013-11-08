@@ -138,7 +138,7 @@ class ApiController extends SWController
    *
    * @throws SWException
    */
-  protected function get_shared_search()
+  protected function save_shared_search()
   {
     $this->loggy->logDebug($this->log_tag . 'API call, return shared search key');
     $data = $_POST;
@@ -183,6 +183,42 @@ class ApiController extends SWController
     }
 
     $shared_search_db->close();
+  }
+
+  protected function get_shared_search_query($query_bits)
+  {
+    $sw_db = new mysqli($this->_app_config['session_handler']['db_host'], $this->_app_config['session_handler']['db_user'], $this->_app_config['session_handler']['db_password'], $this->_app_config['session_handler']['database']);
+    if (mysqli_connect_error())
+    {
+      throw new SWException('Saved searches database connect error: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
+    }
+
+    $shared_id = mysqli_real_escape_string($sw_db, array_shift($query_bits));
+
+    $shared_search_query = sprintf("SELECT * FROM shared_searches WHERE search_id='%s'", $shared_id);
+    $this->loggy->logDebug($this->log_tag . 'Shared search key: ' . $shared_id);
+    $this->loggy->logDebug($this->log_tag . 'Shared search query: ' . $shared_search_query);
+
+    if ($result = $sw_db->query($shared_search_query))
+    {
+      if ($result->num_rows && $result->num_rows > 0)
+      {
+        $raw_query_data = $result->fetch_assoc();
+        $serialized_query = $raw_query_data['search_params'];
+        $incoming_query_data = unserialize($serialized_query);
+      }
+      else
+      {
+        $incoming_query_data = "Expired";
+      }
+    }
+    else
+    {
+      throw new SWException('Database read error: ' . mysqli_errno($sw_db) . ' ' . mysqli_error($sw_db));
+    }
+
+    echo json_encode($incoming_query_data);
+
   }
 
   /**

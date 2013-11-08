@@ -21,6 +21,13 @@
     transition: all 0.5s linear;
 }
 
+.widget-container.cols-1 {
+    width: 90%;
+    height: 90%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .widget-container.cols-2 {
     width: 48%;
 }
