@@ -37,6 +37,7 @@ DROP TABLE IF EXISTS `saved_dashboards`;
 CREATE TABLE `saved_dashboards` (
   `id` varchar(32) NOT NULL DEFAULT '',
   `title` varchar(255) NOT NULL DEFAULT '',
+  `columns` int(2) DEFAULT NULL,
   `user_id` int(11) NOT NULL,
   `shared` tinyint(1) NOT NULL,
   `widgets` mediumtext NOT NULL,
