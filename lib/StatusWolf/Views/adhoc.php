@@ -378,7 +378,8 @@
     widget.sw_graphwidget_action.children('ul').empty();
     widget.sw_graphwidget_action.children('ul')
         .append('<li data-menu-action="maximize_widget"><span class="maximize-me">Maximize</span></li>' +
-            '<li id="edit_params"><span>Edit Parameters</span></li>');
+            '<li id="edit_params"><span>Edit Parameters</span></li>' +
+            '<li data-menu-action="set_all_spans"><span>Use this time span</span></li>');
     $('li#edit_params').click(function(event)
     {
       event.stopImmediatePropagation();

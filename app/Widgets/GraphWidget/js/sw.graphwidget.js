@@ -757,29 +757,31 @@
 
     ,set_all_spans: function(item)
     {
-      var widget = this;
-      var widget_id = widget.sw_graphwidget_containerid;
-      var widget_list = $('.widget-container[data-widget-type="graphwidget"]');
-      $.each(widget_list, function(i, action_widget_element)
+      var proto_widget = this;
+      if (proto_widget.graph.brush.empty() !== true)
       {
-        var action_widget_id = '#' + $(action_widget_element).attr('id');
-        if ( action_widget_id !== widget_id)
+        var proto_period = 'date-search';
+        var proto_no_autoupdate = true;
+      }
+      else
+      {
+        var proto_period = proto_widget.query_data.period;
+      }
+      var proto_start_time = parseInt(proto_widget.graph.x.domain()[0].getTime() / 1000);
+      var proto_end_time = parseInt(proto_widget.graph.x.domain()[1].getTime() / 1000);
+      var widget_list = $('.widget-container[data-widget-type="graphwidget"]');
+      $.each(widget_list, function(i, widget_element)
+      {
+        var widget_id = '#' + $(widget_element).attr('id');
+        var widget = $(widget_id).data('sw-graphwidget');
+        widget.query_data.period = proto_period;
+        widget.query_data.end_time = proto_end_time;
+        widget.query_data.start_time = proto_start_time;
+        if (typeof proto_no_autoupdate !== "undefined")
         {
-          var action_widget = $(action_widget_id).data('sw-graphwidget');
-          if (widget.graph.brush.empty() !== true)
-          {
-            action_widget.query_data.period = 'date-search';
-            action_widget.query_data.auto_update = false;
-          }
-          else
-          {
-            action_widget.query_data.period = widget.query_data.period;
-          }
-          action_widget.query_data.time_span = widget.query_data.time_span;
-          action_widget.query_data.end_time = parseInt(widget.graph.x.domain()[1].getTime() / 1000);
-          action_widget.query_data.start_time = parseInt(widget.graph.x.domain()[0].getTime() / 1000);
-          action_widget.populate_search_form(action_widget.query_data);
+          widget.query_data.autoupdate = false;
         }
+        widget.populate_search_form(widget.query_data);
       })
     }
 
