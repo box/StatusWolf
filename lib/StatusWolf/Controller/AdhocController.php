@@ -26,13 +26,13 @@ class AdhocController extends SWController
       $this->loggy = new KLogger(ROOT . 'app/log/', KLogger::INFO);
     }
     $this->log_tag = '(' . $_SESSION['_sw_authsession']['username'] . '|' . $_SESSION['_sw_authsession']['sessionip'] . ') ';
-    if (array_key_exists('shared_search_key', $_SESSION))
+    if (array_key_exists('shared_search_key', $_SESSION['_sw_authsession']))
     {
-      unset($_SESSION['shared_search_key']);
+      unset($_SESSION['_sw_authsession']['shared_search_key']);
     }
-    if (array_key_exists('saved_search_key', $_SESSION))
+    if (array_key_exists('saved_search_key', $_SESSION['_sw_authsession']))
     {
-      unset($_SESSION['saved_search_key']);
+      unset($_SESSION['_sw_authsession']['saved_search_key']);
     }
 
     if (!empty($url_path[0]))
@@ -59,7 +59,7 @@ class AdhocController extends SWController
         if ($_shared_search_key = array_shift($url_path))
         {
           include 'header.php';
-          $_SESSION['shared_search_key'] = $_shared_search_key;
+          $_SESSION['_sw_authsession']['shared_search_key'] = $_shared_search_key;
           if ($_SESSION['authenticated'])
           {
             include 'navbar.php';
@@ -79,7 +79,7 @@ class AdhocController extends SWController
         {
           $this->loggy->logDebug($this->log_tag . 'Saved search id: ' . $_saved_search_key);
           include 'header.php';
-          $_SESSION['saved_search_key'] = $_saved_search_key;
+          $_SESSION['_sw_authsession']['saved_search_key'] = $_saved_search_key;
           if ($_SESSION['authenticated'])
           {
             include 'navbar.php';

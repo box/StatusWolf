@@ -10,288 +10,235 @@
  * @package StatusWolf.Views
  */
   $_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
-
+  $_sw_conf = SWConfig::read_values('statuswolf');
+  $db_conf = $_sw_conf['session_handler'];
 ?>
 
-    <link rel="stylesheet" href="<?php echo URL; ?>app/css/widget_base.css">
-    <link rel="stylesheet" href="<?php echo URL; ?>app/css/adhoc.css">
-    <link rel="stylesheet" href="<?php echo URL; ?>app/css/popups.css?v=1.0">
+<link rel="stylesheet" href="<?php echo URL; ?>app/css/widget_base.css">
+<link rel="stylesheet" href="<?php echo URL; ?>app/css/adhoc.css">
+<link rel="stylesheet" href="<?php echo URL; ?>app/css/popups.css?v=1.0">
+<link rel="stylesheet" href="<?php echo URL; ?>app/css/push-button.css">
 
-    <div class="container">
-      <div class="widget-container" id="ad-hoc-widget">
-        <div class="widget">
-          <div class="widget-front" id="ad-hoc-front">
-            <div class="flexy widget-title">
-              <div class="widget-title-head" style="-webkit-box-flex: 1;"><h4><a href="<?php echo URL; ?>adhoc/">Ad-Hoc Search</a></h4></div>
-              <div class="glue1"></div>
-              <div id="legend-hover"></div>
-            </div>
-            <div class="widget-main">
-              <div id="graph-title" class="graph-title" style="width: 99%; height: 99%;"></div>
-              <div id="graphdiv" class="graphdiv" style="width: 99%;"></div>
-              <div id="legend-container" class="legend-container"><div id="legend"></div></div>
-            </div>
-            <div class="flexy widget-footer">
-              <div class="widget-footer-button left-button" id="ad-hoc-edit" onClick="$(this).parents('.widget').addClass('flipped')">
-                <span class="iconic iconic-pen-alt2"></span> Edit search parameters
-              </div><div class="widget-footer-button left-button hidden" id="get-datasource-url">
-                <span class="iconic iconic-target"><span class="font-reset"> Get Raw Datasource URL</span></span>
-              </div>
-              <div class="glue1"></div>
-              <div class="widget-footer-button right-button hidden" id="show-visible-span" onclick="use_this_time_range(g.xAxisRange())">
-                <span>Use this time range</span>
-              </div><div class="widget-footer-button right-button hidden" id="share-search">
-                <span class="iconic iconic-share"><span class="font-reset"> Share Search</span></span>
-              </div><div class="widget-footer-button right-button hidden" id="save-popup-button">
-                <span class="iconic iconic-download"><span class="font-reset"> Save Search</span></span>
-              </div><div class="widget-footer-button right-button fullscreen-out" id="fullscreen"><span id="fullscreen-button" class="iconic iconic-fullscreen"> </span></div>
-            </div>
+<div class="container">
+  <div id="adhoc-container"></div>
+</div>
+
+<div id="saved-search-list-popup" class="popup mfp-hide">
+  <div id="my-searches-box">
+    <div id="my-searches-head">
+      <h2>My Searches</h2>
+    </div>
+    <div id="my-searches-list">
+      <table id="my-searches-list-table" class="table">
+        <tr>
+          <th>Search Title</th>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div id="public-searches-box">
+    <div id="public-searches-head">
+      <h2>Public Searches</h2>
+    </div>
+    <div id="public-searches-list">
+      <table id="public-searches-list-table" class="table">
+        <tr class="header-row">
+          <th>Search Title</th>
+          <th>User</th>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="save-form-popup" class="popup mfp-hide">
+  <div id="save-query-form">
+    <form onsubmit="return false;">
+      <h5>Title: </h5>
+      <div class="popup-form-data">
+        <input type="text" class="input" id="save-search-title" name="save-search-title" value="" style="width: 90%; font-size: 1em;">
+        <input type="hidden" class="hidden" id="search-id" name="search-id" value="">
+      </div>
+      <h5>Options:</h5>
+      <div class="popup-form-data">
+        <div class="save-form-row" style="font-size: 1em;">
+          <div class="push-button">
+            <input type="checkbox" id="save-span" name="save-span"><label for="save-span"><span class="iconic iconic-x-alt red"></span><span class="binary-label"> Save Search Times</span></label>
           </div>
-          <div class="widget-back" id="ad-hoc-back">
-            <div class="flexy widget-title">
-              <div class="widget-title-head"><h4><a href="<?php echo URL; ?>adhoc/">Ad-Hoc Search</a></h4></div>
-              <div class="dropdown widget-title-dropdown" id="saved-searches-menu">
-                <span class="widget-title-button" data-toggle="dropdown"><span class="ad-hoc-button-label" id="saved-searches">Saved Searches</span><span class="iconic iconic-play rotate-90"></span></span>
-                <ul class="dropdown-menu" id="saved-searches-options" role="menu" aria-labelledby="dLabel"></ul>
-              </div>
-              <div class="glue1"></div>
-              <div class="dropdown widget-title-dropdown" id="datasource-menu">
-                <span class="widget-title-button right-button" data-toggle="dropdown"><span class="ad-hoc-button-label" id="active-datasource" >OpenTSDB</span><span class="iconic iconic-play rotate-90"></span></span>
-                <ul class="dropdown-menu menu-left" id="datasource-options" role="menu" aria-labelledby="dLabel">
-                  <li><span>OpenTSDB</span></li>
-                </ul>
-              </div>
-            </div>
-            <div class="widget-main">
-              <div id="ad-hoc-search-form"></div>
-            </div>
-            <div class="flexy widget-footer">
-              <div class="widget-footer-button left-button" id="query-cancel" onClick="$(this).parents('.widget').removeClass('flipped')"><span class="iconic iconic-x-alt"><span class="font-reset"> Cancel</span></span></div>
-              <div class="glue1"></div>
-              <div class="widget-footer-button right-button" id="go-button" onClick="go_click_handler(event)"><span class="iconic iconic-bolt"> Go</span></div>
-            </div>
+          <div class="push-button">
+            <input type="checkbox" id="public" name="public"><label for="public"><span class="iconic iconic-x-alt red"></span><span class="binary-label"> Public Search</span></label>
           </div>
         </div>
       </div>
-    </div>
+    </form>
+  </div>
+  <div id="save-query-info">
+    <ul>
+      <li><em>Save Search Times:</em> If selected will save the exact times for this search. If not selected and
+        the search times were specified specifically you will be prompted for new times when loading the shared
+        search. If the search times were specified as a time span (e.g. "Show me the past 8 hours") the span setting
+        will be saved with the search and used when it is loaded again.</li>
+      <li><em>Public Search: </em>If selected the saved search will show up for all logged in users in their Public
+        Searches list, otherwise it will only be visible to you, in your Saved Searches list.</li>
+    </ul>
+  </div>
+  <div class="flexy widget-footer" style="margin-top: 10px;">
+    <div class="widget-footer-button" id="cancel-save-query-data-button" onClick="$.magnificPopup.close()"><span class="iconic iconic-x-alt"><span class="font-reset"> Cancel</span></span></div>
+    <div class="glue1"></div>
+    <div class="widget-footer-button" id="save-query-data-button" onClick="save_click_handler(event, 0, $('.widget-container').data('sw-graphwidget').query_data)"><span class="iconic iconic-download"><span class="font-reset"> Save</span></span></div>
+  </div>
+</div>
 
-    <div id="save-form-popup" class="popup mfp-hide">
-      <div id="save-query-form">
-        <form onsubmit="return false;">
-          <h5>Title: </h5>
-          <div class="popup-form-data">
-            <input type="text" class="input" id="save-search-title" name="save-search-title" value="" style="width: 250px;">
-            <input type="hidden" class="hidden" id="search-id" name="search-id" value="">
-          </div>
-          <h5>Options:</h5>
-          <div class="popup-form-data">
-            <div class="save-form-row" style="font-size: 1em;">
-              <div class="push-button">
-                <input type="checkbox" id="save-span" name="save-span"><label for="save-span"><span class="iconic iconic-x-alt red"></span><span class="binary-label"> Save Search Times</span></label>
-              </div>
-              <div class="push-button">
-                <input type="checkbox" id="public" name="public"><label for="public"><span class="iconic iconic-x-alt red"></span><span class="binary-label"> Public Search</span></label>
-              </div>
-            </div>
-          </div>
-        </form>
-      </div>
-      <div id="save-query-info">
-        <ul>
-          <li><em>Save Search Times:</em> If selected will save the exact times for this search. If not selected and
-            the search times were specified specifically you will be prompted for new times when loading the shared
-            search. If the search times were specified as a time span (e.g. "Show me the past 8 hours") the span setting
-            will be saved with the search and used when it is loaded again.</li>
-          <li><em>Public Search: </em>If selected the saved search will show up for all logged in users in their Public
-            Searches list, otherwise it will only be visible to you, in your Saved Searches list.</li>
-        </ul>
-      </div>
-      <div class="flexy widget-footer" style="margin-top: 10px;">
-        <div class="widget-footer-button" id="cancel-save-query-data-button" onClick="$.magnificPopup.close()"><span class="iconic iconic-x-alt"><span class="font-reset"> Cancel</span></span></div>
-        <div class="glue1"></div>
-        <div class="widget-footer-button" id="save-query-data-button" onClick="save_click_handler(event, 0, query_data)"><span class="iconic iconic-download"><span class="font-reset"> Save</span></span></div>
-      </div>
-    </div>
+<div id="share-search-popup" class="popup mfp-hide">
+  <h5>Share Link to Search</h5>
+  <div class="popup-form-data">
+    <p id="share-info">Copy and paste this link into email, chat, etc. to share this search. Shared links will expire after 24 hours.</p>
+    <div class="uneditable-input" id="shared-search-url" onClick="select_text('shared-search-url')" style="width: 95%; vertical-align: middle; padding: 6px 10px 2px 10px;"></div>
+  </div>
+</div>
 
-    <div id="share-search-popup" class="popup mfp-hide">
-      <h5>Share Link to Search</h5>
-      <div class="popup-form-data">
-        <p id="share-info">Copy and paste this link into email, chat, etc. to share this search. Shared links will expire after 24 hours.</p>
-        <div class="uneditable-input" id="shared-search-url" onClick="select_text('shared-search-url')" style="width: 95%; vertical-align: middle; padding: 6px 10px 2px 10px;"></div>
-      </div>
-    </div>
+<div id="datasource-url-popup" class="popup mfp-hide">
+  <h5>Raw Datasource URL</h5>
+  <div class="popup-form-data">
+    <div class="uneditable-input" id="datasource-url" onClick="select_text('datasource-url')" style="width: 95%; vertical-align: middle; padding: 6px 10px 2px 10px; font-size: 0.8em;"></div>
+  </div>
+</div>
 
-    <div id="datasource-url-popup" class="popup mfp-hide">
-      <h5>Raw Datasource URL</h5>
-      <div class="popup-form-data">
-        <div class="uneditable-input" id="datasource-url" onClick="select_text('datasource-url')" style="width: 95%; vertical-align: middle; padding: 6px 10px 2px 10px;"></div>
-      </div>
-    </div>
+<div id="success-popup" class="popup mfp-hide"><h5>Success</h5><div class="popup-form-data">Your search has been saved.</div></div>
+<div id="failure-popup" class="popup mfp-hide"><h5>Error</h5><div id="failure-info" class="popup-form-data">There was an error when saving your search, please try again later.</div></div>
+<div id="confirmation-popup" class="popup mfp-hide">
+  <div id="confirmation-main">
+    <div id="confirmation-info" class="popup-form-data"></div>
+  </div>
+  <div class="flexy widget-footer" style="margin-top: 10px;">
+    <div class="widget-footer-button" id="cancel-confirm-button" onClick="$.magnificPopup.close()"><span class="iconic iconic-x-alt"><span class="font-reset"> Cancel</span></span></div>
+    <div class="glue1"></div>
+    <div class="widget-footer-button" id="confirm-save-button"><span class="iconic iconic-download"><span class="font-reset"> Overwrite</span></span></div>
+  </div>
+</div>
 
-    <div id="success-popup" class="popup mfp-hide"><h5>Success</h5><div class="popup-form-data">Your search has been saved.</div></div>
-    <div id="failure-popup" class="popup mfp-hide"><h5>Error</h5><div id="failure-info" class="popup-form-data">There was an error when saving your search, please try again later.</div></div>
-    <div id="confirmation-popup" class="popup mfp-hide">
-      <div id="confirmation-main">
-        <div id="confirmation-info" class="popup-form-data"></div>
-      </div>
-      <div class="flexy widget-footer" style="margin-top: 10px;">
-        <div class="widget-footer-button" id="cancel-confirm-button" onClick="$.magnificPopup.close()"><span class="iconic iconic-x-alt"><span class="font-reset"> Cancel</span></span></div>
-        <div class="glue1"></div>
-        <div class="widget-footer-button" id="confirm-save-button"><span class="iconic iconic-download"><span class="font-reset"> Overwrite</span></span></div>
-      </div>
-    </div>
+<div id="range-set-popup" class="popup mfp-hide"><div class="popup-form-data"></div></div>
 
-    <div id="range-set-popup" class="popup mfp-hide"><div class="popup-form-data"></div></div>
+<link rel="stylesheet" href="<?php echo URL; ?>app/css/datetimepicker.css">
+<link rel="stylesheet" href="<?php echo URL; ?>app/css/toggle-buttons.css">
+<link rel="stylesheet" href="<?php echo URL; ?>app/css/table.css">
+<link rel="stylesheet" href="<?php echo URL; ?>app/css/loader.css">
+<link rel="stylesheet" href="<?php echo URL; ?>app/css/tooltip.css">
 
-    <script type="text/javascript" src="<?php echo URL; ?>app/js/sw_lib.js"></script>
-    <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/dygraph-combined.js"></script>
-    <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/bootstrap.js"></script>
-    <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/date.js"></script>
-    <script type="text/javascript" src="<?php echo URL; ?>app/js/status_wolf_colors.js"></script>
+<script type="text/javascript" src="<?php echo URL; ?>app/js/sw_lib.js"></script>
+<script type="text/javascript" src="<?php echo URL; ?>app/js/lib/jquery-ui.js"></script>
+<script type="text/javascript" src="<?php echo URL; ?>app/js/lib/bootstrap.js"></script>
+<script type="text/javascript" src="<?php echo URL; ?>app/js/lib/date.js"></script>
+<script type="text/javascript" src="<?php echo URL; ?>app/js/lib/md5.js"></script>
+<script type="text/javascript" src="<?php echo URL; ?>app/js/status_wolf_colors.js"></script>
+<script type="text/javascript" src="<?php echo URL; ?>app/js/lib/jquery.autocomplete.js"></script>
+<script type="text/javascript" src="<?php echo URL; ?>app/js/lib/d3.min.js"></script>
 
-    <script type="text/javascript">
+<script type="text/javascript">
 
-      $('title').text('AdHoc Search - StatusWolf');
+  $('title').text('AdHoc Search - StatusWolf');
 
-      build_saved_search_menu();
-      var datasource = $('#active-datasource').text().toLowerCase() + '_search';
-      show_datasource_form(datasource);
+  var _session_data = '<?php echo json_encode($_session_data); ?>';
+  if (typeof _session_data == "string")
+  {
+    document._session_data = eval('(' + _session_data + ')');
+  }
+  else
+  {
+    document._session_data = _session_data
+  }
+  var _sw_conf = '<?php echo json_encode($_sw_conf); ?>';
+  if (typeof _sw_conf == "string")
+  {
+    document._sw_conf = eval('(' + _sw_conf + ')');
+  }
+  else
+  {
+    document._sw_conf = _sw_conf;
+  }
 
-      $('#datasource-options > li').click(function() {
-        $('#active-datasource').text($(this).text());
-        datasource = $(this).text().toLowerCase() + '_search';
-        show_datasource_form(datasource);
-      });
+  document._session_data.data.dashboard_columns = 1;
+  $.ajax({
+    url: '<?php echo URL; ?>api/session_data/set/dashboard_columns=1'
+    ,type: 'GET'
+    ,dataType: 'json'
+    ,done: function(data) {
+    }
+  });
 
-//      $('#save-popup-button').css('margin-right', $('#fullscreen').outerWidth());
+  $(document).ready(function() {
+    this.sw_url = '<?php echo URL; ?>';
 
-      $('#fullscreen').click(function() {
-        if ($('.widget-container').hasClass('maximize-widget'))
-        {
-          $('.widget-container').removeClass('maximize-widget');
-          $('.navbar').removeClass('hidden');
-          $('body').removeClass('no-overflow');
-          $('#fullscreen-button').removeClass('iconic-fullscreen-exit').addClass('iconic-fullscreen');
-          $('#legend-container').css('width', $('.widget-main').innerWidth());
-          // For some unknown reason when the graph is returned to normal size there is a 14 pixel discrepancy
-          // in the height of the master container that is magically fixed after resizing the graph itself, so
-          // the has to be run twice to get the correct dimensions for everything...
-          $('.widget-main').css('height', $('#ad-hoc-widget').height() - ($('.widget-title').height() + $('.widget-footer').height()));
-          $('#graphdiv').css('height', $('.widget-main').innerHeight() - $('#legend-container').outerHeight(true));
-          g.resize();
-          $('.widget-main').css('height', $('#ad-hoc-widget').height() - ($('.widget-title').height() + $('.widget-footer').height()));
-          $('#graphdiv').css('height', $('.widget-main').innerHeight() - $('#legend-container').outerHeight(true));
-          g.resize();
-        }
-        else
-        {
-          $('.widget-container').addClass('maximize-widget');
-          $('.navbar').addClass('hidden');
-          $('body').addClass('no-overflow');
-          $('#fullscreen-button').removeClass('iconic-fullscreen').addClass('iconic-fullscreen-exit');
-          $('.widget-main').css('height', $('#ad-hoc-widget').height() - ($('.widget-title').height() + $('.widget-footer').height()));
-          $('#graphdiv').css('height', $('.widget-main').innerHeight() - $('#legend-container').outerHeight(true));
-          $('#legend-container').css('width', $('.widget-main').innerWidth());
-          g.resize();
-        }
+    $('head').append('<link rel="stylesheet" href="<?php echo URL . WIDGETS_URL; ?>GraphWidget/css/sw.graphwidget.css">');
+    loadScript('<?php echo URL . WIDGETS_URL ?>GraphWidget/js/sw.graphwidget.js', function(){
 
-      });
-
-      function show_datasource_form(datasource)
+      // Grab the config for shared search or saved search we're loading (if there is one)
+      if (typeof document._session_data.shared_search_key !== "undefined")
       {
-        var view_url = "<?php echo URL; ?>api/datasource_form/" + datasource + "/adhoc";
-        $.ajax({
-          url: view_url
-          ,method: 'GET'
-          ,dataType: 'json'
-          ,success: function(data) {
-            $('#ad-hoc-search-form').html(data['form_source']);
-          }
-        });
+        $.when(get_shared_search_query(document._session_data.shared_search_key)).then(
+            function(query_data)
+            {
+              load_search(query_data);
+            }
+        );
       }
-
-      $('#get-datasource-url').magnificPopup({
-        items: {
-          src: '#datasource-url-popup'
-          ,type: 'inline'
-        }
-        ,preloader: false
-        ,removalDelay: 300
-        ,mainClass: 'popup-animate'
-        ,callbacks: {
-          beforeOpen: function() {
-            var ds_url = query_url;
-            if (query_data['datasource'] === "OpenTSDB")
+      else if (typeof document._session_data.saved_search_key !== "undefined")
+      {
+        $.when(get_saved_search_query(document._session_data.saved_search_key)).then(
+            function(query_data)
             {
-              ds_url = ds_url.replace('&ascii','');
+              load_search(query_data);
             }
-            $('body').append('<div id="width-test" style="position: absolute; visibility: hidden;">' + ds_url + '</div>');
-            var text_width = $('#width-test').width();
-            $('#width-test').remove();
-            $('#datasource-url-popup').css('width', text_width);
-            $('#datasource-url').text(ds_url);
-          }
-          ,open: function() {
-            setTimeout(function() {
-              $('.navbar').addClass('blur');
-              $('.container').addClass('blur');
-            }, 150);
-          }
-          ,close: function() {
-            $('.container').removeClass('blur');
-            $('.navbar').removeClass('blur');
+        )
+      }
+      else
+      {
+        var username = "<?php echo $_session_data['username'] ?>";
+        var widget_id = "widget" + md5(username + new Date.now().getTime());
+        $('div#adhoc-container').append('<div class="widget-container cols-1" id="' + widget_id + '" data-widget-type="graphwidget">');
+        var widget_div = $('#' + widget_id).graphwidget();
+        adhoc_fixes('#' + widget_id);
+        setTimeout(function() {
+          widget_div.children('.widget').addClass('flipped');
+        }, 250);
+        setTimeout(function() {
+          widget_div.removeClass('transparent');
+        }, 100);
+      }
+    });
+
+    // Add the adhoc menu
+    $('#menu-placeholder').replaceWith('<div class="adhoc-menu left-button dropdown menu-btn" id="adhoc-menu">');
+    $('#adhoc-menu').append('<span class="flexy" id="adhoc-menu-content" data-toggle="dropdown">')
+    $('#adhoc-menu-content').append('<span class="menu-label" id="adhoc-menu-label">Ad-Hoc Search</span>');
+    $('#adhoc-menu').append('<ul class="dropdown-menu sub-menu-item" id="adhoc-menu-options" role="menu" aria-labelledby="dLabel">');
+    $('#adhoc-menu-options').append('<li id="clear-adhoc-menu-choice"><a href="<?php echo URL; ?>adhoc/"><span>New Search</span></a></li>');
+    $('#adhoc-menu-options').append('<li class="flexy dropdown" id="load-search-menu-item"><span>Load Search</span></span><span class="iconic iconic-play"></span></li>');
+    $('#load-search-menu-item').append('<ul class="dropdown-menu sub-menu" id="load-search-menu-options">');
+    $('#adhoc-menu-options').append('<li id="save-search-menu-choice"><span>Save Search</span></li>');
+    $('#adhoc-menu-options').append('<li id="share-search-menu-choice"><span>Share Search</span></li>');
+    $('#adhoc-menu-options').append('<li id="get-datasource-url-choice"><span>Get Datasource URL</span></li>');
+
+    // Load the list of saved searches
+    $.when(build_saved_search_menu()).then(
+        function(data)
+        {
+          if (data[1] > data[0])
+          {
+            $('#load-search-menu-options').append('<li id="full-saved-search-list"><span>More...</span></li>')
           }
         }
-      });
+    );
 
-      $('#share-search').magnificPopup({
+    // If the list is too long we truncate it and give the user a "More..." option (see above)
+    // to load a popup with the complete list.
+    $('#adhoc-menu').on('click', 'li#full-saved-search-list', function() {
+      $.magnificPopup.open({
         items: {
-          src: '#share-search-popup'
+          src: '#saved-search-list-popup'
           ,type: 'inline'
         }
         ,preloader: false
-        ,removalDelay: 300
-        ,mainClass: 'popup-animate'
-        ,callbacks: {
-          beforeOpen: function() {
-            var api_url = "<?php echo URL; ?>api/get_shared_search";
-            query_data['title'] = 'Shared search from <?php echo $_session_data['username']; ?>';
-            if (query_data['period'] === "span-search")
-            {
-              delete query_data['start_time'];
-              delete query_data['end_time'];
-            }
-            $.ajax({
-              url: api_url
-              ,type: 'POST'
-              ,data: query_data
-              ,dataType: 'json'
-              ,success: function(data) {
-                var share_url = "<?php echo URL; ?>adhoc/shared/" + data['search_id'];
-                $("#shared-search-url").text(share_url);
-              }
-            });
-          }
-          ,open: function() {
-            setTimeout(function() {
-              $('.navbar').addClass('blur');
-              $('.container').addClass('blur');
-            }, 150);
-          }
-          ,close: function() {
-            $('.container').removeClass('blur');
-            $('.navbar').removeClass('blur');
-          }
-        }
-      });
-
-      $('#save-popup-button').magnificPopup({
-        items: {
-          src: '#save-form-popup'
-          ,type: 'inline'
-        }
-        ,preloader: false
-        ,focus: '#save-search-title'
         ,removalDelay: 300
         ,mainClass: 'popup-animate'
         ,callbacks: {
@@ -300,18 +247,6 @@
               $('.container').addClass('blur');
               $('.navbar').addClass('blur');
             }, 150);
-            if ($('input[name="save-search-title"]').attr('value').length < 1)
-            {
-              if ($('#graph-title').text().length < 1)
-              {
-                <?php if (array_key_exists('user_searches', $_session_data['data'])) { $search_count = count($_session_data['data']['user_searches']); } else { $search_count = 0; } ?>
-                $('input[name="save-search-title"]').attr('value', '<?php echo $_session_data['username']; ?>' + '_' + datasource + '_' + '<?php echo $search_count + 1; ?>');
-              }
-              else
-              {
-                $('input[name="save-search-title"]').attr('value', $('#graph-title').text());
-              }
-            }
           }
           ,close: function() {
             $('.container').removeClass('blur');
@@ -319,196 +254,495 @@
           }
         }
       });
+    });
 
-      function save_click_handler(event, confirmation, query_data)
-      {
-        if ($('input[name="save-search-title"]').val().length < 1)
-        {
-          $('input[name="save-search-title"]').css('border-color', 'red').css('background-color', 'rgb(255, 200, 200)').focus();
-          alert("You must specify a title for your saved search");
-        }
-        query_data['user_id'] = "<?php echo $_session_data['user_id']; ?>";
-        query_data['title'] = $('input[name="save-search-title"]').val();
-        $('#save-span').prop('checked')?query_data['save_span'] = 1:query_data['save_span'] = 0;
-        $('#public').prop('checked')?query_data['private'] = 0:query_data['private'] = 1;
-        var api_url = '<?php echo URL; ?>api/save_adhoc_search';
-        if (typeof query_data.search_id !== "undefined")
-        {
-          api_url += '/' + query_data.search_id;
-          if (confirmation > 0)
+    // Handler for the save search dialog
+    $('#save-search-menu-choice').magnificPopup({
+      items: {
+        src: '#save-form-popup'
+        ,type: 'inline'
+      }
+      ,preloader: false
+      ,focus: '#save-search-title'
+      ,removalDelay: 300
+      ,mainClass: 'popup-animate'
+      ,callbacks: {
+        open: function() {
+          setTimeout(function() {
+            $('.container').addClass('blur');
+            $('.navbar').addClass('blur');
+          }, 150);
+          if ($('input[name="save-search-title"]').attr('value').length < 1)
           {
-            api_url += '/Confirm'
+            if ($('.graph-title').text().length < 1)
+            {
+              <?php if (array_key_exists('user_searches', $_session_data['data'])) { $search_count = count($_session_data['data']['user_searches']); } else { $search_count = 0; } ?>
+              $('input[name="save-search-title"]').attr('value', '<?php echo $_session_data['username']; ?>' + '_' + $('.widget-container').data('sw-graphwidget').options.datasource + '_' + '<?php echo $search_count + 1; ?>');
+            }
+            else
+            {
+              $('input[name="save-search-title"]').attr('value', $('.graph-title').text());
+            }
           }
         }
-        $.ajax({
-          url: api_url
-          ,type: 'POST'
-          ,data: query_data
-          ,dataType: 'json'
-          ,success: function(data) {
-            if (typeof data === "string")
-            {
-              data = eval('(' + data + ')');
-            }
-            if (data.query_result === "Error")
-            {
-              switch (data.query_info)
-              {
-                case "Title":
-                  query_data.search_id = data.search_id;
-                  $('#confirmation-info').empty().append("<span>A search with that name already exists, overwrite?</span>");
-                  $('#confirm-save-button').click(function(event) {
-                    save_click_handler(event, 1, query_data);
-                  })
-                  $.magnificPopup.open({
-                    items: {
-                      src: '#confirmation-popup'
-                      ,type: 'inline'
-                    }
-                    ,preloader: false
-                    ,mainClass: 'popup-animate'
-                    ,callbacks: {
-                      close: function() {
-                        $('#confirmation-popup').remove();
-                      }
-                    }
-                  });
-                  return;
-                default:
-                  $.magnificPopup.open({
-                    items: {
-                      src: '#failure-popup'
-                      ,type: 'inline'
-                    }
-                    ,preloader: false
-                    ,removalDelay: 300
-                    ,mainClass: 'popup-animate'
-                    ,callbacks: {
-                      close: function() {
-                        $('#failure-popup').remove();
-                      }
-                    }
-                  })
-                  setTimeout(function() {
-                    $.magnificPopup.close();
-                  }, 750);
-              }
-            }
-            build_saved_search_menu();
-            $.magnificPopup.open({
-              items: {
-                src: '#success-popup'
-                ,type: 'inline'
-              }
-              ,preloader: false
-              ,removalDelay: 300
-              ,mainClass: 'popup-animate'
-              ,callbacks: {
-                open: function() {
-                  $('.navbar').addClass('blur');
-                  $('.container').addClass('blur');
-                }
-                ,close: function() {
-                  $('.container').removeClass('blur');
-                  $('.navbar').removeClass('blur');
-                  $('#success-popup').remove();
-                }
-              }
-            });
-            setTimeout(function() {
-              $.magnificPopup.close();
-            }, 750);
-          }
-        });
-
-      }
-
-      function build_saved_search_menu()
-      {
-        var user_id = "<?php echo $_session_data['user_id']; ?>";
-        var api_url = '<?php echo URL; ?>api/get_saved_searches';
-        api_query = {user_id: user_id};
-        $.ajax({
-          url: api_url
-          ,type: 'POST'
-          ,data: api_query
-          ,dataType: 'json'
-          ,success: function(data) {
-            my_searches = data['user_searches'];
-            public_searches = data['public_searches'];
-            $('#saved-searches-options').empty();
-            $('#saved-searches-options').append('<li class="menu-section"><span>My Searches</span></li>');
-            if (my_searches)
-            {
-              $.each(my_searches, function(i, search) {
-                $('#saved-searches-options').append('<li><span><a href="<?php echo URL; ?>adhoc/saved/' + search['id'] + '">' + search['title'] + '</span></li>');
-              });
-            }
-            if (public_searches)
-            {
-              $('#saved-searches-options').append('<li class="menu-section"><span class="divider"></span></li>');
-              $('#saved-searches-options').append('<li class="menu-section"><span>Public Searches</span></li>');
-              $.each(public_searches, function(i, public) {
-                $('#saved-searches-options').append('<li><span><a href="<?php echo URL; ?>adhoc/saved/' + public['id'] + '">' + public['title'] + ' (' + public['username'] + ')</a></span></li>');
-              });
-            }
-          }
-        });
-      }
-
-      function use_this_time_range(range)
-      {
-        var span_adjust = false;
-        query_data.start_time = parseInt(range[0] / 1000);
-        query_data.end_time = parseInt(range[1] / 1000);
-        query_data.time_span = query_data.end_time - query_data.start_time;
-        if (query_data.time_span < 600)
-        {
-          query_data.start_time = query_data.end_time - 600;
-          var span_adjust = true;
+        ,close: function() {
+          $('.container').removeClass('blur');
+          $('.navbar').removeClass('blur');
         }
-        query_data.period = "date-search"
-        populate_form(query_data, true);
+      }
+    });
 
+    $('#share-search-menu-choice').magnificPopup({
+      items: {
+        src: '#share-search-popup'
+        ,type: 'inline'
+      }
+      ,preloader: false
+      ,removalDelay: 300
+      ,mainClass: 'popup-animate'
+      ,callbacks: {
+        beforeOpen: function() {
+          var api_url = "<?php echo URL; ?>api/save_shared_search";
+          var widget = $('.widget-container').data('sw-graphwidget');
+          widget.query_data['title'] = 'Shared search from <?php echo $_session_data['username']; ?>';
+          if (widget.query_data['period'] === "span-search")
+          {
+            delete widget.query_data['start_time'];
+            delete widget.query_data['end_time'];
+          }
+          $.ajax({
+            url: api_url
+            ,type: 'POST'
+            ,data: widget.query_data
+            ,dataType: 'json'
+            ,success: function(data) {
+              var share_url = "<?php echo URL; ?>adhoc/shared/" + data['search_id'];
+              $("#shared-search-url").text(share_url);
+            }
+          });
+        }
+        ,open: function() {
+          setTimeout(function() {
+            $('.navbar').addClass('blur');
+            $('.container').addClass('blur');
+          }, 150);
+        }
+        ,close: function() {
+          $('.container').removeClass('blur');
+          $('.navbar').removeClass('blur');
+        }
+      }
+    });
+
+    $('#get-datasource-url-choice').magnificPopup({
+      items: {
+        src: '#datasource-url-popup'
+        ,type: 'inline'
+      }
+      ,preloader: false
+      ,removalDelay: 300
+      ,mainClass: 'popup-animate'
+      ,callbacks: {
+        beforeOpen: function() {
+          var widget = $('.widget-container').data('sw-graphwidget');
+          var ds_url = widget.query_url;
+          if (widget.query_data['datasource'] === "OpenTSDB")
+          {
+            ds_url = ds_url.replace('&ascii','');
+          }
+          $('body').append('<div id="width-test" style="position: absolute; visibility: hidden;">' + ds_url + '</div>');
+          var text_width = $('#width-test').width();
+          $('#width-test').remove();
+          $('#datasource-url-popup').css('width', text_width);
+          $('#datasource-url').text(ds_url);
+        }
+        ,open: function() {
+          setTimeout(function() {
+            $('.navbar').addClass('blur');
+            $('.container').addClass('blur');
+          }, 150);
+        }
+        ,close: function() {
+          $('.container').removeClass('blur');
+          $('.navbar').removeClass('blur');
+        }
+      }
+    });
+
+  });
+
+  function adhoc_fixes(widget_id)
+  {
+    widget = $(widget_id).data('sw-graphwidget');
+    widget.sw_graphwidget_savedsearchesmenu.remove();
+    widget.sw_graphwidget_action.children('ul').empty();
+    widget.sw_graphwidget_action.children('ul')
+        .append('<li data-menu-action="maximize_widget"><span class="maximize-me">Maximize</span></li>' +
+            '<li id="edit_params"><span>Edit Parameters</span></li>');
+    $('li#edit_params').click(function(event)
+    {
+      event.stopImmediatePropagation();
+      widget.sw_graphwidget.addClass('flipped');
+    });
+
+  }
+
+  function get_shared_search_query(search_id)
+  {
+    var api_url = '<?php echo URL; ?>api/get_shared_search_query/' + search_id;
+    document._session_data.shared_search_key = search_id;
+    var shared_search = new $.Deferred();
+
+    var shared_search_query = $.ajax({
+      url: api_url
+      ,type: 'GET'
+      ,dataType: 'json'
+    })
+    ,chain = shared_search_query.then(function(data) {
+      return(data);
+    });
+    chain.done(function(data) {
+      delete(shared_search_query);
+      shared_search.resolve(data);
+    });
+
+    return shared_search.promise();
+
+  }
+
+  function get_saved_search_query(search_id)
+  {
+    var api_url = '<?php echo URL; ?>api/load_saved_search/' + search_id;
+    document._session_data.saved_search_key = search_id;
+    var saved_search = new $.Deferred();
+
+    var saved_search_query = $.ajax({
+        url: api_url
+        ,type: 'GET'
+        ,dataType: 'json'
+      })
+      ,chain = saved_search_query.then(function(data)
+      {
+        return(data);
+      });
+    chain.done(function(data)
+    {
+      delete(saved_search_query);
+      saved_search.resolve(data);
+    });
+
+    return saved_search.promise();
+
+  }
+
+  function load_search(query_data)
+  {
+    console.log(query_data);
+    if (typeof query_data === "string" && query_data.length > 1)
+    {
+      if (query_data.match(/Expired/))
+      {
+        $('.container').append('<div id="expired-popup" class="popup"><h5>Expired</h5><div class="popup-form-data">Your search has expired and is no longer available</div></div>');
         $.magnificPopup.open({
           items: {
-            src: '#range-set-popup'
+            src: '#expired-popup'
             ,type: 'inline'
           }
           ,preloader: false
           ,removalDelay: 300
           ,mainClass: 'popup-animate'
           ,callbacks: {
-            beforeOpen: function() {
-              var popup_text = 'Search range has been set to ' + $('input:text[name="start-time"]').val() + ' - ' + $('input:text[name="end-time"]').val();
-              if (span_adjust)
-              {
-                popup_text += ' (10 minute minimum search span)';
-              }
-              $('#range-set-popup').children('div.popup-form-data').text(popup_text);
-            }
-            ,open: function() {
-              setTimeout(function() {
-                $('.navbar').addClass('blur');
-                $('.container').addClass('blur');
-              }, 150);
+            open: function() {
+              $('.navbar').addClass('blur');
+              $('.container').addClass('blur');
             }
             ,close: function() {
               $('.container').removeClass('blur');
               $('.navbar').removeClass('blur');
+              window.history.pushState("", "StatusWolf", "/adhoc/");
+            }
+          }
+        });
+      }
+      else if (query_data.match(/Not Allowed/))
+      {
+        $('.container').append('<div id="not-allowed-popup" class="popup"><h5>Not Allowed</h5><div class="popup-form-data">You do not have permission to view this saved search</div></div>');
+        $.magnificPopup.open({
+          items: {
+            src: '#not-allowed-popup'
+            ,type: 'inline'
+          }
+          ,preloader: false
+          ,removalDelay: 300
+          ,mainClass: 'popup-animate'
+          ,callbacks: {
+            open: function() {
+              $('.navbar').addClass('blur');
+              $('.container').addClass('blur');
+            }
+            ,close: function() {
+              $('.container').removeClass('blur');
+              $('.navbar').removeClass('blur');
+              window.history.pushState("", "StatusWolf", "/adhoc/");
+            }
+          }
+        });
+      }
+      else if (query_data.match(/Not Found/))
+      {
+        $('.container').append('<div id="not-found-popup" class="popup"><h5>Not Found</h5><div class="popup-form-data">The saved search was not found.</div></div>');
+        $.magnificPopup.open({
+          items: {
+            src: '#not-found-popup'
+            ,type: 'inline'
+          }
+          ,preloader: false
+          ,removalDelay: 300
+          ,mainClass: 'popup-animate'
+          ,callbacks: {
+            open: function() {
+              $('.navbar').addClass('blur');
+              $('.container').addClass('blur');
+            }
+            ,close: function() {
+              $('.container').removeClass('blur');
+              $('.navbar').removeClass('blur');
+              window.history.pushState("", "StatusWolf", "/adhoc/");
+            }
+          }
+        });
+      }
+    }
+    else
+    {
+      if ($('.widget-container').length == 0)
+      {
+        var username = "<?php echo $_session_data['username'] ?>";
+        var widget_id = "widget" + md5(username + new Date.now().getTime());
+        $('div#adhoc-container').append('<div class="widget-container cols-1" id="' + widget_id + '" data-widget-type="graphwidget">');
+        if (typeof query_data.options !== "undefined" && typeof query_data.options.sw_url !== "undefined")
+        {
+          delete(query_data.options.sw_url);
+        }
+        var new_widget = $('div#' + widget_id).graphwidget(query_data.options);
+        var widget_object = $(new_widget).data('sw-graphwidget');
+        adhoc_fixes('#' + widget_id);
+      }
+      else
+      {
+        var widget_object = $('.widget-container').data('sw-graphwidget');
+        var url_path = '/adhoc/';
+        if (typeof document._session_data.shared_search_key !== "undefined")
+        {
+          url_path = '/adhoc/shared/' + document._session_data.shared_search_key;
+        }
+        else if (typeof document._session_data.saved_search_key !== "undefined")
+        {
+          url_path = '/adhoc/saved/' + document._session_data.saved_search_key;
+        }
+
+        window.history.pushState("", "StatusWolf", url_path );
+      }
+      widget_object.populate_search_form(query_data);
+    }
+  }
+
+  function save_click_handler(event, confirmation, query_data)
+  {
+    if ($('input[name="save-search-title"]').val().length < 1)
+    {
+      $('input[name="save-search-title"]').css('border-color', 'red').css('background-color', 'rgb(255, 200, 200)').focus();
+      alert("You must specify a title for your saved search");
+    }
+    query_data['user_id'] = "<?php echo $_session_data['user_id']; ?>";
+    query_data['title'] = $('input[name="save-search-title"]').val();
+    $('#save-span').prop('checked')?query_data['save_span'] = 1:query_data['save_span'] = 0;
+    $('#public').prop('checked')?query_data['private'] = 0:query_data['private'] = 1;
+    var api_url = '<?php echo URL; ?>api/save_adhoc_search';
+    if (typeof query_data.search_id !== "undefined")
+    {
+      api_url += '/' + query_data.search_id;
+      if (confirmation > 0)
+      {
+        api_url += '/Confirm'
+      }
+    }
+    $.ajax({
+      url: api_url
+      ,type: 'POST'
+      ,data: query_data
+      ,dataType: 'json'
+      ,success: function(data) {
+        if (typeof data === "string")
+        {
+          data = eval('(' + data + ')');
+        }
+        if (data.query_result === "Error")
+        {
+          switch (data.query_info)
+          {
+            case "Title":
+              query_data.search_id = data.search_id;
+              $('#confirmation-info').empty().append("<span>A search with that name already exists, overwrite?</span>");
+              $('#confirm-save-button').click(function(event) {
+                save_click_handler(event, 1, query_data);
+              })
+              $.magnificPopup.open({
+                items: {
+                  src: '#confirmation-popup'
+                  ,type: 'inline'
+                }
+                ,preloader: false
+                ,mainClass: 'popup-animate'
+                ,callbacks: {
+                  close: function() {
+                    $('#confirmation-popup').remove();
+                  }
+                }
+              });
+              return;
+            default:
+              $.magnificPopup.open({
+                items: {
+                  src: '#failure-popup'
+                  ,type: 'inline'
+                }
+                ,preloader: false
+                ,removalDelay: 300
+                ,mainClass: 'popup-animate'
+                ,callbacks: {
+                  close: function() {
+                    $('#failure-popup').remove();
+                  }
+                }
+              })
+              setTimeout(function() {
+                $.magnificPopup.close();
+              }, 750);
+          }
+        }
+        $.when(build_saved_search_menu()).then(
+            function(data)
+            {
+              if (data[1] > data[0])
+              {
+                $('#load-search-menu-options').append('<li id="full-saved-search-list"><span>More...</span></li>')
+              }
+            }
+        );
+        $.magnificPopup.open({
+          items: {
+            src: '#success-popup'
+            ,type: 'inline'
+          }
+          ,preloader: false
+          ,removalDelay: 300
+          ,mainClass: 'popup-animate'
+          ,callbacks: {
+            open: function() {
+              $('.navbar').addClass('blur');
+              $('.container').addClass('blur');
+            }
+            ,close: function() {
+              $('.container').removeClass('blur');
+              $('.navbar').removeClass('blur');
+              $('#success-popup').remove();
             }
           }
         });
         setTimeout(function() {
           $.magnificPopup.close();
-        }, 1500);
-
+        }, 750);
       }
+    });
 
-      $(document).ready(function() {
-        $('.widget-main').css('height', $('#ad-hoc-widget').height() - ($('.widget-title').height() + $('.widget-footer').height()));
-        $('#graphdiv').css('height', $('.widget-main').innerHeight() - $('#legend-container').outerHeight(true));
-        $('#legend-container').css('width', $('.widget-main').innerWidth());
+  }
+
+  function build_saved_search_menu()
+  {
+    var user_id = "<?php echo $_session_data['user_id']; ?>";
+    var api_url = '<?php echo URL; ?>api/get_saved_searches';
+    var menu_length = 15;
+    var item_length = 0;
+
+    api_query = {user_id: user_id};
+
+    var saved_search_menu = new $.Deferred();
+    var saved_search_menu_query = $.ajax({
+        url: api_url
+        ,type: 'POST'
+        ,data: api_query
+        ,dataType: 'json'
+      })
+      ,chain = saved_search_menu_query.then(function(data)
+      {
+        return(data);
+      })
+    chain.done(function(data)
+    {
+      var my_searches = data.user_searches;
+      var public_searches = data.public_searches;
+      my_searches = data['user_searches'];
+      public_searches = data['public_searches'];
+      $('#load-search-menu-options').empty();
+      $('#load-search-menu-options').append('<li class="menu-section"><span>My Searches</span></li>');
+      if (my_searches)
+      {
+        var max = (my_searches.length < menu_length ? my_searches.length : menu_length);
+        for (i = 0; i < max; i++)
+        {
+          $('#load-search-menu-options').append('<li><span data-search-id="' + my_searches[i]['id'] + '">' + my_searches[i]['title'] + '</span></li>');
+          menu_length--;
+        }
+        $.each(my_searches, function(i, search) {
+          $('table#my-searches-list-table').append('<tr class="search-item"><td><span data-search-id="' + search.id + '">' + search.title + '</span></td></tr>');
+        });
+      }
+      if (menu_length > 0 && public_searches)
+      {
+        $('#load-search-menu-options').append('<li class="menu-section"><span class="divider"></span></li>');
+        $('#load-search-menu-options').append('<li class="menu-section"><span>Public Searches</span></li>');
+        var max = (public_searches.length < menu_length ? public_searches.length : menu_length);
+        for (i = 0; i < max ; i++)
+        {
+          if (public_searches[i]['user_id'] === document._session_data.user_id)
+          {
+            $('#load-search-menu-options').children('li.menu-section:last').after('<li><span data-search-id="' + public_searches[i]['id'] + '">' + public_searches[i]['title'] + ' (' + public_searches[i]['username'] + ')</span></li>');
+          }
+          else
+          {
+            $('#load-search-menu-options').append('<li><span data-search-id="' + public_searches[i]['id'] + '">' + public_searches[i]['title'] + ' (' + public_searches[i]['username'] + ')</span></li>');
+          }
+          $.each(public_searches, function(i, public) {
+            if (public.username === document._session_data.username)
+            {
+              $('table#public-searches-list-table').children('tbody').children('tr.header-row').after('<tr class="dashboard-item"><td><span data-search-id="' + public.id + '">' + public.title + '</span></td><td>' + public.username + '</td></tr>');
+            }
+            else
+            {
+              $('table#public-searches-list-table').append('<tr class="dashboard-item"><td><span data-search-id="' + public.id + '">' + public.title + '</span></td><td>' + public.username + '</td></tr>');
+            }
+          });
+        }
+      }
+      $('#load-search-menu-options').on('click', 'span', function()
+      {
+        $.when(get_saved_search_query($(this).attr('data-search-id'))).then(
+            function(query_data)
+            {
+              load_search(query_data);
+            }
+        )
       });
+      var my_search_count = (typeof my_searches !== "undefined" ? my_searches.length : 0);
+      var public_search_count = (typeof public_searches !== "undefined" ? public_searches.length : 0);
+      item_length = my_search_count + public_search_count;
 
-    </script>
+      saved_search_menu.resolve([menu_length, item_length]);
+    });
+
+    return saved_search_menu.promise();
+
+  }
+
+</script>

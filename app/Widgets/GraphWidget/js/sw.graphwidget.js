@@ -204,7 +204,7 @@
     ,get_sw_url: function() {
       var base_uri = window.location.origin + '/';
       var path_bits = window.location.pathname.toString().split('/');
-      if (path_bits[1] !== "dashboard")
+      if (path_bits[1] !== "dashboard" && path_bits[1] !== "adhoc")
       {
         base_uri += path_bits[1] + '/';
       }
@@ -1079,6 +1079,16 @@
           $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
           $('input[data-target="history-wow' + widget_num + '"]').click();
         }
+        else
+        {
+          var el = $('input[data-target="history-no' + widget_num + '"]').parent('label');
+          $(el).parent('div.toggle-button').addClass('toggle-on');
+          $(el).parent('div.toggle-button').siblings('div.toggle-button').removeClass('toggle-on');
+          $(el).children('input').attr('checked', 'Checked');
+          $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
+          $('input[data-target="history-no' + widget_num + '"]').click();
+        }
+
         if (query_data.period === "span-search")
         {
           var el = $('input[data-target="graph-widget-time-span' + widget_num + '"]').parent('label');
@@ -1835,7 +1845,7 @@
       var parse_object = new $.Deferred();
       var status = widget.sw_graphwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num).children('#status-message' + widget_num);
 
-      query_url = data.query_url;
+      widget.query_url = data.query_url;
       delete data.start;
       delete data.end;
       delete data.query_url;
