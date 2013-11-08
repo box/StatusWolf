@@ -329,7 +329,7 @@
       $('div.container').after('<div class="bodyshade transparent">');
       setTimeout(function()
       {
-        widget.sw_graphwidget.parent().css({position: 'absolute', height: widget.start_height + 'px', width: widget.start_width + 'px', top: widget.widget_position.top, left: widget.widget_position.left, 'z-index': '9999'})
+        widget.sw_graphwidget.parent().css({position: 'absolute', height: widget.start_height + 'px', width: widget.start_width + 'px', top: widget.widget_position.top, left: widget.widget_position.left, 'z-index': '500'})
           .after('<div class="spacer-box" style="display: inline-block; width: ' +  widget.start_width +
             'px; height: ' + widget.start_height +
             'px; margin: ' + widget.sw_graphwidget.parent().css('margin') + '"></div>');
