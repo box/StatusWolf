@@ -132,7 +132,7 @@
 <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/md5.js"></script>
 <script type="text/javascript" src="<?php echo URL; ?>app/js/status_wolf_colors.js"></script>
 <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/jquery.autocomplete.js"></script>
-<script type="text/javascript" src="<?php echo URL; ?>app/js/lib/d3.min.js"></script>
+<script type="text/javascript" src="<?php echo $_sw_conf['graphing']['d3_location'] ?>"></script>
 
 <script type="text/javascript">
 
