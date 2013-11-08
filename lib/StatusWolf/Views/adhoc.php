@@ -19,7 +19,9 @@
 <link rel="stylesheet" href="<?php echo URL; ?>app/css/popups.css?v=1.0">
 <link rel="stylesheet" href="<?php echo URL; ?>app/css/push-button.css">
 
-<div class="container"></div>
+<div class="container">
+  <div id="adhoc-container"></div>
+</div>
 
 <div id="saved-search-list-popup" class="popup mfp-hide">
   <div id="my-searches-box">
@@ -54,7 +56,7 @@
     <form onsubmit="return false;">
       <h5>Title: </h5>
       <div class="popup-form-data">
-        <input type="text" class="input" id="save-search-title" name="save-search-title" value="" style="width: 250px;">
+        <input type="text" class="input" id="save-search-title" name="save-search-title" value="" style="width: 90%; font-size: 1em;">
         <input type="hidden" class="hidden" id="search-id" name="search-id" value="">
       </div>
       <h5>Options:</h5>
@@ -83,7 +85,7 @@
   <div class="flexy widget-footer" style="margin-top: 10px;">
     <div class="widget-footer-button" id="cancel-save-query-data-button" onClick="$.magnificPopup.close()"><span class="iconic iconic-x-alt"><span class="font-reset"> Cancel</span></span></div>
     <div class="glue1"></div>
-    <div class="widget-footer-button" id="save-query-data-button" onClick="save_click_handler(event, 0, query_data)"><span class="iconic iconic-download"><span class="font-reset"> Save</span></span></div>
+    <div class="widget-footer-button" id="save-query-data-button" onClick="save_click_handler(event, 0, $('.widget-container').data('sw-graphwidget').query_data)"><span class="iconic iconic-download"><span class="font-reset"> Save</span></span></div>
   </div>
 </div>
 
@@ -98,7 +100,7 @@
 <div id="datasource-url-popup" class="popup mfp-hide">
   <h5>Raw Datasource URL</h5>
   <div class="popup-form-data">
-    <div class="uneditable-input" id="datasource-url" onClick="select_text('datasource-url')" style="width: 95%; vertical-align: middle; padding: 6px 10px 2px 10px;"></div>
+    <div class="uneditable-input" id="datasource-url" onClick="select_text('datasource-url')" style="width: 95%; vertical-align: middle; padding: 6px 10px 2px 10px; font-size: 0.8em;"></div>
   </div>
 </div>
 
@@ -155,6 +157,15 @@
     document._sw_conf = _sw_conf;
   }
 
+  document._session_data.data.dashboard_columns = 1;
+  $.ajax({
+    url: '<?php echo URL; ?>api/session_data/set/dashboard_columns=1'
+    ,type: 'GET'
+    ,dataType: 'json'
+    ,done: function(data) {
+    }
+  });
+
   $(document).ready(function() {
     this.sw_url = '<?php echo URL; ?>';
 
@@ -184,8 +195,7 @@
       {
         var username = "<?php echo $_session_data['username'] ?>";
         var widget_id = "widget" + md5(username + new Date.now().getTime());
-        var cols = 1;
-        $('.container').append('<div class="widget-container cols-' + cols + '" id="' + widget_id + '" data-widget-type="graphwidget">');
+        $('div#adhoc-container').append('<div class="widget-container cols-1" id="' + widget_id + '" data-widget-type="graphwidget">');
         var widget_div = $('#' + widget_id).graphwidget();
         adhoc_fixes('#' + widget_id);
         setTimeout(function() {
@@ -264,14 +274,14 @@
           }, 150);
           if ($('input[name="save-search-title"]').attr('value').length < 1)
           {
-            if ($('#graph-title').text().length < 1)
+            if ($('.graph-title').text().length < 1)
             {
               <?php if (array_key_exists('user_searches', $_session_data['data'])) { $search_count = count($_session_data['data']['user_searches']); } else { $search_count = 0; } ?>
-              $('input[name="save-search-title"]').attr('value', '<?php echo $_session_data['username']; ?>' + '_' + datasource + '_' + '<?php echo $search_count + 1; ?>');
+              $('input[name="save-search-title"]').attr('value', '<?php echo $_session_data['username']; ?>' + '_' + $('.widget-container').data('sw-graphwidget').options.datasource + '_' + '<?php echo $search_count + 1; ?>');
             }
             else
             {
-              $('input[name="save-search-title"]').attr('value', $('#graph-title').text());
+              $('input[name="save-search-title"]').attr('value', $('.graph-title').text());
             }
           }
         }
@@ -427,6 +437,7 @@
 
   function load_search(query_data)
   {
+    console.log(query_data);
     if (typeof query_data === "string" && query_data.length > 1)
     {
       if (query_data.match(/Expired/))
@@ -508,7 +519,7 @@
       {
         var username = "<?php echo $_session_data['username'] ?>";
         var widget_id = "widget" + md5(username + new Date.now().getTime());
-        $('div.container').append('<div class="widget-container cols-1" id="' + widget_id + '" data-widget-type="graphwidget">');
+        $('div#adhoc-container').append('<div class="widget-container cols-1" id="' + widget_id + '" data-widget-type="graphwidget">');
         if (typeof query_data.options !== "undefined" && typeof query_data.options.sw_url !== "undefined")
         {
           delete(query_data.options.sw_url);

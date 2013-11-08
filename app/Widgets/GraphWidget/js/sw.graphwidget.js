@@ -230,7 +230,7 @@
 				$('body').removeClass('no-overflow');
 				$('.navbar').removeClass('hidden');
 				$('#' + widget.element.attr('id') + ' span.maximize-me').text('Maximize');
-				widget.resize_graph();
+        widget.resize_graph();
 			}
 			else
 			{
@@ -240,7 +240,7 @@
 				$('.navbar').addClass('hidden');
 				$('body').addClass('no-overflow');
 				$('#' + widget.element.attr('id') + ' span.maximize-me').text('Minimize');
-				widget.resize_graph();
+        widget.resize_graph();
 			}
 		}
 
@@ -924,6 +924,16 @@
           $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
           $('input[data-target="history-wow' + widget_num + '"]').click();
         }
+        else
+        {
+          var el = $('input[data-target="history-no' + widget_num + '"]').parent('label');
+          $(el).parent('div.toggle-button').addClass('toggle-on');
+          $(el).parent('div.toggle-button').siblings('div.toggle-button').removeClass('toggle-on');
+          $(el).children('input').attr('checked', 'Checked');
+          $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
+          $('input[data-target="history-no' + widget_num + '"]').click();
+        }
+
         if (query_data.period === "span-search")
         {
           var el = $('input[data-target="graph-widget-time-span' + widget_num + '"]').parent('label');
@@ -984,26 +994,72 @@
           $('#active-aggregation-type' + widget_num + '-' + metric_num).text(method_map[metric.agg_type]);
           $('#active-downsample-type' + widget_num + '-' + metric_num).text(method_map[metric.ds_type]);
           $('#downsample-interval-options' + widget_num + '-' + metric_num + ' li span[data-value="' + metric.ds_interval + '"]').parent('li').click();
+
+          var lerp_input = $('input#lerp-button' + widget_num + '-' + metric_num);
           if (metric.lerp && metric.lerp !== "false")
           {
-            $('input#lerp-button' + widget_num + '-' + metric_num).siblings('label').click();
-            $('input#lerp-button' + widget_num + '-' + metric_num).parent('.push-button').addClass('pushed');
-            $('input#lerp-button' + widget_num + '-' + metric_num).siblings('label').children('span.iconic').addClass('iconic-x-alt green').removeClass('iconic-check-alt red');
-            $('input#lerp-button' + widget_num + '-' + metric_num).siblings('label').children('span.binary-label').text('Yes');
+            lerp_input.parent('.push-button').addClass('pushed');
+            lerp_input.siblings('label').children('span.iconic').addClass('iconic-x-alt green').removeClass('iconic-check-alt red');
+            lerp_input.siblings('label').children('span.binary-label').text('Yes');
+            if (!lerp_input.prop('checked'))
+            {
+              lerp_input.siblings('label').click();
+            }
           }
+          else
+          {
+            lerp_input.parent('.push-button').removeClass('pushed');
+            lerp_input.siblings('label').children('span.iconic').removeClass('iconic-x-alt green').addClass('iconic-check-alt red');
+            lerp_input.siblings('label').children('span.binary-label').text('No');
+            if (lerp_input.prop('checked'))
+            {
+              lerp_input.siblings('label').click();
+            }
+          }
+
+          var rate_input = $('input#rate-button' + widget_num + '-' + metric_num);
           if (metric.rate && metric.rate !== "false")
           {
-            $('input#rate-button' + widget_num + '-' + metric_num).siblings('label').click();
-            $('input#rate-button' + widget_num + '-' + metric_num).parent('.push-button').addClass('pushed');
-            $('input#rate-button' + widget_num + '-' + metric_num).siblings('label').children('span.iconic').removeClass('iconic-x-alt red').addClass('iconic-check-alt green');
-            $('input#rate-button' + widget_num + '-' + metric_num).siblings('label').children('span.binary-label').text('Yes');
+            rate_input.parent('.push-button').addClass('pushed');
+            rate_input.siblings('label').children('span.iconic').removeClass('iconic-x-alt red').addClass('iconic-check-alt green');
+            rate_input.siblings('label').children('span.binary-label').text('Yes');
+            if (!rate_input.prop('checked'))
+            {
+              $('input#rate-button' + widget_num + '-' + metric_num).siblings('label').click();
+            }
           }
+          else
+          {
+            console.log('not a rate metric');
+            rate_input.parent('.push-button').removeClass('pushed');
+            rate_input.siblings('label').children('span.iconic').addClass('iconic-x-alt red').removeClass('iconic-check-alt green');
+            rate_input.siblings('label').children('span.binary-label').text('No');
+            if (rate_input.prop('checked'))
+            {
+              rate_input.siblings('label').click();
+            }
+          }
+
+          var y2_input = $('input#y2-button' + widget_num + '-' + metric_num);
           if (metric.y2 && metric.rate !== "false")
           {
-            $('input#y2-button' + widget_num + '-' + metric_num).siblings('label').click();
-            $('input#y2-button' + widget_num + '-' + metric_num).parent('.push-button').addClass('pushed');
-            $('input#y2-button' + widget_num + '-' + metric_num).siblings('label').children('span.iconic').removeClass('iconic-x-alt red').addClass('iconic-check-alt green');
-            $('input#y2-button' + widget_num + '-' + metric_num).siblings('label').children('span.binary-label').text('Yes');
+            y2_input.parent('.push-button').addClass('pushed');
+            y2_input.siblings('label').children('span.iconic').removeClass('iconic-x-alt red').addClass('iconic-check-alt green');
+            y2_input.siblings('label').children('span.binary-label').text('Yes');
+            if (!y2_input.prop('checked'))
+            {
+              y2_input.siblings('label').click();
+            }
+          }
+          else
+          {
+            y2_input.parent('.push-button').removeClass('pushed');
+            y2_input.siblings('label').children('span.iconic').addClass('iconic-x-alt red').removeClass('iconic-check-alt green');
+            y2_input.siblings('label').children('span.binary-label').text('No');
+            if (y2_input.prop('checked'))
+            {
+              y2_input.siblings('label').click();
+            }
           }
         });
         if (prompt_user)
