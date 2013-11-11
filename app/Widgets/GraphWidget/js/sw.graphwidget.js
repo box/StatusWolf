@@ -2528,7 +2528,14 @@
       graph_title
           .attr('x', widget.graph.x.range()[1] / 2)
           .attr('y', (widget.graph.margin.bottom - widget.graph.y.range()[0] / 2) - (graph_title.node().getBBox().height / 2));
-      var splits = parseInt(graph_title.node().getBBox().width / widget.svg.select('defs').select('rect').node().getBBox().width);
+      var svg_rect_node = widget.svg.select('defs').select('rect').node();
+      var svg_rect_width;
+      try {
+        svg_rect_width = svg_rect_node.getBBox().width;
+      } catch(err) {
+        svg_rect_width = svg_rect_node.width.animVal.value;
+      }
+      var splits = parseInt(graph_title.node().getBBox().width / svg_rect_width);
       if (splits > 0)
       {
         var graph_title_atoms = widget.query_data.title.split(' ');
