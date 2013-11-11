@@ -3,7 +3,7 @@
     height: 100%;
 }
 
-#dashboard-menu-options {
+#dashboard-menu-options{
     min-width: 150px;
 }
 
@@ -13,6 +13,7 @@
 
 #dashboard-title {
     display: inline-block;
+    position: relative;
     margin-left: 15px;
     font-size: .9em;
     vertical-align: middle;

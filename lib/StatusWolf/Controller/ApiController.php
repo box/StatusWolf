@@ -138,7 +138,7 @@ class ApiController extends SWController
    *
    * @throws SWException
    */
-  protected function get_shared_search()
+  protected function save_shared_search()
   {
     $this->loggy->logDebug($this->log_tag . 'API call, return shared search key');
     $data = $_POST;
@@ -183,6 +183,42 @@ class ApiController extends SWController
     }
 
     $shared_search_db->close();
+  }
+
+  protected function get_shared_search_query($query_bits)
+  {
+    $sw_db = new mysqli($this->_app_config['session_handler']['db_host'], $this->_app_config['session_handler']['db_user'], $this->_app_config['session_handler']['db_password'], $this->_app_config['session_handler']['database']);
+    if (mysqli_connect_error())
+    {
+      throw new SWException('Saved searches database connect error: ' . mysqli_connect_errno() . ' ' . mysqli_connect_error());
+    }
+
+    $shared_id = mysqli_real_escape_string($sw_db, array_shift($query_bits));
+
+    $shared_search_query = sprintf("SELECT * FROM shared_searches WHERE search_id='%s'", $shared_id);
+    $this->loggy->logDebug($this->log_tag . 'Shared search key: ' . $shared_id);
+    $this->loggy->logDebug($this->log_tag . 'Shared search query: ' . $shared_search_query);
+
+    if ($result = $sw_db->query($shared_search_query))
+    {
+      if ($result->num_rows && $result->num_rows > 0)
+      {
+        $raw_query_data = $result->fetch_assoc();
+        $serialized_query = $raw_query_data['search_params'];
+        $incoming_query_data = unserialize($serialized_query);
+      }
+      else
+      {
+        $incoming_query_data = "Expired";
+      }
+    }
+    else
+    {
+      throw new SWException('Database read error: ' . mysqli_errno($sw_db) . ' ' . mysqli_error($sw_db));
+    }
+
+    echo json_encode($incoming_query_data);
+
   }
 
   /**
@@ -397,7 +433,7 @@ class ApiController extends SWController
     if ($_adhoc_datasource = array_shift($url_path))
     {
       $_search_object = new $_adhoc_datasource();
-      print_r($_POST);
+      $this->loggy->logDebug($this->log_tag . json_encode($_POST));
       $_search_object->get_raw_data($_POST);
       $raw_data = $_search_object->read();
       echo json_encode($raw_data);
@@ -514,7 +550,7 @@ class ApiController extends SWController
         }
       }
     }
-    $save_dashboard_query = sprintf("REPLACE INTO saved_dashboards VALUES('%s', '%s', '%s', '%s', '%s')", $dashboard_id, $dashboard_config['title'], $dashboard_config['user_id'], $dashboard_config['shared'], $widgets_string);
+    $save_dashboard_query = sprintf("REPLACE INTO saved_dashboards VALUES('%s', '%s', '%s', '%s', '%s', '%s')", $dashboard_id, $dashboard_config['title'], $dashboard_config['columns'], $dashboard_config['user_id'], $dashboard_config['shared'], $widgets_string);
     $add_dashboard_rank_query = sprintf("INSERT INTO dashboard_rank VALUES('%s','0')", $dashboard_id);
     $this->loggy->logDebug($this->log_tag . $save_dashboard_query);
     $save_result = $saved_dashboard_db->query($save_dashboard_query);
@@ -670,6 +706,53 @@ class ApiController extends SWController
     }
 
     $sw_db->close();
+
+  }
+
+  protected function session_data($query_bits)
+  {
+
+    if (!$action = strtolower(array_shift($query_bits)))
+    {
+      $action = 'get';
+    }
+    if ($action === "get")
+    {
+      if (!empty($query_bits))
+      {
+        $data_key = array_shift($query_bits);
+        echo json_encode(array($data_key => $_SESSION[SWConfig::read_values('auth.sessionName')]['data'][$data_key]));
+      }
+      else
+      {
+        echo json_encode($_SESSION[SWConfig::read_values('auth.sessionName')]['data']);
+      }
+    }
+    else if ($action === "set")
+    {
+      if (!empty($query_bits))
+      {
+        $update_me = array_shift($query_bits);
+        $data = explode('=', $update_me);
+        if (empty($data[1]))
+        {
+          echo json_encode(array('Error' => 'No value provided'));
+        }
+        else
+        {
+          $_SESSION[SWConfig::read_values('auth.sessionName')]['data'][$data[0]] = $data[1];
+          echo json_encode(array($data[0] => $_SESSION[SWConfig::read_values('auth.sessionName')]['data'][$data[0]]));
+        }
+      }
+      else
+      {
+        echo json_encode(array('Error' => 'No session data provided for set function'));
+      }
+    }
+    else
+    {
+      echo json_encode(array('Error' => 'Unknown action: ' . $action));
+    }
 
   }
 

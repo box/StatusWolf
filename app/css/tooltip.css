@@ -35,8 +35,8 @@
 .tooltip-inner {
     max-width: 300px;
     padding: 8px;
-    color: rgb(59, 59, 59);
-    background-color: rgb(205, 205, 205);
+    color: rgba(205, 205, 205, 0.6);
+    background-color: rgb(51, 51, 51);
     -webkit-border-radius: 2px;
     -moz-border-radius: 2px;
     border-radius: 2px;
@@ -57,7 +57,7 @@
     bottom: 0;
     left: 50%;
     margin-left: -5px;
-    border-top-color: rgb(205, 205, 205);
+    border-top-color: rgb(51, 51, 51);
     border-width: 5px 5px 0;
 }
 
@@ -65,7 +65,7 @@
     top: 50%;
     left: 0;
     margin-top: -5px;
-    border-right-color: rgb(205, 205, 205);
+    border-right-color: rgb(51, 51, 51);
     border-width: 5px 5px 5px 0;
 }
 
@@ -73,7 +73,7 @@
     top: 50%;
     right: 0;
     margin-top: -5px;
-    border-left-color: rgb(205, 205, 205);
+    border-left-color: rgb(51, 51, 51);
     border-width: 5px 0 5px 5px;
 }
 
@@ -81,6 +81,6 @@
     top: 0;
     left: 50%;
     margin-left: -5px;
-    border-bottom-color: rgb(205, 205, 205);
+    border-bottom-color: rgb(51, 51, 51);
     border-width: 0 5px 5px;
 }

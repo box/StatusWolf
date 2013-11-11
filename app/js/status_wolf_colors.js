@@ -216,17 +216,18 @@ swcolors.Wheel[5] = swcolors.Wheel[4].concat(swcolors.Greens[5][4]
 
 swcolors.Wheel_DarkBG = [];
 
-swcolors.Wheel_DarkBG[1] = swcolors.Greens[1].concat(swcolors.Oranges[1]
+swcolors.Wheel_DarkBG[1] = swcolors.BlueGreens[1].concat(swcolors.Greens[1]
+  ,swcolors.Oranges[1]
 	,swcolors.LtBlues[1]
 	,swcolors.OrangeYellows[1]
 	,swcolors.Magentas[1]
 	,swcolors.Yellows[1]
 	,swcolors.Reds[1]
 	,swcolors.YellowGreens[1]
-	,swcolors.CoolReds[1]
-	,swcolors.BlueGreens[1]);
+	,swcolors.CoolReds[1]);
 
-swcolors.Wheel_DarkBG[2] = swcolors.Wheel_DarkBG[1].concat(swcolors.Greens[2][1]
+swcolors.Wheel_DarkBG[2] = swcolors.Wheel_DarkBG[1].concat(swcolors.BlueGreens[2][1]
+  ,swcolors.Greens[2][1]
 	,swcolors.Oranges[2][1]
 	,swcolors.LtBlues[2][1]
 	,swcolors.OrangeYellows[2][1]
@@ -234,10 +235,10 @@ swcolors.Wheel_DarkBG[2] = swcolors.Wheel_DarkBG[1].concat(swcolors.Greens[2][1]
 	,swcolors.Yellows[2][1]
 	,swcolors.Reds[2][1]
 	,swcolors.YellowGreens[2][1]
-	,swcolors.CoolReds[2][1]
-	,swcolors.BlueGreens[2][1]);
+	,swcolors.CoolReds[2][1]);
 
-swcolors.Wheel_DarkBG[3] = swcolors.Wheel_DarkBG[2].concat(swcolors.Greens[3][2]
+swcolors.Wheel_DarkBG[3] = swcolors.Wheel_DarkBG[2].concat(swcolors.BlueGreens[3][2]
+  ,swcolors.Greens[3][2]
 	,swcolors.Oranges[3][2]
 	,swcolors.LtBlues[3][2]
 	,swcolors.OrangeYellows[3][2]
@@ -245,10 +246,10 @@ swcolors.Wheel_DarkBG[3] = swcolors.Wheel_DarkBG[2].concat(swcolors.Greens[3][2]
 	,swcolors.Yellows[3][2]
 	,swcolors.Reds[3][2]
 	,swcolors.YellowGreens[3][2]
-	,swcolors.CoolReds[3][2]
-	,swcolors.BlueGreens[3][2]);
+	,swcolors.CoolReds[3][2]);
 
-swcolors.Wheel_DarkBG[4] = swcolors.Wheel_DarkBG[3].concat(swcolors.Greens[4][3]
+swcolors.Wheel_DarkBG[4] = swcolors.Wheel_DarkBG[3].concat(swcolors.BlueGreens[4][3]
+  ,swcolors.Greens[4][3]
 	,swcolors.Oranges[4][3]
 	,swcolors.LtBlues[4][3]
 	,swcolors.OrangeYellows[4][3]
@@ -256,10 +257,10 @@ swcolors.Wheel_DarkBG[4] = swcolors.Wheel_DarkBG[3].concat(swcolors.Greens[4][3]
 	,swcolors.Yellows[4][3]
 	,swcolors.Reds[4][3]
 	,swcolors.YellowGreens[4][3]
-	,swcolors.CoolReds[4][3]
-	,swcolors.BlueGreens[4][3]);
+	,swcolors.CoolReds[4][3]);
 
-swcolors.Wheel_DarkBG[5] = swcolors.Wheel_DarkBG[4].concat(swcolors.Greens[5][4]
+swcolors.Wheel_DarkBG[5] = swcolors.Wheel_DarkBG[4].concat(swcolors.BlueGreens[5][4]
+  ,swcolors.Greens[5][4]
 	,swcolors.Oranges[5][4]
 	,swcolors.LtBlues[5][4]
 	,swcolors.OrangeYellows[5][4]
@@ -267,5 +268,4 @@ swcolors.Wheel_DarkBG[5] = swcolors.Wheel_DarkBG[4].concat(swcolors.Greens[5][4]
 	,swcolors.Yellows[5][4]
 	,swcolors.Reds[5][4]
 	,swcolors.YellowGreens[5][4]
-	,swcolors.CoolReds[5][4]
-	,swcolors.BlueGreens[5][4]);
+	,swcolors.CoolReds[5][4]);

@@ -35,9 +35,45 @@ ul, ol {
 
 /*
  * =======================
+ * Animations
+ * =======================
+ */
+@-webkit-keyframes fadeOut {
+    from { opacity: 1;}
+    to { opacity: 0; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@-webkit-keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/*
+ * =======================
  * Basic class definitions
  * =======================
  */
+
+.bodyshade {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    background-color: rgba(205, 205, 205, 0.4);
+    -webkit-transition: opacity 0.5s linear;
+    -moz-transition: opacity 0.5s linear;
+    transition: opacity 0.5s linear;
+}
 
 .button {
     padding: 5px 8px;
@@ -132,7 +168,6 @@ input[type="search"],
 input[type="tel"],
 input[type="color"],
 .uneditable-input {
-    font-size: .8em;
     /*font-weight: bold;*/
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     line-height: 1em;
@@ -263,6 +298,10 @@ select {
     opacity: 0;
 }
 
+.fade {
+    opacity: .25;
+}
+
 .maximize {
     position: absolute;
     top: 0;
@@ -382,7 +421,7 @@ select {
     list-style: none;
     color: rgba(205, 205, 205, 0.6);
     background-color: rgb(85, 85, 85);
-    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.45);
+    box-shadow: 0 0 2px rgb(0, 0, 0);
     border-radius: 3px;
     border-top-left-radius: 0;
     -webkit-margin-before: 5px;
@@ -467,7 +506,6 @@ li.menu-section:hover {
     color: rgba(205, 205, 205, 0.6);
 }
 
-
 ul.sub-menu-item li.dropdown:hover {
     cursor: default;
 }
@@ -478,6 +516,8 @@ ul.sub-menu-item li:hover ul.sub-menu {
     left: 100%;
     border-radius: 3px;
     -webkit-border-radius: 3px;
+    -webkit-animation: fadeIn 0.5s;
+    animation: fadeIn 0.5s;
 }
 
 ul.sub-menu-item ul.sub-menu {
@@ -486,7 +526,9 @@ ul.sub-menu-item ul.sub-menu {
     position: relative;
     top: auto;
     margin-top: -25px;
-    margin-left: 6px;
+    margin-left: -6px;
+    -webkit-animation: fadeOut 0.5s;
+    animation: fadeOut 0.5s;
 }
 
 ul.sub-menu-item ul.sub-menu:before {

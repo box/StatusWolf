@@ -33,14 +33,9 @@
     padding: 2px 0;
 }
 
-.graph-widget-form-item h4 {
-    font-size: .8em;
-}
-
 .graph-widget-button {
     display: inline-block;
-    font-size: .8em;
-    line-height: 1.8em;
+    line-height: 1.5em;
     text-align: right;
     height: 18px;
     margin-top: 2px;
@@ -106,7 +101,7 @@
 .graph-widget-dates, .graph-widget-time-span {
     position: absolute;
     top: 0;
-    margin-top: 5px;
+    margin-top: 20px;
 }
 
 .widget-title {
@@ -148,8 +143,11 @@ ul.nav-tabs {
     padding-left: 8px;
 }
 
-.dropdown-menu.saved-searches-options,
-.dropdown-menu.widget-action-options {
+.dropdown-menu.saved-searches-options {
+    min-width: 300px;
+}
+
+.dropdown-menu.sub-menu.graphwidget-options-menu {
     min-width: 300px;
 }
 
@@ -187,7 +185,6 @@ ul.nav-tabs {
 
 .tab-table .push-button {
     height: 18px;
-    line-height: 2em;
 }
 
 .legend-container {
@@ -201,7 +198,7 @@ ul.nav-tabs {
     background-color: rgba(51, 51, 51, 0.25);
     border-top: 1px solid rgb(51, 51, 51);
     padding: 10px 0 0 0;
-    margin-top: 15px;
+    margin-top: 5px;
 }
 
 .legend {
@@ -213,4 +210,38 @@ ul.nav-tabs {
 
 .legend > span {
     display: block;
+}
+
+path.line {
+    fill: none;
+    stroke-width: 1.5px;
+}
+
+.axis line {
+    fill: none;
+    stroke: rgb(205, 205, 205);
+    stroke-opacity: .1;
+    shape-rendering: crispEdges;
+}
+
+.axis path {
+    fill: none;
+    stroke: rgb(205, 205, 205);
+    stroke-opacity: .25;
+}
+
+.axis text {
+    font-size: .65em;
+    fill: rgb(205, 205, 205);
+    opacity: .6;
+}
+
+.axis text.graph-title {
+    font-size: 2.5em;
+    font-weight: bold;
+}
+
+.brush .extent {
+    fill: rgba(64, 64, 64, 0.5);
+    shape-rendering: crispEdges;
 }
