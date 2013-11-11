@@ -23,7 +23,7 @@ StatusWolf
 >   choice will be saved with the dashboard as you create and save new
 >   dashboards or re-save existing dashboards.
 > * OpenTSDB searching will now recognize tags specified in OpenTSDB
->   URL-style formet - e.g. 'metric.name{tag1=val,tag2=val}' in addition
+>   URL-style format - e.g. 'metric.name{tag1=val,tag2=val}' in addition
 >   to the space-delimited format - e.g 'metric.name tag1=val tag2=val'.
 > * New function to set the tags for searches in all Graph Widgets on
 >   a dashboard.
