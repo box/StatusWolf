@@ -2281,6 +2281,9 @@
               widget.svg.g.selectAll('.metric path')
                 .classed('hidden', 1);
               metric_line.classed('hidden', 0);
+              widget.svg.g.selectAll('.dots')
+                .classed('hidden', 1);
+              metric_dots.classed('hidden', 0);
             }
             else
             {
