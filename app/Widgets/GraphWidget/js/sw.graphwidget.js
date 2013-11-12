@@ -255,9 +255,9 @@
 		,resize_graph: function() {
       var widget = this;
       var widget_main = widget.sw_graphwidget_frontmain
-          graph_div = widget.sw_graphwidget_frontmain.children('div.graphdiv');
-          graph_div_offset = graph_div.position().top;
-          graph_legend = widget.sw_graphwidget_frontmain.children('div.legend-container');
+        ,graph_div = widget.sw_graphwidget_frontmain.children('div.graphdiv')
+        ,graph_div_offset = graph_div.position().top
+        ,graph_legend = widget.sw_graphwidget_frontmain.children('div.legend-container');
       graph_legend.css('width', widget_main.innerWidth());
       widget_main.css('height', widget.sw_graphwidget.innerHeight());
       graph_div.css('height', widget_main.innerHeight() - graph_legend.outerHeight(true) - graph_div_offset);
@@ -286,9 +286,8 @@
       widget.graph.x_axis.tickSize(-widget.graph.height, 0);
       widget.svg.select('.x.axis')
           .attr('transform', 'translate(0,' + widget.graph.height + ')')
-          .call(widget.graph.x_axis)
-        .selectAll('text.graph-title')
-          .remove();
+          .call(widget.graph.x_axis);
+      $(widget.sw_graphwidget_containerid + ' text.graph-title').remove();
       widget.svg.select('.x.axis')
           .append('text')
           .classed('graph-title', 1)
@@ -2247,8 +2246,7 @@
             {
               var moved_metric_node = moved_metric.node();
               var moved_metric_data = moved_metric.data();
-              var moved_metric_parent = $(moved_metric_node).parent();
-              d3.select(moved_metric_parent).node().remove();
+              $(moved_metric_node).parent().remove();
               var new_metric = d3.select('#' + widget.element.attr('id') + ' svg>g').append('g', 'g.metric');
               new_metric
                   .classed('metric', 1)
@@ -2463,7 +2461,7 @@
                   widget.svg.g.selectAll('.anomaly-bars').selectAll('rect')
                     .attr('x', function(d) { return widget.graph.x(d.start_time) });
                 }
-                widget.svg.g.selectAll('.dots').remove();
+                $(widget.sw_graphwidget_containerid + ' .dots').remove();
                 widget.add_graph_dots();
               }
             }
