@@ -336,7 +336,12 @@ class OpenTSDB extends TimeSeriesData {
       }
       else
       {
-        $search_key = (array_keys($query_bits['metrics'])[0]);
+        // Patched identified by sreynolds since we are using php 5.3 
+        // $search_key = (array_keys($query_bits['metrics'])[0]);
+        $bits_keys = array_keys($query_bits['metrics'])
+        $search_key = $bits_keys[0];
+        // end patch
+
         if (array_key_exists('tags', $query_bits['metrics'][$search_key]))
         {
           $tag_key = implode(' ', $query_bits['metrics'][$search_key]['tags']);
