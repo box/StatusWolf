@@ -2415,7 +2415,7 @@
                       if (nd.name === d.name)
                       {
                         d.values = d.values.concat(nd.values);
-                        d.values.splice(0, nd.values.length + 1);
+                        d.values.splice(0, nd.values.length);
                       }
                     });
                   });
@@ -2431,7 +2431,7 @@
                       if (nd.name === d.name)
                       {
                         d.values = d.values.concat(nd.values);
-                        d.values.splice(0, nd.values.length + 1);
+                        d.values.splice(0, nd.values.length);
                       }
                     });
                   });
