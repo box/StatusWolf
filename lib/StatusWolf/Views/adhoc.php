@@ -208,7 +208,7 @@
     });
 
     // Add the adhoc menu
-    $('#menu-placeholder').replaceWith('<div class="adhoc-menu left-button dropdown menu-btn" id="adhoc-menu">');
+    $('#menu-placeholder').replaceWith('<div class="adhoc-menu left-button dropdown menu-btn" id="adhoc-menu" style="top: -2px">');
     $('#adhoc-menu').append('<span class="flexy" id="adhoc-menu-content" data-toggle="dropdown">')
     $('#adhoc-menu-content').append('<span class="menu-label" id="adhoc-menu-label">Ad-Hoc Search</span>');
     $('#adhoc-menu').append('<ul class="dropdown-menu sub-menu-item" id="adhoc-menu-options" role="menu" aria-labelledby="dLabel">');

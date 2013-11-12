@@ -117,7 +117,6 @@ ul, ol {
 
 .font-reset {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    color: rgba(205, 205, 205, 0.6);
 }
 
 .glue1 {
@@ -356,6 +355,7 @@ select {
 
 .navbar h4 {
     margin-top: 2px;
+    display: inline-block;
 }
 
 .brand {

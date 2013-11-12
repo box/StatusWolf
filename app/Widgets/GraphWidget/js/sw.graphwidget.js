@@ -263,9 +263,7 @@
       graph_div.css('height', widget_main.innerHeight() - graph_legend.outerHeight(true) - graph_div_offset);
       widget.graph.width = graph_div.innerWidth() - widget.graph.margin.left - widget.graph.margin.right;
       widget.graph.height = graph_div.innerHeight() - widget.graph.margin.top - widget.graph.margin.bottom;
-      widget.svg
-        .style('height', widget.graph.height)
-        .style('width', widget.graph.width);
+      widget.svg.attr({width: graph_div.innerWidth(), height: graph_div.innerHeight()});
       widget.svg.select('#clip' + widget.uuid).select('rect')
         .attr('width', widget.graph.width)
         .attr('height', widget.graph.height);
@@ -466,7 +464,7 @@
 
         $('.widget-title').on('click', 'h3', function() {
           var search_title_text = $(this).text();
-          $(this).addClass('nodisplay');
+          $(this).addClass('nodisplay').removeClass('search-title');
           var title_input = $(this).parent('div').children('input');
           $(title_input).removeClass('nodisplay');
           if ($(this).hasClass('search-title-prompt'))
@@ -489,11 +487,11 @@
           $(this).addClass('nodisplay');
           if (changed_title.length > 1)
           {
-            $(this).siblings('h3').text(changed_title).removeClass('nodisplay search-title-prompt');
+            $(this).siblings('h3').text(changed_title).removeClass('nodisplay search-title-prompt').addClass('search-title');
           }
           else
           {
-            $(this).siblings('h3').text(search_title_text).removeClass('nodisplay');
+            $(this).siblings('h3').text(search_title_text).removeClass('nodisplay').addClass('search-title');
           }
         });
 
@@ -2016,7 +2014,7 @@
 
 //      widget.graph.data = data;
       widget.graph.data_left = data_left;
-      widget.graph.margin = {top: 0, right: 5, bottom: 20, left: 55};
+      widget.graph.margin = {top: 0, right: 5, bottom: 20, left: 45};
       delete(data_left);
 
       if (widget.graph.right_axis == true)
@@ -2030,9 +2028,6 @@
       var graphdiv = $('#' + widget.element.attr('id') + ' .graphdiv').empty();
       var graphdiv_offset = graphdiv.position().top;
       var legend_box = $('#' + widget.element.attr('id') + ' .legend');
-      widget.svg = d3.select('#' + graphdiv.attr('id')).append('svg')
-          .append('g')
-          .attr('transform', 'translate(' + widget.graph.margin.left + ',' + widget.graph.margin.top + ')');
 
       widget.sw_graphwidget_frontmain.css('height', widget.sw_graphwidget.innerHeight());
       widget.sw_graphwidget_frontmain.children('.graphdiv').css('height', (widget.sw_graphwidget_frontmain.innerHeight() - (widget.sw_graphwidget_frontmain.children('.legend-container').outerHeight(true) + graphdiv_offset)));
@@ -2041,6 +2036,12 @@
 
       widget.graph.width = (graphdiv.innerWidth() - widget.graph.margin.left - widget.graph.margin.right);
       widget.graph.height = (graphdiv.innerHeight() - widget.graph.margin.top - widget.graph.margin.bottom);
+
+      widget.svg = d3.select('#' + graphdiv.attr('id')).append('svg')
+          .attr('width', graphdiv.innerWidth())
+          .attr('height', graphdiv.innerHeight());
+      widget.svg.g = widget.svg.append('g')
+          .attr('transform', 'translate(' + widget.graph.margin.left + ',' + widget.graph.margin.top + ')');
 
       if (type === "line")
       {
@@ -2120,13 +2121,13 @@
             .x(function(d) { return widget.graph.x(d.date); })
             .y(function(d) { return widget.graph.y1(+d.value); });
 
-        widget.svg.append('defs').append('clipPath')
+        widget.svg.g.append('defs').append('clipPath')
           .attr('id', 'clip' + widget.uuid)
           .append('rect')
           .attr('width', widget.graph.width)
           .attr('height', widget.graph.height);
 
-        widget.svg.append('g')
+        widget.svg.g.append('g')
             .attr('class', 'x axis')
             .attr('transform', 'translate(0,' + ($('#' + graphdiv.attr('id') + ' svg').innerHeight() - widget.graph.margin.bottom) + ')')
             .call(widget.graph.x_axis)
@@ -2138,24 +2139,24 @@
 
         widget.format_graph_title();
 
-        widget.svg.append('g')
+        widget.svg.g.append('g')
             .attr('class', 'y axis')
             .call(widget.graph.y_axis);
 
-        widget.svg.selectAll('.y.axis text').attr('dy', '0.75em');
+        widget.svg.g.selectAll('.y.axis text').attr('dy', '0.75em');
 
         if (widget.graph.right_axis == true)
         {
-          widget.svg.append('g')
+          widget.svg.g.append('g')
               .attr('class', 'y1 axis')
               .attr('transform', 'translate(' + widget.graph.width + ',0)')
               .call(widget.graph.y_axis_right);
 
-          widget.svg.selectAll('.y1.axis text').attr('dy', '0.75em');
+          widget.svg.g.selectAll('.y1.axis text').attr('dy', '0.75em');
 
         }
 
-        widget.svg.selectAll('.metric.left')
+        widget.svg.g.selectAll('.metric.left')
             .data(widget.graph.data_left)
             .enter().append('g')
             .classed('metric', 1)
@@ -2170,7 +2171,7 @@
 
         if (widget.graph.right_axis == true)
         {
-          widget.svg.selectAll('.metric.right')
+          widget.svg.g.selectAll('.metric.right')
               .data(widget.graph.data_right)
               .enter().append('g')
               .classed('metric', 1)
@@ -2234,8 +2235,8 @@
           .on('mouseover', function()
           {
             $(this).css('font-weight', 'bold');
-            widget.svg.selectAll('.metric path').classed('fade', 1);
-            var moved_metric = widget.svg.select('.metric path[data-name="' + $(this).attr('title') + '"]');
+            widget.svg.g.selectAll('.metric path').classed('fade', 1);
+            var moved_metric = widget.svg.g.select('.metric path[data-name="' + $(this).attr('title') + '"]');
             var axis_position_class = 'left';
             if (moved_metric.classed('right'))
             {
@@ -2265,18 +2266,18 @@
           .on('mouseout', function()
           {
             $(this).css('font-weight', 'normal');
-            widget.svg.select('.widget path[data-name="' + $(this).attr('title') + '"]').style('stroke-width', '1.5px');
-            widget.svg.selectAll('.metric path').classed('fade', 0);
+            widget.svg.g.select('.widget path[data-name="' + $(this).attr('title') + '"]').style('stroke-width', '1.5px');
+            widget.svg.g.selectAll('.metric path').classed('fade', 0);
           })
           .on('click', function(e)
           {
-            var metric_line = widget.svg.select('.metric path[data-name="' + $(this).attr('title') + '"]');
-            var metric_dots = widget.svg.select('.dots[data-name="' + $(this).attr('title') + '"]');
+            var metric_line = widget.svg.g.select('.metric path[data-name="' + $(this).attr('title') + '"]');
+            var metric_dots = widget.svg.g.select('.dots[data-name="' + $(this).attr('title') + '"]');
             if (e.altKey)
             {
               legend_box.children('span').addClass('fade');
               $(this).removeClass('fade');
-              widget.svg.selectAll('.metric path')
+              widget.svg.g.selectAll('.metric path')
                 .classed('hidden', 1);
               metric_line.classed('hidden', 0);
             }
@@ -2303,7 +2304,7 @@
             anomaly.start_time = new Date(parseInt(anomaly.start) * 1000);
             anomaly.end_time = new Date(parseInt(anomaly.end) * 1000);
           });
-          widget.svg.selectAll('.anomaly-bars')
+          widget.svg.g.selectAll('.anomaly-bars')
               .data(widget.graph.anomalies)
               .enter().insert('g', ':first-child')
               .classed('anomaly-bars', 1)
@@ -2344,7 +2345,7 @@
             }
           });
 
-        widget.graph.zoombox = widget.svg.insert('g', '.metric')
+        widget.graph.zoombox = widget.svg.g.insert('g', '.metric')
             .attr('class', 'brush');
 
         widget.graph.zoombox.call(widget.graph.brush)
@@ -2440,25 +2441,25 @@
                 widget.graph.y.domain([
                   0, (d3.max(widget.graph.data_left, function(d) { return d3.max(d.values, function(v) { return v.value; })}) * 1.05)
                 ]);
-                widget.svg.select('.x.axis').call(widget.graph.x_axis);
-                widget.svg.select('.y.axis').call(widget.graph.y_axis);
-                widget.svg.selectAll('.y.axis text').attr('dy', '0.75em');
+                widget.svg.g.select('.x.axis').call(widget.graph.x_axis);
+                widget.svg.g.select('.y.axis').call(widget.graph.y_axis);
+                widget.svg.g.selectAll('.y.axis text').attr('dy', '0.75em');
                 if (widget.graph.right_axis == true)
                 {
                   widget.graph.y1.domain([
                     0, (d3.max(widget.graph.data_right, function(d) { return d3.max(d.values, function(v) { return v.value; })}) * 1.05)
                   ]);
-                  widget.svg.selectAll('.y1.axis text').attr('dy', '0.75em');
+                  widget.svg.g.selectAll('.y1.axis text').attr('dy', '0.75em');
                 }
-                widget.svg.selectAll('.metric path')
+                widget.svg.g.selectAll('.metric path')
                   .attr('d', function(d) { if (d.axis === "right") { return widget.graph.line_right(d.values); } else { return widget.graph.line(d.values); } });
 
                 if (widget.query_data['history_graph'] === "anomaly")
                 {
-                  widget.svg.selectAll('.anomaly-bars').selectAll('rect')
+                  widget.svg.g.selectAll('.anomaly-bars').selectAll('rect')
                     .attr('x', function(d) { return widget.graph.x(d.start_time) });
                 }
-                widget.svg.selectAll('.dots').remove();
+                widget.svg.g.selectAll('.dots').remove();
                 widget.add_graph_dots();
               }
             }
@@ -2475,7 +2476,7 @@
     {
       var widget = this;
 
-      var dots = widget.svg.selectAll('.dots')
+      var dots = widget.svg.g.selectAll('.dots')
         .data(widget.graph.right_axis ? widget.graph.data_left.concat(widget.graph.data_right) : widget.graph.data_left)
         .enter().append('g')
         .attr('class', 'dots')
@@ -2524,11 +2525,11 @@
     ,format_graph_title: function()
     {
       var widget = this;
-      var graph_title = widget.svg.select('text.graph-title');
+      var graph_title = widget.svg.g.select('text.graph-title');
       graph_title
           .attr('x', widget.graph.x.range()[1] / 2)
           .attr('y', (widget.graph.margin.bottom - widget.graph.y.range()[0] / 2) - (graph_title.node().getBBox().height / 2));
-      var svg_rect_node = widget.svg.select('defs').select('rect').node();
+      var svg_rect_node = widget.svg.g.select('defs').select('rect').node();
       var svg_rect_width;
       try {
         svg_rect_width = svg_rect_node.getBBox().width;

@@ -169,7 +169,7 @@ foreach($widgets as $widget_key)
     this.sw_url = '<?php echo URL; ?>';
 
     // Add the dashboard menu
-    $('#menu-placeholder').replaceWith('<div class="dashboard-menu left-button dropdown menu-btn" id="dashboard-menu">');
+    $('#menu-placeholder').replaceWith('<div class="dashboard-menu left-button dropdown menu-btn" id="dashboard-menu" style="top: -2px;">');
     $('#dashboard-menu').append('<span class="flexy" id="dashboard-menu-content" data-toggle="dropdown">')
     $('#dashboard-menu-content').append('<span class="menu-label" id="dashboard-menu-label">Dashboard</span>');
     $('#dashboard-menu').append('<ul class="dropdown-menu sub-menu-item" id="dashboard-menu-options" role="menu" aria-labelledby="dLabel">');

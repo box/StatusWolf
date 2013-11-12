@@ -156,6 +156,7 @@
     overflow: hidden;
     margin-left: 10px;
     color: rgba(205, 205, 205, 0.6);
+    display: inline-block;
 }
 
 .search-title-prompt {

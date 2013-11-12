@@ -72,6 +72,10 @@
     max-width: 800px;
 }
 
+.widget-title > input {
+    top: 5px;
+}
+
 /*
  * ========================================
  * ad-hoc widget is bigger than the default

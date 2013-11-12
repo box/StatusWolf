@@ -19,7 +19,7 @@
       <span class="version"><p><?php $ver = SWConfig::read_values('statuswolf.version'); echo $ver ?></p></span>
     </span>
     <ul class="dropdown-menu" id="nav-menu-content" role="menu">
-      <li id="nav-home"><a href="<?php echo URL; ?>"><span class="iconic iconic-home"><span> Home</span></span></a></li>
+      <li id="nav-home"><a href="<?php echo URL; ?>"><span class="iconic iconic-home"><span class="font-reset"> Home</span></span></a></li>
       <li id="nav-adhoc"><a href="<?php echo URL; ?>adhoc/"><span>Ad-Hoc Search</span></a></li>
       <li id="nav-dashboard"><a href="<?php echo URL; ?>dashboard/"><span>Dashboard</span></a></li>
     </ul>
