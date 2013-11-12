@@ -101,7 +101,15 @@ class TimeSeriesDownsample
 		$start_check = getdate($start);
 		$start_differential = $start_check['seconds'];
 
-		$start_min = $start + ($this->_sample_interval - $start_differential);
+    // If the start time doesn't fall on an even minute mark, bump ahead to the next minute
+    if ($start_differential > 0)
+    {
+      $start_min = $start + (60 - $start_differential);
+    }
+    else
+    {
+      $start_min = $start;
+    }
 		$next_min = $start_min + $this->_sample_interval;
 
 		$master_start = $this->ts_object->start_time;
@@ -109,12 +117,19 @@ class TimeSeriesDownsample
 		{
 			$this->ts_object->start_time = $next_min;
 		}
-//		$end_stamp = end($time_series);
-//		$end_stamp = $end_stamp['timestamp'];
-//    reset($time_series);
 		$end_check = getdate($end);
 		$end_differential = $end_check['seconds'];
 		$end_min = $end - $end_differential;
+    // If the downsample interval is more than 1 minute our end time may not
+    // fall on an even multiplier from the start time, fix that
+    if ($this->_sample_interval > 60)
+    {
+      $end_offset = ($end_min - $start_min) % $this->_sample_interval;
+      if ($end_offset > 0)
+      {
+        $end_min = $end_min - $end_offset;
+      }
+    }
 		$master_end = $this->ts_object->end_time;
 		if (!$master_end)
 		{
@@ -124,28 +139,37 @@ class TimeSeriesDownsample
 		$downsample_buckets = array();
     $downsample_buckets[$end_min] = array();
 
+    $this->loggy->logDebug($this->log_tag . 'start_min: ' . $start_min . ', end_min: ' . $end_min);
 		foreach ($time_series as $ts_entry)
 		{
+      // TSDB tends to return extra data at the beginning and the end, so
+      // if the timestamp is out of our expected range we ignore it
 			if (($ts_entry['timestamp'] <= $start_min) || ($ts_entry['timestamp'] > $end_min))
 			{
 				continue;
 			}
+      // If the timestamp falls exactly on the end minute mark we want to
+      // make sure we capture it
 			else if ($ts_entry['timestamp'] === $end_min)
 			{
 				$downsample_buckets[$next_min][] = $ts_entry['value'];
 			}
+      // Entries less than the next minute timestamp get added to the bucket
 			else if ($ts_entry['timestamp'] <= $next_min)
 			{
 				$downsample_buckets[$next_min][] = $ts_entry['value'];
 			}
 			else
 			{
+        // If the next entry timestamp is larger than the current next minute
+        // we bump up the next minute bucket until we have something to put
+        // the entry in.
 				while ($ts_entry['timestamp'] > $next_min)
 				{
 					$next_min += $this->_sample_interval;
 					$downsample_buckets[$next_min] = array();
 				}
-				$downsample_buckets[$next_min][] = $ts_entry['value'];
+        $downsample_buckets[$next_min][] = $ts_entry['value'];
 			}
 		}
 

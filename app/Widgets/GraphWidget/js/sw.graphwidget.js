@@ -1379,7 +1379,7 @@
             build_metric.agg_type = methods[agg_type];
             build_metric.ds_type = methods[ds_type];
             build_metric.ds_interval = $('#active-downsample-interval' + widget_num + '-' + i).attr('data-value');
-            if ((widget.query_data['downsample_master_interval'] < 1) || (build_metric.ds_interval < widget.query_data['downsample_master_interval']))
+            if ((widget.query_data['downsample_master_interval'] < 1) || (build_metric.ds_interval > widget.query_data['downsample_master_interval']))
             {
               widget.query_data['downsample_master_interval'] = build_metric.ds_interval;
             }
@@ -1991,6 +1991,7 @@
         widget.graph.anomalies = data.anomalies;
         delete(data.anomalies);
       }
+      widget.graph.autoupdate_interval = widget.query_data.downsample_master_interval > 1 ? widget.query_data.downsample_master_interval * 60 : 300;
 
       widget.graph.right_axis = false;
       var data_right = [];
@@ -2356,10 +2357,10 @@
         // Set the interval for adding new data if Auto Update is selected
         if (widget.query_data['auto_update'])
         {
-          console.log('setting auto-update timer for widget ' + widget.element.attr('id') + ' at ' + new Date.now().toTimeString());
+          console.log('setting auto-update timer to ' + widget.graph.autoupdate_interval / 60 + ' minutes for widget ' + widget.element.attr('id') + ' at ' + new Date.now().toTimeString());
           widget.autoupdate_timer = setTimeout(function() {
             widget.update_graph('line');
-          }, 300 * 1000);
+          }, widget.graph.autoupdate_interval * 1000);
         }
 
       }
@@ -2397,7 +2398,7 @@
                   widget.graph.anomalies = widget.graph.anomalies.concat(new_data.anomalies);
                   delete(new_data.anomalies);
                 }
-                delete(incoming_new_data);
+                console.log(new_data);
                 $.each(new_data, function(s, d)
                 {
                   $.each(d.values, function(v)
@@ -2466,10 +2467,10 @@
           );
         });
       }
-      console.log('Widget ' + widget.element.attr('id') + ' refreshed at ' + new Date.now().toTimeString());
+      console.log('Widget ' + widget.element.attr('id') + ' refreshed at ' + new Date.now().toTimeString() + ', next refresh in ' + widget.graph.autoupdate_interval / 60 + ' minutes');
       widget.autoupdate_timer = setTimeout(function() {
         widget.update_graph('line');
-      }, 300 * 1000);
+      }, widget.graph.autoupdate_interval * 1000);
     }
 
     ,add_graph_dots: function()
