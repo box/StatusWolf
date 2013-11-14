@@ -571,6 +571,51 @@ foreach($widgets as $widget_key)
 
   }
 
+  // Parse out any tags listed as part of the URL hash
+  function parse_url_hash() 
+  {
+    // #tag1=val1#tag2=val2 returns a list of ["", "tag1=val1", "tag2=val2"]
+    var splithash = window.location.hash.split('#');
+
+    // remove the leading hash
+    splithash.shift();
+
+    return splithash;
+  }
+
+  // Convert ['tag1=val1', 'tag2=val2'] into
+  // {'tag1': 'val1', 'tag2': 'val2'}
+  // Used so that we can overwrite existing tags while leaving
+  // others untouched.
+  function create_tag_obj(taglist)
+  {
+    var tag_map = {};
+    $.each(taglist, function(index, value) {
+      var map_entry = value.split('=');
+      if (map_entry.length != 2) {
+        console.log("entry in taglist was not something=something, skipping...");
+        console.log(value);
+      }
+      else {
+        tag_map[map_entry[0]] = map_entry[1];
+      }
+      
+    });
+    return tag_map;
+  }
+
+  // Convert {'tag1': 'val1', 'tag2': 'val2'} into
+  // ['tag1=val1', 'tag2=val2']
+  function create_tag_list(tagmap)
+  {
+    var tag_list = [];
+    $.each(tagmap, function(key, value) {
+      tag_list.push(key + '=' + value);
+    });
+    return tag_list;
+  }
+  
+
   // Load up the requested saved dashboard
   function build_dashboard(dashboard_config)
   {
@@ -657,6 +702,23 @@ foreach($widgets as $widget_key)
           var new_widget = $('div#' + widget_id).graphwidget(query_data.options);
           var widget_object = $(new_widget).data('sw-' + new_widget.attr('data-widget-type'));
 //          widget_object.populate_search_form(query_data, widget_object);
+
+          // Upsert any tags in search widgets with tags that were configured
+          // in the URL hash (window.location.hash)
+          var hashtags = parse_url_hash();
+          if (hashtags.length > 0) {
+              $.each(query_data.metrics, function(search_key, search_params)
+              {
+                var existing_tags = create_tag_obj(search_params.tags || []);
+                var new_tags = create_tag_obj(hashtags);
+                $.each(new_tags, function(new_tag_key, new_tag_value) {
+                  existing_tags[new_tag_key] = new_tag_value;
+                });
+
+                search_params.tags = create_tag_list(existing_tags);
+              });
+          }
+
           widget_object.populate_search_form(query_data);
 //          $('#' + widget_id).removeClass('transparent');
         }
