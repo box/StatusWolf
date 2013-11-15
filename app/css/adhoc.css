@@ -19,6 +19,7 @@
 
 #my-searches-box, #public-searches-box {
     display: inline-block;
+    vertical-align: top;
 }
 
 #my-searches-list, #public-searches-list {
@@ -37,6 +38,7 @@
 
 #saved-search-list-popup table tr.search-item:hover {
     background-color: rgba(205, 205, 205, 0.10);
+    cursor: pointer;
 }
 
 #saved-search-list-popup table tr th {

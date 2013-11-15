@@ -678,13 +678,11 @@
       ,chain = saved_search_menu_query.then(function(data)
       {
         return(data);
-      })
+      });
     chain.done(function(data)
     {
       var my_searches = data.user_searches;
       var public_searches = data.public_searches;
-      my_searches = data['user_searches'];
-      public_searches = data['public_searches'];
       $('#load-search-menu-options').empty();
       $('#load-search-menu-options').append('<li class="menu-section"><span>My Searches</span></li>');
       if (my_searches)
@@ -714,23 +712,36 @@
           {
             $('#load-search-menu-options').append('<li><span data-search-id="' + public_searches[i]['id'] + '">' + public_searches[i]['title'] + ' (' + public_searches[i]['username'] + ')</span></li>');
           }
-          $.each(public_searches, function(i, public) {
-            if (public.username === document._session_data.username)
-            {
-              $('table#public-searches-list-table').children('tbody').children('tr.header-row').after('<tr class="dashboard-item"><td><span data-search-id="' + public.id + '">' + public.title + '</span></td><td>' + public.username + '</td></tr>');
-            }
-            else
-            {
-              $('table#public-searches-list-table').append('<tr class="dashboard-item"><td><span data-search-id="' + public.id + '">' + public.title + '</span></td><td>' + public.username + '</td></tr>');
-            }
-          });
         }
       }
+      $.each(public_searches, function(i, public) {
+        if (public.username === document._session_data.username)
+        {
+          $('table#public-searches-list-table').children('tbody').children('tr.header-row').after('<tr class="search-item"><td><span data-search-id="' + public.id + '">' + public.title + '</span></td><td>' + public.username + '</td></tr>');
+        }
+        else
+        {
+          $('table#public-searches-list-table').append('<tr class="search-item"><td><span data-search-id="' + public.id + '">' + public.title + '</span></td><td>' + public.username + '</td></tr>');
+        }
+      });
       $('#load-search-menu-options').on('click', 'span', function()
       {
-        $.when(get_saved_search_query($(this).attr('data-search-id'))).then(
+        if (typeof $(this).attr("data-search-id") !== "undefined")
+        {
+          $.when(get_saved_search_query($(this).attr('data-search-id'))).then(
+              function(query_data)
+              {
+                load_search(query_data);
+              }
+          )
+        }
+      });
+      $('#saved-search-list-popup').on('click', 'tr.search-item', function()
+      {
+        $.when(get_saved_search_query($(this).children('td').children('span').attr('data-search-id'))).then(
             function(query_data)
             {
+              $.magnificPopup.close();
               load_search(query_data);
             }
         )
