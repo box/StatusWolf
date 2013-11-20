@@ -336,9 +336,9 @@ class OpenTSDB extends TimeSeriesData {
       }
       else
       {
-        // Patched identified by sreynolds since we are using php 5.3 
+        // Patched identified by sreynolds since we are using php 5.3
         // $search_key = (array_keys($query_bits['metrics'])[0]);
-        $bits_keys = array_keys($query_bits['metrics'])
+        $bits_keys = array_keys($query_bits['metrics']);
         $search_key = $bits_keys[0];
         // end patch
 
