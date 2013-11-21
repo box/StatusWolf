@@ -571,18 +571,6 @@ foreach($widgets as $widget_key)
 
   }
 
-  // Parse out any tags listed as part of the URL hash
-  function parse_url_hash() 
-  {
-    // #tag1=val1#tag2=val2 returns a list of ["", "tag1=val1", "tag2=val2"]
-    var splithash = window.location.hash.split('#');
-
-    // remove the leading hash
-    splithash.shift();
-
-    return splithash;
-  }
-
   // Convert ['tag1=val1', 'tag2=val2'] into
   // {'tag1': 'val1', 'tag2': 'val2'}
   // Used so that we can overwrite existing tags while leaving
@@ -593,13 +581,20 @@ foreach($widgets as $widget_key)
     $.each(taglist, function(index, value) {
       var map_entry = value.split('=');
       if (map_entry.length != 2) {
-        console.log("entry in taglist was not something=something, skipping...");
-        console.log(value);
+        if (map_entry[0].match(/\bno-/))
+        {
+          tag_map[(map_entry[0].split('-'))[1]] = '';
+        }
+        else
+        {
+          console.log("entry in taglist was not something=something, skipping...");
+          console.log(value);
+        }
       }
       else {
         tag_map[map_entry[0]] = map_entry[1];
       }
-      
+
     });
     return tag_map;
   }
@@ -614,7 +609,7 @@ foreach($widgets as $widget_key)
     });
     return tag_list;
   }
-  
+
 
   // Load up the requested saved dashboard
   function build_dashboard(dashboard_config)
@@ -704,18 +699,29 @@ foreach($widgets as $widget_key)
 //          widget_object.populate_search_form(query_data, widget_object);
 
           // Upsert any tags in search widgets with tags that were configured
-          // in the URL hash (window.location.hash)
-          var hashtags = parse_url_hash();
-          if (hashtags.length > 0) {
+          // in the URL query data
+          if (typeof document._session_data.data.dashboard_tags !== "undefined"
+              && document._session_data.data.dashboard_tags.length > 0) {
               $.each(query_data.metrics, function(search_key, search_params)
               {
-                var existing_tags = create_tag_obj(search_params.tags || []);
-                var new_tags = create_tag_obj(hashtags);
+                var search_tags = create_tag_obj(search_params.tags || []);
+                var new_tags = create_tag_obj(document._session_data.data.dashboard_tags);
                 $.each(new_tags, function(new_tag_key, new_tag_value) {
-                  existing_tags[new_tag_key] = new_tag_value;
+                  if (new_tag_value.length == 0)
+                  {
+                    if (typeof search_tags[new_tag_key] !== "undefined")
+                    {
+                      delete(search_tags[new_tag_key]);
+                    }
+                  }
+                  else
+                  {
+                    search_tags[new_tag_key] = new_tag_value;
+                  }
                 });
+                console.log(search_tags);
 
-                search_params.tags = create_tag_list(existing_tags);
+                search_params.tags = create_tag_list(search_tags);
               });
           }
 

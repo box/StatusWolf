@@ -12,7 +12,7 @@
 
 class DashboardController extends SWController
 {
-  public function __construct($url_path)
+  public function __construct($url_parts)
   {
     parent::__construct();
 
@@ -26,11 +26,20 @@ class DashboardController extends SWController
       $this->loggy = new KLogger(ROOT . 'app/log/', KLogger::INFO);
     }
     $this->log_tag = '(' . $_SESSION['_sw_authsession']['username'] . '|' . $_SESSION['_sw_authsession']['sessionip'] . ') ';
+    $url_path = $url_parts['url_path'];
 
     if (!empty($url_path[0]))
     {
       $this->loggy->logDebug($this->log_tag . 'Setting dashboard id to ' . $url_path[0]);
       $_SESSION['_sw_authsession']['data']['dashboard_id'] = $url_path[0];
+      if (array_key_exists('query', $url_parts))
+      {
+        $_SESSION['_sw_authsession']['data']['dashboard_tags'] = explode('&', $url_parts['query']);
+      }
+      else if (array_key_exists('dashboard_tags', $_SESSION['_sw_authsession']['data']))
+      {
+        unset($_SESSION['_sw_authsession']['data']['dashboard_tags']);
+      }
     }
     else
     {

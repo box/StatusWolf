@@ -12,7 +12,7 @@
 
 class AdhocController extends SWController
 {
-  public function __construct($url_path)
+  public function __construct($url_parts)
   {
     parent::__construct();
 
@@ -34,6 +34,8 @@ class AdhocController extends SWController
     {
       unset($_SESSION['_sw_authsession']['saved_search_key']);
     }
+
+    $url_path = $url_parts['url_path'];
 
     if (!empty($url_path[0]))
     {

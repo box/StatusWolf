@@ -17,7 +17,7 @@ class ApiController extends SWController
   private $_session_data;
   private $_app_config;
 
-  public function __construct($url_path)
+  public function __construct($url_parts)
   {
 
     $this->_session_data = $_SESSION[SWConfig::read_values('auth.sessionName')];
@@ -35,6 +35,7 @@ class ApiController extends SWController
 
     parent::__construct();
 
+    $url_path = $url_parts['url_path'];
     // Determine the API function to call and pass on any remaining URL bits
     if (!empty($url_path[0]))
     {
