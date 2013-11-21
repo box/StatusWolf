@@ -44,7 +44,7 @@ class SWRouter {
     $url_parts = parse_url(URL . $uri);
 
     $url_path = array_slice(explode('/', $url_parts['path']), 1);
-    if (preg_match($url_path[0], BASE_URI))
+    if (preg_match('/' . $url_path[0] . '/', BASE_URI))
     {
       array_shift($url_path);
     }
