@@ -3,6 +3,10 @@
     height: 100%;
 }
 
+#dashboard-menu-label {
+    vertical-align: middle;
+}
+
 #dashboard-menu-options{
     min-width: 150px;
 }
@@ -16,7 +20,6 @@
     position: relative;
     margin-left: 15px;
     font-size: .9em;
-    vertical-align: middle;
     color: rgb(234, 234, 234);
 }
 

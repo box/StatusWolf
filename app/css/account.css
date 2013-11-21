@@ -73,16 +73,6 @@
     opacity: 1;
 }
 
-.toggle-button {
-    display: inline-block;
-}
-
-.toggle-button label input {
-    position: absolute;
-    top: -20px;
-    display: none;
-}
-
 .widget-container {
     width: 100%;
     height: 100%;
@@ -90,23 +80,6 @@
     margin-right: auto;
     min-width: 1010px;
     overflow: auto;
-}
-
-.widget-title-button {
-    font-size: 1em;
-}
-
-.widget-title-button label {
-    padding: 0 10px;
-    text-align: center;
-    font-weight: normal;
-    display: block;
-    cursor: pointer;
-}
-
-.widget-title-button.toggle-button.toggle-on {
-    background-color: rgb(31, 31, 31);
-    box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.6);
 }
 
 #edit-saved-searches,
@@ -265,18 +238,6 @@
     margin-left: 20px;
 }
 
-.push-button {
-    margin-right: 10px;
-}
-
-.push-button span.iconic {
-    margin-left: 3px;
-}
-
-.push-button label span {
-    padding: 0 3px 0 3px;
-}
-
 .metric-input-tabs {
     width: 95%;
     margin: 0 auto;
@@ -316,20 +277,13 @@ ul.nav-tabs {
     color: rgba(205, 205, 205, 0.8);
 }
 
-.tab-table .push-button {
+.widget-main .push-button, .widget-main .toggle-button {
+    font-size: .8em;
     height: 18px;
 }
 
-.tab-content {
-    background-color: rgb(64, 64, 64);
-}
-
-.tab-table {
-    border-spacing: 20px;
-}
-
-.tab-below > .nav-tabs > li.active {
-    background-color: rgb(64, 64, 64);
+.widget-main .toggle-button-group {
+    line-height: 1.25em;
 }
 
 .button-wrapper {
