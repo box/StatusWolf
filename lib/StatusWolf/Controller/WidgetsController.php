@@ -12,7 +12,7 @@
 class WidgetsController extends SWController
 {
 
-  public function __construct($url_path)
+  public function __construct($url_parts)
   {
     parent::__construct();
 
@@ -26,6 +26,8 @@ class WidgetsController extends SWController
       $this->loggy = new KLogger(ROOT . 'app/log/', KLogger::INFO);
     }
     $this->log_tag = '(' . $_SESSION['_sw_authsession']['username'] . '|' . $_SESSION['_sw_authsession']['sessionip'] . ') ';
+
+    $url_path = $url_parts['url_path'];
 
     if (!empty($url_path[0]))
     {

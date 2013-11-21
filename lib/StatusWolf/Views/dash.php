@@ -571,6 +571,46 @@ foreach($widgets as $widget_key)
 
   }
 
+  // Convert ['tag1=val1', 'tag2=val2'] into
+  // {'tag1': 'val1', 'tag2': 'val2'}
+  // Used so that we can overwrite existing tags while leaving
+  // others untouched.
+  function create_tag_obj(taglist)
+  {
+    var tag_map = {};
+    $.each(taglist, function(index, value) {
+      var map_entry = value.split('=');
+      if (map_entry.length != 2) {
+        if (map_entry[0].match(/\bno-/))
+        {
+          tag_map[(map_entry[0].split('-'))[1]] = '';
+        }
+        else
+        {
+          console.log("entry in taglist was not something=something, skipping...");
+          console.log(value);
+        }
+      }
+      else {
+        tag_map[map_entry[0]] = map_entry[1];
+      }
+
+    });
+    return tag_map;
+  }
+
+  // Convert {'tag1': 'val1', 'tag2': 'val2'} into
+  // ['tag1=val1', 'tag2=val2']
+  function create_tag_list(tagmap)
+  {
+    var tag_list = [];
+    $.each(tagmap, function(key, value) {
+      tag_list.push(key + '=' + value);
+    });
+    return tag_list;
+  }
+
+
   // Load up the requested saved dashboard
   function build_dashboard(dashboard_config)
   {
@@ -657,6 +697,34 @@ foreach($widgets as $widget_key)
           var new_widget = $('div#' + widget_id).graphwidget(query_data.options);
           var widget_object = $(new_widget).data('sw-' + new_widget.attr('data-widget-type'));
 //          widget_object.populate_search_form(query_data, widget_object);
+
+          // Upsert any tags in search widgets with tags that were configured
+          // in the URL query data
+          if (typeof document._session_data.data.dashboard_tags !== "undefined"
+              && document._session_data.data.dashboard_tags.length > 0) {
+              $.each(query_data.metrics, function(search_key, search_params)
+              {
+                var search_tags = create_tag_obj(search_params.tags || []);
+                var new_tags = create_tag_obj(document._session_data.data.dashboard_tags);
+                $.each(new_tags, function(new_tag_key, new_tag_value) {
+                  if (new_tag_value.length == 0)
+                  {
+                    if (typeof search_tags[new_tag_key] !== "undefined")
+                    {
+                      delete(search_tags[new_tag_key]);
+                    }
+                  }
+                  else
+                  {
+                    search_tags[new_tag_key] = new_tag_value;
+                  }
+                });
+                console.log(search_tags);
+
+                search_params.tags = create_tag_list(search_tags);
+              });
+          }
+
           widget_object.populate_search_form(query_data);
 //          $('#' + widget_id).removeClass('transparent');
         }
