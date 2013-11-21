@@ -1006,13 +1006,23 @@
       var widget = this;
       var prompt_user = false;
       var widget_num = widget.uuid;
+      $(widget.sw_graphwidget_containerid + ' ul.nav-tabs').empty();
+      $(widget.sw_graphwidget_containerid + ' div.tab-content').empty();
+      widget.metric_count = widget.add_tab(0, widget.uuid);
       if (typeof force_prompt_user !== "undefined")
       {
         prompt_user = true;
       }
-      if (typeof query_data.period === "undefined" && typeof query_data.time_span === "undefined")
+      if (typeof query_data.period === "undefined")
       {
-        query_data.period = 'date-search';
+        if (typeof query_data.time_span === "undefined")
+        {
+          query_data.period = 'date-search';
+        }
+        else
+        {
+          query_data.period = 'span-search';
+        }
       }
 
       if (typeof query_data.history_graph === "undefined")
@@ -1226,7 +1236,14 @@
         {
           setTimeout(function()
           {
-            widget.edit_params();
+            if ($(widget.sw_graphwidget_containerid).parent().attr('id') === "adhoc-container")
+            {
+              widget.sw_graphwidget.addClass('flipped');
+            }
+            else
+            {
+              widget.edit_params();
+            }
           }, 500);
         }
         else
@@ -2399,7 +2416,6 @@
                   widget.graph.anomalies = widget.graph.anomalies.concat(new_data.anomalies);
                   delete(new_data.anomalies);
                 }
-                console.log(new_data);
                 $.each(new_data, function(s, d)
                 {
                   $.each(d.values, function(v)
