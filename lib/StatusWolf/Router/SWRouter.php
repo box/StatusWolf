@@ -25,21 +25,29 @@ class SWRouter {
     }
     $this->log_tag = '(' . $_SESSION['_sw_authsession']['username'] . '|' . $_SESSION['_sw_authsession']['sessionip'] . ') ';
 
+    // If installed in a subdirectory (e.g. root url of the
+    // app is http://example.com/StatusWolf), strip the base URI
+    if (BASE_URI && strpos($uri, BASE_URI) !== false)
+    {
+      $uri = substr_replace($uri, '', 0, strlen(BASE_URI));
+    }
+
+    // Strip any php script names passed in the URI, we don't need 'em.
+    if (preg_match('/\/(\w+\.php$)/', $uri, $matches))
+    {
+      $uri = substr_replace($uri, '', -strlen($matches[1]));
+    }
+
+    $uri = preg_replace('/^\//', '', $uri);
+
     // Parse the incoming URL into it component parts
     $url_parts = parse_url(URL . $uri);
 
-    // If installed in a subdirectory (e.g. root url of the
-    // app is http://example.com/StatusWolf), strip the base URI
-    if (BASE_URI && strpos($url_parts['path'], BASE_URI) !== false)
+    $url_path = array_slice(explode('/', $url_parts['path']), 1);
+    if (preg_match($url_path[0], BASE_URI))
     {
-      $url_parts['path'] = substr_replace($url_parts['path'], '', 0, strlen(BASE_URI));
+      array_shift($url_path);
     }
-    // Strip any php script names passed in the URI, we don't need 'em.
-    if (preg_match('/\/(\w+\.php$)/', $url_parts['path'], $matches))
-    {
-      $url_parts['path'] = substr_replace($url_parts['path'], '', -strlen($matches[1]));
-    }
-    $url_path = array_slice(explode('/', $url_parts['path']), 2);
     $this->loggy->logDebug($this->log_tag . json_encode($url_path));
     $url_parts['url_path'] = $url_path;
     $this->loggy->logDebug($this->log_tag . json_encode($url_parts));
