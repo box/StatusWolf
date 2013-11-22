@@ -1919,7 +1919,7 @@
           }
           else
           {
-            tag_map[search_key] = 'NONE';
+            tag_map[search_key] = {name: search_data.name, tags: ['NONE'], tag_count: 0};
           }
         });
         $.each(data, function(series, series_data)
@@ -1931,7 +1931,7 @@
           {
             if (series_metric === search_data.name)
             {
-              if (search_data === "NONE")
+              if (search_data.tags[0] === "NONE")
               {
                 key_map = search_key;
               }
