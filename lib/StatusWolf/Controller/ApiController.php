@@ -40,7 +40,14 @@ class ApiController extends SWController
     if (!empty($url_path[0]))
     {
       $_api_function = array_shift($url_path);
-      $this->$_api_function($url_path);
+      if (array_key_exists('query', $url_parts) && !empty($url_parts['query']))
+      {
+        $this->$_api_function($url_path, $url_parts['query']);
+      }
+      else
+      {
+        $this->$_api_function($url_path);
+      }
     }
     else
     {
@@ -78,8 +85,8 @@ class ApiController extends SWController
    *
    * @param string $query_bits - metric to look for in form 'q=string'
    */
-  protected function tsdb_metric_list($query_bits) {
-    list($q, $query) = explode('=', $query_bits[0]);
+  protected function tsdb_metric_list($url_path, $query_bits) {
+    list($q, $query) = explode('=', $query_bits);
 
     if ($host_config = SWConfig::read_values('datasource.OpenTSDB.url'))
     {
