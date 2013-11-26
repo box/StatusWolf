@@ -93,7 +93,8 @@
           '<ul class="dropdown-menu sub-menu graphwidget-options-menu">' +
           '<li data-menu-action="set_all_spans"><span>Use this time span for all Graph Widgets</span></li>' +
           '<li data-menu-action="set_all_tags_form"><span>Set tags for all Graph Widgets</span></li>' +
-          '<li data-menu-action="add_tags_to_all_form"><span>Add tag(s) to all Graph Widgets</span></li></ul></li></ul>')
+          '<li data-menu-action="add_tags_to_all_form"><span>Add tag(s) to all Graph Widgets</span></li></ul></li>'+
+          '<li data-menu-action="go_click_handler"><span>Refresh Graph</span></li></ul>')
         .appendTo(sw_graphwidget_frontmain);
       $('li.clone-widget').click(function(event)
       {
