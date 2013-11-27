@@ -645,6 +645,10 @@
           ,maxHeight: ''
         });
 
+        $(form_div.children('.row3').find('.metric-autocomplete')).keyup(function(event) {
+            widget.load_suggested_tags(this.value, this.parentNode, event.keyCode);
+        });
+
         var widget_height = $(widget_element).children('.widget').innerHeight();
         var main_height = widget_height;
         widget.sw_graphwidget_frontmain.css('height', main_height);
@@ -656,6 +660,65 @@
           statuswolf_button(this);
         });
 
+      }
+    }
+
+    ,load_suggested_tags: function(search_string, dom_parent, keyCode)
+    {
+      var widget = this;
+      if (window.GLOBAL_METRIC_TO_TAG_CACHE == undefined) {
+        window.GLOBAL_METRIC_TO_TAG_CACHE = {};
+      }
+      var query_bits = search_string.split(" ");
+      var metric = query_bits[0];
+
+      // Check if we have a cached entry.
+      if (window.GLOBAL_METRIC_TO_TAG_CACHE[metric]) {
+        var parent_node = $(dom_parent);
+        if (parent_node.children().length == 1 && window.GLOBAL_METRIC_TO_TAG_CACHE[metric] != 'pending') {
+            var display_string = "No tags found";
+            if (window.GLOBAL_METRIC_TO_TAG_CACHE[metric] > 0) {
+                display_string = window.GLOBAL_METRIC_TO_TAG_CACHE[metric].join(", ") ;
+            }
+            parent_node.append("<p class='tag-suggestions'><b>Suggested Tags:</b> " + display_string + "</p>");
+        }
+        return;
+      }
+
+      // If there was no cached entry, remove any suggested tag displays.
+      var parent_node = $(dom_parent);
+      if (parent_node.children().length > 1) {
+        parent_node.children(".tag-suggestions").remove();
+      }
+
+      // If no cached entry and there is only one query bit,
+      // don't worry about it - the full metric name may not have been typed yet.
+      // If we have greater than 1, or if we explicitly hit "enter" to dismiss
+      // the autocomplete on metric name, let's fetch the tags for the metric.
+      if (query_bits.length > 1 || keyCode == 13) {
+        // While fetching, immediately set a pending entry. This is so we don't continually
+        // fire AJAX requests. On return, the AJAX request will set the cached entry.
+        // Pending entries should not override real entries.
+        window.GLOBAL_METRIC_TO_TAG_CACHE[metric] = 'pending';
+
+        // Set up some AJAX that will fetch suggested tags and then render.
+        $.ajax({
+          url: widget.options.sw_url + 'api/tsdb_suggested_tags/?metric=' + metric
+          ,type: 'GET'
+          ,success: function(data) {
+            data = $.parseJSON(data);
+            window.GLOBAL_METRIC_TO_TAG_CACHE[data['metric']] = data['suggestions'];
+            var parent_node = $(dom_parent);
+            if (parent_node.children().length == 1) {
+                var display_string = "No tags found";
+                if (data['suggestions'].length > 0) {
+                    display_string = data['suggestions'].join(", ") ;
+                }
+                parent_node.append("<p class='tag-suggestions'><b>Suggested Tags:</b> " + display_string + "</p>");
+            }
+
+          }
+        });
       }
     }
 
