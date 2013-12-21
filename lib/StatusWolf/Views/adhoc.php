@@ -116,6 +116,9 @@
     <div class="widget-footer-button" id="confirm-save-button"><span class="iconic iconic-download"><span class="font-reset"> Overwrite</span></span></div>
   </div>
 </div>
+<div id="raw-data" class="popup mfp-hide">
+  <table id="raw-data-table" class="table"></table>
+</div>
 
 <div id="range-set-popup" class="popup mfp-hide"><div class="popup-form-data"></div></div>
 
@@ -132,6 +135,7 @@
 <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/md5.js"></script>
 <script type="text/javascript" src="<?php echo URL; ?>app/js/status_wolf_colors.js"></script>
 <script type="text/javascript" src="<?php echo URL; ?>app/js/lib/jquery.autocomplete.js"></script>
+<script type="text/javascript" src="<?php echo URL; ?>app/js/lib/jquery.datatables.min.js"></script>
 <script type="text/javascript" src="<?php echo $_sw_conf['graphing']['d3_location'] ?>"></script>
 
 <script type="text/javascript">
@@ -218,6 +222,7 @@
     $('#adhoc-menu-options').append('<li id="save-search-menu-choice"><span>Save Search</span></li>');
     $('#adhoc-menu-options').append('<li id="share-search-menu-choice"><span>Share Search</span></li>');
     $('#adhoc-menu-options').append('<li id="get-datasource-url-choice"><span>Get Datasource URL</span></li>');
+    $('#adhoc-menu-options').append('<li id="show-raw-data-menu-choice"><span>Show Graph Data</span></li>');
 
     // Load the list of saved searches
     $.when(build_saved_search_menu()).then(
@@ -367,6 +372,11 @@
           $('.navbar').removeClass('blur');
         }
       }
+    });
+
+    $('#show-raw-data-menu-choice').click(function() {
+      var widget = $('.widget-container').data('sw-graphwidget');
+      widget.show_graph_data();
     });
 
   });

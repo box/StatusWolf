@@ -80,6 +80,7 @@
                     '<ul class="dropdown-menu sub-menu-item widget-action-options" role="menu">' +
                     '<li data-menu-action="maximize_widget"><span class="maximize-me">Maximize</span></li>' +
                     '<li data-menu-action="edit_params"><span>Edit Parameters</span></li>' +
+                    '<li data-menu-action="show_graph_data"><span>Show graph data</span></li>' +
                     '<li class="clone-widget" data-parent="' + that.element.attr('id') + '"><span>Clone Widget</span></li>' +
                     '<li class="dropdown"><span>Options</span><span class="iconic iconic-play"></span>' +
                     '<ul class="dropdown-menu sub-menu graphwidget-options-menu">' +
@@ -748,7 +749,7 @@
                         }
                         $.magnificPopup.close();
                     }
-                }, preloader: false, removalDelay: 300, mainClass: 'popup-animate', callBacks: {
+                }, preloader: false, removalDelay: 300, mainClass: 'popup-animate', callbacks: {
                     open: function () {
                         setTimeout(function () {
                             $('.container').addClass('blur');
@@ -801,7 +802,7 @@
                         }
                         $.magnificPopup.close();
                     }
-                }, preloader: false, removalDelay: 300, mainClass: 'popup-animate', callBacks: {
+                }, preloader: false, removalDelay: 300, mainClass: 'popup-animate', callbacks: {
                     open: function () {
                         setTimeout(function () {
                             $('.container').addClass('blur');
@@ -815,6 +816,64 @@
                     }
                 }
             });
+        }, show_graph_data: function() {
+            var widget = this;
+            var table_data = [];
+            if (widget.graph.data_left.length > 0) {
+                $.each(widget.graph.data_left, function(i, metric) {
+                    $.each(metric.values, function(i, point_data) {
+                        table_data.push([metric.name, point_data.date, point_data.timestamp, point_data.value, metric.axis]);
+                    });
+                });
+            }
+            if (typeof widget.graph.data_right !== "undefined") {
+                $.each(widget.graph.data_right, function(i, metric) {
+                    $.each(metric.values, function(i, point_data) {
+                        table_data.push([metric.name, point_data.date, point_data.timestamp, point_data.value, metric.axis]);
+                    });
+                });
+            }
+            $('#raw-data-table').dataTable({
+                'aaData': table_data,
+                'aoColumns': [
+                    {'sTitle': 'Metric Name'},
+                    {'sTitle': 'Time'},
+                    {'sTitle': 'Timestamp'},
+                    {'sTitle': 'Value'},
+                    {'sTitle': 'Display Axis'}
+                ],
+                'bDestroy': true
+            });
+            $.magnificPopup.open({
+                items: {
+                    src: '#raw-data',
+                    type: 'inline'
+                },
+                preloader: false,
+                removalDelay: 300,
+                mainClass: 'popup-animate',
+                callbacks: {
+                    beforeOpen: function() {
+                        $('#raw-data-table').siblings('div.dataTables_filter').children('label').children('input').attr('size', '50');
+                        $('#raw-data-table').before('<div class="dataTables_exportCSV" id="raw-data-table_exportcsv"><span class="sw-button raw-data-export-csv-button" id="raw-data-export-csv-button">Export CSV</span></div>');
+                    },
+                    open: function() {
+                        $('span.raw-data-export-csv-button').click(function() {
+                            var raw_data_csv = 'Metric Name, Time, Timestamp, Value, Display Axis\n';
+                            $.each(table_data, function(i, line) {
+                                raw_data_csv += line.join(',') + '\n';
+                            });
+                            window.location.href = 'data:text/csv;charset=UTF-8,' + encodeURIComponent(raw_data_csv);
+                        });
+                    },
+                    afterClose: function() {
+                        widget.reset_data_table();
+                    }
+                }
+            });
+        }, reset_data_table: function() {
+            $('#raw-data-table').dataTable().fnDestroy();
+            $('#raw-data').empty().append('<table id="raw-data-table" class="table"></table>');
         }, dropdown_menu_handler: function (item) {
             var widget = this;
             var button = $(item).parent().parent().children('span');
