@@ -145,6 +145,11 @@ function authenticate_session($app_config) {
   }
   $sw_auth->start();
   $_SESSION['authenticated'] = true;
+  if (array_key_exists('auto_login', $_SESSION[$auth_options['sessionName']]['data']) && $_SESSION[$auth_options['sessionName']]['data']['auto_login'])
+  {
+    $_SESSION[$auth_options['sessionName']]['user_id'] = '99999';
+    $_SESSION[$auth_options['sessionName']]['friendly_name'] = $auth_options['auto_user_fullname'];
+  }
 
 
   if (array_key_exists('debug', $app_config) && $app_config['debug'])
