@@ -1705,7 +1705,7 @@
                                     if (t.match(/ALL/)) {
                                         tleft = (t.split('='))[0]
                                         $.each(series_key, function (i, k) {
-                                            if (k.match(/tleft/)) {
+                                            if (k.match(tleft)) {
                                                 search_matched++;
                                             }
                                         })
@@ -2165,11 +2165,16 @@
                 widget.query_data.start_time = new_start;
                 widget.query_data.end_time = new_end;
                 widget.query_data.new_query = false;
+                var update_tracker = {};
+                $.each(widget.graph.legend_map, function(name, lname) {
+                    update_tracker[name] = 1;
+                });
                 $.when(widget.opentsdb_search()).then(function (incoming_new_data) {
                     $.when(widget.process_timeseries_data(incoming_new_data)).then(
                         function (incoming_new_data) {
                             if (type === "line") {
                                 var new_data = incoming_new_data;
+                                var new_point_count = new_data[0].values.length;
                                 delete(incoming_new_data);
                                 delete(new_data.legend_map);
                                 if (widget.query_data['history_graph'] === "anomaly") {
@@ -2187,10 +2192,18 @@
                                         $.each(new_data, function (ni, nd) {
                                             if (nd.name === d.name) {
                                                 d.values = d.values.concat(nd.values);
-                                                d.values.splice(0, nd.values.length);
+                                                d.values.splice(0, new_point_count);
+                                                delete update_tracker[d.name];
                                             }
                                         });
                                     });
+                                    if (Object.keys(update_tracker).length > 0) {
+                                        $.each(widget.graph.data_left.concat(widget.graph.data_right), function (i, d) {
+                                            if (typeof update_tracker[d.name] !== "undefined") {
+                                                d.values.splice(0, new_point_count);
+                                            }
+                                        });
+                                    }
                                     widget.graph.x.domain([
                                         d3.min(widget.graph.data_left.concat(widget.graph.data_right), function (d) {
                                             return d3.min(d.values, function (v) {
@@ -2209,10 +2222,19 @@
                                         $.each(new_data, function (ni, nd) {
                                             if (nd.name === d.name) {
                                                 d.values = d.values.concat(nd.values);
-                                                d.values.splice(0, nd.values.length);
+                                                d.values.splice(0, new_point_count);
+                                                delete update_tracker[d.name];
                                             }
                                         });
                                     });
+                                    if (Object.keys(update_tracker).length > 0) {
+                                        $.each(widget.graph.data_left, function (i, d) {
+                                            if (typeof update_tracker[d.name] !== "undefined") {
+                                                console.log('No new data received for ' + d.name + ', forcing trim');
+                                                d.values.splice(0, new_point_count);
+                                            }
+                                        });
+                                    }
                                     widget.graph.x.domain([
                                         d3.min(widget.graph.data_left, function (d) {
                                             return d3.min(d.values, function (v) {
