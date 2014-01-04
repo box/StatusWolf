@@ -200,7 +200,7 @@
         var username = "<?php echo $_session_data['username'] ?>";
         var widget_id = "widget" + md5(username + new Date.now().getTime());
         $('div#adhoc-container').append('<div class="widget-container cols-1" id="' + widget_id + '" data-widget-type="graphwidget">');
-        var widget_div = $('#' + widget_id).graphwidget();
+        var widget_div = $('#' + widget_id).graphwidget({'nointerpolation': document._sw_conf.nointerpolation});
         adhoc_fixes('#' + widget_id);
         setTimeout(function() {
           widget_div.children('.widget').addClass('flipped');

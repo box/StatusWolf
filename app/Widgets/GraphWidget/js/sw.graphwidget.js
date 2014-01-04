@@ -11,8 +11,15 @@
     var sw_graphwidget_classes = 'widget';
 
     $.widget('sw.graphwidget', {
-        version: "1.0", defaultElement: "<div>", options: {
-            disabled: null, label: null, datasource: "OpenTSDB", legend: "on", sw_url: null
+        version: "1.0",
+        defaultElement: "<div>",
+        options: {
+            disabled: null,
+            label: null,
+            datasource: "OpenTSDB",
+            legend: "on",
+            sw_url: null,
+            nointerpolation: false
         }, _create: function () {
 
             var that = this
@@ -648,7 +655,7 @@
                     '<li data-action="set-ds-span"><span data-value="240">4 hours</span></li>' +
                     '<li data-action="set-ds-span"><span data-value="720">12 hours</span></li>' +
                     '<li data-action="set-ds-span"><span data-value="1440">1 day</span></li></ul></div></td></tr>');
-                tab_table.append('<tr><td width="32%"><div class="graph-widget-form-item menu-label">' +
+                tab_table.append('<tr><td width="32%"><div id="lerp-button-container" class="hidden graph-widget-form-item menu-label">' +
                     '<h4>Interpolation</h4>' +
                     '<div class="push-button binary info-tooltip" title="Interpolation should be disabled unless you are absolutely sure that you need it.">' +
                     '<input type="checkbox" id="lerp-button' + tab_tag + '" name="lerp' + tab_tag + '">' +
@@ -666,7 +673,11 @@
                     '<input type="checkbox" id="rate-button' + tab_tag + '" name="rate' + tab_tag + '">' +
                     '<label for="rate-button' + tab_tag + '"><span class="iconic iconic-x-alt red"></span>' +
                     '<span class="binary-label">No </span></label></div></div></td></tr>');
-
+                if (widget.options.nointerpolation) {
+                    $('div#lerp-button-container').removeClass('hidden');
+                } else {
+                    $('input#lerp-button' + tab_tag).prop('checked', true);
+                }
             }
 
             tab_list.append('<li><a href="#tab' + tab_tag + '" data-toggle="tab">Metric ' + tab_num + '</a></li>');

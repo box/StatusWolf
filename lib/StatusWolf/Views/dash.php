@@ -318,7 +318,7 @@ foreach($widgets as $widget_key)
     $('#dash-container').append('<div class="widget-container cols-' + cols + '" id="' + widget_id + '" data-widget-type="' + widget_type + '">');
     if (widget_type === "graphwidget")
     {
-      var widget_div = $('#' + widget_id).graphwidget();
+      var widget_div = $('#' + widget_id).graphwidget({'nointerpolation': document._sw_conf.nointerpolation});
       var widget_object = $('#' + widget_div.attr('id')).data('sw-graphwidget');
       setTimeout(function() {
         widget_object.edit_params();
@@ -694,9 +694,12 @@ foreach($widgets as $widget_key)
         if (query_data.widget_type === "graphwidget")
         {
           $('#dash-container').append('<div class="widget-container cols-' + cols + '" id="' + widget_id + '" data-widget-type="' + query_data.widget_type + '">');
-          if (typeof query_data.options !== "undefined" && typeof query_data.options.sw_url !== "undefined")
+          if (typeof query_data.options !== "undefined")
           {
-            delete(query_data.options.sw_url);
+            query_data.options.nointerpolation = document._sw_conf.nointerpolation;
+            if (typeof query_data.options.sw_url !== "undefined") {
+              delete(query_data.options.sw_url);
+            }
           }
           var new_widget = $('div#' + widget_id).graphwidget(query_data.options);
           var widget_object = $(new_widget).data('sw-' + new_widget.attr('data-widget-type'));
