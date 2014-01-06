@@ -2259,6 +2259,20 @@
                                         })
                                     ]);
                                 }
+                                if (widget.graph.x.domain()[0] === "Invalid Date" || widget.graph.x.domain()[1] === "Invalid Date") {
+                                    console.log('Invalid x domain, refreshing');
+                                    widget.go_click_handler();
+                                }
+                                var current_time = new Date();
+                                var nominal_start = new Date(current_time - (widget.query_data.time_span * 1000));
+                                if ((current_time - widget.graph.x.domain()[1]) / 1000 > 3600) {
+                                    console.log('Graph end is more than 1 hour off, refreshing');
+                                    widget.go_click_handler();
+                                }
+                                if (Math.abs((nominal_start - widget.graph.x.domain()[0]) / 1000) > 3600) {
+                                    console.log('Graph start is more than 1 hour off, refreshing');
+                                    widget.go_click_handler();
+                                }
                                 widget.graph.y.domain([
                                     0, (d3.max(widget.graph.data_left, function (d) {
                                         return d3.max(d.values, function (v) {
