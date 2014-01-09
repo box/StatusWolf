@@ -54,7 +54,7 @@ class SWRouter {
 
     // The first chunk of the path maps to the controller, if it's empty that
     // means the home controller
-    if (count($url_parts['url_path'] == 1) && strlen($url_parts['url_path'][0]) == 0)
+    if (count($url_parts['url_path']) == 1 && strlen($url_parts['url_path'][0]) == 0)
     {
       $controller_object = new HomeController();
     }
