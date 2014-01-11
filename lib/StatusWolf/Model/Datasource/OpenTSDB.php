@@ -203,6 +203,7 @@ class OpenTSDB extends TimeSeriesData {
     $search_metrics = Array();
     $downsample_interval = Array();
     $downsample_type = Array();
+    $null_as_zero = Array();
 
     // Make sure we were passed query building blocks
     if (empty($query_bits))
@@ -277,6 +278,15 @@ class OpenTSDB extends TimeSeriesData {
           else
           {
             $downsample_type[$metric['name']] = $this->downsample_type;
+          }
+
+          if (array_key_exists('null_zero', $metric))
+          {
+            $null_as_zero[$metric['name']] = $metric['null_zero'];
+          }
+          else
+          {
+            $null_as_zero[$metric['name']] = false;
           }
 
         }
@@ -381,7 +391,7 @@ class OpenTSDB extends TimeSeriesData {
       array_multisort($timestamp, SORT_ASC, $value, SORT_ASC, $data);
       // Downsample the data
       $this->loggy->logDebug($this->log_tag . 'Calling downsampler, interval: ' . $downsample_interval[$series_metric] . ' method: ' . $downsample_type[$series_metric]);
-      $downsampler = new TimeSeriesDownsample($downsample_interval[$series_metric], $downsample_type[$series_metric]);
+      $downsampler = new TimeSeriesDownsample($downsample_interval[$series_metric], $downsample_type[$series_metric], $null_as_zero[$series_metric]);
       $downsampler->ts_object = @$this;
       $this->loggy->logDebug($this->log_tag . 'Downsampling data, start: ' . $this->_start_timestamp . ', end: ' . $this->_end_timestamp);
       $ds_timer_start = time();

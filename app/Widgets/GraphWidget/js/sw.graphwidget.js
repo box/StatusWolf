@@ -312,6 +312,7 @@
             }
         }, edit_params: function () {
             var widget = this;
+            $(window).scrollTop(0);
             widget.start_height = widget.sw_graphwidget.parent().height();
             widget.start_width = widget.sw_graphwidget.parent().width();
             widget.widget_position = widget.sw_graphwidget.parent().position();
@@ -322,7 +323,7 @@
                     .after('<div class="spacer-box" style="display: inline-block; width: ' + widget.start_width +
                         'px; height: ' + widget.start_height +
                         'px; margin: ' + widget.sw_graphwidget.parent().css('margin') + '"></div>');
-                widget.sw_graphwidget.parent().css({top: '15%', left: '15%', height: '500px', width: '800px'});
+                widget.sw_graphwidget.parent().css({top: '15%', left: '15%', height: '70%', width: '65%'});
                 $('div.bodyshade').removeClass('transparent');
             }, 700);
         }, flip_to_front: function () {
@@ -618,10 +619,10 @@
             if (widget.options.datasource === "OpenTSDB") {
                 tab_pane.append('<table class="tab-table" id="metric-options' + tab_tag + '">');
                 tab_table = $(tab_pane.children('table#metric-options' + tab_tag));
-                tab_table.append('<tr><td colspan="3"><div class="metric-input-textbox">' +
+                tab_table.append('<tr><td colspan="4"><div class="metric-input-textbox">' +
                     '<input type="text" class="metric-autocomplete" name="metric' + tab_tag + '" placeholder="Metric name and tags">' +
                     '</div></td></tr>' +
-                    '<tr><td><div class="graph-widget-form-item menu-label" id="aggregation' + tab_tag + '" style="margin-right: 0;">' +
+                    '<tr><td width="30%"><div class="graph-widget-form-item menu-label" id="aggregation' + tab_tag + '" style="margin-right: 0;">' +
                     '<h4>Aggregation</h4><div class="dropdown graph-widget-button">' +
                     '<span data-toggle="dropdown"><div class="graph-widget-button-label" id="active-aggregation-type' + tab_tag + '">Sum</div>' +
                     '<span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span></span>' +
@@ -632,7 +633,7 @@
                     '<li data-action="set-agg-type"><span>Maximum Value</span></li>' +
                     '<li data-action="set-agg-type"><span>Standard Deviation</span></li>' +
                     '</ul></div></td>' +
-                    '<td colspan="2"><div class="graph-widget-form-item menu-label" id="downsample' + tab_tag + '" style="margin-right: 0; margin-left: 40px;">' +
+                    '<td colspan=2"><div class="graph-widget-form-item menu-label" id="downsample' + tab_tag + '" style="margin-right: 0;">' +
                     '<h4>Downsampling</h4>' +
                     '<div class="dropdown graph-widget-button">' +
                     '<span data-toggle="dropdown">' +
@@ -654,20 +655,26 @@
                     '<li data-action="set-ds-span"><span data-value="60">1 hour</span></li>' +
                     '<li data-action="set-ds-span"><span data-value="240">4 hours</span></li>' +
                     '<li data-action="set-ds-span"><span data-value="720">12 hours</span></li>' +
-                    '<li data-action="set-ds-span"><span data-value="1440">1 day</span></li></ul></div></td></tr>');
-                tab_table.append('<tr><td width="32%"><div id="lerp-button-container" class="hidden graph-widget-form-item menu-label">' +
+                    '<li data-action="set-ds-span"><span data-value="1440">1 day</span></li></ul></div></div></td>' +
+                    '<td width="30%"><div class="graph-widget-form-item menu-label">' +
+                    '<h4>Null = 0</h4>' +
+                    '<div class="push-button binary info-tooltip" title="If selected, timestamp buckets with no data will be displayed as 0, otherwise they\'ll be skipped over.">' +
+                    '<input type="checkbox" id="null-zero-button' + tab_tag + '" name="null-zero' + tab_tag + '">' +
+                    '<label for="null-zero-button' + tab_tag + '"><span class="iconic iconic-x-alt red"></span>' +
+                    '<span class="binary-label">No </span></label></div></td></tr>');
+                tab_table.append('<tr><td width="30%"><div id="lerp-button-container" class="hidden graph-widget-form-item menu-label">' +
                     '<h4>Interpolation</h4>' +
                     '<div class="push-button binary info-tooltip" title="Interpolation should be disabled unless you are absolutely sure that you need it.">' +
                     '<input type="checkbox" id="lerp-button' + tab_tag + '" name="lerp' + tab_tag + '">' +
                     '<label for="lerp-button' + tab_tag + '"><span class="iconic iconic-x-alt red"></span>' +
-                    '<span class="binary-label">No</span></label></div></div></td>' +
+                    '<span class="binary-label">No </span></label></div></div></td>' +
                     '<td width="30%"><div class="graph-widget-form-item menu-label">' +
                     '<h4>Right Axis</h4>' +
                     '<div class="push-button binary">' +
                     '<input type="checkbox" id="y2-button' + tab_tag + '" name="y2-' + tab_tag + '">' +
                     '<label for="y2-button' + tab_tag + '"><span class="iconic iconic-x-alt red"></span>' +
                     '<span class="binary-label">No </span></label></div></div></td>' +
-                    '<td width="30%"><div class="graph-widget-form-item menu-label">' +
+                    '<td colspan=2><div class="graph-widget-form-item menu-label">' +
                     '<h4>Rate</h4>' +
                     '<div class="push-button binary">' +
                     '<input type="checkbox" id="rate-button' + tab_tag + '" name="rate' + tab_tag + '">' +
@@ -1116,7 +1123,7 @@
                     var y2_input = $('input#y2-button' + widget_num + '-' + metric_num);
                     if (metric.y2 && metric.y2 !== "false") {
                         y2_input.parent('.push-button').addClass('pushed');
-                        y2_input.siblings('label').children('span.iconic').addClass('iconic-check-alt gree').removeClass('iconic-x-alt red');
+                        y2_input.siblings('label').children('span.iconic').addClass('iconic-check-alt green').removeClass('iconic-x-alt red');
                         y2_input.siblings('label').children('span.binary-label').text('Yes');
                         if (!y2_input.prop('checked')) {
                             y2_input.siblings('label').click();
@@ -1130,6 +1137,25 @@
                         if (y2_input.prop('checked')) {
                             y2_input.siblings('label').click();
                             y2_input.prop('checked', false);
+                        }
+                    }
+
+                    var null_zero_input = $('input#null-zero-button' + widget_num + '-' + metric_num);
+                    if (metric.null_zero && metric.null_zero !== "false") {
+                        null_zero_input.parent('.push-button').addClass('pushed');
+                        null_zero_input.siblings('label').children('span.iconic').addClass('iconic-check-alt green').removeClass('iconic-x-alt red');
+                        null_zero_input.siblings('label').children('span.binary-label').text('Yes');
+                        if (!null_zero_input.prop('checked')) {
+                            null_zero_input.siblings('label').click();
+                            null_zero_input.prop('checked', true);
+                        }
+                    } else {
+                        null_zero_input.parent('.push-button').removeClass('pushed');
+                        null_zero_input.siblings('label').children('span.iconic').addClass('iconi-x-alt red').removeClass('iconic-check-alt green');
+                        null_zero_input.siblings('label').children('span.binary-label').text('No');
+                        if (null_zero_input.prop('checked')) {
+                            null_zero_input.siblings('label').click();
+                            null_zero_input.prop('checked', false);
                         }
                     }
                 });
@@ -1285,6 +1311,9 @@
                         if ($('#y2-button' + widget_num + '-' + i).prop('checked')) {
                             build_metric.y2 = true;
                         }
+                        if ($('#null-zero-button' + widget_num + '-' + i).prop('checked')) {
+                            build_metric.null_zero = true;
+                        }
 
                         var search_key = md5(JSON.stringify(build_metric));
                         widget.query_data.metrics[search_key] = (build_metric);
@@ -1336,9 +1365,14 @@
                             build_metric.lerp = true;
                         }
 
-                        if ($('y2-button' + widget_num + '-1').prop('checked')) {
+                        if ($('#y2-button' + widget_num + '-1').prop('checked')) {
                             build_metric.y2 = true;
                         }
+
+                        if ($('#null-zero-button' + widget_num + '-1').prop('checked')) {
+                            build_metric.null_zero = true;
+                        }
+
                         var search_key = md5(JSON.stringify(build_metric));
                         widget.query_data.metrics[search_key] = (build_metric);
                     }

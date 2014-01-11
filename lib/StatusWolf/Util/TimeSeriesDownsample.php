@@ -48,6 +48,13 @@ class TimeSeriesDownsample
 	 */
 	private $_methods = array('sum', 'avg', 'min', 'max', 'dev');
 
+  /*
+   * Whether to treat a null data point as a zero
+   *
+   * @var boolean
+   */
+  private $_null_as_zero;
+
 	/*
 	 * __construct
 	 *
@@ -57,7 +64,7 @@ class TimeSeriesDownsample
 	 * @param string $method
 	 * @return void
 	 */
-	public function __construct($sample_interval = 1, $method = 'sum')
+	public function __construct($sample_interval = 1, $method = 'sum', $null_as_zero = false)
 	{
     // Init logging for the class
     if(SWConfig::read_values('statuswolf.debug'))
@@ -80,6 +87,7 @@ class TimeSeriesDownsample
 		{
 			return "Error: unknown downsample method";
 		}
+    $this->_null_as_zero = $null_as_zero;
 	}
 
 	/*
@@ -184,7 +192,10 @@ class TimeSeriesDownsample
 				{
 					if (empty($values))
 					{
-						$downsample_points[] = array('timestamp' => $timestamp, 'value' => null);
+            if ($this->_null_as_zero)
+            {
+              $downsample_points[] = array('timestamp' => $timestamp, 'value' => 0);
+            }
 					}
 					else
 					{
@@ -202,7 +213,10 @@ class TimeSeriesDownsample
 				{
 					if (empty($values))
 					{
-						$downsample_points[] = array('timestamp' => $timestamp, 'value' => null);
+            if ($this->_null_as_zero)
+            {
+              $downsample_points[] = array('timestamp' => $timestamp, 'value' => 0);
+            }
 					}
 					else
 					{
@@ -220,7 +234,10 @@ class TimeSeriesDownsample
 				{
 					if (empty($values))
 					{
-						$downsample_points[] = array('timestamp' => $timestamp, 'value' => null);
+            if ($this->_null_as_zero)
+            {
+              $downsample_points[] = array('timestamp' => $timestamp, 'value' => 0);
+            }
 					}
 					else
 					{
@@ -238,7 +255,10 @@ class TimeSeriesDownsample
 				{
 					if (empty($values))
 					{
-						$downsample_points[] = array('timestamp' => $timestamp, 'value' => null);
+            if ($this->_null_as_zero)
+            {
+              $downsample_points[] = array('timestamp' => $timestamp, 'value' => 0);
+            }
 					}
 					else
 					{
@@ -256,7 +276,10 @@ class TimeSeriesDownsample
 				{
 					if (empty($values))
 					{
-						$downsample_points[] = array('timestamp' => $timestamp, 'value' => null);
+            if ($this->_null_as_zero)
+            {
+              $downsample_points[] = array('timestamp' => $timestamp, 'value' => 0);
+            }
 					}
 					else
 					{
