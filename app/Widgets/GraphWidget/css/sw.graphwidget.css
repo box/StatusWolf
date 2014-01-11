@@ -245,3 +245,42 @@ path.line {
     fill: rgba(64, 64, 64, 0.5);
     shape-rendering: crispEdges;
 }
+
+#saved-search-list-popup {
+    margin-bottom: 15px;
+    max-height: 500px;
+    overflow: hidden;
+}
+
+#my-searches-box, #public-searches-box {
+    display: inline-block;
+    vertical-align: top;
+}
+
+#my-searches-list, #public-searches-list {
+    font-size: .75em;
+    line-height: 2em;
+    max-height: 450px;
+    min-width: 300px;
+    overflow: auto;
+    vertical-align: top;
+}
+
+#saved-search-list-popup table {
+    margin-right: 20px;
+    border-spacing: 0;
+}
+
+#saved-search-list-popup table tr.search-item:hover {
+    background-color: rgba(205, 205, 205, 0.10);
+    cursor: pointer;
+}
+
+#saved-search-list-popup table tr th {
+    font-size: 1em;
+    padding: 5px;
+}
+
+#saved-search-list-popup table tr td {
+    padding: 3px 5px;
+}

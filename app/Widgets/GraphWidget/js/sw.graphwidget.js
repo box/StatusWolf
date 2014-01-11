@@ -598,10 +598,96 @@
                 widget.sw_graphwidget_frontmain.css('height', main_height);
 //        widget.sw_graphwidget_backmain.css('height', main_height);
 
-                widget.build_saved_search_menu();
+                $.when(widget.build_saved_search_menu()).then(
+                    function(data) {
+                        if (data[1] > data[0]) {
+                            widget.sw_graphwidget_savedsearchesmenu.children('ul.saved-searches-options')
+                                .append('<li class="full-saved-search-list"><span>More...</span></li>');
+                        }
+                    }
+                );
 
                 $('label').click(function () {
                     statuswolf_button(this);
+                });
+
+                widget.sw_graphwidget_savedsearchesmenu.on('click', 'li.full-saved-search-list', function() {
+                    $('body').append('<div id="saved-search-list-popup" class="popup mfp-hide"></div>');
+                    var search_popup = $('div#saved-search-list-popup');
+                    search_popup.append('<div id="my-searches-box">' +
+                        '<div id="my-searches-head"><h2>My Searches</h2></div>' +
+                        '<div id="my-searches-list">' +
+                        '<table id="my-searches-list-table"><tr><th>Search Title</th></tr></table>' +
+                        '</div></div>');
+
+                    $.each(widget.saved_searches.my_searches, function(i, search) {
+                        $('table#my-searches-list-table').append('<tr class="search-item">' +
+                            '<td><span data-search-id="' + search.id + '">' + search.title + '</span></td></tr>');
+                    });
+
+                    search_popup.append('<div id="public-searches-box">' +
+                        '<div id="public-searches-head"><h2>Public Searches</h2></div>' +
+                        '<div id="public-searches-list">' +
+                        '<table id="public-searches-list-table">' +
+                        '<tr class="header-row"><th>Search Title</th><th>User</th></tr></table>' +
+                        '</div></div>');
+
+                    $.each(widget.saved_searches.public_searches, function(i, search) {
+                        if (search.username === document._session_data.username) {
+                            $('table#public-searches-list-table').children('tbody').children('tr.header-row')
+                                .after('<tr class="search-item">' +
+                                    '<td><span data-search-id="' + search.id + '">' + search.title + '</span></td>' +
+                                    '<td>' + search.username + '</td></tr>')
+                        } else {
+                            $('table#public-searches-list-table').append('<tr class="search-item">' +
+                                '<td><span data-search-id="' + search.id + '">' + search.title + '</span></td>' +
+                                '<td>' + search.username + '</td></tr>');
+                        }
+                    });
+
+                    $.magnificPopup.open({
+                        items: {
+                            src: search_popup,
+                            type: 'inline'
+                        },
+                        preloader: false,
+                        removalDelay: 300,
+                        callbacks: {
+                            open: function() {
+                                setTimeout(function() {
+                                    $('.container').addClass('blur');
+                                    $('.navbar').addClass('blur');
+                                }, 150);
+                            },
+                            close: function() {
+                                $('.container').removeClass('blur');
+                                $('.navbar').removeClass('blur');
+                            },
+                            afterClose: function() {
+                                search_popup.remove();
+                            }
+                        }
+                    });
+
+                    search_popup.on('click', 'tr.search-item', function() {
+                        var saved_query = {};
+                        console.log('loading saved search');
+                        if (search_id = $(this).children('td').children('span').attr('data-search-id')) {
+                            $.ajax({
+                                url: widget.options.sw_url + "api/load_saved_search/" + search_id,
+                                type: 'GET',
+                                dataType: 'json',
+                                success: function (data) {
+                                    saved_query = data;
+                                    delete(saved_query.private);
+                                    delete(saved_query.save_span);
+                                    delete(saved_query.user_id);
+                                    $.magnificPopup.close();
+                                    widget.populate_search_form(saved_query);
+                                }
+                            });
+                        }
+                    });
                 });
 
             }
@@ -905,49 +991,75 @@
             var widget = this;
             var user_id = document._session_data.user_id;
             var api_url = widget.options.sw_url + 'api/get_saved_searches';
+            var menu_length = 15;
+            widget.saved_searches = {};
 
             api_query = {user_id: user_id};
-            $.ajax({
-                url: api_url, type: 'POST', data: api_query, dataType: 'json', success: function (data) {
-                    var my_searches = data['user_searches'];
-                    var public_searches = data['public_searches'];
-                    var saved_search_list = widget.sw_graphwidget_backtitle.children('.saved-searches-menu').children('ul.saved-searches-options')
-                    saved_search_list.empty();
-                    saved_search_list.append('<li class="menu-section"><span>My Searches</span></li>');
-                    if (my_searches) {
-                        $.each(my_searches, function (i, search) {
-                            saved_search_list.append('<li><span data-name="search-' + search['id'] + '">' + search['title'] + '</span></li>');
-                        });
+            var saved_search_menu = new $.Deferred();
+            var saved_search_menu_query = $.ajax({
+                    url: api_url,
+                    type: 'POST',
+                    data: api_query,
+                    dataType: 'json'
+                }),
+                chain = saved_search_menu_query.then( function(data) {
+                    return(data)
+                });
+            chain.done( function(data) {
+                var my_searches = data.user_searches;
+                var public_searches = data.public_searches;
+                var saved_search_list = widget.sw_graphwidget_backtitle.children('.saved-searches-menu').children('ul.saved-searches-options')
+                saved_search_list.empty();
+                saved_search_list.append('<li class="menu-section"><span>My Searches</span></li>');
+                if (my_searches) {
+                    widget.saved_searches.my_searches = my_searches;
+                    var max = (my_searches.length < menu_length ? my_searches.length : menu_length);
+                    for (i = 0; i < max; i++) {
+                        saved_search_list.append('<li><span data-name="search-' + my_searches[i].id + '">' + my_searches[i].title + '</span></li>');
+                        menu_length--;
                     }
-                    if (public_searches) {
+                }
+                if (public_searches) {
+                    widget.saved_searches.public_searches = public_searches;
+                    if (menu_length > 0) {
                         saved_search_list.append('<li class="menu-section"><span class="divider"></span></li>');
                         saved_search_list.append('<li class="menu-section"><span>Public Searches</span></li>');
-                        $.each(public_searches, function (i, public) {
-                            saved_search_list.append('<li><span data-name="search-' + public['id'] + '">' + public['title'] + ' (' + public['username'] + ')</span></li>');
-                        });
+                        for (i = 0; i < max; i++) {
+                            if (public_searches[i].user_id === document._session_data.user_id) {
+                                saved_search_list.children('li.menu-section:last').after('<li><span data-name="search-' + public_searches[i].id + '">' + public_searches[i].title + '</span></li>');
+                            } else {
+                                saved_search_list.append('<li><span data-name="search-' + public_searches[i].id + '">' + public_searches[i].title + '</span></li>');
+                            }
+                        }
                     }
                 }
+
+                widget.sw_graphwidget_backtitle.children('.saved-searches-menu').children('ul.saved-searches-options').on('click', 'li', function () {
+                    var saved_query = {};
+                    if (search_name = $(this).children('span').attr('data-name')) {
+                        var search_bits = search_name.split('-');
+                        var search_id = search_bits[1];
+                        $.ajax({
+                            url: widget.options.sw_url + "api/load_saved_search/" + search_id, type: 'GET', dataType: 'json', success: function (data) {
+                                saved_query = data;
+                                delete(saved_query.private);
+                                delete(saved_query.save_span);
+                                delete(saved_query.user_id);
+                                widget.populate_search_form(saved_query);
+                            }
+                        });
+                    }
+
+                });
+
+                var my_search_count = (typeof my_searches !== "undefined" ? my_searches.length : 0);
+                var public_search_count = (typeof public_searches !== "undefined" ? public_searches.length : 0);
+                var item_length = my_search_count + public_search_count;
+                saved_search_menu.resolve([menu_length, item_length]);
             });
 
-            widget.sw_graphwidget_backtitle.children('.saved-searches-menu').children('ul.saved-searches-options').on('click', 'li', function () {
-                var saved_query = {};
-                if (search_name = $(this).children('span').attr('data-name')) {
-                    var search_bits = search_name.split('-');
-                    var search_id = search_bits[1];
-                    $.ajax({
-                        url: widget.options.sw_url + "api/load_saved_search/" + search_id, type: 'GET', dataType: 'json', success: function (data) {
-                            saved_query = data;
-                            delete(saved_query.private);
-                            delete(saved_query.save_span);
-                            delete(saved_query.user_id);
-                            widget.populate_search_form(saved_query);
-                        }
-                    });
-                }
-
-            });
+            return saved_search_menu.promise();
         }
-
 //    ,populate_search_form: function(query_data, widget, force_prompt_user)
         , populate_search_form: function (query_data, force_prompt_user) {
 
