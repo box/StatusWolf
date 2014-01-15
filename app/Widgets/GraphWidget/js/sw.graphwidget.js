@@ -2036,7 +2036,7 @@
                 widget.graph.y.domain([
                     0, (d3.max(widget.graph.data_left, function (d) {
                         return d3.max(d.values, function (v) {
-                            return parseInt(v.value);
+                            return parseFloat(v.value);
                         })
                     }) * 1.05)
                 ]);
@@ -2320,7 +2320,11 @@
 
                 // Set the interval for adding new data if Auto Update is selected
                 if (widget.query_data['auto_update']) {
-                    console.log('setting auto-update timer to ' + widget.graph.autoupdate_interval / 60 + ' minutes for widget ' + widget.element.attr('id') + ' at ' + new Date.now().toTimeString());
+                    var widget_string = widget.sw_graphwidget_containerid;
+                    if (widget.query_data.title.length > 0) {
+                        widget_string = widget.query_data.title;
+                    }
+                    console.log('setting auto-update timer to ' + widget.graph.autoupdate_interval / 60 + ' minutes for widget ' + widget_string + ' at ' + new Date.now().toTimeString());
                     widget.autoupdate_timer = setTimeout(function () {
                         widget.update_graph('line');
                     }, widget.graph.autoupdate_interval * 1000);
@@ -2424,7 +2428,7 @@
                                         })
                                     ]);
                                 }
-                                if (widget.graph.x.domain()[0] === "Invalid Date" || widget.graph.x.domain()[1] === "Invalid Date") {
+                                if (widget.graph.x.domain()[0] == "Invalid Date" || widget.graph.x.domain()[1] == "Invalid Date") {
                                     console.log('Invalid x domain, refreshing');
                                     widget.go_click_handler();
                                 }
@@ -2452,7 +2456,7 @@
                                     widget.graph.y1.domain([
                                         0, (d3.max(widget.graph.data_right, function (d) {
                                             return d3.max(d.values, function (v) {
-                                                return v.value;
+                                                return parseFloat(v.value);
                                             })
                                         }) * 1.05)
                                     ]);
@@ -2480,7 +2484,8 @@
                     );
                 });
             }
-            console.log('Widget ' + widget.element.attr('id') + ' refreshed at ' + new Date.now().toTimeString() + ', next refresh in ' + widget.graph.autoupdate_interval / 60 + ' minutes');
+            var widget_string = widget.query_data.title.length > 0 ? widget.query_data.title : widget.sw_graphwidget_container;
+            console.log('Widget ' + widget_string + ' refreshed at ' + new Date.now().toTimeString() + ', next refresh in ' + widget.graph.autoupdate_interval / 60 + ' minutes');
             widget.autoupdate_timer = setTimeout(function () {
                 widget.update_graph('line');
             }, widget.graph.autoupdate_interval * 1000);
