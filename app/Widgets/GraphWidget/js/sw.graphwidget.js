@@ -719,7 +719,11 @@
                     '<li data-action="set-agg-type"><span>Maximum Value</span></li>' +
                     '<li data-action="set-agg-type"><span>Standard Deviation</span></li>' +
                     '</ul></div></td>' +
-                    '<td colspan=2"><div class="graph-widget-form-item menu-label" id="downsample' + tab_tag + '" style="margin-right: 0;">' +
+                    '<td colspan=2"><div class="graph-widget-form-item menu-label info-tooltip-top" id="downsample' + tab_tag + '" style="margin-right: 0;"' +
+                    ' title="Be aware that if you set downsampling to None for time periods of more than 30 minutes you' +
+                    ' will be pulling in more datapoints than will actually fit in the pixel width of your graph, and' +
+                    ' that your browser will be very, very unhappy if your search returns too many data points (usually' +
+                    ' in the neighborhood of 5,000 or more)">' +
                     '<h4>Downsampling</h4>' +
                     '<div class="dropdown graph-widget-button">' +
                     '<span data-toggle="dropdown">' +
@@ -729,7 +733,8 @@
                     '<li data-action="set-ds-type"><span>Sum</span></li>' +
                     '<li data-action="set-ds-type"><span>Average</span></li>' +
                     '<li data-action="set-ds-type"><span>Minimum Value</span></li>' +
-                    '<li data-action="set-ds-type"><span>Maximum Value</span></li></ul></div>' +
+                    '<li data-action="set-ds-type"><span>Maximum Value</span></li>' +
+                    '<li data-action="set-ds-type"><span>None</span></li></ul></div>' +
                     '<div class="dropdown graph-widget-button">' +
                     '<span data-toggle="dropdown">' +
                     '<div class="graph-widget-button-label ds-interval" id="active-downsample-interval' + tab_tag + '" data-value="1">1 minute</div>' +
@@ -1097,7 +1102,14 @@
             }
 
             if (widget.options.datasource === "OpenTSDB") {
-                var method_map = {sum: 'Sum', avg: 'Average', min: 'Minimum Value', max: 'Maximum Value', dev: 'Standard Deviation'};
+                var method_map = {
+                    sum: 'Sum',
+                    avg: 'Average',
+                    min: 'Minimum Value',
+                    max: 'Maximum Value',
+                    dev: 'Standard Deviation',
+                    none: 'None'
+                };
 
                 var auto_update_input = $('input#auto-update-button' + widget_num);
                 if (query_data.auto_update === "true") {
@@ -1307,7 +1319,14 @@
             }
 
             if (widget.options.datasource === "OpenTSDB") {
-                var methods = {'sum': 'sum', 'average': 'avg', 'minimum value': 'min', 'maximum value': 'max', 'standard deviation': 'dev'};
+                var methods = {
+                    'sum': 'sum',
+                    'average': 'avg',
+                    'minimum value': 'min',
+                    'maximum value': 'max',
+                    'standard deviation': 'dev',
+                    'none': 'none'
+                };
                 // Map out all the elements we need to check
                 var input_dates = $('div#graph-widget-dates' + widget_num);
                 var input_time_span = $('div#time-span' + widget_num);
@@ -2017,7 +2036,7 @@
                 widget.graph.y.domain([
                     0, (d3.max(widget.graph.data_left, function (d) {
                         return d3.max(d.values, function (v) {
-                            return v.value;
+                            return parseInt(v.value);
                         })
                     }) * 1.05)
                 ]);

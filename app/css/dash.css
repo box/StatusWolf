@@ -40,6 +40,7 @@
 
 #my-dashboards-box, #shared-dashboards-box {
     display: inline-block;
+    vertical-align: top;
 }
 
 #my-dashboard-list, #shared-dashboard-list {
