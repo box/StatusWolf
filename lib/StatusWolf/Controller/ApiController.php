@@ -132,7 +132,7 @@ class ApiController extends SWController
    *
    * @param string $metric - metric to look for in form 'metric=string'
    */
-  protected function tsdb_suggested_tags($metric) {
+  protected function tsdb_suggested_tags($url_path, $query_bits) {
     if ($host_config = SWConfig::read_values('datasource.OpenTSDB.url'))
     {
       if (is_array($host_config))
@@ -149,7 +149,7 @@ class ApiController extends SWController
       throw new SWException('No OpenTSDB Host configured');
     }
 
-    list($q, $metric) = explode('=', $metric[0]);
+    list($q, $metric) = explode('=', $query_bits);
 
     $data = array();
     $data['metric'] = $metric;
