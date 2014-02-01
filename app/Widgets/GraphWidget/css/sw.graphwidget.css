@@ -118,6 +118,15 @@
 
 .metric-input-textbox {
     width: 100%;
+    position: relative;
+}
+
+.metric-input-textbox .tag-suggestions {
+    position: absolute;
+    top: -25px;
+    right: 5%;
+    margin: 0;
+    text-align: right;
 }
 
 .metric-autocomplete {

@@ -125,6 +125,58 @@ class ApiController extends SWController
     echo json_encode($data);
   }
 
+
+  /**
+   * Queries an hour of OpenTSDB data to populate tag suggestions
+   * for a metric.
+   *
+   * @param string $metric - metric to look for in form 'metric=string'
+   */
+  protected function tsdb_suggested_tags($metric) {
+    if ($host_config = SWConfig::read_values('datasource.OpenTSDB.url'))
+    {
+      if (is_array($host_config))
+      {
+        $tsdb_host = $host_config[array_rand($host_config)];
+      }
+      else
+      {
+        $tsdb_host = $host_config;
+      }
+    }
+    else
+    {
+      throw new SWException('No OpenTSDB Host configured');
+    }
+
+    list($q, $metric) = explode('=', $metric[0]);
+
+    $data = array();
+    $data['metric'] = $metric;
+
+    $query_url = 'http://' . $tsdb_host . '/q?start=1h-ago&m=sum:rate:' . $metric . '&json';
+    $curl = new Curl($query_url);
+    try
+    {
+      $ret = json_decode($curl->request());
+    }
+    catch(SWException $e)
+    {
+      $this->loggy->logError($this->log_tag . "Failed to retrieve metric tag suggestions for $metric from OpenTSDB");
+      $this->loggy->logError($this->log_tag . substr($e->getMessage(), 0, 256));
+      $data['suggestions'] = array();
+      echo json_encode($data);
+      return;
+    }
+    if (property_exists($ret, 'etags')) {
+      $data['suggestions'] = $ret->etags[0];
+    }
+    else {
+      $data['suggestions'] = array();
+    }
+    echo json_encode($data);
+  }
+
   /**
    * Hands off time series data to the anomaly detection system, returns
    * an array of start/stop times where there were anomalies detected
