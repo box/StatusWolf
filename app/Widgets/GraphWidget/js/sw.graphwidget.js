@@ -1123,9 +1123,7 @@
             });
 
             return saved_search_menu.promise();
-        }
-//    ,populate_search_form: function(query_data, widget, force_prompt_user)
-        , populate_search_form: function(query_data, force_prompt_user) {
+        }, populate_search_form: function(query_data, force_prompt_user) {
 
             var widget = this;
             var prompt_user = false;
