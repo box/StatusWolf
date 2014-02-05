@@ -2,8 +2,6 @@
 /**
  * OpenTSDB
  *
- * Describe your class here
- *
  * Authors: Mark Troyer <disco@box.com>, Jeff Queisser <jeff@box.com>
  * Date Created: 6 June 2013
  *
