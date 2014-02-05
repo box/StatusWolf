@@ -60,6 +60,16 @@ if (!empty($_POST))
   }
 }
 
+// Init logging
+if($app_config['debug'])
+{
+  $loggy = new KLogger(ROOT . 'app/log/', KLogger::DEBUG);
+}
+else
+{
+  $loggy = new KLogger(ROOT . 'app/log/', KLogger::INFO);
+}
+
 $bootstrap = authenticate_session($app_config);
 
 // Initialize app authentication, uses the Pear Auth module
@@ -199,6 +209,8 @@ function login($username = null, $status = null, &$auth = null)
 // Function to deal with failed user login attempts
 function login_failed($user = null, &$auth = null)
 {
+  global $loggy;
+
   if ($auth->getStatus() == '-3')
   {
     $_SESSION['_auth_fail'] = "Username or password are incorrect";
@@ -207,11 +219,15 @@ function login_failed($user = null, &$auth = null)
   {
     $_SESSION['_auth_fail'] = "Login failed";
   }
+  $loggy->logInfo("Failed login attempt: " . $user);
   return false;
 }
 
 function login_succeeded($user = null, &$auth = null)
 {
+  global $loggy;
+  $loggy->logInfo("Successful login: " . $user);
+  
   $app_config = SWConfig::read_values('statuswolf');
   $auth_options = Array();
   if (! $auth_options['sessionName'] = SWConfig::read_values('auth.sessionName'))
