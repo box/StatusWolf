@@ -123,8 +123,6 @@
                     '<ul class="dropdown-menu saved-searches-options" role="menu" aria-labelledby="dLabel"></ul>')
                 .appendTo(sw_graphwidget_backtitle);
 
-            sw_graphwidget_backtitle.append('<div class="glue1">');
-
             sw_graphwidget_datasourcemenu = (this.sw_graphwidget_datasourcemenu = $('<div>'))
                 .addClass('dropdown widget-title-dropdown datasource-menu')
                 .append('<span class="widget-title-button right-button" data-toggle="dropdown">' +
@@ -423,12 +421,6 @@
                 $('#' + widget_element.attr('id') + ' .widget-title .saved-searches-menu')
                     .after('<h3 id="search-title' + widget_num + '" class="search-title search-title-prompt"></h3>' +
                         '<input type="text" name="search-title-input' + widget_num + '" class="nodisplay">');
-                $('#search-title' + widget_num)
-                    .css('width', widget.sw_graphwidget_backtitle.innerWidth() -
-                        (widget.sw_graphwidget_savedsearchesmenu.outerWidth() +
-                            widget.sw_graphwidget_datasourcemenu.outerWidth() +
-                            parseInt($('#search-title' + widget_num).css('margin-left'), 10))
-                    );
                 $('#search-title' + widget_num).text('Click to set search title');
 
                 $('.widget-title').on('click', 'h3', function () {
@@ -708,7 +700,12 @@
                 tab_table.append('<tr><td colspan="4"><div class="metric-input-textbox">' +
                     '<input type="text" class="metric-autocomplete" name="metric' + tab_tag + '" placeholder="Metric name and tags">' +
                     '</div></td></tr>' +
-                    '<tr><td width="30%"><div class="graph-widget-form-item menu-label" id="aggregation' + tab_tag + '" style="margin-right: 0;">' +
+                    '<tr><td width="25%"><div class="graph-widget-form-item menu-label" style="min-width: 155px;">' +
+                    '<div class="push-button" style="margin-top: 10px; width: 95%;">' +
+                    '<input type="checkbox" id="rate-button' + tab_tag + '" name="rate' + tab_tag + '">' +
+                    '<label for="rate-button' + tab_tag + '"><span class="iconic iconic-x-alt red"></span>' +
+                    '<span class="binary-label">Rate</span></label></div></div></td>' +
+                    '<td width="75%"><div class="graph-widget-form-item menu-label" id="aggregation' + tab_tag + '" style="margin-right: 0;">' +
                     '<h4>Aggregation</h4><div class="dropdown graph-widget-button">' +
                     '<span data-toggle="dropdown"><div class="graph-widget-button-label" id="active-aggregation-type' + tab_tag + '">Sum</div>' +
                     '<span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span></span>' +
@@ -718,8 +715,18 @@
                     '<li data-action="set-agg-type"><span>Minimum Value</span></li>' +
                     '<li data-action="set-agg-type"><span>Maximum Value</span></li>' +
                     '<li data-action="set-agg-type"><span>Standard Deviation</span></li>' +
-                    '</ul></div></td>' +
-                    '<td colspan=2"><div class="graph-widget-form-item menu-label info-tooltip-top" id="downsample' + tab_tag + '" style="margin-right: 0;"' +
+                    '</ul></div></td></tr>' +
+                    '<tr><td><div class="graph-widget-form-item menu-label" style="min-width: 155px;">' +
+                    '<div class="push-button" style="margin-top: 10px; width: 95%;">' +
+                    '<input type="checkbox" id="y2-button' + tab_tag + '" name="y2-' + tab_tag + '">' +
+                    '<label for="y2-button' + tab_tag + '"><span class="iconic iconic-x-alt red"></span>' +
+                    '<span class="binary-label">Right Axis</span></label></div></div></td><td></td></tr>' +
+                    '<tr><td><div class="graph-widget-form-item menu-label" style="min-width: 155px;">' +
+                    '<div class="push-button info-tooltip-right" style="margin-top: 10px; width: 95%;" title="If selected, timestamp buckets with no data will be displayed as 0, otherwise they\'ll be skipped over.">' +
+                    '<input type="checkbox" id="null-zero-button' + tab_tag + '" name="null-zero' + tab_tag + '">' +
+                    '<label for="null-zero-button' + tab_tag + '"><span class="iconic iconic-x-alt red"></span>' +
+                    '<span class="binary-label">Treat Null As Zero</span></label></div></td>' +
+                    '<td><div class="graph-widget-form-item menu-label info-tooltip" id="downsample' + tab_tag + '" style="margin-right: 0;"' +
                     ' title="Be aware that if you set downsampling to None for time periods of more than 30 minutes you' +
                     ' will be pulling in more datapoints than will actually fit in the pixel width of your graph, and' +
                     ' that your browser will be very, very unhappy if your search returns too many data points (usually' +
@@ -746,31 +753,12 @@
                     '<li data-action="set-ds-span"><span data-value="60">1 hour</span></li>' +
                     '<li data-action="set-ds-span"><span data-value="240">4 hours</span></li>' +
                     '<li data-action="set-ds-span"><span data-value="720">12 hours</span></li>' +
-                    '<li data-action="set-ds-span"><span data-value="1440">1 day</span></li></ul></div></div></td>' +
-                    '<td width="30%"><div class="graph-widget-form-item menu-label">' +
-                    '<h4>Null = 0</h4>' +
-                    '<div class="push-button binary info-tooltip" title="If selected, timestamp buckets with no data will be displayed as 0, otherwise they\'ll be skipped over.">' +
-                    '<input type="checkbox" id="null-zero-button' + tab_tag + '" name="null-zero' + tab_tag + '">' +
-                    '<label for="null-zero-button' + tab_tag + '"><span class="iconic iconic-x-alt red"></span>' +
-                    '<span class="binary-label">No </span></label></div></td></tr>');
-                tab_table.append('<tr><td width="30%"><div id="lerp-button-container" class="hidden graph-widget-form-item menu-label">' +
-                    '<h4>Interpolation</h4>' +
-                    '<div class="push-button binary info-tooltip" title="Interpolation should be disabled unless you are absolutely sure that you need it.">' +
+                    '<li data-action="set-ds-span"><span data-value="1440">1 day</span></li></ul></div></div></td></tr>' +
+                    '<tr><td><div id="lerp-button-container" class="hidden graph-widget-form-item menu-label" style="min-width: 155px;">' +
+                    '<div class="push-button info-tooltip-right" style="margin-top: 10px; width: 95%;" title="Interpolation should be disabled unless you are absolutely sure that you need it.">' +
                     '<input type="checkbox" id="lerp-button' + tab_tag + '" name="lerp' + tab_tag + '">' +
                     '<label for="lerp-button' + tab_tag + '"><span class="iconic iconic-x-alt red"></span>' +
-                    '<span class="binary-label">No </span></label></div></div></td>' +
-                    '<td width="30%"><div class="graph-widget-form-item menu-label">' +
-                    '<h4>Right Axis</h4>' +
-                    '<div class="push-button binary">' +
-                    '<input type="checkbox" id="y2-button' + tab_tag + '" name="y2-' + tab_tag + '">' +
-                    '<label for="y2-button' + tab_tag + '"><span class="iconic iconic-x-alt red"></span>' +
-                    '<span class="binary-label">No </span></label></div></div></td>' +
-                    '<td colspan=2><div class="graph-widget-form-item menu-label">' +
-                    '<h4>Rate</h4>' +
-                    '<div class="push-button binary">' +
-                    '<input type="checkbox" id="rate-button' + tab_tag + '" name="rate' + tab_tag + '">' +
-                    '<label for="rate-button' + tab_tag + '"><span class="iconic iconic-x-alt red"></span>' +
-                    '<span class="binary-label">No </span></label></div></div></td></tr>');
+                    '<span class="binary-label">Interpolation</span></label></div></div></td></tr>');
                 if (widget.options.nointerpolation) {
                     $('div#lerp-button-container').removeClass('hidden');
                 } else {

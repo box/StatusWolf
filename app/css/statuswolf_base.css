@@ -416,7 +416,7 @@ select {
     z-index: 1000;
     display: none;
     float: left;
-    min-width: 125px;
+    min-width: 130px;
     padding: 5px 0;
     list-style: none;
     color: rgba(205, 205, 205, 0.6);
@@ -561,7 +561,7 @@ ul.sub-menu-item ul.sub-menu:after {
 
 .tab-content {
     background-color: rgb(31, 31, 31);
-    padding: 10px 0 5px 10px;
+    padding: 10px 0 15px 10px;
     -webkit-border-top-right-radius: 3px;
     -moz-border-radius-topright: 3px;
     border-top-right-radius: 3px;
