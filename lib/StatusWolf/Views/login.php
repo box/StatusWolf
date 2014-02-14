@@ -40,7 +40,7 @@ $uri = substr_replace($uri, '', 0, 1);
               <div class="login-logo"></div>
               <div class="login-form" id="statuswolf-login">
                 <div class="login-label"><h4 style="display: inline-block;">Username </h4>
-                  <input type="text" id="login-username" name="username" <?php if (!is_null($username)) { echo 'value="' . $username . '"'; } ?>>
+                  <input type="text" id="login-username" name="username" <?php if (!is_null($username)) { echo 'value="' . htmlspecialchars($username, ENT_QUOTES) . '"'; } ?>>
                 </div>
                 <div class="login-label"><h4 style="display: inline-block;">Password </h4>
                   <input type="password" id="login-password" name="password">

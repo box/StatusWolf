@@ -169,7 +169,7 @@ function authenticate_session($app_config) {
 
 // Logout the user, restart the session and present a login form
   if (array_key_exists('action', $_GET) && $_GET['action'] == "logout" ||
-      array_key_exists('action', $_POST) && $_POST['action'] = "logout")
+      array_key_exists('action', $_POST) && $_POST['action'] == "logout")
   {
     if ($sw_auth->checkAuth())
     {
