@@ -85,7 +85,7 @@
   <div class="flexy widget-footer" style="margin-top: 10px;">
     <div class="widget-footer-button" id="cancel-save-query-data-button" onClick="$.magnificPopup.close()"><span class="iconic iconic-x-alt"><span class="font-reset"> Cancel</span></span></div>
     <div class="glue1"></div>
-    <div class="widget-footer-button" id="save-query-data-button" onClick="save_click_handler(event, 0, $('.widget-container').data('sw-graphwidget').query_data)"><span class="iconic iconic-download"><span class="font-reset"> Save</span></span></div>
+    <div class="widget-footer-button" id="save-query-data-button" onClick="save_click_handler(event, 0)"><span class="iconic iconic-download"><span class="font-reset"> Save</span></span></div>
   </div>
 </div>
 
@@ -168,6 +168,10 @@
     ,dataType: 'json'
     ,done: function(data) {
     }
+  });
+
+  $('.popup').on('click', '.push-button', function() {
+    statuswolf_button(this);
   });
 
   $(document).ready(function() {
@@ -558,21 +562,23 @@
     }
   }
 
-  function save_click_handler(event, confirmation, query_data)
+  function save_click_handler(event, confirmation)
   {
+    widget = $('.widget-container').data('sw-graphwidget');
     if ($('input[name="save-search-title"]').val().length < 1)
     {
       $('input[name="save-search-title"]').css('border-color', 'red').css('background-color', 'rgb(255, 200, 200)').focus();
       alert("You must specify a title for your saved search");
     }
-    query_data['user_id'] = "<?php echo $_session_data['user_id']; ?>";
-    query_data['title'] = $('input[name="save-search-title"]').val();
-    $('#save-span').prop('checked')?query_data['save_span'] = 1:query_data['save_span'] = 0;
-    $('#public').prop('checked')?query_data['private'] = 0:query_data['private'] = 1;
+    widget.query_data['user_id'] = "<?php echo $_session_data['user_id']; ?>";
+    widget.query_data['title'] = $('input[name="save-search-title"]').val();
+    widget.query_data['datasource'] = widget.options.datasource;
+    $('#save-span').prop('checked')?widget.query_data['save_span'] = 1:widget.query_data['save_span'] = 0;
+    $('#public').prop('checked')?widget.query_data['private'] = 0:widget.query_data['private'] = 1;
     var api_url = '<?php echo URL; ?>api/save_adhoc_search';
-    if (typeof query_data.search_id !== "undefined")
+    if (typeof widget.query_data.search_id !== "undefined")
     {
-      api_url += '/' + query_data.search_id;
+      api_url += '/' + widget.query_data.search_id;
       if (confirmation > 0)
       {
         api_url += '/Confirm'
@@ -581,7 +587,7 @@
     $.ajax({
       url: api_url
       ,type: 'POST'
-      ,data: query_data
+      ,data: widget.query_data
       ,dataType: 'json'
       ,success: function(data) {
         if (typeof data === "string")
@@ -593,11 +599,11 @@
           switch (data.query_info)
           {
             case "Title":
-              query_data.search_id = data.search_id;
+              widget.query_data.search_id = data.search_id;
               $('#confirmation-info').empty().append("<span>A search with that name already exists, overwrite?</span>");
               $('#confirm-save-button').click(function(event) {
-                save_click_handler(event, 1, query_data);
-              })
+                save_click_handler(event, 1);
+              });
               $.magnificPopup.open({
                 items: {
                   src: '#confirmation-popup'
