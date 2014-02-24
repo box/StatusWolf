@@ -485,9 +485,10 @@ select {
     height: 1px;
     background-color: rgba(51, 51, 51, 0.75);
     margin-top: 2px;
-    margin-left: auto;
+    margin-left: 5px;
     margin-right: auto;
-    width: 90%;
+    width: 95%;
+    display: inline-block;
 }
 
 .menu-left:before {
@@ -498,6 +499,10 @@ select {
 .menu-left:after {
     right: 7px;
     left: auto;
+}
+
+li.menu-section {
+    font-weight: bold;
 }
 
 li.menu-section:hover {
