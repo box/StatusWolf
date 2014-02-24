@@ -146,10 +146,16 @@
     font-size: 0.8em;
 }
 
+.widget-title-dropdown.saved-searches-menu {
+    min-width: 129px;
+    vertical-align: top;
+}
+
 .widget-title > input {
     margin-left: 10px;
     position: relative;
-    top: -10px;
+    top: -5px;
+    vertical-align: bottom;
 }
 
 .search-title {
@@ -157,6 +163,7 @@
     margin-left: 10px;
     color: rgba(205, 205, 205, 0.6);
     display: inline-block;
+    width: auto;
 }
 
 .search-title-prompt {
@@ -227,7 +234,7 @@
 
 .widget-main {
     width: 100%;
-    height: 82%;
+    height: 88%;
     position: absolute;
     left: 0;
     padding: 0;
@@ -237,11 +244,17 @@
     -webkit-transform: rotateY(180deg);
     -moz-transform: rotateY(180deg);
     transform: rotateY(180deg);
+    overflow: hidden;
 }
 
 .widget-back .widget-main {
     top: 35px;
     overflow: hidden;
+}
+
+.widget-main.back {
+    overflow: auto;
+    min-width: 720px;
 }
 
 .widget-back .widget-title-head h4 {
@@ -298,14 +311,21 @@
 
 .general-options-table {
     width: 99%;
-    margin-top: 15px;
     border-spacing: 25px;
 }
 
 .tab-table {
     width: 99%;
     margin-top: 5px;
-    border-spacing: 25px;
+    border-spacing: 5px;
+}
+
+.tab-table div.menu-label h4 {
+    margin: 10px 5px 0 0;
+}
+
+div.metric-input-tabs.tab-below > ul.nav-tabs > li {
+    margin-bottom: 30px;
 }
 
 .datasource-menu {

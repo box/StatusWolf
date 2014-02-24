@@ -82,6 +82,11 @@ class AdhocController extends SWController
           $this->loggy->logDebug($this->log_tag . 'Saved search id: ' . $_saved_search_key);
           include 'header.php';
           $_SESSION['_sw_authsession']['saved_search_key'] = $_saved_search_key;
+          if (array_key_exists('query', $url_parts))
+          {
+            $this->loggy->logDebug($this->log_tag . 'Search options given: ' . $url_parts['query']);
+            $_SESSION['_sw_authsession']['saved_search_options'] = explode('&', $url_parts['query']);
+          }
           if ($_SESSION['authenticated'])
           {
             include 'navbar.php';

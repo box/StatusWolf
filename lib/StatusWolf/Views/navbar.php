@@ -13,10 +13,11 @@
 
 <div class="navbar">
   <link href="<?php echo URL; ?>app/css/nav.css?v=1" rel="stylesheet">
+  <span class="version"><p><?php $ver = SWConfig::read_values('statuswolf.version'); echo $ver ?></p></span>
   <div class="brand dropdown menu-btn" id="nav-menu">
     <span class="flexy" id="statuswolf-menu-content" data-toggle="dropdown">
       <h4 class="menu-label" id="statuswolf-menu-content">StatusWolf</h4>
-      <span class="version"><p><?php $ver = SWConfig::read_values('statuswolf.version'); echo $ver ?></p></span>
+      <span class="menu-arrow iconic iconic-play rotate-90" style="vertical-align: middle"></span>
     </span>
     <ul class="dropdown-menu" id="nav-menu-content" role="menu">
       <li id="nav-home"><a href="<?php echo URL; ?>"><span class="iconic iconic-home"><span class="font-reset"> Home</span></span></a></li>

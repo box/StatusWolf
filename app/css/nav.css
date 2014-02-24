@@ -13,6 +13,10 @@
     color: rgba(205, 205, 205, 0.5);
 }
 
+.menu-arrow {
+    font-size: 0.5em;
+}
+
 #nav-menu {
     font-size: 1em;
     line-height: 1.25em;

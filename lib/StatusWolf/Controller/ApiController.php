@@ -355,7 +355,7 @@ class ApiController extends SWController
 
     if (!empty($search_id))
     {
-      $saved_search_query = sprintf("UPDATE saved_searches SET title='%s', private='%s', search_params='%s' WHERE id='%s'", $sanitized_title, $sanitized_private, $search_data, $search_id);
+      $saved_search_query = sprintf("UPDATE saved_searches SET title='%s', private='%s', search_params='%s', data_source='%s' WHERE id='%s'", $sanitized_title, $sanitized_private, $search_data, $sanitized_datasource, $search_id);
     }
     else
     {

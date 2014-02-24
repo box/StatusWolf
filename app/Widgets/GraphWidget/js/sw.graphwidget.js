@@ -123,8 +123,6 @@
                     '<ul class="dropdown-menu saved-searches-options" role="menu" aria-labelledby="dLabel"></ul>')
                 .appendTo(sw_graphwidget_backtitle);
 
-            sw_graphwidget_backtitle.append('<div class="glue1">');
-
             sw_graphwidget_datasourcemenu = (this.sw_graphwidget_datasourcemenu = $('<div>'))
                 .addClass('dropdown widget-title-dropdown datasource-menu')
                 .append('<span class="widget-title-button right-button" data-toggle="dropdown">' +
@@ -477,12 +475,6 @@
                 $('#' + widget_element.attr('id') + ' .widget-title .saved-searches-menu')
                     .after('<h3 id="search-title' + widget_num + '" class="search-title search-title-prompt"></h3>' +
                         '<input type="text" name="search-title-input' + widget_num + '" class="nodisplay">');
-                $('#search-title' + widget_num)
-                    .css('width', widget.sw_graphwidget_backtitle.innerWidth() -
-                        (widget.sw_graphwidget_savedsearchesmenu.outerWidth() +
-                            widget.sw_graphwidget_datasourcemenu.outerWidth() +
-                            parseInt($('#search-title' + widget_num).css('margin-left'), 10))
-                    );
                 $('#search-title' + widget_num).text('Click to set search title');
 
                 $('.widget-title').on('click', 'h3', function() {
@@ -526,11 +518,11 @@
                 var form_table = form_div.children('table#graph-search-general' + widget_num);
 
                 form_table.append('<tr><td><div class="toggle-button-group">' +
-                    '<div class="toggle-button toggle-on"><label>' +
-                    '<input type="radio" class="section-toggle date-search" name="date-span" value="date-search" checked="checked" data-target="graph-widget-dates' + widget_num + '">' +
+                    '<div class="toggle-button section-toggle toggle-on"><label>' +
+                    '<input type="radio" class="date-search" name="date-span" value="date-search" checked="checked" data-target="graph-widget-dates' + widget_num + '">' +
                     '<span>Date Range</span></label>' +
-                    '</div><div class="toggle-button"><label>' +
-                    '<input type="radio" class="section-toggle span-search" name="date-span" value="span-search" data-target="graph-widget-time-span' + widget_num + '">' +
+                    '</div><div class="toggle-button section-toggle"><label>' +
+                    '<input type="radio" class="span-search" name="date-span" value="span-search" data-target="graph-widget-time-span' + widget_num + '">' +
                     '<span>Time Span</span></label></div></div></td>' +
                     '<td><div class="section section-on graph-widget-dates" id="graph-widget-dates' + widget_num + '">' +
                     '<div class="graph-widget-form-item menu-label" id="start-time' + widget_num + '">' +
@@ -553,14 +545,14 @@
                 form_table.append('<tr></td><td><div class="auto-update"><div class="push-button">' +
                     '<input type="checkbox" name="auto-update"><label>' +
                     '<span class="iconic iconic-x-alt red"></span><span> Auto Update</span></label></div></div></td>' +
-                    '<td><div class="toggle-button-group"><div class="toggle-button toggle-on"><label>' +
-                    '<input type="radio" class="section-toggle history-no" name="history-graph" checked="checked" data-target="history-no' + widget_num + '" value="no">' +
+                    '<td><div class="toggle-button-group"><div class="toggle-button section-toggle toggle-on"><label>' +
+                    '<input type="radio" class="history-no" name="history-graph" checked="checked" data-target="history-no' + widget_num + '" value="no">' +
                     '<span>No History</span></label>' +
-                    '</div><div class="toggle-button"><label>' +
-                    '<input type="radio" class="section-toggle history-anomaly" name="history-graph" data-target="history-anomaly' + widget_num + '" value="anomaly">' +
+                    '</div><div class="toggle-button section-toggle"><label>' +
+                    '<input type="radio" class="history-anomaly" name="history-graph" data-target="history-anomaly' + widget_num + '" value="anomaly">' +
                     '<span>Anomaly</span></label>' +
-                    '</div><div class="toggle-button"><label>' +
-                    '<input type="radio" class="section-toggle history-wow" name="history-graph" data-target="history-wow' + widget_num + '" value="wow">' +
+                    '</div><div class="toggle-button section-toggle"><label>' +
+                    '<input type="radio" class="history-wow" name="history-graph" data-target="history-wow' + widget_num + '" value="wow">' +
                     '<span>Week-Over-Week</span></label></div></div></td></tr>');
 
                 form_div.append('<div class="graph-widget-form-row row3">');
@@ -611,37 +603,6 @@
                     $(end_time).datetimepicker({collapse: false});
                 });
 
-                // If anomaly or week-over week displays are chosen update the
-                // time span menu to limit the search to 1 week or less
-                $('.section-toggle').click(function() {
-                    var data_target = $(this).attr('data-target');
-                    var section = $('#' + data_target);
-                    section.removeClass('section-off').addClass('section-on').siblings('.section').addClass('section-off').removeClass('section-on');
-                    if (data_target === 'history-anomaly' + widget_num) {
-                        $('ul#time-span-options' + widget_num).html(anomaly_span_menu);
-                        if ($('div#time-span' + widget_num).attr('data-ms') > 86400) {
-                            $('div#time-span' + widget_num).text('1 day').attr('data-ms', "86400");
-                        }
-                        $('ul#tab-list' + widget_num + ' a[href="#tab' + widget_num + '-1"]').click();
-                        $('ul#tab-list' + widget_num).addClass('hidden');
-                        $('#' + add_metric_button_id).addClass('hidden');
-                    }
-                    else if (data_target === 'history-wow' + widget_num) {
-                        $('ul#time-span-options' + widget_num).html(wow_span_menu);
-                        if ($('div#time-span' + widget_num).attr('data-ms') > 604800) {
-                            $('div#time-span' + widget_num).text('1 week').attr('data-ms', "604800");
-                        }
-                        $('ul#tab-list' + widget_num + ' a[href="#tab' + widget_num + '-1"]').click();
-                        $('ul#tab-list' + widget_num).addClass('hidden');
-                        $('#' + add_metric_button_id).addClass('hidden');
-                    }
-                    else if (data_target === 'history-no' + widget_num) {
-                        $('ul#time-span-options' + widget_num).html(long_span_menu);
-                        $('ul#tab-list' + widget_num).removeClass('hidden');
-                        $('#' + add_metric_button_id).removeClass('hidden');
-                    }
-                });
-
                 widget.metric_count = widget.add_tab(widget.metric_count, widget_num);
                 $(form_div.children('.row3').find('.metric-autocomplete')).autocomplete({
                     minChars: 2,
@@ -665,10 +626,6 @@
                         }
                     }
                 );
-
-                $('label').click(function() {
-                    statuswolf_button(this);
-                });
 
                 widget.sw_graphwidget_savedsearchesmenu.on('click', 'li.full-saved-search-list', function() {
                     $('body').append('<div id="saved-search-list-popup" class="popup mfp-hide"></div>');
@@ -749,6 +706,41 @@
                     });
                 });
 
+                $(form_div).on('click', '.toggle-button', function() {
+                    statuswolf_button(this);
+                    if ($(this).hasClass('section-toggle')) {
+                        var data_target = $(this).children('label').children('input').attr('data-target');
+                        var section = $('#' + data_target);
+                        section.removeClass('section-off').addClass('section-on').siblings('.section').addClass('section-off').removeClass('section-on');
+                        if (data_target === 'history-anomaly' + widget_num) {
+                            $('ul#time-span-options' + widget_num).html(anomaly_span_menu);
+                            if ($('div#time-span' + widget_num).attr('data-ms') > 86400) {
+                                $('div#time-span' + widget_num).text('1 day').attr('data-ms', "86400");
+                            }
+                            $('ul#tab-list' + widget_num + ' a[href="#tab' + widget_num + '-1"]').click();
+                            $('ul#tab-list' + widget_num).addClass('hidden');
+                            $('#' + add_metric_button_id).addClass('hidden');
+                        }
+                        else if (data_target === 'history-wow' + widget_num) {
+                            $('ul#time-span-options' + widget_num).html(wow_span_menu);
+                            if ($('div#time-span' + widget_num).attr('data-ms') > 604800) {
+                                $('div#time-span' + widget_num).text('1 week').attr('data-ms', "604800");
+                            }
+                            $('ul#tab-list' + widget_num + ' a[href="#tab' + widget_num + '-1"]').click();
+                            $('ul#tab-list' + widget_num).addClass('hidden');
+                            $('#' + add_metric_button_id).addClass('hidden');
+                        }
+                        else if (data_target === 'history-no' + widget_num) {
+                            $('ul#time-span-options' + widget_num).html(long_span_menu);
+                            $('ul#tab-list' + widget_num).removeClass('hidden');
+                            $('#' + add_metric_button_id).removeClass('hidden');
+                        }
+                    }
+                });
+
+                $(form_div).on('click', '.push-button', function() {
+                    statuswolf_button(this);
+                });
             }
         }, add_tab: function(tab_num, widget_num) {
             var widget = this;
@@ -767,7 +759,12 @@
                 tab_table.append('<tr><td colspan="4"><div class="metric-input-textbox">' +
                     '<input type="text" class="metric-autocomplete" name="metric' + tab_tag + '" placeholder="Metric name and tags">' +
                     '</div></td></tr>' +
-                    '<tr><td width="30%"><div class="graph-widget-form-item menu-label" id="aggregation' + tab_tag + '" style="margin-right: 0;">' +
+                    '<tr><td width="25%"><div class="graph-widget-form-item menu-label" style="min-width: 155px;">' +
+                    '<div class="push-button" style="margin-top: 10px; width: 95%;">' +
+                    '<input type="checkbox" id="rate-button' + tab_tag + '" name="rate' + tab_tag + '">' +
+                    '<label for="rate-button' + tab_tag + '"><span class="iconic iconic-x-alt red"></span>' +
+                    '<span class="binary-label">Rate</span></label></div></div></td>' +
+                    '<td width="75%"><div class="graph-widget-form-item menu-label" id="aggregation' + tab_tag + '" style="margin-right: 0;">' +
                     '<h4>Aggregation</h4><div class="dropdown graph-widget-button">' +
                     '<span data-toggle="dropdown"><div class="graph-widget-button-label" id="active-aggregation-type' + tab_tag + '">Sum</div>' +
                     '<span class="dropdown-arrow-container"><span class="iconic iconic-play rotate-90"></span></span></span>' +
@@ -777,8 +774,18 @@
                     '<li data-action="set-agg-type"><span>Minimum Value</span></li>' +
                     '<li data-action="set-agg-type"><span>Maximum Value</span></li>' +
                     '<li data-action="set-agg-type"><span>Standard Deviation</span></li>' +
-                    '</ul></div></td>' +
-                    '<td colspan=2"><div class="graph-widget-form-item menu-label info-tooltip-top" id="downsample' + tab_tag + '" style="margin-right: 0;"' +
+                    '</ul></div></td></tr>' +
+                    '<tr><td><div class="graph-widget-form-item menu-label" style="min-width: 155px;">' +
+                    '<div class="push-button" style="margin-top: 10px; width: 95%;">' +
+                    '<input type="checkbox" id="y2-button' + tab_tag + '" name="y2-' + tab_tag + '">' +
+                    '<label for="y2-button' + tab_tag + '"><span class="iconic iconic-x-alt red"></span>' +
+                    '<span class="binary-label">Right Axis</span></label></div></div></td><td></td></tr>' +
+                    '<tr><td><div class="graph-widget-form-item menu-label" style="min-width: 155px;">' +
+                    '<div class="push-button info-tooltip-right" style="margin-top: 10px; width: 95%;" title="If selected, timestamp buckets with no data will be displayed as 0, otherwise they\'ll be skipped over.">' +
+                    '<input type="checkbox" id="null-zero-button' + tab_tag + '" name="null-zero' + tab_tag + '">' +
+                    '<label for="null-zero-button' + tab_tag + '"><span class="iconic iconic-x-alt red"></span>' +
+                    '<span class="binary-label">Treat Null As Zero</span></label></div></td>' +
+                    '<td><div class="graph-widget-form-item menu-label info-tooltip-right" id="downsample' + tab_tag + '" style="margin-right: 0;"' +
                     ' title="Be aware that if you set downsampling to None for time periods of more than 30 minutes you' +
                     ' will be pulling in more datapoints than will actually fit in the pixel width of your graph, and' +
                     ' that your browser will be very, very unhappy if your search returns too many data points (usually' +
@@ -805,31 +812,12 @@
                     '<li data-action="set-ds-span"><span data-value="60">1 hour</span></li>' +
                     '<li data-action="set-ds-span"><span data-value="240">4 hours</span></li>' +
                     '<li data-action="set-ds-span"><span data-value="720">12 hours</span></li>' +
-                    '<li data-action="set-ds-span"><span data-value="1440">1 day</span></li></ul></div></div></td>' +
-                    '<td width="30%"><div class="graph-widget-form-item menu-label">' +
-                    '<h4>Null = 0</h4>' +
-                    '<div class="push-button binary info-tooltip" title="If selected, timestamp buckets with no data will be displayed as 0, otherwise they\'ll be skipped over.">' +
-                    '<input type="checkbox" id="null-zero-button' + tab_tag + '" name="null-zero' + tab_tag + '">' +
-                    '<label for="null-zero-button' + tab_tag + '"><span class="iconic iconic-x-alt red"></span>' +
-                    '<span class="binary-label">No </span></label></div></td></tr>');
-                tab_table.append('<tr><td width="30%"><div id="lerp-button-container" class="hidden graph-widget-form-item menu-label">' +
-                    '<h4>Interpolation</h4>' +
-                    '<div class="push-button binary info-tooltip" title="Interpolation should be disabled unless you are absolutely sure that you need it.">' +
+                    '<li data-action="set-ds-span"><span data-value="1440">1 day</span></li></ul></div></div></td></tr>' +
+                    '<tr><td><div id="lerp-button-container" class="hidden graph-widget-form-item menu-label" style="min-width: 155px;">' +
+                    '<div class="push-button info-tooltip-right" style="margin-top: 10px; width: 95%;" title="Interpolation should be disabled unless you are absolutely sure that you need it.">' +
                     '<input type="checkbox" id="lerp-button' + tab_tag + '" name="lerp' + tab_tag + '">' +
                     '<label for="lerp-button' + tab_tag + '"><span class="iconic iconic-x-alt red"></span>' +
-                    '<span class="binary-label">No </span></label></div></div></td>' +
-                    '<td width="30%"><div class="graph-widget-form-item menu-label">' +
-                    '<h4>Right Axis</h4>' +
-                    '<div class="push-button binary">' +
-                    '<input type="checkbox" id="y2-button' + tab_tag + '" name="y2-' + tab_tag + '">' +
-                    '<label for="y2-button' + tab_tag + '"><span class="iconic iconic-x-alt red"></span>' +
-                    '<span class="binary-label">No </span></label></div></div></td>' +
-                    '<td colspan=2><div class="graph-widget-form-item menu-label">' +
-                    '<h4>Rate</h4>' +
-                    '<div class="push-button binary">' +
-                    '<input type="checkbox" id="rate-button' + tab_tag + '" name="rate' + tab_tag + '">' +
-                    '<label for="rate-button' + tab_tag + '"><span class="iconic iconic-x-alt red"></span>' +
-                    '<span class="binary-label">No </span></label></div></div></td></tr>');
+                    '<span class="binary-label">Interpolation</span></label></div></div></td></tr>');
                 if (widget.options.nointerpolation) {
                     $('div#lerp-button-container').removeClass('hidden');
                 } else {
@@ -844,10 +832,6 @@
             });
 
             $('#' + tab_list.attr('id') + ' a[href="#tab' + tab_tag + '"]').tab('show');
-
-            $('label').click(function() {
-                statuswolf_button(this);
-            });
 
             $('.info-tooltip').tooltip({placement: 'bottom'});
             $('.info-tooltip-right').tooltip({placement: 'right'});
@@ -1158,6 +1142,35 @@
                 $('.widget-title > input[name="search-title-input' + widget.uuid + '"]').val(query_data.title);
             }
 
+            var anomaly_span_menu = '<li data-action="set-span"><span data-ms=600>10 minutes</span></li>' +
+                    '<li data-action="set-span"><span data-ms=1800>30 minutes</span></li>' +
+                    '<li data-action="set-span"><span data-ms=3600>1 Hour</span></li>' +
+                    '<li data-action="set-span"><span data-ms=7200>2 Hours</span></li>' +
+                    '<li data-action="set-span"><span data-ms=14400>4 Hours</span></li>' +
+                    '<li data-action="set-span"><span data-ms=28800>8 Hours</span></li>' +
+                    '<li data-action="set-span"><span data-ms=43200>12 Hours</span></li>' +
+                    '<li data-action="set-span"><span data-ms=86400>1 Day</span></li>'
+                , wow_span_menu = '<li data-action="set-span"><span data-ms=600>10 minutes</span></li>' +
+                    '<li data-action="set-span"><span data-ms=1800>30 minutes</span></li>' +
+                    '<li data-action="set-span"><span data-ms=3600>1 Hour</span></li>' +
+                    '<li data-action="set-span"><span data-ms=7200>2 Hours</span></li>' +
+                    '<li data-action="set-span"><span data-ms=14400>4 Hours</span></li>' +
+                    '<li data-action="set-span"><span data-ms=28800>8 Hours</span></li>' +
+                    '<li data-action="set-span"><span data-ms=43200>12 Hours</span></li>' +
+                    '<li data-action="set-span"><span data-ms=86400>1 Day</span></li>' +
+                    '<li data-action="set-span"><span data-ms=604800>1 Week</span></li>'
+                , long_span_menu = '<li data-action="set-span"><span data-ms="600">10 minutes</span></li>' +
+                    '<li data-action="set-span"><span data-ms=1800>30 minutes</span></li>' +
+                    '<li data-action="set-span"><span data-ms=3600>1 Hour</span></li>' +
+                    '<li data-action="set-span"><span data-ms=7200>2 Hours</span></li>' +
+                    '<li data-action="set-span"><span data-ms=14400>4 Hours</span></li>' +
+                    '<li data-action="set-span"><span data-ms=28800>8 Hours</span></li>' +
+                    '<li data-action="set-span"><span data-ms=43200>12 Hours</span></li>' +
+                    '<li data-action="set-span"><span data-ms=86400>1 Day</span></li>' +
+                    '<li data-action="set-span"><span data-ms=604800>1 Week</span></li>' +
+                    '<li data-action="set-span"><span data-ms=1209600>2 Weeks</span></li>' +
+                    '<li data-action="set-span"><span data-ms=2592000>1 Month</span></li>';
+
             if (widget.options.datasource === "OpenTSDB") {
                 var method_map = {
                     sum: 'Sum',
@@ -1170,19 +1183,19 @@
 
                 var auto_update_input = $('input#auto-update-button' + widget_num);
                 if (query_data.auto_update === "true") {
-                    auto_update_input.parent().addClass('pushed');
+                    console.log('auto update requested');
+                    console.log(auto_update_input);
+                    auto_update_input.parent('.push-button').addClass('pushed');
                     if (!auto_update_input.prop('checked')) {
-                        auto_update_input.siblings('label').click();
-                        auto_update_input.prop('checked', true);
-                        auto_update_input.children('span.iconic').removeClass('iconic-x-alt red').addClass('iconic-check-alt green');
+                        auto_update_input.attr('checked', 'Checked').prop('checked', true);
+                        auto_update_input.siblings('label').children('span.iconic').removeClass('iconic-x-alt red').addClass('iconic-check-alt green');
                     }
                 }
                 else {
-                    auto_update_input.parent().removeClass('pushed');
+                    auto_update_input.parent('.push-button').removeClass('pushed');
                     if (auto_update_input.prop('checked')) {
-                        auto_update_input.siblings('label').click();
-                        auto_update_input.prop('checked', false);
-                        auto_update_input.children('span.iconic').removeClass('iconix-check-alt green').addClass('iconic-x-alt red');
+                        auto_update_input.attr('checked', null).prop('checked', false);
+                        auto_update_input.siblings('label').children('span.iconic').removeClass('iconix-check-alt green').addClass('iconic-x-alt red');
                     }
                 }
 
@@ -1192,7 +1205,7 @@
                     $(el).parent('div.toggle-button').siblings('div.toggle-button').removeClass('toggle-on');
                     $(el).children('input').attr('checked', 'Checked');
                     $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
-                    $('input[data-target="history-anomaly' + widget_num + '"]').click();
+                    $('ul#time-span-options' + widget_num).html(anomaly_span_menu);
                 }
                 else if (query_data.history_graph.match(/wow/)) {
                     var el = $('input[data-target="history-wow' + widget_num + '"]').parent('label');
@@ -1200,7 +1213,7 @@
                     $(el).parent('div.toggle-button').siblings('div.toggle-button').removeClass('toggle-on');
                     $(el).children('input').attr('checked', 'Checked');
                     $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
-                    $('input[data-target="history-wow' + widget_num + '"]').click();
+                    $('ul#time-span-options' + widget_num).html(wow_span_menu);
                 }
                 else {
                     var el = $('input[data-target="history-no' + widget_num + '"]').parent('label');
@@ -1208,7 +1221,7 @@
                     $(el).parent('div.toggle-button').siblings('div.toggle-button').removeClass('toggle-on');
                     $(el).children('input').attr('checked', 'Checked');
                     $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
-                    $('input[data-target="history-no' + widget_num + '"]').click();
+                    $('ul#time-span-options' + widget_num).html(long_span_menu);
                 }
 
                 if (query_data.period === "span-search") {
@@ -1217,9 +1230,10 @@
                     $(el).parent('div.toggle-button').siblings('div.toggle-button').removeClass('toggle-on');
                     $(el).children('input').attr('checked', 'Checked');
                     $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
-                    $('input[data-target="graph-widget-time-span' + widget_num + '"]').click();
                     var span = query_data['time_span'];
-                    $('#time-span-options' + widget_num + ' li span[data-ms="' + span + '"]').parent('li').click();
+                    var data_target = $(el).children('input').attr('data-target');
+                    var section = $('#' + data_target);
+                    section.removeClass('section-off').addClass('section-on').siblings('.section').addClass('section-off').removeClass('section-on');
                 }
                 else {
                     var el = $('input[data-target="graph-widget-dates' + widget_num + '"]').parent('label');
@@ -1227,7 +1241,6 @@
                     $(el).parent('div.toggle-button').siblings('div.toggle-button').removeClass('toggle-on');
                     $(el).children('input').attr('checked', 'Checked');
                     $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
-                    $('input[data-target="graph-widget-dates' + widget_num + '"]').click();
                     if ((start_in = parseInt(query_data.start_time)) && (end_in = parseInt(query_data.end_time))) {
                         $('div#start-time' + widget_num).children('input').val(new Date(start_in * 1000).toString('yyyy/MM/dd HH:mm:ss'));
                         $('div#end-time' + widget_num).children('input').val(new Date(end_in * 1000).toString('yyyy/MM/dd HH:mm:ss'));
@@ -1235,6 +1248,9 @@
                     else {
                         prompt_user = true;
                     }
+                    var data_target = $(el).children('input').attr('data-target');
+                    var section = $('#' + data_target);
+                    section.removeClass('section-off').addClass('section-on').siblings('.section').addClass('section-off').removeClass('section-on');
                 }
 
                 var metric_num = 0;
@@ -1265,19 +1281,15 @@
                     if (metric.lerp && metric.lerp !== "false") {
                         lerp_input.parent('.push-button').addClass('pushed');
                         lerp_input.siblings('label').children('span.iconic').addClass('iconic-check-alt green').removeClass('iconic-x-alt red');
-                        lerp_input.siblings('label').children('span.binary-label').text('Yes');
                         if (!lerp_input.prop('checked')) {
-                            lerp_input.siblings('label').click();
-                            lerp_input.prop('checked', true);
+                            lerp_input.prop('checked', true).attr('checked', 'Checked');
                         }
                     }
                     else {
                         lerp_input.parent('.push-button').removeClass('pushed');
                         lerp_input.siblings('label').children('span.iconic').addClass('iconic-x-alt red').removeClass('iconic-check-alt green');
-                        lerp_input.siblings('label').children('span.binary-label').text('No');
                         if (lerp_input.prop('checked')) {
-                            lerp_input.siblings('label').click();
-                            lerp_input.prop('checked', false);
+                            lerp_input.prop('checked', false).attr('checked', null);
                         }
                     }
 
@@ -1285,19 +1297,15 @@
                     if (metric.rate && metric.rate !== "false") {
                         rate_input.parent('.push-button').addClass('pushed');
                         rate_input.siblings('label').children('span.iconic').addClass('iconic-check-alt green').removeClass('iconic-x-alt red');
-                        rate_input.siblings('lablel').children('span.binary-label').text('Yes');
                         if (!rate_input.prop('checked')) {
-                            rate_input.siblings('label').click();
-                            rate_input.prop('checked', true);
+                            rate_input.prop('checked', true).attr('checked', 'Checked');
                         }
                     }
                     else {
                         rate_input.parent('.push-button').removeClass('pushed');
                         rate_input.siblings('label').children('span.iconic').addClass('iconic-x-alt red').removeClass('iconic-check-alt green');
-                        rate_input.siblings('label').children('span.binary-label').text('No');
                         if (rate_input.prop('checked')) {
-                            rate_input.siblings('label').click();
-                            rate_input.prop('checked', false);
+                            rate_input.prop('checked', false).attr('checked', null);
                         }
                     }
 
@@ -1305,19 +1313,15 @@
                     if (metric.y2 && metric.y2 !== "false") {
                         y2_input.parent('.push-button').addClass('pushed');
                         y2_input.siblings('label').children('span.iconic').addClass('iconic-check-alt green').removeClass('iconic-x-alt red');
-                        y2_input.siblings('label').children('span.binary-label').text('Yes');
                         if (!y2_input.prop('checked')) {
-                            y2_input.siblings('label').click();
-                            y2_input.prop('checked', true);
+                            y2_input.prop('checked', true).attr('checked', 'Checked');
                         }
                     }
                     else {
                         y2_input.parent('.push-button').removeClass('pushed');
                         y2_input.siblings('label').children('span.iconic').addClass('iconic-x-alt red').removeClass('iconic-check-alt green');
-                        y2_input.siblings('label').children('span.binary-label').text('No');
                         if (y2_input.prop('checked')) {
-                            y2_input.siblings('label').click();
-                            y2_input.prop('checked', false);
+                            y2_input.prop('checked', false).attr('checked', null);
                         }
                     }
 
@@ -1325,18 +1329,14 @@
                     if (metric.null_zero && metric.null_zero !== "false") {
                         null_zero_input.parent('.push-button').addClass('pushed');
                         null_zero_input.siblings('label').children('span.iconic').addClass('iconic-check-alt green').removeClass('iconic-x-alt red');
-                        null_zero_input.siblings('label').children('span.binary-label').text('Yes');
                         if (!null_zero_input.prop('checked')) {
-                            null_zero_input.siblings('label').click();
-                            null_zero_input.prop('checked', true);
+                            null_zero_input.prop('checked', true).attr('checked', 'Checked');
                         }
                     } else {
                         null_zero_input.parent('.push-button').removeClass('pushed');
                         null_zero_input.siblings('label').children('span.iconic').addClass('iconi-x-alt red').removeClass('iconic-check-alt green');
-                        null_zero_input.siblings('label').children('span.binary-label').text('No');
                         if (null_zero_input.prop('checked')) {
-                            null_zero_input.siblings('label').click();
-                            null_zero_input.prop('checked', false);
+                            null_zero_input.prop('checked', false).attr('checked', null);
                         }
                     }
                 });
@@ -1348,6 +1348,9 @@
                         }
                         else {
                             widget.edit_params();
+                        }
+                        if (widget.sw_graphwidget_container.hasClass('transparent')) {
+                            widget.sw_graphwidget_container.removeClass('transparent');
                         }
                     }, 500);
                 }
