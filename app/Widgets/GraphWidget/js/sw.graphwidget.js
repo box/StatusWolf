@@ -1061,6 +1061,9 @@
             if (typeof force_prompt_user !== "undefined") {
                 prompt_user = true;
             }
+
+            console.log('populating search form, prompt user is set to: ' + prompt_user);
+            console.log(query_data);
             if (typeof query_data.period === "undefined") {
                 if (typeof query_data.time_span === "undefined") {
                     query_data.period = 'date-search';
@@ -1291,6 +1294,9 @@
                         }
                         else {
                             widget.edit_params();
+                        }
+                        if (widget.sw_graphwidget_container.hasClass('transparent')) {
+                            widget.sw_graphwidget_container.removeClass('transparent');
                         }
                     }, 500);
                 }

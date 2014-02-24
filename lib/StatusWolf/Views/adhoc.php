@@ -192,12 +192,23 @@
       }
       else if (typeof document._session_data.saved_search_key !== "undefined")
       {
-        $.when(get_saved_search_query(document._session_data.saved_search_key)).then(
-            function(query_data)
-            {
-              load_search(query_data);
-            }
-        )
+        if (typeof document._session_data.saved_search_options !== "undefined") {
+          var search_option = document._session_data.saved_search_options[0].split('=');
+          if (search_option[0] === "edit") {
+            $.when(get_saved_search_query(document._session_data.saved_search_key)).then(
+                function(query_data) {
+                  load_search(query_data, true);
+                }
+            )
+          }
+        } else {
+          $.when(get_saved_search_query(document._session_data.saved_search_key)).then(
+              function(query_data)
+              {
+                load_search(query_data, false);
+              }
+          )
+        }
       }
       else
       {
@@ -450,7 +461,7 @@
 
   }
 
-  function load_search(query_data)
+  function load_search(query_data, edit_search)
   {
     console.log(query_data);
     if (typeof query_data === "string" && query_data.length > 1)
@@ -558,7 +569,8 @@
 
         window.history.pushState("", "StatusWolf", url_path );
       }
-      widget_object.populate_search_form(query_data);
+      console.log('loading search id ' + document._session_data.saved_search_key + ' edit search is ' + edit_search);
+      widget_object.populate_search_form(query_data, edit_search);
     }
   }
 
