@@ -22,29 +22,43 @@
             nointerpolation: false
         }, _create: function() {
 
-            var that = this
-                , options = this.options
-                , sw_graphwidget
-                , sw_graphwidget_container
-                , sw_graphwidget_containerid
-                , sw_graphwidget_front
-                , sw_graphwidget_back
-                , sw_graphwidget_close
-                , sw_graphwidget_backtitle
-                , sw_graphwidget_backfooter
-                , sw_graphwidget_frontmain
-                , sw_graphwidget_backmain
-                , sw_graphwidget_savedsearchesmenu
-                , sw_graphwidget_datasourcemenu
-                , sw_graphwidget_searchform
-                , sw_graphwidget_action
-                , sw_graphwidget_querycancelbutton
-                , sw_graphwidget_gobutton
-                , sw_graphwidget_datasource;
+            var that = this,
+                options = this.options,
+                sw_graphwidget,
+                sw_graphwidget_container,
+                sw_graphwidget_containerid,
+                sw_graphwidget_front,
+                sw_graphwidget_back,
+                sw_graphwidget_close,
+                sw_graphwidget_backtitle,
+                sw_graphwidget_backfooter,
+                sw_graphwidget_frontmain,
+                sw_graphwidget_backmain,
+                sw_graphwidget_savedsearchesmenu,
+                sw_graphwidget_datasourcemenu,
+                sw_graphwidget_searchform,
+                sw_graphwidget_action,
+                sw_graphwidget_querycancelbutton,
+                sw_graphwidget_gobutton,
+                sw_graphwidget_datasource;
 
             if (this.options.sw_url === null) {
                 this.options.sw_url = this.get_sw_url();
             }
+
+            this.sw_graphwidget_timespanmap = {
+                '600': '10 Minutes',
+                '1800': '30 Minutes',
+                '3600': '1 Hour',
+                '7200': '2 Hours',
+                '14400': '4 Hours',
+                '28800': '8 Hours',
+                '43200': '12 Hours',
+                '86400': '1 Day',
+                '604800': '1 Week',
+                '1209600': '2 Weeks',
+                '2592000': '1 Month'
+            };
 
             sw_graphwidget_container = (this.sw_graphwidget_container = $(this.element));
             $(sw_graphwidget_container).addClass('transparent');
@@ -1234,6 +1248,7 @@
                     var data_target = $(el).children('input').attr('data-target');
                     var section = $('#' + data_target);
                     section.removeClass('section-off').addClass('section-on').siblings('.section').addClass('section-off').removeClass('section-on');
+                    $('#time-span' + widget_num).attr('data-ms', span).text(widget.sw_graphwidget_timespanmap[span]);
                 }
                 else {
                     var el = $('input[data-target="graph-widget-dates' + widget_num + '"]').parent('label');
