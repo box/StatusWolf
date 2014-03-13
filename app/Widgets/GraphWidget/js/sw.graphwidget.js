@@ -1071,11 +1071,12 @@
                 var my_searches = data.user_searches;
                 var public_searches = data.public_searches;
                 var saved_search_list = widget.sw_graphwidget_backtitle.children('.saved-searches-menu').children('ul.saved-searches-options')
+                var max = menu_length;
                 saved_search_list.empty();
                 saved_search_list.append('<li class="menu-section"><span>My Searches</span></li>');
                 if (my_searches) {
                     widget.saved_searches.my_searches = my_searches;
-                    var max = (my_searches.length < menu_length ? my_searches.length : menu_length);
+                    max = (my_searches.length < menu_length ? my_searches.length : menu_length);
                     for (i = 0; i < max; i++) {
                         saved_search_list.append('<li><span data-name="search-' + my_searches[i].id + '">' + my_searches[i].title + '</span></li>');
                         menu_length--;
@@ -1084,6 +1085,7 @@
                 if (public_searches) {
                     widget.saved_searches.public_searches = public_searches;
                     if (menu_length > 0) {
+                        max = (public_searches.length < menu_length ? public_searches.length : menu_length);
                         saved_search_list.append('<li class="menu-section"><span class="divider"></span></li>');
                         saved_search_list.append('<li class="menu-section"><span>Public Searches</span></li>');
                         for (i = 0; i < max; i++) {
