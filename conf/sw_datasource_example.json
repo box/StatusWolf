@@ -1,0 +1,16 @@
+{
+    "datasource": {
+        "OpenTSDB": {
+            "enabled": true,
+            "type": "ajax",
+            "url": [
+                "opentsdb1.server.name:4242",
+                "opentsdb2.server.name:4242"
+            ],
+            "trim": "301",
+            "proxy": false
+//            "proxy": true,
+//            "proxy_url": "localhost:8081"
+        }
+    }
+}
