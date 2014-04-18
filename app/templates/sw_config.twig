@@ -5,10 +5,13 @@
     },
     "db_options": {
         "driver": "pdo_mysql",
-        "host": "{{ db_host }}",
-        "dbname": "{{ db_name }}",
-        "user": "{{ db_user }}",
-        "password": "{{ db_password }}"
+        "host": "{{ db_options.host }}",
+{% if db_options.unix_socket %}
+        "unix_socket": "{{ db_options.unix_socket }}",
+{% endif %}
+        "dbname": "{{ db_options.dbname }}",
+        "user": "{{ db_options.user }}",
+        "password": "{{ db_options.password }}"
     },
     "auth_config": {
         "with_csrf": true,

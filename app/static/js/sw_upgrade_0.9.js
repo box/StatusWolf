@@ -101,10 +101,14 @@ function run_upgrade() {
         data: query_data,
         dataType: 'json',
         async: false,
+        statusCode: {
+            500: function(data) {
+                upgrade_failed($.parseJSON(data.responseText));
+            }
+        }
     }).done(function() {
         status_div.append('<p>Saved Searches table migration complete.</p>');
-    }).fail(function(data) {
-        upgrade_failed($.parseJSON(data.responseText));
+    }).fail(function() {
         throw '';
     });
 
@@ -122,6 +126,15 @@ function run_upgrade() {
         status_div.append('<p>New app configs have been generated.</p>');
         status_div.append('<h4>Upgrade Complete!</h4>')
             .append('<div id="completion-buttons"><div class="sw-button" id="completion-continue"><span>Continue to StatusWolf</span></div></div>');
+        $.magnificPopup.open({
+            items: {
+                src: '#file-cleanup-popup',
+                type: 'inline'
+            },
+            preloader: false,
+            removalDelay: 300,
+            mainClass: 'popup-animate'
+        });
     }).fail(function() {
         throw '';
     });

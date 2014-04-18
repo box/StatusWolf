@@ -35,11 +35,18 @@ if (file_exists(__DIR__ . '/../conf/sw_config.json')) {
     if (!file_exists(__DIR__ . '/../conf/statuswolf.conf') ||
             !file_exists(__DIR__ . '/../conf/auth.conf') ||
             !file_exists(__DIR__ . '/../conf/datasource.conf')) {
-        $sw->get('/', function() use($sw) {
-            return $sw['twig']->render('no_upgrade.html');
+        $sw->get('/', function() use ($sw) {
+            return $sw['twig']->render('no_upgrade.html', array(
+                'error_msg' => 'No previous StatusWolf config file(s) found, please create a new sw_config.json file to complete installation.'
+            ));
+        })->bind('home');
+    } elseif (!is_writable(__DIR__ . '/../conf/')) {
+        $sw->get('/', function() use ($sw) {
+            return $sw['twig']->render('no_upgrade.html', array(
+                'error_msg' => 'StatusWolf configuration directory is not writable by the web server user, please change the ownership and try again.'
+            ));
         })->bind('home');
     } else {
-
         $legacy_config = new \StatusWolf\Utility\SWLegacyConfig($sw);
         foreach (array('auth.conf', 'datasource.conf', 'statuswolf.conf') as $conf_file) {
             $legacy_config->load_legacy_config($conf_file);
@@ -53,6 +60,9 @@ if (file_exists(__DIR__ . '/../conf/sw_config.json')) {
             'user'      => $legacy_config_values['statuswolf']['session_handler']['db_user'],
             'password'  => $legacy_config_values['statuswolf']['session_handler']['db_password']
         );
+        if (array_key_exists('db_socket', $legacy_config_values['statuswolf']['session_handler'])) {
+            $db_options['unix_socket'] = $legacy_config_values['statuswolf']['session_handler']['db_socket'];
+        }
         $sw->register(new Silex\Provider\DoctrineServiceProvider(), array(
             'db.options' => $db_options,
         ));
@@ -105,10 +115,7 @@ if (file_exists(__DIR__ . '/../conf/sw_config.json')) {
             $sw['logger']->addDebug('old config: ' . json_encode($sw['legacy_config']));
             $sw_config = $sw['twig']->render('sw_config.twig', array(
                 'debug'         => $sw['legacy_config']['statuswolf']['debug'] ? 'true': 'false',
-                'db_host'       => $sw['db_options']['host'],
-                'db_name'       => $sw['db_options']['dbname'],
-                'db_user'       => $sw['db_options']['user'],
-                'db_password'   => $sw['db_options']['password'],
+                'db_options'    => $sw['db_options'],
                 'default_auth'  => in_array('LDAP', $sw['legacy_config']['auth']['method']) ? 'ldap' : 'mysql',
                 'autocreate'    => in_array('LDAP', $sw['legacy_config']['auth']['method']) ? 'true' : 'false',
                 'ldap_options'  => in_array('LDAP', $sw['legacy_config']['auth']['method']) ? $sw['legacy_config']['auth']['LDAP'] : false,

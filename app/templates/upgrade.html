@@ -110,6 +110,26 @@
     </div>
   </div>
 
+  <div id="file-cleanup-popup" class="popup mfp-hide">
+    <div id="file-cleanup-head">
+      <h4>StatusWolf Version Upgrade Complete</h4>
+    </div>
+    <div id="file-cleanup-body">
+      <p>The configuration and database have been upgraded, the
+        following directories are no longer used by the application
+        and should be removed to avoid confusion:</p>
+      <ul>
+        <li>cache</li>
+        <li>lib</li>
+        <li>app/Widgets/GraphWidget</li>
+        <li>app/css</li>
+        <li>app/font</li>
+        <li>app/img</li>
+        <li>app/js</li>
+      </ul>
+    </div>
+  </div>
+
   <script type="text/javascript">
     {{ upgrade_script|raw }}
   </script>
