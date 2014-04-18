@@ -1,1 +1,0 @@
-ALTER TABLE saved_dashboards ADD COLUMN columns INT(2) AFTER title;

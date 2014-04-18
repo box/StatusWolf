@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+
+    <title>StatusWolf</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Troyer <disco@box.com">
+
+    <link href="{{ url('home') }}static/css/sw_dark.css?v=1" rel="stylesheet">
+    {% if extra_css %}
+      {% for css in extra_css %}
+        <link href="{{ url('home') }}static/css/{{ css }}" rel="stylesheet">
+      {% endfor %}
+    {% endif %}
+    <link rel="icon" href="{{ url('home') }}static/img/favicon-96.png">
+
+    <script type="text/javascript" src="{{ url('home') }}static/js/lib/jquery.min.js"></script>
+    <script type="text/javascript" src="{{ url('home') }}static/js/lib/bootstrap.min.js"></script>
+    <script type="text/javascript" src="{{ url('home') }}static/js/lib/magnific-popup.js"></script>
+
+
+  </head>
+
+  <body>

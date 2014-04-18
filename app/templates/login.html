@@ -1,0 +1,42 @@
+{% include 'header.twig' %}
+
+    <div class="container">
+      <div class="container-spacer"></div>
+      <div class="login-container" id="login-container">
+        <div class="login-box" id="login-box">
+          <form id="sw-login-form" method="post" action="{{ path('login_check') }}">
+            <div class="login-head" id="login-head">
+              <h4>StatusWolf Login</h4>
+            </div>
+            <div class="login-main" id="login-main">
+              <input type="hidden" id="csrf-token" name="_csrf_token" value="{{ csrf_token }}">
+              <div class="login-input">
+                <input type="text" id="sw-username" name="_username" size="45" placeholder="Username" value="{{ username }}">
+              </div>
+              <div class="login-input">
+                <input type="password" id="sw-password" name="_password" size="45" placeholder="Password">
+              </div>
+            </div>
+            <div class="login-form-buttons">
+              <div class="sw-button" id="sw-login-submit" onclick="$('#sw-login-form').submit()">Login</div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+
+      $(document).ready(function() {
+        $('input#sw-username').focus();
+      });
+
+      // Handler for the Enter key to submit the login form
+      $('input').keypress(function(e)
+      {
+        if (e.which === 13)
+        {
+          $('#sw-login-form').submit();
+        }
+      })
+    </script>

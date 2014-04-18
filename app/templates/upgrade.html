@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+
+  <title>StatusWolf Upgrade</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="Mark Troyer <disco@box.com">
+
+  <script type="text/javascript" src="{{ url('home') }}static/js/lib/jquery.min.js"></script>
+  <script type="text/javascript" src="{{ url('home') }}static/js/lib/bootstrap.min.js"></script>
+  <script type="text/javascript" src="{{ url('home') }}static/js/lib/magnific-popup.js"></script>
+
+  <link href="{{ url('home') }}static/css/sw_dark.css?v=1" rel="stylesheet">
+  <link rel="icon" href="{{ url('home') }}static/img/favicon-96.png">
+  <style>
+    .container {
+      overflow-y: hidden;
+    }
+    .container:before {
+      content: '';
+      background-image: url(../static/img/Status_Wolf2.png);
+      background-size: 750px;
+      background-repeat: no-repeat;
+      height: 750px;
+      width: 750px;
+      display: block;
+      position: absolute;
+      left: 0;
+      bottom: -300px;
+      opacity: 0.1;
+    }
+    .status-container {
+      min-height: 175px;
+      width: 600px;
+      position: relative;
+      margin: 10% auto;
+      background-color: gray;
+      -webkit-border-radius: 0 2px 2px 2px;
+      -moz-border-radius: 0 2px 2px 2px;
+      -ms-border-radius: 0 2px 2px 2px;
+      -o-border-radius: 0 2px 2px 2px;
+      border-radius: 0 2px 2px 2px;
+      -webkit-box-shadow: 0 0 2px black;
+      -moz-box-shadow: 0 0 2px black;
+      box-shadow: 0 0 2px black;
+    }
+    .status-box {
+      position: relative;
+      margin-left: 25px;
+      padding-top: 15px;
+      padding-bottom: 5px;
+    }
+    .status-head {
+      margin-bottom: 20px;
+    }
+    .status-head h4 {
+      color: #f0f0f0;
+    }
+    .status-main {
+      margin-bottom: 20px;
+    }
+    .status-main p {
+      margin: 2px 25px 5px 20px;
+    }
+    #swadmin-popup {
+      width: 300px;
+      font-size: 0.8em;
+    }
+    #swadmin-buttons {
+      margin-top: 20px;
+    }
+
+  </style>
+
+</head>
+
+<body>
+  <div class="container">
+    <div class="container-spacer"></div>
+    <div class="status-container" id="status-container">
+      <div class="status-box" id="status-box">
+        <div class="status-head" id="status-head">
+          <h4>StatusWolf Upgrade in Progress</h4>
+        </div>
+        <div class="status-main" id="status-main">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="swadmin-popup" class="popup mfp-hide">
+    <div id="swadmin-form">
+      <form onsubmit="return false">
+        <h5>StatusWolf Admin Account</h5>
+        <p>The upgrade process will add a local swadmin user for
+        administration of your StatusWolf instance. Please enter
+        a password for this user:</p>
+        <input type="password" class="input" id="swadmin-password" name="swadmin-password">
+        <p>Please enter it again:</p>
+        <input type="password" class="input" id="swadmin-password-confirm" name="swadmin-password-confirm">
+        <div id="swadmin-buttons" class="hidden">
+          <div class="sw-button" id="swadmin-password-submit"><span>Submit</span></div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    {{ upgrade_script|raw }}
+  </script>
+
+</body>
+
+</html>

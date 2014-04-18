@@ -1,0 +1,37 @@
+{
+    "sw_app": {
+        "debug": {{ debug }},
+        "installed": true
+    },
+    "db_options": {
+        "driver": "pdo_mysql",
+        "host": "{{ db_host }}",
+        "dbname": "{{ db_name }}",
+        "user": "{{ db_user }}",
+        "password": "{{ db_password }}"
+    },
+    "auth_config": {
+        "with_csrf": true,
+        "users": {
+            "auto_create": {{ autocreate }},
+            "default_auth_type": "{{ default_auth }}",
+            "default_role": "ROLE_USER"
+{% if ldap_options %}
+        },
+        "ldap_options": {
+            "url": "{{ ldap_options.url }}",
+            "binddn": "{{ ldap_options.binddn }}",
+            "bindpw": "{{ ldap_options.bindpw }}",
+            "basedn": "{{ ldap_options.basedn }}",
+            "userattr": "{{ ldap_options.userattr }}",
+            "name_key": "{{ ldap_options.name_key }}"
+{% endif %}
+        }
+    },
+    "logging": {
+        "level": "INFO"
+    },
+    "graphing": {
+        "d3_location": "{{ d3 }}"
+    }
+}

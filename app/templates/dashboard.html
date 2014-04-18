@@ -1,0 +1,89 @@
+{% include 'header.twig' %}
+{% include 'navbar.twig' %}
+
+    <div class="container">
+      <div class="container-spacer"></div>
+      <div id="dashboard-container" class="dashboard-container"></div>
+    </div>
+
+    <div id="dashboard-list-popup" class="popup mfp-hide">
+      <div id="my-dashboards-box" class="saved-dashboard-box">
+        <div id="my-dashboards-head">
+          <h2>My Dashboards</h2>
+        </div>
+        <div id="my-dashboards-list" class="saved-dashboard-list">
+          <table id="my-dashboards-list-table"></table>
+        </div>
+      </div>
+      <div id="shared-dashboards-box" class="saved-dashboard-box">
+        <div id="shared-dashboards-head">
+          <h2>Shared Dashboards</h2>
+        </div>
+        <div id="shared-dashboards-list" class="saved-dashboard-list">
+          <table id="shared-dashboards-list-table"></table>
+        </div>
+      </div>
+    </div>
+
+    <div id="save-dashboard-popup" class="popup mfp-hide">
+      <div id="save-dashboard-form">
+        <form onsubmit="return false">
+          <h5 style="display: inline-block;">Title: </h5>
+          <div class="popup-form-data">
+            <input type="text" class="input" id="save-dashboard-title" name="dashboard-title" size="50">
+          </div>
+          <div class="sw-button push-button" id="shared-dashboard-button">
+            <input type="checkbox" id="shared-dashboard" name="shared-dashboard"><label for="shared-dashboard"><span class="elegant-icons icon-close-alt red"></span><span class="button-label"> Shared Dashboard</span></label>
+          </div>
+          <div class="save-dashboard-form-buttons">
+            <div class="sw-button" id="save-dashboard-cancel-button"><span>Cancel</span></div>
+            <div class="sw-button" id="save-dashboard-button"><span>Save</span></div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="confirm-dashboard-save-popup" class="popup mfp-hide">
+      <div id="confirmation-main">
+        <div id="confirmation-info"></div>
+        <div id="confirmation-buttons">
+          <div id="cancel-confirm-save-button" class="sw-button"><span>Cancel</span></div>
+          <div id="confirm-save-button" class="sw-button"><span>Overwrite</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="success-popup" class="popup mfp-hide">
+      <h5>Success</h5>
+      <div class="popup-form-data">
+        Your dashboard has been saved.
+      </div>
+    </div>
+
+    <div id="failure-popup" class="popup mfp-hide">
+      <h5>Error</h5>
+      <div id="failure-info" class="popup-form-data">
+      </div>
+    </div>
+
+    {% if extra_js %}
+      {% for js in extra_js %}
+        <script type="text/javascript" src="{{ url('home') }}static/js/{{ js }}"></script>
+      {% endfor %}
+    {% endif %}
+
+    {% if d3 == "local" %}
+      <script type="text/javascript" src="{{ url('home') }}static/js/lib/d3.min.js"></script>
+    {% else %}
+      <script type="text/javascript" src="{{ d3 }}"></script>
+    {% endif %}
+
+    {% if widgets %}
+      {% for key, widget in widgets %}
+        <script type="text/javascript" src="{{ url('home')}}Widgets/{{ key }}/js/{{ widget.name }}.js"></script>
+      {% endfor %}
+    {% endif %}
+
+    {% include 'dashboard_js.twig'|raw %}
+
+    {% include 'footer.twig' %}

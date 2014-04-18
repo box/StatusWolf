@@ -1,0 +1,23 @@
+{
+	"name": "sw.opentsdbwidget"
+	,"title": "OpenTSDB Widget"
+	,"description": "Widget for displaying graphs for OpenTSDB Data"
+	,"version": "1.1"
+	,"author": {
+		"name": "StatusWolf Project"
+		,"url": "http://wwww.statuswolf.com/"
+	}
+	,"maintainers": [
+		{
+			"name": "Mark Troyer"
+			,"email": "disco@box.com"
+		}
+	]
+	,"license": "Apache v2.0",
+    "enabled": true,
+    "dependencies": {
+        "js": [
+            "bootstrap-datetimepicker.js"
+        ]
+    }
+}

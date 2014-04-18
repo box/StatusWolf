@@ -1,0 +1,44 @@
+{
+    "name": "box/statuswolf",
+    "type": "webapp",
+    "description": "StatusWolf Operations Dashboard",
+    "keywords": ["statuswolf", "dashboard"],
+    "homepage": "http://github.com/box/StatusWolf",
+    "license": "Apache 2.0",
+    "authors": [
+        {
+            "name": "Mark Troyer",
+            "email": "disco@box.com",
+            "homepage": "http://www.statuswolf.com/"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:discogestalt/arugula.git"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "silex/silex": "~1.1",
+        "symfony/form": "~2.3",
+        "symfony/security": "~2.3",
+        "symfony/twig-bridge": "~2.3",
+        "twig/twig": ">=1.8,<2.0-dev",
+        "doctrine/dbal": "2.2.*",
+        "monolog/monolog": ">=1.0.0",
+        "box/arugula": "dev-master",
+        "box/bart": "dev-master"
+    },
+    "require-dev": {
+        "symfony/browser-kit": ">=2.3,<2.4-dev"
+    },
+    "autoload": {
+        "psr-0": {
+            "StatusWolf": "src/"
+        }
+    },
+    "config": {
+        "use-include-path": true
+    }
+}

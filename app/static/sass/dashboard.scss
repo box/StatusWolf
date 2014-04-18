@@ -1,0 +1,75 @@
+@import 'colors_dark';
+
+.dashboard-columns {
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    text-align: center;
+    font-weight: bold;
+}
+
+#confirm-dashboard-save-popup {
+    #confirmation-buttons {
+        margin-top: 15px;
+    }
+}
+
+#dashboard-list-popup {
+    table {
+        margin-right: 20px;
+        border-spacing: 0;
+        td {
+            padding: 3px 5px;
+        }
+        th {
+            font-size: 1em;
+            padding: 5px;
+        }
+        tr.dashboard-item:hover {
+            background-color: $popup_mfp_bg;
+            cursor: pointer;
+        }
+    }
+    .saved-dashboard-box {
+        display: inline-block;
+        vertical-align: top;
+    }
+    .saved-dashboard-list {
+        font-size: 0.75em;
+        line-height: 2em;
+        max-height: 400px;
+        min-width: 350px;
+        overflow: auto;
+        vertical-align: top;
+        white-space: nowrap;
+    }
+}
+
+#failure-popup {
+    max-width: 500px;
+    .failure-error-message {
+        font-size: 0.8em;
+        font-weight: normal;
+    }
+}
+
+#load-dashboard-menu-options {
+    min-width: 500px;
+}
+
+#save-dashboard-popup {
+    h5 {
+        display: inline-block;
+    }
+    .save-dashboard-form-buttons {
+        margin-top: 15px;
+    }
+    .popup-form-data {
+        margin-left: 0;
+        display: inline-block;
+    }
+    #shared-dashboard-button {
+        display: inline-block;
+        margin-left: 10px;
+    }
+}

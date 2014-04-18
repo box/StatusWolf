@@ -1,0 +1,600 @@
+/*
+ *=======
+ * Mixins
+ *=======
+ */
+/* line 4, ../sass/sw.opentsdbwidget.scss */
+.datetimepicker-widget {
+  top: 0;
+  left: 0;
+  width: 250px;
+  padding: 4px;
+  margin-top: 3px;
+  z-index: 3000;
+}
+/* line 11, ../sass/sw.opentsdbwidget.scss */
+.datetimepicker-widget a:hover, .datetimepicker-widget a:active {
+  color: #f0f0f0;
+}
+/* line 14, ../sass/sw.opentsdbwidget.scss */
+.datetimepicker-widget p {
+  margin: 0;
+}
+/* line 17, ../sass/sw.opentsdbwidget.scss */
+.datetimepicker-widget table {
+  width: 100%;
+  margin: 0;
+  padding: 20px 0;
+  border-top: 1px solid rgba(234, 234, 234, 0.1);
+}
+/* line 23, ../sass/sw.opentsdbwidget.scss */
+.datetimepicker-widget td, .datetimepicker-widget th {
+  text-align: center;
+  width: 20px;
+  height: 24px;
+  -webkit-border-radius: 0 2px 2px 2px;
+  -moz-border-radius: 0 2px 2px 2px;
+  -ms-border-radius: 0 2px 2px 2px;
+  -o-border-radius: 0 2px 2px 2px;
+  border-radius: 0 2px 2px 2px;
+}
+/* line 29, ../sass/sw.opentsdbwidget.scss */
+.datetimepicker-widget td.active, .datetimepicker-widget td.active:hover {
+  color: #f0f0f0;
+  background-color: #404040;
+}
+/* line 36, ../sass/sw.opentsdbwidget.scss */
+.datetimepicker-widget td.adjuster,
+.datetimepicker-widget td.day,
+.datetimepicker-widget th.dow,
+.datetimepicker-widget th.switch {
+  font-size: 0.8em;
+}
+/* line 44, ../sass/sw.opentsdbwidget.scss */
+.datetimepicker-widget td.adjuster:hover,
+.datetimepicker-widget td.day:hover,
+.datetimepicker-widget td.hour:hover,
+.datetimepicker-widget td.incrementor:hover,
+.datetimepicker-widget td.minute:hover,
+.datetimepicker-widget td.second:hover {
+  color: #f0f0f0;
+  background-color: #404040;
+  cursor: pointer;
+}
+/* line 49, ../sass/sw.opentsdbwidget.scss */
+.datetimepicker-widget td.old, .datetimepicker-widget td.new {
+  color: rgba(205, 205, 205, 0.25);
+}
+/* line 52, ../sass/sw.opentsdbwidget.scss */
+.datetimepicker-widget th.next:hover, .datetimepicker-widget th.prev:hover {
+  color: #f0f0f0;
+  background-color: #404040;
+  cursor: pointer;
+}
+/* line 57, ../sass/sw.opentsdbwidget.scss */
+.datetimepicker-widget ul {
+  list-style-type: none;
+  margin: 0;
+}
+/* line 65, ../sass/sw.opentsdbwidget.scss */
+.datetimepicker-widget .timepicker-picker .timepicker-hour,
+.datetimepicker-widget .timepicker-picker .timepicker-minute,
+.datetimepicker-widget .timepicker-picker .timepicker-second {
+  font-size: 0.8em;
+  cursor: pointer;
+}
+/* line 71, ../sass/sw.opentsdbwidget.scss */
+.datetimepicker-widget .timepicker-hours td {
+  font-size: 0.8em;
+}
+/* line 76, ../sass/sw.opentsdbwidget.scss */
+.datetimepicker-widget .timepicker-minutes td {
+  font-size: 0.8em;
+}
+/* line 81, ../sass/sw.opentsdbwidget.scss */
+.datetimepicker-widget .timepicker-seconds td {
+  font-size: 0.8em;
+}
+
+/* line 87, ../sass/sw.opentsdbwidget.scss */
+.datetimepicker-widget.dropdown-menu li:hover {
+  background-color: gray;
+  cursor: default;
+}
+
+/* line 92, ../sass/sw.opentsdbwidget.scss */
+.ui-resizable {
+  position: relative;
+}
+
+/* line 96, ../sass/sw.opentsdbwidget.scss */
+.ui-resizable-handle {
+  position: absolute;
+  font-size: 0.1px;
+  display: block;
+}
+
+/* line 103, ../sass/sw.opentsdbwidget.scss */
+.ui-resizable-disabled .ui-resizable-handle,
+.ui-resizable-autohide .ui-resizable-handle {
+  display: none;
+}
+
+/* line 107, ../sass/sw.opentsdbwidget.scss */
+.ui-resizable-n {
+  cursor: n-resize;
+  height: 7px;
+  width: 100%;
+  top: -5px;
+  left: 0;
+}
+
+/* line 115, ../sass/sw.opentsdbwidget.scss */
+.ui-resizable-s {
+  cursor: s-resize;
+  height: 7px;
+  width: 100%;
+  bottom: -5px;
+  left: 0;
+}
+
+/* line 123, ../sass/sw.opentsdbwidget.scss */
+.ui-resizable-e {
+  cursor: e-resize;
+  width: 7px;
+  right: -5px;
+  top: 0;
+  height: 100%;
+}
+
+/* line 131, ../sass/sw.opentsdbwidget.scss */
+.ui-resizable-w {
+  cursor: w-resize;
+  width: 7px;
+  left: -5px;
+  top: 0;
+  height: 100%;
+}
+
+/* line 139, ../sass/sw.opentsdbwidget.scss */
+.ui-resizable-se {
+  cursor: se-resize;
+  width: 12px;
+  height: 12px;
+  right: 1px;
+  bottom: 1px;
+}
+
+/* line 147, ../sass/sw.opentsdbwidget.scss */
+.ui-resizable-sw {
+  cursor: sw-resize;
+  width: 9px;
+  height: 9px;
+  left: -5px;
+  bottom: -5px;
+}
+
+/* line 155, ../sass/sw.opentsdbwidget.scss */
+.ui-resizable-nw {
+  cursor: nw-resize;
+  width: 9px;
+  height: 9px;
+  left: -5px;
+  top: -5px;
+}
+
+/* line 163, ../sass/sw.opentsdbwidget.scss */
+.ui-resizable-ne {
+  cursor: ne-resize;
+  width: 9px;
+  height: 9px;
+  right: -5px;
+  top: -5px;
+}
+
+/* line 171, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget {
+  height: 350px;
+}
+/* line 174, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .general-options-table {
+  position: relative;
+  width: 99%;
+  border-spacing: 15px;
+}
+/* line 180, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .graphdiv {
+  position: relative;
+  top: 15px;
+  left: 0;
+}
+/* line 184, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .graphdiv path.line {
+  fill: none;
+  stroke-width: 1.5px;
+}
+/* line 189, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .graphdiv .axis line {
+  fill: none;
+  stroke: rgba(234, 234, 234, 0.75);
+  stroke-opacity: .1;
+  shape-rendering: crispEdges;
+}
+/* line 195, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .graphdiv .axis path {
+  file: none;
+  stroke: rgba(234, 234, 234, 0.75);
+  stroke-opacity: .25;
+}
+/* line 200, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .graphdiv .axis text {
+  font-size: 0.65em;
+  fill: rgba(234, 234, 234, 0.75);
+  opacity: 0.6;
+}
+/* line 205, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .graphdiv .axis .graph-title {
+  font-size: 2.5em;
+  font-weight: bold;
+  color: rgba(205, 205, 205, 0.25);
+}
+/* line 212, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .graphdiv .brush .extent {
+  fill: rgba(205, 205, 205, 0.25);
+  shape-rendering: crispEdges;
+}
+/* line 217, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .graphdiv .tooltip-inner {
+  font-size: 0.6em;
+  font-weight: bold;
+}
+/* line 223, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .legend {
+  position: relative;
+  top: 0;
+  width: 95%;
+  margin: 0 auto;
+}
+/* line 228, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .legend span {
+  display: block;
+}
+/* line 233, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .legend-container {
+  position: absolute;
+  bottom: 0;
+  height: 50px;
+  overflow: auto;
+  font-size: 0.75em;
+  line-height: 1.2em;
+  padding: 10px 0 0 0;
+  margin-top: 5px;
+  background-color: rgba(24, 24, 24, 0.9);
+  border-top: 1px solid rgba(234, 234, 234, 0.25);
+}
+/* line 246, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .legend-container.hidden-legend {
+  height: 0;
+  padding: 0;
+  overflow: visible;
+}
+/* line 254, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .legend-hide, .widget-container.opentsdb-widget .legend-show {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  width: 20px;
+  height: 10px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  text-decoration: none;
+  text-align: center;
+  padding: 0;
+  color: rgba(205, 205, 205, 0.25);
+  overflow: visible;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  display: block;
+  z-index: 506;
+}
+/* line 276, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .legend-hide:hover, .widget-container.opentsdb-widget .legend-hide:focus,
+.widget-container.opentsdb-widget .legend-show:hover, .widget-container.opentsdb-widget .legend-hide:focus {
+  color: rgba(234, 234, 234, 0.75);
+}
+/* line 280, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .legend-hide:active, .widget-container.opentsdb-widget .legend-show:active {
+  color: #f0f0f0;
+}
+/* line 284, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .legend-show {
+  top: -14px;
+}
+/* line 288, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .metrics-tabs-box {
+  position: relative;
+}
+/* line 290, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .metrics-tabs-box .metric-input-textbox {
+  width: 100%;
+  position: relative;
+}
+/* line 293, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .metrics-tabs-box .metric-input-textbox .metric-autocomplete {
+  width: 95%;
+}
+/* line 296, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .metrics-tabs-box .metric-input-textbox .tag-suggestions {
+  position: absolute;
+  top: -25px;
+  right: 5%;
+  margin: 0;
+  text-align: right;
+  font-size: 0.75em;
+  color: rgba(205, 205, 205, 0.25);
+}
+/* line 306, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .metrics-tabs-box .tabbable:after {
+  clear: both;
+}
+/* line 310, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .metrics-tabs-box .tab-below .nav-tabs {
+  position: relative;
+  bottom: 0;
+  margin: 0;
+  list-style: none;
+}
+/* line 315, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .metrics-tabs-box .tab-below .nav-tabs li {
+  float: left;
+  text-decoration: none;
+  font-size: 0.75em;
+  color: rgba(205, 205, 205, 0.25);
+  margin-top: -1px;
+  margin-bottom: 0;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  cursor: pointer;
+  border-right: 1px solid transparent;
+  border-left: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+  -webkit-border-radius: 0 0 3px 3px;
+  -moz-border-radius: 0 0 3px 3px;
+  -ms-border-radius: 0 0 3px 3px;
+  -o-border-radius: 0 0 3px 3px;
+  border-radius: 0 0 3px 3px;
+}
+/* line 329, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .metrics-tabs-box .tab-below .nav-tabs li a {
+  padding-right: 8px;
+  padding-left: 8px;
+}
+/* line 335, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .metrics-tabs-box .tab-below .nav-tabs li a:hover {
+  color: #f0f0f0;
+}
+/* line 339, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .metrics-tabs-box .tab-below .nav-tabs li.active {
+  color: rgba(234, 234, 234, 0.75);
+  background-color: #303030;
+}
+/* line 345, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .metrics-tabs-box .tab-content {
+  position: relative;
+  background-color: #303030;
+  padding: 18px 0 15px 10px;
+  -webkit-border-radius: 0 3px 3px 0;
+  -moz-border-radius: 0 3px 3px 0;
+  -ms-border-radius: 0 3px 3px 0;
+  -o-border-radius: 0 3px 3px 0;
+  border-radius: 0 3px 3px 0;
+}
+/* line 350, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .metrics-tabs-box .tab-content .tab-pane.active {
+  display: block;
+}
+/* line 353, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .metrics-tabs-box .tab-content .tab-pane {
+  display: none;
+}
+/* line 355, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .metrics-tabs-box .tab-content .tab-pane .autocomplete-selected {
+  background-color: #404040;
+  color: #f0f0f0;
+}
+/* line 359, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .metrics-tabs-box .tab-content .tab-pane .autocomplete-suggestion {
+  overflow: hidden;
+  margin-bottom: 1px;
+  font-size: 0.8em;
+  line-height: 1.5em;
+  padding-left: 8px;
+}
+/* line 366, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .metrics-tabs-box .tab-content .tab-pane .autocomplete-suggestion:hover {
+  cursor: pointer;
+  background-color: #404040;
+  color: #f0f0f0;
+}
+/* line 371, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .metrics-tabs-box .tab-content .tab-pane .tab-close {
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 2px 5px;
+  cursor: pointer;
+  color: rgba(205, 205, 205, 0.25);
+}
+/* line 380, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .metrics-tabs-box .tab-content .tab-pane .tab-close:hover {
+  color: #f0f0f0;
+}
+/* line 385, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .metrics-tabs-box .tab-table {
+  width: 99%;
+  margin-top: 5px;
+  border-spacing: 5px;
+}
+/* line 390, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .metrics-tabs-box .tab-table div.menu-label h4 {
+  maring: 10px 5px 0 0;
+}
+/* line 394, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .metrics-tabs-box .tab-table .sw-button {
+  margin-top: 10px;
+}
+/* line 397, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .metrics-tabs-box .tab-table .push-button {
+  height: 18px;
+}
+/* line 403, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .saved-searches-menu {
+  display: inline-block;
+  position: absolute;
+  margin: 2px 5px;
+  top: 5px;
+  left: 10px;
+  cursor: pointer;
+  font-size: 0.8em;
+}
+/* line 411, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .saved-searches-menu .saved-searches-options {
+  min-width: 200px;
+  white-space: nowrap;
+}
+/* line 417, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .search-title {
+  overflow: hidden;
+  cursor: pointer;
+}
+/* line 420, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .search-title h3 {
+  vertical-align: top;
+  font-size: 1.25em;
+  /*line-height: 3.0em;*/
+  height: 100%;
+  -webkit-margin-before: 0;
+}
+/* line 427, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .search-title input {
+  position: relative;
+  vertical-align: bottom;
+}
+/* line 433, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .section-off {
+  visibility: hidden;
+  opacity: 0;
+  display: none;
+  -webkit-transition: visibility 0s linear, opacity 0.25s linear;
+  -moz-transition: visibility 0s linear, opacity 0.25s linear;
+  transition: visibility 0s linear, opacity 0.25s linear;
+}
+/* line 442, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .section-on {
+  visibility: visible;
+  opacity: 1;
+  -webkit-transition: visibility 0s linear, opacity 0.25s linear;
+  -moz-transition: visibility 0s linear, opacity 0.25s linear;
+  transition: visibility 0s linear, opacity 0.25s linear;
+}
+/* line 450, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .spinner {
+  padding-top: 20%;
+}
+/* line 454, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .widget-button-label {
+  display: inline-block;
+  padding-right: 5px;
+}
+/* line 459, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .widget-dates {
+  position: relative;
+  top: 0;
+}
+/* line 464, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .widget-drag-handle {
+  position: absolute;
+  height: 15px;
+  width: 90%;
+  top: 0;
+  left: 25px;
+}
+/* line 472, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .widget-form-item {
+  display: inline-block;
+  height: 100%;
+  margin-right: 15px;
+  padding: 2px 0;
+}
+/* line 477, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .widget-form-item h4 {
+  display: inline-block;
+  margin: 0 5px 0 0;
+  font-size: 0.8em;
+}
+/* line 484, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .widget-search-form {
+  padding-left: 10px;
+  position: relative;
+  top: 40px;
+}
+/* line 490, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget .widget-time-span {
+  position: relative;
+  top: 0;
+}
+
+/* line 497, ../sass/sw.opentsdbwidget.scss */
+.widget-container.opentsdb-widget.maximize-widget {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  z-index: 2000;
+}
+
+/* line 507, ../sass/sw.opentsdbwidget.scss */
+#saved-search-list-popup {
+  margin-bottom: 15px;
+  max-height: 500px;
+  overflow: hidden;
+}
+/* line 511, ../sass/sw.opentsdbwidget.scss */
+#saved-search-list-popup table {
+  margin-right: 20px;
+  border-spacing: 0;
+}
+/* line 515, ../sass/sw.opentsdbwidget.scss */
+#saved-search-list-popup table tr th {
+  font-size: 1em;
+  padding: 5px;
+}
+/* line 519, ../sass/sw.opentsdbwidget.scss */
+#saved-search-list-popup table tr td {
+  padding: 3px 5px;
+}
+/* line 523, ../sass/sw.opentsdbwidget.scss */
+#saved-search-list-popup table tr.search-item:hover {
+  background-color: rgba(234, 234, 234, 0.25);
+  cursor: pointer;
+}
+/* line 528, ../sass/sw.opentsdbwidget.scss */
+#saved-search-list-popup .saved-search-box {
+  display: inline-block;
+  vertical-align: top;
+}
+/* line 532, ../sass/sw.opentsdbwidget.scss */
+#saved-search-list-popup .saved-search-list {
+  font-size: 0.75em;
+  line-height: 2em;
+  max-height: 450px;
+  min-width: 300px;
+  overflow: auto;
+  vertical-align: top;
+  white-space: nowrap;
+}

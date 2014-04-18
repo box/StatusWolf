@@ -1,0 +1,542 @@
+@import '../../../static/sass/colors_dark';
+@import '../../../static/sass/mixins';
+
+.datetimepicker-widget {
+    top: 0;
+    left: 0;
+    width: 250px;
+    padding: 4px;
+    margin-top: 3px;
+    z-index: 3000;
+    a:hover, a:active {
+        color: $font_bright;
+    }
+    p {
+        margin: 0;
+    }
+    table {
+        width: 100%;
+        margin: 0;
+        padding: 20px 0;
+        border-top: 1px solid $button_border;
+    }
+    td, th {
+        text-align: center;
+        width: 20px;
+        height: 24px;
+        @include sw-radius;
+    }
+    td.active, td.active:hover {
+        color: $font_bright;
+        background-color: $dropdown_highlight;
+    }
+    td.adjuster,
+    td.day,
+    th.dow,
+    th.switch {
+        font-size: 0.8em;
+    }
+    td.adjuster:hover,
+    td.day:hover,
+    td.hour:hover,
+    td.incrementor:hover,
+    td.minute:hover,
+    td.second:hover {
+        color: $font_bright;
+        background-color: $dropdown_highlight;
+        cursor: pointer;
+    }
+    td.old, td.new {
+        color: $font_dim;
+    }
+    th.next:hover, th.prev:hover {
+        color: $font_bright;
+        background-color: $dropdown_highlight;
+        cursor: pointer;
+    }
+    ul {
+        list-style-type: none;
+        margin: 0;
+    }
+
+    .timepicker-picker {
+        .timepicker-hour,
+        .timepicker-minute,
+        .timepicker-second {
+            font-size: 0.8em;
+            cursor: pointer;
+        }
+    }
+    .timepicker-hours {
+        td {
+            font-size: 0.8em;
+        }
+    }
+    .timepicker-minutes {
+        td {
+            font-size: 0.8em;
+        }
+    }
+    .timepicker-seconds {
+        td {
+            font-size: 0.8em;
+        }
+    }
+}
+
+.datetimepicker-widget.dropdown-menu li:hover {
+    background-color: $dropdown_bg;
+    cursor: default;
+}
+
+.ui-resizable {
+    position: relative;
+}
+
+.ui-resizable-handle {
+    position: absolute;
+    font-size: 0.1px;
+    display: block;
+}
+
+.ui-resizable-disabled .ui-resizable-handle,
+.ui-resizable-autohide .ui-resizable-handle {
+    display: none;
+}
+
+.ui-resizable-n {
+    cursor: n-resize;
+    height: 7px;
+    width: 100%;
+    top: -5px;
+    left: 0;
+}
+
+.ui-resizable-s {
+    cursor: s-resize;
+    height: 7px;
+    width: 100%;
+    bottom: -5px;
+    left: 0;
+}
+
+.ui-resizable-e {
+    cursor: e-resize;
+    width: 7px;
+    right: -5px;
+    top: 0;
+    height: 100%;
+}
+
+.ui-resizable-w {
+    cursor: w-resize;
+    width: 7px;
+    left: -5px;
+    top: 0;
+    height: 100%;
+}
+
+.ui-resizable-se {
+    cursor: se-resize;
+    width: 12px;
+    height: 12px;
+    right: 1px;
+    bottom: 1px;
+}
+
+.ui-resizable-sw {
+    cursor: sw-resize;
+    width: 9px;
+    height: 9px;
+    left: -5px;
+    bottom: -5px;
+}
+
+.ui-resizable-nw {
+    cursor: nw-resize;
+    width: 9px;
+    height: 9px;
+    left: -5px;
+    top: -5px;
+}
+
+.ui-resizable-ne {
+    cursor: ne-resize;
+    width: 9px;
+    height: 9px;
+    right: -5px;
+    top: -5px;
+}
+
+.widget-container.opentsdb-widget {
+    height: 350px;
+
+    .general-options-table {
+        position: relative;
+        width: 99%;
+        border-spacing: 15px;
+    }
+
+    .graphdiv {
+        position: relative;
+        top: 15px;
+        left: 0;
+        path.line {
+            fill: none;
+            stroke-width: 1.5px;
+        }
+        .axis {
+            line {
+                fill: none;
+                stroke: $font_default;
+                stroke-opacity: .1;
+                shape-rendering: crispEdges;
+            }
+            path {
+                file: none;
+                stroke: $font_default;
+                stroke-opacity: .25;
+            }
+            text {
+                font-size: 0.65em;
+                fill: $font_default;
+                opacity: 0.6;
+            }
+            .graph-title {
+                font-size: 2.5em;
+                font-weight: bold;
+                color: $font_dim;
+            }
+        }
+        .brush {
+            .extent {
+                fill: $font_dim;
+                shape-rendering: crispEdges;
+            }
+        }
+        .tooltip-inner {
+            font-size: 0.6em;
+            font-weight: bold;
+        }
+    }
+
+    .legend {
+        position: relative;
+        top: 0;
+        width: 95%;
+        margin: 0 auto;
+        span {
+            display: block;
+        }
+    }
+
+    .legend-container {
+        position: absolute;
+        bottom: 0;
+        height: 50px;
+        overflow: auto;
+        font-size: 0.75em;
+        line-height: 1.2em;
+        padding: 10px 0 0 0;
+        margin-top: 5px;
+        background-color: $popup_bg;
+        border-top: 1px solid $popup_mfp_bg;
+    }
+
+    .legend-container.hidden-legend {
+        height: 0;
+        padding: 0;
+        overflow: visible;
+    }
+
+
+
+    .legend-hide, .legend-show {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+        width: 20px;
+        height: 10px;
+        position: absolute;
+        right: 0;
+        top: 0;
+        text-decoration: none;
+        text-align: center;
+        padding: 0;
+        color: $font_dim;
+        overflow: visible;
+        cursor: pointer;
+        background: transparent;
+        border: 0;
+        display: block;
+        z-index: 506;
+    }
+
+    .legend-hide:hover, .legend-hide:focus,
+    .legend-show:hover, .legend-hide:focus {
+        color: $font_default;
+    }
+
+    .legend-hide:active, .legend-show:active {
+        color: $font_bright;
+    }
+
+    .legend-show {
+        top: -14px;
+    }
+
+    .metrics-tabs-box {
+        position: relative;
+        .metric-input-textbox {
+            width: 100%;
+            position: relative;
+            .metric-autocomplete {
+                width: 95%;
+            }
+            .tag-suggestions {
+                position: absolute;
+                top: -25px;
+                right: 5%;
+                margin: 0;
+                text-align: right;
+                font-size: 0.75em;
+                color: $font_dim;
+            }
+        }
+        .tabbable:after {
+            clear: both;
+        }
+        .tab-below {
+            .nav-tabs {
+                position: relative;
+                bottom: 0;
+                margin: 0;
+                list-style: none;
+                li {
+                    float: left;
+                    text-decoration: none;
+                    font-size: 0.75em;
+                    color: $font_dim;
+                    margin-top: -1px;
+                    margin-bottom: 0;
+                    padding-top: 8px;
+                    padding-bottom: 8px;
+                    cursor: pointer;
+                    border-right: 1px solid transparent;
+                    border-left: 1px solid transparent;
+                    border-bottom: 1px solid transparent;
+                    @include sw-button-radius-bottom;
+                    a {
+                        padding-right: 8px;
+                        padding-left: 8px;
+                    }
+                    a.active {
+                    }
+                    a:hover {
+                        color: $font_bright;
+                    }
+                }
+                li.active {
+                    color: $font_default;
+                    background-color: $body_bg;
+                }
+            }
+        }
+        .tab-content {
+            position: relative;
+            background-color: $body_bg;
+            padding: 18px 0 15px 10px;
+            @include sw-button-radius-right;
+            .tab-pane.active {
+                display: block;
+            }
+            .tab-pane {
+                display: none;
+                .autocomplete-selected {
+                    background-color: $dropdown_highlight;
+                    color: $font_bright;
+                }
+                .autocomplete-suggestion {
+                    overflow: hidden;
+                    margin-bottom: 1px;
+                    font-size: 0.8em;
+                    line-height: 1.5em;
+                    padding-left: 8px;
+                }
+                .autocomplete-suggestion:hover {
+                    cursor: pointer;
+                    background-color: $dropdown_highlight;
+                    color: $font_bright;
+                }
+                .tab-close {
+                    display: inline-block;
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    margin: 2px 5px;
+                    cursor: pointer;
+                    color: $font_dim;
+                }
+                .tab-close:hover {
+                    color: $font_bright;
+                }
+            }
+        }
+        .tab-table {
+            width: 99%;
+            margin-top: 5px;
+            border-spacing: 5px;
+            div.menu-label {
+                h4 {
+                    maring: 10px 5px 0 0;
+                }
+            }
+            .sw-button {
+                margin-top: 10px;
+            }
+            .push-button {
+                height: 18px;
+            }
+        }
+    }
+
+    .saved-searches-menu {
+        display: inline-block;
+        position: absolute;
+        margin: 2px 5px;
+        top: 5px;
+        left: 10px;
+        cursor: pointer;
+        font-size: 0.8em;
+        .saved-searches-options {
+            min-width: 200px;
+            white-space: nowrap;
+        }
+    }
+
+    .search-title {
+        overflow: hidden;
+        cursor: pointer;
+        h3 {
+            vertical-align: top;
+            font-size: 1.25em;
+            /*line-height: 3.0em;*/
+            height: 100%;
+            -webkit-margin-before: 0;
+        }
+        input {
+            position: relative;
+            vertical-align: bottom;
+        }
+    }
+
+    .section-off {
+        visibility: hidden;
+        opacity: 0;
+        display: none;
+        -webkit-transition: visibility 0s linear, opacity 0.25s linear;
+        -moz-transition: visibility 0s linear, opacity 0.25s linear;
+        transition: visibility 0s linear, opacity 0.25s linear;
+    }
+
+    .section-on {
+        visibility: visible;
+        opacity: 1;
+        -webkit-transition: visibility 0s linear, opacity 0.25s linear;
+        -moz-transition: visibility 0s linear, opacity 0.25s linear;
+        transition: visibility 0s linear, opacity 0.25s linear;
+    }
+
+    .spinner {
+        padding-top: 20%;
+    }
+
+    .widget-button-label {
+        display: inline-block;
+        padding-right: 5px;
+    }
+
+    .widget-dates {
+        position: relative;
+        top: 0;
+    }
+
+    .widget-drag-handle {
+        position: absolute;
+        height: 15px;
+        width: 90%;
+        top: 0;
+        left: 25px;
+    }
+
+    .widget-form-item {
+        display: inline-block;
+        height: 100%;
+        margin-right: 15px;
+        padding: 2px 0;
+        h4 {
+            display: inline-block;
+            margin: 0 5px 0 0;
+            font-size: 0.8em;
+        }
+    }
+
+    .widget-search-form {
+        padding-left: 10px;
+        position: relative;
+        top: 40px;
+    }
+
+    .widget-time-span {
+        position: relative;
+        top: 0;
+    }
+
+}
+
+.widget-container.opentsdb-widget.maximize-widget {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    z-index: 2000;
+}
+
+#saved-search-list-popup {
+    margin-bottom: 15px;
+    max-height: 500px;
+    overflow: hidden;
+    table {
+        margin-right: 20px;
+        border-spacing: 0;
+        tr {
+            th {
+                font-size: 1em;
+                padding: 5px;
+            }
+            td {
+                padding: 3px 5px;
+            }
+        }
+        tr.search-item:hover {
+            background-color: $popup_mfp_bg;
+            cursor: pointer;
+        }
+    }
+    .saved-search-box {
+        display: inline-block;
+        vertical-align: top;
+    }
+    .saved-search-list {
+        font-size: 0.75em;
+        line-height: 2em;
+        max-height: 450px;
+        min-width: 300px;
+        overflow: auto;
+        vertical-align: top;
+        white-space: nowrap;
+    }
+}
+
