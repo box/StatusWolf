@@ -40,7 +40,7 @@
                     $.each(widget_data.dependencies.js, function(i, js) {
                         console.log('loading script ' + js);
                         if ($('script[src*="' + js + '"]').length === 0) {
-                            loadScript(window.location.origin + '/app/static/js/lib/' + js, function() {});
+                            loadScript(window.location.origin + '/static/js/lib/' + js, function() {});
                         }
                     });
                 }

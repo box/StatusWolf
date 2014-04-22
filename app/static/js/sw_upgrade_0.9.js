@@ -13,12 +13,14 @@ $(document).ready(function() {
         enableEscapeKey: false
     });
 });
+var swadmin_popup = $.magnificPopup.instance;
 
 $('#swadmin-popup').on('keyup', 'input#swadmin-password-confirm', function(e) {
     if ($(this).val() === $(this).siblings('input#swadmin-password').val()) {
         $('div#swadmin-buttons').removeClass('hidden');
         $(this).attr('style', '');
         if (e.which === 13) {
+            swadmin_popup.close();
             $('div#swadmin-password-submit').click();
         }
     } else {
@@ -26,24 +28,25 @@ $('#swadmin-popup').on('keyup', 'input#swadmin-password-confirm', function(e) {
         $(this).css('background-color', 'rgba(255, 160, 150, .75)');
     }
 }).on('click', 'div#swadmin-password-submit', function() {
-    var query_data = {};
-    query_data.password = $('input#swadmin-password').val();
-    $.ajax({
-        url: window.location.origin + '/update_auth_table',
-        type: 'POST',
-        data: query_data,
-        dataType: 'json',
-        async: false,
-        statusCode: {
-            500: function(data) {
-                $.magnificPopup.close();
-                upgrade_failed($.parseJSON(data.responseText));
+    swadmin_popup.close();
+    setTimeout(function() {
+        var query_data = {};
+        query_data.password = $('input#swadmin-password').val();
+        $.ajax({
+            url: window.location.origin + '/update_auth_table',
+            type: 'POST',
+            data: query_data,
+            dataType: 'json',
+            async: false,
+            statusCode: {
+                500: function(data) {
+                    upgrade_failed($.parseJSON(data.responseText));
+                }
             }
-        }
-    }).done(function() {
-        $.magnificPopup.close();
-        run_upgrade();
-    });
+        }).done(function() {
+            run_upgrade();
+        });
+    }, 500);
 });
 
 $('div#status-main').on('click', '#completion-continue', function() {
