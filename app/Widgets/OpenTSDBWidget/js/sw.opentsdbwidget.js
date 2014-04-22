@@ -2498,9 +2498,9 @@
                                 .attr('cx', widget.graph.x(closest_timestamp))
                                 .attr('cy', function(d) {
                                     if (d.axis === "right") {
-                                        return widget.graph.y1(d.values[x_position_index].value);
+                                        return d.values[x_position_index].value ? widget.graph.y1(d.values[x_position_index].value) : widget.graph.y1(0);
                                     } else {
-                                        return widget.graph.y(d.values[x_position_index].value);
+                                        return d.values[x_position_index].value ? widget.graph.y(d.values[x_position_index].value) : widget.graph.y(0);
                                     }
                                 });
                             widget.graph.dots.select('text')
