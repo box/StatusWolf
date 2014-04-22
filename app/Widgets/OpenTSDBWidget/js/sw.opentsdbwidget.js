@@ -2277,13 +2277,15 @@
 //                widget.add_graph_dots();
 
                 var dot_data = widget.graph.right_axis ? widget.graph.data_left.concat(widget.graph.data_right) : widget.graph.data_left;
-                widget.graph.dots = widget.svg.g.append('g').selectAll('g')
+                widget.graph.dots = widget.svg.g.append('g')
+                    .attr('class', 'dot-container')
+                    .selectAll('g')
                     .data(dot_data)
                     .enter().append('g')
-                    .attr('opacity', 0)
-                    .attr('data-name', function(d) {
-                        return widget.graph.legend_map[d.name];
-                    });
+                        .attr('opacity', 0)
+                        .attr('data-name', function(d) {
+                            return widget.graph.legend_map[d.name];
+                        });
 
                 widget.graph.dots
                     .append('circle')
@@ -2357,7 +2359,7 @@
                             var moved_metric_node = moved_metric.node();
                             var moved_metric_data = moved_metric.data();
                             $(moved_metric_node).parent().remove();
-                            var new_metric = d3.select('#' + widget.element.attr('id') + ' svg>g').append('g', 'g.metric');
+                            var new_metric = d3.select('#' + widget.element.attr('id') + ' svg>g').insert('g', 'g.dot-container');
                             new_metric
                                 .classed('metric', 1)
                                 .classed(axis_position_class, 1)
