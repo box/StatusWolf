@@ -222,7 +222,7 @@
 }
 /* line 195, ../sass/sw.opentsdbwidget.scss */
 .widget-container.opentsdb-widget .graphdiv .axis path {
-  file: none;
+  fill: none;
   stroke: rgba(234, 234, 234, 0.75);
   stroke-opacity: .25;
 }

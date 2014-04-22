@@ -36,10 +36,12 @@
                 sw_opentsdbwidget_backfooter,
                 sw_opentsdbwidget_frontmain,
                 sw_opentsdbwidget_backmain,
-                sw_opentsdbwidget_savedsearchesmenu,
-                sw_opentsdbwidget_searchform,
                 sw_opentsdbwidget_action,
                 sw_opentsdbwidget_draghandle,
+                sw_opentsdbwidget_graphdiv,
+                sw_opentsdbwidget_legendbox,
+                sw_opentsdbwidget_savedsearchesmenu,
+                sw_opentsdbwidget_searchform,
                 sw_opentsdbwidget_querycancelbutton,
                 sw_opentsdbwidget_gobutton;
 
@@ -105,6 +107,32 @@
                 .addClass('widget-footer')
                 .appendTo(sw_opentsdbwidget_back);
 
+            sw_opentsdbwidget_graphdiv = (this.sw_opentsdbwidget_graphdiv = $('<div>'))
+                .attr('id', 'graphdiv' + this.uuid)
+                .addClass('graphdiv')
+                .css('width', '99%')
+                .appendTo(sw_opentsdbwidget_frontmain);
+
+            sw_opentsdbwidget_legendbox = (this.sw_opentsdbwidget_legendbox = $('<div>'))
+                .attr('id', 'legend-container' + this.uuid)
+                .addClass('legend-container hidden')
+                .append('<button type="button" class="legend-toggle legend-hide">' +
+                    '<span class="elegant-icons arrow-triangle-down"></span></button>')
+                .append('<div id="legend' + this.uuid + '" class="legend"></div>')
+                .appendTo(sw_opentsdbwidget_frontmain);
+
+            if (this.options.legend === "off") {
+                this.hide_legend();
+            }
+
+            this.sw_opentsdbwidget_frontmain.on('click', 'button.legend-hide', function() {
+                this.hide_legend(this);
+            });
+
+            this.sw_opentsdbwidget_frontmain.on('click', 'button.legend-show', function() {
+                this.show_legend(this);
+            });
+
             sw_opentsdbwidget_action = (this.sw_opentsdbwidget_action = $('<div>'))
                 .addClass('widget-action dropdown')
                 .append('<span data-toggle="dropdown">' +
@@ -143,6 +171,8 @@
                 })
                 .append('<span class="elegant-icons icon-close">')
                 .appendTo(sw_opentsdbwidget_frontmain);
+
+
 
             sw_opentsdbwidget_savedsearchesmenu = (this.sw_opentsdbwidget_savedsearchesmenu = $('<div>'))
                 .addClass('dropdown saved-searches-menu')
@@ -194,6 +224,7 @@
                 that.dropdown_menu_handler(this);
             });
 
+            // @Todo - implement resizing and dragging
 //            $(that.sw_opentsdbwidget_container).resize(function() {
 //                console.log('widget container is resizing!');
 //                if (typeof that.svg !== "undefined") {
@@ -244,7 +275,7 @@
             var widget = this;
             $(window).scrollTop(0);
             if ($('#spinner' + widget.uuid).length > 0) {
-                $('#graphdiv' + widget.uuid).empty();
+                widget.sw_opentsdbwidget_graphdiv.empty();
             }
             widget.start_height = widget.sw_opentsdbwidget_container.height();
             widget.start_width = widget.sw_opentsdbwidget_container.width();
@@ -319,10 +350,10 @@
             var widget = this;
             console.log('resizing graph');
             console.log(widget);
-            var widget_main = widget.sw_opentsdbwidget_frontmain
-                , graph_div = widget.sw_opentsdbwidget_frontmain.children('div.graphdiv')
-                , graph_div_offset = graph_div.position().top
-                , graph_legend = widget.sw_opentsdbwidget_frontmain.children('div.legend-container');
+            var widget_main = widget.sw_opentsdbwidget_frontmain,
+                graph_div = widget.sw_opentsdbwidget_graphdiv,
+                graph_div_offset = graph_div.position().top,
+                graph_legend = widget.sw_opentsdbwidget_frontmain.children('div.legend-container');
             graph_legend.css('width', widget_main.innerWidth());
             widget_main.css('height', widget.sw_opentsdbwidget.innerHeight());
             graph_div.css('height', widget_main.innerHeight() - graph_legend.outerHeight(true) - graph_div_offset);
@@ -696,23 +727,6 @@
                     }
                 })
                 .append('<span class="elegant-icons icon-plus"></span><span class="font-reset"> Add Metric</span>');
-
-            widget.sw_opentsdbwidget_frontmain.append('<div id="graphdiv' + widget_num + '" class="graphdiv" style="width: 99%;">')
-                .append('<div id="legend-container' + widget_num + '" class="legend-container hidden">' +
-                    '<button type="button" class="legend-toggle legend-hide"><span class="elegant-icons arrow-triangle-down"></span></button>' +
-                    '<div id="legend' + widget_num + '" class="legend"></div></div>');
-
-            if (widget.options.legend === "off") {
-                widget.hide_legend();
-            }
-
-            widget.sw_opentsdbwidget_frontmain.on('click', 'button.legend-hide', function() {
-                widget.hide_legend(this);
-            });
-
-            widget.sw_opentsdbwidget_frontmain.on('click', 'button.legend-show', function() {
-                widget.show_legend(this);
-            });
 
             var auto_update = $(widget_element).find('div.auto-update').children('div.push-button');
             $(auto_update).children('input').attr('id', 'auto-update-button' + widget_num);
@@ -1588,15 +1602,13 @@
             // If we made it this far without errors in the form input, then
             // we build us a graph
             if (input_error == false) {
-                var graph_element = $('#graphdiv' + widget_num);
-                // Make sure the graph display div is empty
-                graph_element.empty();
+                widget.sw_opentsdbwidget_graphdiv.empty();
                 // Clear the graph legend
-                $('#legend-hover' + widget_num).empty();
+                $('#legend' + widget_num).empty();
                 // Load the waiting spinner
-                graph_element.append('<div class="spinner" id="spinner' + widget_num + '">' +
+                widget.sw_opentsdbwidget_graphdiv.append('<div class="spinner" id="spinner' + widget_num + '">' +
                     '<div class="spinner-holder elegant-icons icon-loading"></div></div>');
-                graph_element.append('<div id="status-box' + widget_num + '" style="width: 100%; text-align: center;">' +
+                widget.sw_opentsdbwidget_graphdiv.append('<div id="status-box' + widget_num + '" style="width: 100%; text-align: center;">' +
                     '<p id="status-message' + widget_num + '"></p></div>');
                 widget.init_query();
                 setTimeout(function() {
@@ -1638,17 +1650,17 @@
                     $('#spinner' + widget_num).empty()
                         .append('<div class="spinner-error elegant-icons icon-error-triangle red"></div>');
 
-                    widget.sw_opentsdbwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num).empty()
+                    widget.sw_opentsdbwidget_graphdiv.children('#status-box' + widget_num).empty()
                         .append('<p>' + status.shift() + '</p>');
 
                     if (typeof status[0] === "string") {
                         if ((status[0].match("<!DOCTYPE")) || (status[0].match("<html>"))) {
                             var error_message = status.join(' ').replace(/'/g, "&#39");
-                            widget.sw_opentsdbwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num)
+                            widget.sw_opentsdbwidget_graphdiv.children('#status-box' + widget_num)
                                 .append('<iframe style="margin: 0 auto; color: rgb(205, 205, 205);" width="80%" height="90%" srcdoc=\'' + error_message + '\' seamless></iframe>');
                         }
                         else {
-                            widget.sw_opentsdbwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num).empty().append('<p>' + status + '</p>');
+                            widget.sw_opentsdbwidget_graphdiv.children('#status-box' + widget_num).empty().append('<p>' + status + '</p>');
                         }
                     }
                 }
@@ -1659,7 +1671,7 @@
             var widget = this;
             var query_object = new $.Deferred();
             var widget_num = widget.uuid;
-            var status = widget.sw_opentsdbwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num).children('#status-message' + widget_num);
+            var status = widget.sw_opentsdbwidget_graphdiv.children('#status-box' + widget_num).children('#status-message' + widget_num);
 
             // Generate model data for the metric
             if (widget.query_data.history_graph == "anomaly") {
@@ -1744,7 +1756,7 @@
         get_opentsdb_data_wow: function() {
 
             var widget = this;
-            var status = widget.sw_opentsdbwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num).children('#status-message' + widget_num);
+            var status = widget.sw_opentsdbwidget_graphdiv.children('#status-box' + widget_num).children('#status-message' + widget_num);
 
             if (typeof widget.ajax_request !== 'undefined') {
                 console.log('Previous request still in flight, aborting');
@@ -1844,7 +1856,7 @@
         get_opentsdb_data_anomaly: function() {
 
             var widget = this;
-            var status = widget.sw_opentsdbwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num).children('#status-message' + widget_num);
+            var status = widget.sw_opentsdbwidget_graphdiv.children('#status-box' + widget_num).children('#status-message' + widget_num);
 
             if (typeof widget.ajax_request !== 'undefined') {
                 console.log('Previous request still in flight, aborting');
@@ -1918,7 +1930,7 @@
             var widget = this;
 
             var parse_object = new $.Deferred();
-            var status = widget.sw_opentsdbwidget_frontmain.children('#graphdiv' + widget_num).children('#status-box' + widget_num).children('#status-message' + widget_num);
+            var status = widget.sw_opentsdbwidget_graphdiv.children('#status-box' + widget_num).children('#status-message' + widget_num);
 
             widget.query_url = data.query_url;
             delete data.start;
@@ -2034,41 +2046,37 @@
             }
             widget.graph.autoupdate_interval = widget.query_data.downsample_master_interval > 1 ? widget.query_data.downsample_master_interval * 60 : 300;
 
-            widget.graph.right_axis = false;
-            var data_right = [];
-            var data_left = [];
+            widget.graph.data_left = [];
+            widget.graph.data_right = [];
             $.each(data, function(s, d) {
                 $.each(d.values, function(v) {
                     d.values[v]['date'] = new Date(d.values[v]['timestamp'] * 1000);
                 });
                 if (d.axis === "right") {
                     widget.graph.right_axis = true;
-                    data_right.push(d);
+                    widget.graph.data_right.push(d);
                 }
                 else {
-                    data_left.push(d);
+                    widget.graph.data_left.push(d);
                 }
             });
 
-//      widget.graph.data = data;
-            widget.graph.data_left = data_left;
             widget.graph.margin = {top: 0, right: 5, bottom: 20, left: 45};
-            delete(data_left);
 
             if (widget.graph.right_axis == true) {
                 widget.graph.margin.right = 55;
-                widget.graph.data_right = data_right;
-                delete(data_right);
+            } else {
+                delete(widget.graph.data_right);
             }
             delete(data);
 
-            var graphdiv = $('#' + widget.element.attr('id') + ' .graphdiv').empty();
+            var graphdiv = widget.sw_opentsdbwidget_graphdiv.empty();
             var graphdiv_offset = graphdiv.position().top;
-            var legend_box = $('#' + widget.element.attr('id') + ' .legend');
+            var legend = widget.sw_opentsdbwidget_legendbox.children('div.legend');
 
             widget.sw_opentsdbwidget_frontmain.css('height', widget.sw_opentsdbwidget.innerHeight());
-            widget.sw_opentsdbwidget_frontmain.children('.graphdiv').css('height', (widget.sw_opentsdbwidget_frontmain.innerHeight() - (widget.sw_opentsdbwidget_frontmain.children('.legend-container').outerHeight(true) + graphdiv_offset)));
-            widget.sw_opentsdbwidget_frontmain.children('.legend-container').css('width', widget.sw_opentsdbwidget_frontmain.innerWidth())
+            graphdiv.css('height', (widget.sw_opentsdbwidget_frontmain.innerHeight() - (widget.sw_opentsdbwidget_frontmain.children('.legend-container').outerHeight(true) + graphdiv_offset)));
+            widget.sw_opentsdbwidget_legendbox.css('width', widget.sw_opentsdbwidget_frontmain.innerWidth())
                 .removeClass('hidden');
 
             widget.graph.width = (graphdiv.innerWidth() - widget.graph.margin.left - widget.graph.margin.right);
@@ -2239,7 +2247,8 @@
                     })
                     .style('stroke', function(d) {
                         return widget.graph.color(widget.graph.legend_map[d.name]);
-                    });
+                    })
+                    .style('pointer-events', 'none');
 
                 if (widget.graph.right_axis == true) {
                     widget.svg.g.selectAll('.metric.right')
@@ -2259,34 +2268,73 @@
                         })
                         .style('stroke', function(d) {
                             return widget.graph.color(widget.graph.legend_map[d.name]);
-                        });
-
+                        })
+                        .style('pointer-events', 'none');
                 }
 
-                widget.graph.tooltip_format = d3.time.format('%X');
+                var point_format = d3.format('.2f');
 
-                widget.add_graph_dots();
+//                widget.add_graph_dots();
+
+                var dot_data = widget.graph.right_axis ? widget.graph.data_left.concat(widget.graph.data_right) : widget.graph.data_left;
+                widget.graph.dots = widget.svg.g.append('g').selectAll('g')
+                    .data(dot_data)
+                    .enter().append('g')
+                    .attr('opacity', 0)
+                    .attr('data-name', function(d) {
+                        return widget.graph.legend_map[d.name];
+                    });
+
+                widget.graph.dots
+                    .append('circle')
+                        .attr('cx', widget.graph.x(dot_data[0].values[0].date))
+                        .attr('cy', function(d) {
+                            if (d.axis === "right") {
+                                return widget.graph.y1(d.values[0].value);
+                            } else {
+                                return widget.graph.y(d.values[0].value);
+                            }
+                        })
+                        .attr('r', 4)
+                        .style('fill', 'none')
+                        .style('stroke-width', '1.5px')
+                        .style('stroke', function(d) {
+                            return (widget.graph.color(widget.graph.legend_map[d.name]));
+                        })
+                        .classed('dot', 1);
+                widget.graph.dots.append('text')
+                    .attr('x', 0)
+                    .attr('y', 0)
+                    .style('fill', function(d) {
+                        return (widget.graph.color(widget.graph.legend_map[d.name]));
+                    })
+                    .style('font-size', '.71em')
+                    .style('text-shadow', '2px 2px 2px #000');
+
+                widget.sw_opentsdbwidget_graphdiv.tooltip({selector: 'circle.dot', trigger: 'manual'});
+
+                var bisect = d3.bisector(function(d) { return d.date; }).left;
 
                 if (Object.keys(widget.graph.legend_map).length > 9) {
-                    legend_box.css({
+                    legend.css({
                         '-webkit-columns': 'auto 4', '-moz-columns': 'auto 4', columns: 'auto 4'
                     });
                 }
                 else if (Object.keys(widget.graph.legend_map).length > 6) {
-                    legend_box.css({
+                    legend.css({
                         '-webkit-columns': 'auto 2', '-moz-columns': 'auto 3', columns: 'auto 3'
                     });
                 }
                 else if (Object.keys(widget.graph.legend_map).length > 3) {
-                    legend_box.css({
+                    legend.css({
                         '-webkit-columns': 'auto 2', '-moz-columns': 'auto 2', columns: 'auto 2'
                     });
                 }
 
                 $.each(widget.graph.legend_map, function(series, label) {
                     var item_color = widget.graph.color(widget.graph.legend_map[series]);
-                    legend_box.append('<span title="' + label + '" style="color: ' + item_color + '">' + label + '</span>');
-                    var name_span = legend_box.children('span[title="' + label + '"]');
+                    legend.append('<span title="' + label + '" style="color: ' + item_color + '">' + label + '</span>');
+                    var name_span = legend.children('span[title="' + label + '"]');
                     if (widget.graph.right_axis == true) {
                         $(name_span).prepend('<span class="iconic iconic-play" style="font-size: .75em"></span> ');
                         if (!d3.select('.metric path[data-name="' + label + '"]').classed('right')) {
@@ -2295,7 +2343,7 @@
                     }
                 });
 
-                legend_box.children('span')
+                legend.children('span')
                     .css('cursor', 'pointer')
                     .on('mouseover', function() {
                         $(this).css('font-weight', 'bold');
@@ -2330,6 +2378,7 @@
                                     return widget.graph.color(widget.graph.legend_map[d.name]);
                                 })
                                 .style('stroke-width', '3px')
+                                .style('pointer-events', 'none');
                         }
                     })
                     .on('mouseout', function() {
@@ -2338,28 +2387,40 @@
                         widget.svg.g.selectAll('.metric path').classed('fade', 0);
                     })
                     .on('click', function(e) {
-                        var metric_line = widget.svg.g.select('.metric path[data-name="' + $(this).attr('title') + '"]');
-                        var metric_dots = widget.svg.g.select('.dots[data-name="' + $(this).attr('title') + '"]');
+                        var series_title = $(this).attr('title'),
+                            metric_line = widget.svg.g.select('.metric path[data-name="' + series_title + '"]');
                         if (e.altKey) {
-                            legend_box.children('span').addClass('fade');
+                            legend.children('span').addClass('fade');
                             $(this).removeClass('fade');
                             widget.svg.g.selectAll('.metric path')
                                 .classed('hidden', 1);
                             metric_line.classed('hidden', 0);
-                            widget.svg.g.selectAll('.dots')
-                                .classed('hidden', 1);
-                            metric_dots.classed('hidden', 0);
+                            widget.graph.dots.each(function() {
+                                if ($(this).attr('data-name') === series_title) {
+                                    d3.select(this).classed('hidden', 0);
+                                } else {
+                                    d3.select(this).classed('hidden', 1);
+                                }
+                            })
                         }
                         else {
                             if (metric_line.classed('hidden')) {
                                 $(this).removeClass('fade');
-                                metric_line.classed('hidden', false);
-                                metric_dots.classed('hidden', false);
+                                metric_line.classed('hidden', 0);
+                                widget.graph.dots.each(function() {
+                                    if ($(this).attr('data-name') === series_title) {
+                                        d3.select(this).classed('hidden', 0);
+                                    }
+                                });
                             }
                             else {
                                 $(this).addClass('fade');
-                                metric_line.classed('hidden', true);
-                                metric_dots.classed('hidden', true);
+                                metric_line.classed('hidden', 1);
+                                widget.graph.dots.each(function() {
+                                    if ($(this).attr('data-name') === series_title) {
+                                        d3.select(this).classed('hidden', 1);
+                                    }
+                                });
                             }
                         }
                     });
@@ -2406,18 +2467,66 @@
                                 .attr('x', 0)
                                 .attr('y', 0)
                                 .attr('height', 0)
-                                .attr('width', 0);
+                                .attr('width', 0)
+                                .style('pointer-events', 'none');
+                            widget.graph.zoombox.selectAll('g')
+                                .style('display', 'none');
                             clearTimeout(widget.autoupdate_timer);
                         }
                     });
 
-                widget.graph.zoombox = widget.svg.g.insert('g', '.metric')
+                widget.graph.zoombox = widget.svg.g.append('g')
                     .attr('class', 'brush');
 
                 widget.graph.zoombox.call(widget.graph.brush)
                     .selectAll('rect.background')
-                    .attr('height', widget.graph.height)
-                    .attr('width', widget.graph.width);
+                        .attr('height', widget.graph.height)
+                        .attr('width', widget.graph.width)
+                        .on('mouseover', function() {
+                            widget.graph.dots.attr('opacity', 1);
+                            widget.svg.g.selectAll('.metric path').attr('opacity', .5);
+                        })
+                        .on('mouseout', function() {
+                            widget.graph.dots.attr('opacity', 0);
+                            widget.svg.g.selectAll('.metric path').attr('opacity', 1);
+                        })
+                        .on('mousemove', function() {
+                            var x_position = widget.graph.x.invert(d3.mouse(this)[0]),
+                                x_position_index = bisect(dot_data[0].values, x_position),
+                                closest_timestamp = dot_data[0].values[x_position_index].date;
+                            widget.graph.dots.select('circle')
+                                .attr('cx', widget.graph.x(closest_timestamp))
+                                .attr('cy', function(d) {
+                                    if (d.axis === "right") {
+                                        return widget.graph.y1(d.values[x_position_index].value);
+                                    } else {
+                                        return widget.graph.y(d.values[x_position_index].value);
+                                    }
+                                });
+                            widget.graph.dots.select('text')
+                                .text(function(d) { return point_format(d.values[x_position_index].value); })
+                                .attr('x', function(d) {
+                                    if ((x_position_index / d.values.length) > .85) {
+                                        return widget.graph.x(closest_timestamp) - 5;
+                                    } else {
+                                        return widget.graph.x(closest_timestamp) + 5;
+                                    }
+                                })
+                                .attr('text-anchor', function(d) {
+                                    if ((x_position_index / d.values.length) > .85) {
+                                        return 'end';
+                                    } else {
+                                        return 'start';
+                                    }
+                                })
+                                .attr('y', function(d) {
+                                    if (d.axis === "right") {
+                                        return widget.graph.y1(d.values[x_position_index].value) - 2.5;
+                                    } else {
+                                        return widget.graph.y(d.values[x_position_index].value) - 2.5;
+                                    }
+                                });
+                        });
 
                 // Set the interval for adding new data if Auto Update is selected
                 if (widget.query_data['auto_update']) {
@@ -2580,7 +2689,7 @@
                                         });
                                 }
                                 $(widget.sw_opentsdbwidget_containerid + ' .dots').remove();
-                                widget.add_graph_dots();
+//                                widget.add_graph_dots();
                             }
                         }
                     );
@@ -2591,71 +2700,6 @@
             widget.autoupdate_timer = setTimeout(function() {
                 widget.update_graph('line');
             }, widget.graph.autoupdate_interval * 1000);
-        },
-        add_graph_dots: function() {
-            var widget = this;
-
-            var dots = widget.svg.g.selectAll('.dots')
-                .data(widget.graph.right_axis ? widget.graph.data_left.concat(widget.graph.data_right) : widget.graph.data_left)
-                .enter().append('g')
-                .attr('class', 'dots')
-                .attr('data-name', function(d) {
-                    return widget.graph.legend_map[d.name];
-                });
-            dots.each(function(d, i) {
-                var series = d.name;
-                var axis = d.axis;
-                d3.select(this).selectAll('.dot')
-                    .data(d.values)
-                    .enter().append('circle')
-                    .classed('dot', 1)
-                    .classed('transparent', 1)
-                    .classed('info-tooltip-top', 1)
-                    .attr('r', 3)
-                    .attr('cx', function(d) {
-                        return widget.graph.x(d.date);
-                    })
-                    .attr('cy', function(d) {
-                        if (axis === "right") {
-                            return widget.graph.y1(d.value);
-                        } else {
-                            return widget.graph.y(+d.value);
-                        }
-                    })
-                    .attr('title', function(d) {
-                        return widget.graph.tooltip_format(d.date) + ' - ' + d.value;
-                    })
-                    .attr('data-axis', function() {
-                        if (axis === "right") {
-                            return 'right';
-                        } else {
-                            return 'left';
-                        }
-                    })
-                    .style('fill', 'none')
-                    .style('stroke-width', '3px')
-                    .style('stroke', function() {
-                        return (widget.graph.color(widget.graph.legend_map[series]))
-                    })
-                    .on('mouseover', function() {
-                        var e = d3.event;
-                        d3.select(this).classed('transparent', 0);
-                        var legend_item = $("span[title='" + $(this).parent().attr('data-name') + "']");
-                        var legend_box = legend_item.parent();
-                        legend_item.detach();
-                        legend_box.prepend(legend_item);
-                        legend_item.css('font-weight', 'bold');
-                    })
-                    .on('mouseout', function() {
-                        d3.select(this).classed('transparent', 1);
-                        $("span[title='" + $(this).parent().attr('data-name') + "']").css('font-weight', 'normal');
-                    });
-            });
-            var graphdiv = $('#' + widget.element.attr('id') + ' .graphdiv');
-            $('.dot.info-tooltip').tooltip({placement: 'bottom', container: graphdiv});
-            $('.dot.info-tooltip-right').tooltip({placement: 'right', container: graphdiv});
-            $('.dot.info-tooltip-left').tooltip({placement: 'left', container: graphdiv});
-            $('.dot.info-tooltip-top').tooltip({placement: 'top', container: graphdiv});
         },
         format_graph_title: function() {
             var widget = this;
