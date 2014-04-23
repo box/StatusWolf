@@ -8,7 +8,6 @@
 
 (function($, undefined) {
 
-    console.log('incoming query data:');
     var sw_opentsdbwidget_classes = 'widget';
     var sw_opentsdbwidget_containerclasses = 'opentsdb-widget';
 
@@ -348,8 +347,6 @@
         },
         resize_graph: function() {
             var widget = this;
-            console.log('resizing graph');
-            console.log(widget);
             var widget_main = widget.sw_opentsdbwidget_frontmain,
                 graph_div = widget.sw_opentsdbwidget_graphdiv,
                 graph_div_offset = graph_div.position().top,
@@ -427,12 +424,10 @@
         clone_widget: function(widget_id) {
             // Add a new widget as a duplicate of the selected widget
             var widget = $('#' + widget_id).data('sw-opentsdbwidget');
-            console.log('Cloning widget ' + widget_id);
             var username = document._session.dashboard_username;
             var new_widget_id = "widget" + md5(username + new Date.now().getTime());
             var new_widget_options = widget.options;
             new_widget_options.query_data = null;
-            console.log('Adding new widget ' + new_widget_id);
             $('#dashboard-container').append('<div id="' + new_widget_id + '" class="widget-container cols-' + document._session.dashboard_columns + '" data-widget-type="opentsdbwidget">');
             var new_widget = $('div#' + new_widget_id).opentsdbwidget(widget.options);
             setTimeout(function() {
@@ -686,11 +681,9 @@
             $(widget.sw_opentsdbwidget_searchform).on('blur', 'input#search-title-input', function() {
                 var search_title_text = $(this).siblings('h3').text();
                 var changed_title = $(this).val();
-                console.log('changed title: ' + changed_title + ', length: ' + changed_title.length);
                 $(this).addClass('nodisplay');
                 $(this).siblings('h3').removeClass('nodisplay');
                 if (changed_title.length > 1) {
-                    console.log('title has changed');
                     $(this).siblings('h3').text(changed_title).removeClass('search-title-prompt');
                 } else {
                     $(this).siblings('h3').text(search_title_text);
@@ -821,7 +814,6 @@
 
                 search_popup.on('click', 'tr.search-item', function() {
                     var saved_query = {};
-                    console.log('loading saved search');
                     if (search_id = $(this).children('td').children('span').attr('data-search-id')) {
                         $.ajax({
                             url: window.location.origin + "/api/datasource/opentsdb/saved/" + search_id,
@@ -873,7 +865,6 @@
             });
 
             $(widget.sw_opentsdbwidget_backmain).on('click', '.tab-close', function() {
-                console.log('closing tab ' + $(this).attr('data-tab-number'));
                 widget.close_tab($(this).attr('data-tab-number'));
             });
 
@@ -988,12 +979,9 @@
             $('li#nav-tab' + widget.uuid + '-' + tab_number).remove();
             $('#tab' + widget.uuid + '-' + tab_number).remove();
             var remaining_tabs = $('#tab-content' + widget.uuid + ' .tab-pane');
-            console.log(remaining_tabs);
             var tab_count = 0;
             $.each(remaining_tabs, function(i, tab) {
                 tab_count++;
-                console.log('fixing tab');
-                console.log(tab);
                 var tab_id = $(tab).attr('id');
                 $(tab).attr('id', 'tab' + widget.uuid + '-' + tab_count);
                 $(tab).children('.tab-close')
@@ -1007,15 +995,11 @@
             $('#tab-content' + widget.uuid).children('.tab-pane:last-child').addClass('active');
             $('#tab-list' + widget.uuid).children('li:last-child').addClass('active');
 
-            console.log(tab_count + ' remaining tabs');
-
             widget.metric_count = tab_count;
 
         },
         load_suggested_tags: function(search_string, dom_parent, keyCode) {
             var widget = this;
-
-            console.log('dom parent: ' + $(dom_parent).attr('id'));
 
             if (window.GLOBAL_METRIC_TO_TAG_CACHE == undefined) {
                 window.GLOBAL_METRIC_TO_TAG_CACHE = {};
@@ -1075,7 +1059,6 @@
             var widget = this;
             var user_id = document._session.dashboard_userid;
             var api_url = window.location.origin + '/api/datasource/opentsdb/saved_searches/' + user_id;
-            console.log('fetching saved searches from ' + api_url);
             var menu_length = 15;
             widget.saved_searches = {};
 
@@ -1089,7 +1072,6 @@
                     return(data)
                 });
             chain.done( function(data) {
-                console.log(data);
                 var my_searches = data.user_searches;
                 var shared_searches = data.shared_searches;
                 var saved_search_list = widget.sw_opentsdbwidget_backmain.children('.saved-searches-menu').children('ul.saved-searches-options')
@@ -1224,8 +1206,6 @@
 
             var auto_update_input = $('input#auto-update-button' + widget_num);
             if (query_data.auto_update === "true") {
-                console.log('auto update requested');
-                console.log(auto_update_input);
                 auto_update_input.parent('.push-button').addClass('pushed');
                 if (!auto_update_input.prop('checked')) {
                     auto_update_input.attr('checked', 'Checked').prop('checked', true);
@@ -1414,7 +1394,6 @@
             $('#legend' + widget_num).empty();
 
             if (typeof widget.autoupdate_timer !== "undefined") {
-                console.log('clearing auto-update timer');
                 clearTimeout(widget.autoupdate_timer);
                 delete widget.autoupdate_timer;
             }
@@ -1447,7 +1426,6 @@
             var start, end;
             var date_span_option = widget_element.find('input:radio[name="date-span"]:checked').val();
             if (date_span_option === 'date-search') {
-                console.log('date search - checking start and end times');
                 if ($(input_dates).children('div#start-time' + widget_num).children('input[name="start-time"]').val().length < 1) {
                     $(input_dates).children('div#start-time' + widget_num).children('input[name="start-time"]').css('border-color', 'red').css('background-color', 'rgb(255, 200, 200)').focus();
                     alert("You must specify a start time");
@@ -1471,7 +1449,6 @@
                 widget.query_data['period'] = 'date-search';
                 widget.query_data['time_span'] = end - start;
             } else {
-                console.log('span search - getting start and end times');
                 end = new Date.now().getTime();
                 end = parseInt(end / 1000);
                 var span = parseInt($(input_time_span).attr('data-ms'));
@@ -1803,11 +1780,9 @@
                     var past_query = {};
                     past_query['query_data'] = $.extend(true, {}, widget.query_data);
                     var query_span = parseInt(widget.query_data.end_time) - parseInt(widget.query_data.start_time);
-                    console.log("query span: " + query_span);
                     past_query.query_data.end_time = parseInt(widget.query_data.end_time - 604800);
                     past_query.query_data.start_time = past_query.query_data.end_time - query_span;
                     past_query.query_data.previous = true;
-                    console.log(past_query);
                     return $.ajax({
                         url: window.location.origin + "/api/datasource/opentsdb/search",
                         type: 'POST',
@@ -1867,7 +1842,6 @@
 
             var query_data = {};
             query_data['query_data'] = widget.query_data;
-            console.log(query_data);
             var metric_data = {};
             var data_for_detection = [];
 
@@ -1890,7 +1864,6 @@
                 else {
                     metric_data = data;
                     data_for_detection = {query_data: widget.query_data, ts_data: metric_data};
-                    console.log(data_for_detection);
                     status.html('<p>Calculating anomalies</p>');
 //                    return ['error', ['0', 'testing']];
                     return $.ajax({
@@ -1942,7 +1915,6 @@
             }
 
             status.html('<p>Parsing Metric Data</p>');
-            console.log(data);
 
             var graph_data = [];
             graph_data.legend_map = data.legend;
@@ -2313,8 +2285,6 @@
                     .style('font-size', '.71em')
                     .style('text-shadow', '2px 2px 2px #000');
 
-                widget.sw_opentsdbwidget_graphdiv.tooltip({selector: 'circle.dot', trigger: 'manual'});
-
                 var bisect = d3.bisector(function(d) { return d.date; }).left;
 
                 if (Object.keys(widget.graph.legend_map).length > 9) {
@@ -2457,9 +2427,11 @@
                             widget.graph.x.domain(widget.graph.x_master_domain);
                             widget.graph.y.domain(widget.graph.y_master_domain);
                             widget.resize_graph();
-                            widget.autoupdate_timer = setTimeout(function() {
-                                widget.update_graph('line');
-                            }, 300 * 1000);
+                            if (widget.query_data['auto_update']) {
+                                widget.autoupdate_timer = setTimeout(function() {
+                                    widget.update_graph('line');
+                                }, 300 * 1000);
+                            }
                         }
                         else {
                             widget.graph.x.domain([widget.graph.brush.extent()[0][0], widget.graph.brush.extent()[1][0]]);
@@ -2473,7 +2445,9 @@
                                 .style('pointer-events', 'none');
                             widget.graph.zoombox.selectAll('g')
                                 .style('display', 'none');
-                            clearTimeout(widget.autoupdate_timer);
+                            if (typeof widget.autoupdate_timer !== "undefined") {
+                                clearTimeout(widget.autoupdate_timer);
+                            }
                         }
                     });
 
