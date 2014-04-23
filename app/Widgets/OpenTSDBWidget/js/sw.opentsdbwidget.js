@@ -704,8 +704,9 @@
                 '<div class="tab-content" id="tab-content' + widget_num + '"></div><ul class="nav nav-tabs" id="tab-list' + widget_num + '"></ul></div>');
 
             var add_metric_button_id = 'add-metric-button' + widget_num;
-            widget.sw_opentsdbwidget_querycancelbutton.after('<div id="' + add_metric_button_id + '">');
-            $('#' + add_metric_button_id).addClass('widget-footer-button left-button')
+
+            $('#tab-list' + widget_num).append('<li id="' + add_metric_button_id + '" class="add-tab"><span class="elegant-icons icon-plus"></span></li>');
+            $('#' + add_metric_button_id)
                 .click(function() {
                     widget.metric_count = widget.add_tab(widget.metric_count, widget_num);
                     $('input[name="metric' + widget_num + '-' + widget.metric_count + '"]').autocomplete({
@@ -718,8 +719,7 @@
                     if (widget.metric_count == 6) {
                         $(this).addClass('hidden');
                     }
-                })
-                .append('<span class="elegant-icons icon-plus"></span><span class="font-reset"> Add Metric</span>');
+                });
 
             var auto_update = $(widget_element).find('div.auto-update').children('div.push-button');
             $(auto_update).children('input').attr('id', 'auto-update-button' + widget_num);
@@ -866,6 +866,9 @@
 
             $(widget.sw_opentsdbwidget_backmain).on('click', '.tab-close', function() {
                 widget.close_tab($(this).attr('data-tab-number'));
+                if ($('#' + add_metric_button_id).hasClass('hidden')) {
+                    $('#' + add_metric_button_id).removeClass('hidden');
+                }
             });
 
             $(form_div).on('click', '.push-button', function() {
@@ -958,7 +961,8 @@
                 $('input#lerp-button' + tab_tag).prop('checked', true);
             }
 
-            tab_list.append('<li id="nav-tab' + tab_tag + '"><a href="#tab' + tab_tag + '" data-toggle="tab">Metric ' + tab_num + '</a></li>');
+            $('<li id="nav-tab' + tab_tag + '" class="nav-tab"><a href="#tab' + tab_tag + '" data-toggle="tab">Metric ' + tab_num + '</a></li>')
+                .insertBefore($('#add-metric-button' + widget_num));
             $('#' + tab_list.attr('id') + ' a[href="#tab' + tab_tag + '"]').click(function(event) {
                 event.preventDefault();
                 $(this).tab('show');
@@ -993,7 +997,7 @@
             });
 
             $('#tab-content' + widget.uuid).children('.tab-pane:last-child').addClass('active');
-            $('#tab-list' + widget.uuid).children('li:last-child').addClass('active');
+            $('#tab-list' + widget.uuid).children('li#nav-tab' + widget.uuid + '-' + tab_count).addClass('active');
 
             widget.metric_count = tab_count;
 
