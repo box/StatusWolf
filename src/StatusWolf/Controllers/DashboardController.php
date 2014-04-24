@@ -15,6 +15,7 @@ use Silex\Application;
 use Silex\ControllerProviderInterface;
 use StatusWolf\Security\User\SWUser;
 use Symfony\Component\Security\Http\HttpUtils;
+use Symfony\Component\HttpFoundation\Request;
 
 class DashboardController implements ControllerProviderInterface {
 
@@ -50,7 +51,7 @@ class DashboardController implements ControllerProviderInterface {
             ));
         })->bind('dashboard_home');
 
-        $controllers->get('/{id}', function(Application $sw, $id) {
+        $controllers->get('/{id}', function(Application $sw, Request $request, $id) {
             $user_token = $sw['security']->getToken();
             $user = $user_token->getUser();
             $username = $user instanceof SWUser ? $user->getUsername() : $user;
@@ -58,6 +59,12 @@ class DashboardController implements ControllerProviderInterface {
             $user_id = $user instanceof SWUser ? $user->getId() : '0';
             $widgets = $sw['get_widgets'];
             $widgets_json = json_encode($widgets);
+            $query_data = $request->query->all();
+            if (count($query_data) > 0) {
+                $opentsdb_tags = json_encode($query_data);
+            } else {
+                $opentsdb_tags = null;
+            }
             return $sw['twig']->render('dashboard.html', array(
                 'username' => $username,
                 'fullname' => $fullname,
@@ -76,6 +83,7 @@ class DashboardController implements ControllerProviderInterface {
                 'widgets' => $widgets,
                 'widgets_json' => $widgets_json,
                 'dashboard_id' => $id,
+                'opentsdb_tags' => $opentsdb_tags,
             ));
         })->bind('dashboard_load');
 
