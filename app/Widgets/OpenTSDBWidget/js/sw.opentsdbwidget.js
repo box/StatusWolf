@@ -1777,7 +1777,7 @@
                     delete current_data.end;
                     metric_data.query_url = current_data.query_url;
                     delete current_data.query_url;
-                    current_keys = Object.keys(current_data)
+                    current_keys = Object.keys(current_data);
                     current_key = 'Current - ' + current_keys[0];
                     metric_data.legend = {};
                     metric_data.legend[current_key] = current_key;
@@ -1823,7 +1823,7 @@
                         metric_data[past_key] = past_data[past_keys[0]];
                         delete past_data;
                         $.each(metric_data[past_key], function(index, entry) {
-                            entry.timestamp = parseInt(entry.timestamp + 604800);
+                            entry.timestamp = parseInt(entry.timestamp) + 604800;
                         });
                         delete widget.ajax_request;
                         widget.ajax_object.resolve(metric_data);
@@ -2233,7 +2233,7 @@
                     widget.graph.y1.domain([
                         0, (d3.max(widget.graph.data_right, function(d) {
                             return d3.max(d.values, function(v) {
-                                return v.value;
+                                return parseFloat(v.value);
                             })
                         }) * 1.05)
                     ]);
@@ -2726,7 +2726,7 @@
                                 widget.graph.y.domain([
                                     0, (d3.max(widget.graph.data_left, function(d) {
                                         return d3.max(d.values, function(v) {
-                                            return v.value;
+                                            return parseFloat(v.value);
                                         })
                                     }) * 1.05)
                                 ]);
