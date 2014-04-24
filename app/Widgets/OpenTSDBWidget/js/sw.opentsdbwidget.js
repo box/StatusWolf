@@ -2856,25 +2856,19 @@
         show_graph_data: function() {
             var widget = this;
             var table_data = [];
-            if (widget.graph.data_left.length > 0) {
-                $.each(widget.graph.data_left, function(i, metric) {
+            $('body').append('<div id="raw-data" class="popup mfp-hide">' +
+                '<table id="raw-data-table" class="table"></table></div>');
+            if (widget.graph.raw_data.length > 0) {
+                $.each(widget.graph.raw_data, function(i, metric) {
                     $.each(metric.values, function(i, point_data) {
-                        table_data.push([metric.name, point_data.date, point_data.timestamp, point_data.value, metric.axis]);
-                    });
-                });
-            }
-            if (typeof widget.graph.data_right !== "undefined") {
-                $.each(widget.graph.data_right, function(i, metric) {
-                    $.each(metric.values, function(i, point_data) {
-                        table_data.push([metric.name, point_data.date, point_data.timestamp, point_data.value, metric.axis]);
-                    });
-                });
+                        table_data.push([metric.name, point_data.timestamp, point_data.value, metric.axis]);
+                    })
+                })
             }
             $('#raw-data-table').dataTable({
                 'aaData': table_data,
                 'aoColumns': [
                     {'sTitle': 'Metric Name'},
-                    {'sTitle': 'Time'},
                     {'sTitle': 'Timestamp'},
                     {'sTitle': 'Value'},
                     {'sTitle': 'Display Axis'}
@@ -2896,7 +2890,7 @@
                     },
                     open: function() {
                         $('span.raw-data-export-csv-button').click(function() {
-                            var raw_data_csv = 'Metric Name, Time, Timestamp, Value, Display Axis\n';
+                            var raw_data_csv = 'Metric Name, Timestamp, Value, Display Axis\n';
                             $.each(table_data, function(i, line) {
                                 raw_data_csv += line.join(',') + '\n';
                             });
@@ -2911,7 +2905,7 @@
         },
         reset_data_table: function() {
             $('#raw-data-table').dataTable().fnDestroy();
-            $('#raw-data').empty().append('<table id="raw-data-table" class="table"></table>');
+            $('#raw-data').remove();
 
         }
     })
