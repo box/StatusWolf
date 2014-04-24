@@ -316,7 +316,6 @@
         },
         maximize_widget: function() {
             var widget = this;
-            widget.sw_opentsdbwidget_frontmain.addClass('hidden');
             if ($(widget.sw_opentsdbwidget_container).hasClass('maximize-widget')) {
                 $(widget.sw_opentsdbwidget_container).removeClass('maximize-widget');
                 $(widget.sw_opentsdbwidget_container).addClass('cols-' + document._session.dashboard_columns);
@@ -326,7 +325,6 @@
                 if (typeof widget.svg !== "undefined") {
                     setTimeout(function() {
                         widget.resize_graph();
-                        widget.sw_opentsdbwidget_frontmain.removeClass('hidden');
                     }, 350);
                 }
             }
@@ -340,7 +338,6 @@
                 if (typeof widget.svg !== "undefined") {
                     setTimeout(function() {
                         widget.resize_graph();
-                        widget.sw_opentsdbwidget_frontmain.removeClass('hidden');
                     }, 350);
                 }
             }
@@ -387,18 +384,6 @@
                 .attr('text-anchor', 'middle')
                 .text(widget.query_data.title);
             widget.format_graph_title();
-            var dots = widget.svg.selectAll('.dots');
-            dots.selectAll('.dot')
-                .attr('cx', function(d) {
-                    return widget.graph.x(d.date);
-                })
-                .attr('cy', function(d) {
-                    if (d3.select(this).attr('data-axis') === "right") {
-                        return widget.graph.y1(d.value);
-                    } else {
-                        return widget.graph.y(+d.value);
-                    }
-                });
             if (widget.query_data['history_graph'] === "anomaly") {
                 widget.svg.selectAll('.anomaly-bars').selectAll('rect')
                     .attr('x', function(d) {
@@ -409,6 +394,26 @@
                         return (widget.graph.x(d.end_time) - widget.graph.x(d.start_time));
                     });
             }
+            $.each(widget.graph.raw_data, function(s, d) {
+                widget.graph.data_left = [];
+                if (typeof widget.graph.data_right !== "undefined") {
+                    widget.graph.data_right = [];
+                }
+                var line_values;
+                if (widget.query_data.metrics[d.search_key].ds_type) {
+                    line_values = widget.downsample_series(d.values, widget.graph.width * 0.5);
+                }
+                $.each(line_values, function(v) {
+                    line_values[v]['date'] = new Date(line_values[v]['timestamp'] * 1000);
+                });
+                if (d.axis === "right") {
+                    widget.graph.right_axis = true;
+                    widget.graph.data_right.push({axis: d.axis, name: d.name, search_key: d.search_key, values: line_values});
+                }
+                else {
+                    widget.graph.data_left.push({axis: d.axis, name: d.name, search_key: d.search_key, values: line_values});
+                }
+            });
             var metric = widget.svg.selectAll('.metric.left');
             metric.selectAll('path')
                 .attr('d', function(d) {
@@ -915,41 +920,17 @@
                 '<div class="push-button" style="margin-top: 10px; width: 95%;">' +
                 '<input type="checkbox" id="y2-button' + tab_tag + '" name="y2-' + tab_tag + '">' +
                 '<label for="y2-button' + tab_tag + '"><span class="elegant-icons icon-close-alt red"></span>' +
-                '<span class="binary-label">Right Axis</span></label></div></div></td><td></td></tr>' +
+                '<span class="binary-label">Right Axis</span></label></div></div></td>' +
+                '<td><div class=""widget-form-item menu-label" style="min-width: 155px;">' +
+                '<div class="push-button pushed" style="margin-top: 10px;">' +
+                '<input type="checkbox" id="ds-button' + tab_tag + '" name="ds-' + tab_tag + '" checked="Checked">' +
+                '<label for="ds-button' + tab_tag + '"><span class="elegant-icons icon-check-alt green"></span>' +
+                '<span class="binary-label">Downsample</span></label></div></div></td></tr>' +
                 '<tr><td><div class="widget-form-item menu-label" style="min-width: 155px;">' +
                 '<div class="push-button info-tooltip-right" style="margin-top: 10px; width: 95%;" title="If selected, timestamp buckets with no data will be displayed as 0, otherwise they\'ll be skipped over.">' +
                 '<input type="checkbox" id="null-zero-button' + tab_tag + '" name="null-zero' + tab_tag + '">' +
                 '<label for="null-zero-button' + tab_tag + '"><span class="elegant-icons icon-close-alt red"></span>' +
-                '<span class="binary-label">Treat Null As Zero</span></label></div></td>' +
-                '<td><div class="widget-form-item menu-label info-tooltip-right" id="downsample' + tab_tag + '" style="margin-right: 0;"' +
-                ' title="Be aware that if you set downsampling to None for time periods of more than 30 minutes you' +
-                ' will be pulling in more datapoints than will actually fit in the pixel width of your graph, and' +
-                ' that your browser will be very, very unhappy if your search returns too many data points (usually' +
-                ' in the neighborhood of 5,000 or more)">' +
-                '<h4>Downsampling</h4>' +
-                '<div class="dropdown sw-button">' +
-                '<span data-toggle="dropdown">' +
-                '<div class="widget-button-label" id="active-downsample-type' + tab_tag + '">Sum</div>' +
-                '<span class="dropdown-arrow-container"><span class="elegant-icons arrow-triangle-down"></span></span></span>' +
-                '<ul class="dropdown-menu" id="downsample-type-options' + tab_tag + '" role="menu" aria-labelledby="dLabel">' +
-                '<li data-action="set-ds-type"><span>Sum</span></li>' +
-                '<li data-action="set-ds-type"><span>Average</span></li>' +
-                '<li data-action="set-ds-type"><span>Minimum Value</span></li>' +
-                '<li data-action="set-ds-type"><span>Maximum Value</span></li>' +
-                '<li data-action="set-ds-type"><span>Standard Deviation</span></li>' +
-                '<li data-action="set-ds-type"><span>None</span></li></ul></div>' +
-                '<div class="dropdown sw-button">' +
-                '<span data-toggle="dropdown">' +
-                '<div class="widget-button-label ds-interval" id="active-downsample-interval' + tab_tag + '" data-value="1">1 minute</div>' +
-                '<span class="dropdown-arrow-container"><span class="elegant-icons arrow-triangle-down"></span></span></span>' +
-                '<ul class="dropdown-menu ds-values" id="downsample-interval-options' + tab_tag + '" role="menu" aria-labelledby="dLabel">' +
-                '<li data-action="set-ds-span"><span data-value="1">1 minute</span></li>' +
-                '<li data-action="set-ds-span"><span data-value="10">10 minutes</span></li>' +
-                '<li data-action="set-ds-span"><span data-value="30">30 minutes</span></li>' +
-                '<li data-action="set-ds-span"><span data-value="60">1 hour</span></li>' +
-                '<li data-action="set-ds-span"><span data-value="240">4 hours</span></li>' +
-                '<li data-action="set-ds-span"><span data-value="720">12 hours</span></li>' +
-                '<li data-action="set-ds-span"><span data-value="1440">1 day</span></li></ul></div></div></td></tr>' +
+                '<span class="binary-label">Treat Null As Zero</span></label></div></td><td></td></tr>' +
                 '<tr><td><div id="lerp-button-container" class="hidden widget-form-item menu-label" style="min-width: 155px;">' +
                 '<div class="push-button info-tooltip-right" style="margin-top: 10px; width: 95%;" title="Interpolation should be disabled unless you are absolutely sure that you need it.">' +
                 '<input type="checkbox" id="lerp-button' + tab_tag + '" name="lerp' + tab_tag + '">' +
@@ -1140,7 +1121,7 @@
             var widget = this;
             var prompt_user = false;
             var widget_num = widget.uuid;
-            $(widget.sw_opentsdbwidget_containerid + ' ul.nav-tabs').empty();
+            $(widget.sw_opentsdbwidget_containerid + ' ul.nav-tabs').children('li.nav-tab').remove();
             $(widget.sw_opentsdbwidget_containerid + ' div.tab-content').empty();
             widget.metric_count = widget.add_tab(0, widget.uuid);
             if (typeof force_prompt_user !== "undefined") {
@@ -1306,8 +1287,6 @@
                 }
                 $('input[name="metric' + widget_num + '-' + metric_num + '"]').val(metric_string);
                 $('#active-aggregation-type' + widget_num + '-' + metric_num).text(method_map[metric.agg_type]);
-                $('#active-downsample-type' + widget_num + '-' + metric_num).text(method_map[metric.ds_type]);
-                $('#downsample-interval-options' + widget_num + '-' + metric_num + ' li span[data-value="' + metric.ds_interval + '"]').parent('li').click();
 
                 var lerp_input = $('input#lerp-button' + widget_num + '-' + metric_num);
                 if (metric.lerp && metric.lerp !== "false") {
@@ -1371,6 +1350,21 @@
                         null_zero_input.prop('checked', false).attr('checked', null);
                     }
                 }
+
+                var ds_input = $('input#ds-button' + widget_num + '-' + metric_num);
+                if (metric.ds_type && metric.ds_type !== "false") {
+                    ds_input.parent('.push-button').addClass('pushed');
+                    ds_input.siblings('label').children('span.elegant-icons').addClass('icon-check-alt green').removeClass('icon-close-alt red');
+                    if (!ds_input.prop('checked')) {
+                        ds_input.prop('checked', true).attr('checked', 'Checked');
+                    }
+                } else {
+                    ds_input.parent('.push_button').removeClass('pushed');
+                    ds_input.siblings('label').children('span.elegant-icons').addClass('icon-close-alt red').removeClass('icon-check-alt green');
+                    if (ds_input.prop('checked')) {
+                        ds_input.prop('checked', false).attr('checked', null);
+                    }
+                }
             });
 
             if (prompt_user) {
@@ -1396,6 +1390,10 @@
 
             $('#graph-title' + widget_num).empty();
             $('#legend' + widget_num).empty();
+            if (typeof widget.svg !== "undefined") {
+                delete(widget.svg);
+            }
+            widget.sw_opentsdbwidget_graphdiv.empty();
 
             if (typeof widget.autoupdate_timer !== "undefined") {
                 clearTimeout(widget.autoupdate_timer);
@@ -1498,14 +1496,14 @@
                         }
                     }
                     var agg_type = $('#active-aggregation-type' + widget_num + '-' + i).text().toLowerCase();
-                    var ds_type = $('#active-downsample-type' + widget_num + '-' + i).text().toLowerCase();
+//                    var ds_type = $('#active-downsample-type' + widget_num + '-' + i).text().toLowerCase();
                     build_metric.agg_type = methods[agg_type];
-                    build_metric.ds_type = methods[ds_type];
-                    build_metric.ds_interval = $('#active-downsample-interval' + widget_num + '-' + i).attr('data-value');
-                    if ((widget.query_data['downsample_master_interval'] < 1) || (build_metric.ds_interval > widget.query_data['downsample_master_interval'])) {
-                        widget.query_data['downsample_master_interval'] = build_metric.ds_interval;
-                    }
-
+//                    build_metric.ds_type = methods[ds_type];
+//                    build_metric.ds_interval = $('#active-downsample-interval' + widget_num + '-' + i).attr('data-value');
+//                    if ((widget.query_data['downsample_master_interval'] < 1) || (build_metric.ds_interval > widget.query_data['downsample_master_interval'])) {
+//                        widget.query_data['downsample_master_interval'] = build_metric.ds_interval;
+//                    }
+//
                     if ($('#rate-button' + widget_num + '-' + i).prop('checked')) {
                         build_metric.rate = true;
                     }
@@ -1518,6 +1516,9 @@
                     }
                     if ($('#null-zero-button' + widget_num + '-' + i).prop('checked')) {
                         build_metric.null_zero = true;
+                    }
+                    if ($('#ds-button' + widget_num + '-' + i).prop('checked')) {
+                        build_metric.ds_type = true;
                     }
 
                     var search_key = md5(JSON.stringify(build_metric));
@@ -1552,11 +1553,7 @@
                         build_metric.tags = metric_bits;
                     }
                     var agg_type = $('#active-aggregation-type' + widget_num + '-1').text().toLowerCase();
-                    var ds_type = $('#active-downsample-type' + widget_num + '-1').text().toLowerCase();
                     build_metric.agg_type = methods[agg_type];
-                    build_metric.ds_type = methods[ds_type];
-                    build_metric.ds_interval = $('#active-downsample-interval' + widget_num + '-1').attr('data-value');
-                    widget.query_data['downsample_master_interval'] = build_metric.ds_interval;
 
                     if ($('#rate-button' + widget_num + '-1').prop('checked')) {
                         build_metric.rate = true;
@@ -1574,6 +1571,10 @@
                         build_metric.null_zero = true;
                     }
 
+                    if ($('#ds-button' + widget_num + '-1').prop('checked')) {
+                        build_metric.ds_type = true;
+                    }
+
                     var search_key = md5(JSON.stringify(build_metric));
                     widget.query_data.metrics[search_key] = (build_metric);
                 }
@@ -1583,9 +1584,6 @@
             // If we made it this far without errors in the form input, then
             // we build us a graph
             if (input_error == false) {
-                widget.sw_opentsdbwidget_graphdiv.empty();
-                // Clear the graph legend
-                $('#legend' + widget_num).empty();
                 // Load the waiting spinner
                 widget.sw_opentsdbwidget_graphdiv.append('<div class="spinner" id="spinner' + widget_num + '">' +
                     '<div class="spinner-holder elegant-icons icon-loading"></div></div>');
@@ -2009,6 +2007,88 @@
             return parse_object.promise();
 
         },
+        /**
+         * Auto Downsampling in StatusWolf is accomplished using an algorithm
+         * called Largest-Triangle-Three-Buckets, as described in a Master's
+         * thesis by Sveinn Steinarsson at the University of Iceland.
+         * See http://hdl.handle.net/1946/15343 and
+         * https://github.com/sveinn-steinarsson/flot-downsample
+         *
+         */
+        downsample_series: function(data, threshold) {
+
+            console.log('downsampling');
+
+            var data_length = data.length;
+            console.log('data_length: ' + data_length);
+            console.log('threshold: ' + threshold);
+
+            if (threshold >= data_length || threshold === 0) {
+                return data;
+            }
+
+            var downsampled = [],
+                downsampled_index = 0;
+
+            var bucket = (data_length - 2) / (threshold - 2);
+            console.log('bucket: ' + bucket);
+
+            var point = 0,
+                max_area_point,
+                max_area,
+                area,
+                next_point;
+
+            downsampled[downsampled_index++] = data[point];
+
+            for (var i = 0; i < threshold - 2; i++) {
+
+                var avg_x = 0,
+                    avg_y = 0,
+                    avg_range_start = Math.floor((i + 1) * bucket) + 1,
+                    avg_range_end = Math.floor((i + 2) * bucket) + 1;
+
+                avg_range_end = avg_range_end < data_length ? avg_range_end : data_length;
+
+                var avg_range_length = avg_range_end - avg_range_start;
+
+                for (; avg_range_start < avg_range_end; avg_range_start++) {
+                    avg_x += data[avg_range_start].timestamp * 1;
+                    avg_y += data[avg_range_start].value * 1;
+                }
+                avg_x /= avg_range_length;
+                avg_y /= avg_range_length;
+
+                var range_offs = Math.floor((i + 0) * bucket) + 1,
+                    range_to = Math.floor((i + 1) * bucket) + 1;
+                    range_to = range_to < data_length ? range_to : data.length;
+
+                var point_x = data[point].timestamp * 1,
+                    point_y = data[point].value;
+
+                max_area = area = -1;
+
+                for (; range_offs < range_to ; range_offs++) {
+                    area = Math.abs((point_x - avg_x) * (data[range_offs].value - point_y) -
+                        (point_x - data[range_offs].timestamp) * (avg_y - point_y) * 0.5);
+                    if (area > max_area) {
+                        max_area = area;
+                        max_area_point = data[range_offs];
+                        next_point = range_offs;
+                    }
+                }
+
+                downsampled[downsampled_index++] = max_area_point;
+                point = next_point;
+            }
+
+            downsampled[downsampled_index++] = data[data_length - 1];
+
+            return downsampled;
+
+//            console.log(downsampled);
+
+        },
         build_graph: function(data, type) {
 
             var widget = this;
@@ -2022,41 +2102,47 @@
             }
             widget.graph.autoupdate_interval = widget.query_data.downsample_master_interval > 1 ? widget.query_data.downsample_master_interval * 60 : 300;
 
-            widget.graph.data_left = [];
-            widget.graph.data_right = [];
-            $.each(data, function(s, d) {
-                $.each(d.values, function(v) {
-                    d.values[v]['date'] = new Date(d.values[v]['timestamp'] * 1000);
-                });
-                if (d.axis === "right") {
-                    widget.graph.right_axis = true;
-                    widget.graph.data_right.push(d);
-                }
-                else {
-                    widget.graph.data_left.push(d);
-                }
-            });
-
-            widget.graph.margin = {top: 0, right: 5, bottom: 20, left: 45};
-
-            if (widget.graph.right_axis == true) {
-                widget.graph.margin.right = 55;
-            } else {
-                delete(widget.graph.data_right);
-            }
-            delete(data);
-
             var graphdiv = widget.sw_opentsdbwidget_graphdiv.empty();
             var graphdiv_offset = graphdiv.position().top;
             var legend = widget.sw_opentsdbwidget_legendbox.children('div.legend');
-
             widget.sw_opentsdbwidget_frontmain.css('height', widget.sw_opentsdbwidget.innerHeight());
             graphdiv.css('height', (widget.sw_opentsdbwidget_frontmain.innerHeight() - (widget.sw_opentsdbwidget_frontmain.children('.legend-container').outerHeight(true) + graphdiv_offset)));
             widget.sw_opentsdbwidget_legendbox.css('width', widget.sw_opentsdbwidget_frontmain.innerWidth())
                 .removeClass('hidden');
 
+            widget.graph.margin = {top: 0, right: 5, bottom: 20, left: 45};
             widget.graph.width = (graphdiv.innerWidth() - widget.graph.margin.left - widget.graph.margin.right);
             widget.graph.height = (graphdiv.innerHeight() - widget.graph.margin.top - widget.graph.margin.bottom);
+
+            widget.downsample_series(data[0].values, widget.graph.width * 0.5);
+            widget.graph.raw_data = data;
+            delete(data);
+
+            widget.graph.data_left = [];
+            widget.graph.data_right = [];
+            $.each(widget.graph.raw_data, function(s, d) {
+                var line_values;
+                if (widget.query_data.metrics[d.search_key].ds_type) {
+                    line_values = widget.downsample_series(d.values, widget.graph.width * 0.5);
+                }
+                $.each(line_values, function(v) {
+                    line_values[v]['date'] = new Date(line_values[v]['timestamp'] * 1000);
+                });
+                if (d.axis === "right") {
+                    widget.graph.right_axis = true;
+                    widget.graph.data_right.push({axis: d.axis, name: d.name, search_key: d.search_key, values: line_values});
+                }
+                else {
+                    widget.graph.data_left.push({axis: d.axis, name: d.name, search_key: d.search_key, values: line_values});
+                }
+            });
+
+            if (widget.graph.right_axis == true) {
+                widget.graph.margin.right = 55;
+                widget.graph.width = (graphdiv.innerWidth() - widget.graph.margin.left - widget.graph.margin.right);
+            } else {
+                delete(widget.graph.data_right);
+            }
 
             widget.svg = d3.select('#' + graphdiv.attr('id')).append('svg')
                 .attr('width', graphdiv.innerWidth())
@@ -2250,8 +2336,6 @@
 
                 var point_format = d3.format('.2f');
 
-//                widget.add_graph_dots();
-
                 var dot_data = widget.graph.right_axis ? widget.graph.data_left.concat(widget.graph.data_right) : widget.graph.data_left;
                 widget.graph.dots = widget.svg.g.append('g')
                     .attr('class', 'dot-container')
@@ -2309,12 +2393,13 @@
 
                 $.each(widget.graph.legend_map, function(series, label) {
                     var item_color = widget.graph.color(widget.graph.legend_map[series]);
-                    legend.append('<span title="' + label + '" style="color: ' + item_color + '">' + label + '</span>');
+                    legend.append('<span title="' + label + '" class="legend-title" style="color: ' + item_color + '">' + label + '</span>');
                     var name_span = legend.children('span[title="' + label + '"]');
                     if (widget.graph.right_axis == true) {
-                        $(name_span).prepend('<span class="iconic iconic-play" style="font-size: .75em"></span> ');
                         if (!d3.select('.metric path[data-name="' + label + '"]').classed('right')) {
-                            $(name_span).children('.iconic').addClass('rotate-180');
+                            $(name_span).prepend('<span class="elegant-icons arrow-triangle-left" style="font-size: .75em"></span>');
+                        } else {
+                            $(name_span).prepend('<span class="elegant-icons arrow-triangle-right" style="font-size: .75em"></span>');
                         }
                     }
                 });

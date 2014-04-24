@@ -256,7 +256,7 @@
   margin: 0 auto;
 }
 /* line 228, ../sass/sw.opentsdbwidget.scss */
-.widget-container.opentsdb-widget .legend span {
+.widget-container.opentsdb-widget .legend span.legend-title {
   display: block;
 }
 /* line 233, ../sass/sw.opentsdbwidget.scss */

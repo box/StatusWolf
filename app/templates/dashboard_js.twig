@@ -146,12 +146,18 @@
                     done: function(data) {}
                 });
                 if ($('.widget-container').length > 0) {
-                    $.each($('.widget-container'), function(i, widget) {
+                    $.each($('.widget-container'), function(i, widget_element) {
                         $('.widget-container')
                             .removeClass('cols-1')
                             .removeClass('cols-2')
                             .removeClass('cols-3')
                             .addClass('cols-' + document._session.dashboard_columns);
+                        var widget_object = $(widget_element).data('sw-' + $(widget_element).attr('data-widget-type'));
+                        if (typeof widget_object.svg !== "undefined") {
+                            setTimeout(function() {
+                                widget_object.resize_graph();
+                            }, 350);
+                        }
                     });
                 }
             }

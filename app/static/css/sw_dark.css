@@ -1293,6 +1293,7 @@ button.mfp-close {
   position: absolute;
   left: 0;
   padding: 0;
+  overflow: hidden;
 }
 
 @font-face {
@@ -1340,71 +1341,76 @@ button.mfp-close {
 }
 
 /* line 41, ../sass/_fonts.scss */
+.arrow-triangle-left:before {
+  content: "\44";
+}
+
+/* line 45, ../sass/_fonts.scss */
 .arrow-triangle-right:before {
   content: "\45";
 }
 
-/* line 45, ../sass/_fonts.scss */
+/* line 49, ../sass/_fonts.scss */
 .arrow-triangle-up:before {
   content: "\42";
 }
 
-/* line 49, ../sass/_fonts.scss */
+/* line 53, ../sass/_fonts.scss */
 .icon-calendar:before {
   content: "\e023";
 }
 
-/* line 53, ../sass/_fonts.scss */
+/* line 57, ../sass/_fonts.scss */
 .icon-check:before {
   content: "\4e";
 }
 
-/* line 57, ../sass/_fonts.scss */
+/* line 61, ../sass/_fonts.scss */
 .icon-check-alt:before {
   content: "\e052";
 }
 
-/* line 61, ../sass/_fonts.scss */
+/* line 65, ../sass/_fonts.scss */
 .icon-close:before {
   content: "\4d";
 }
 
-/* line 65, ../sass/_fonts.scss */
+/* line 69, ../sass/_fonts.scss */
 .icon-close-alt:before {
   content: "\e051";
 }
 
-/* line 69, ../sass/_fonts.scss */
+/* line 73, ../sass/_fonts.scss */
 .icon-cog:before {
   content: "\e037";
 }
 
-/* line 73, ../sass/_fonts.scss */
+/* line 77, ../sass/_fonts.scss */
 .icon-error-triangle:before {
   content: "\e063";
 }
 
-/* line 77, ../sass/_fonts.scss */
+/* line 81, ../sass/_fonts.scss */
 .icon-loading:before {
   content: "\e02d";
 }
 
-/* line 81, ../sass/_fonts.scss */
+/* line 85, ../sass/_fonts.scss */
 .icon-minus-alt2:before {
   content: "\4f";
 }
 
-/* line 85, ../sass/_fonts.scss */
+/* line 89, ../sass/_fonts.scss */
 .icon-plus:before {
   content: "\4c";
 }
 
-/* line 89, ../sass/_fonts.scss */
+/* line 93, ../sass/_fonts.scss */
 .icon-plus-alt2:before {
   content: "\50";
 }
 
-/* line 93, ../sass/_fonts.scss */
+/* line 97, ../sass/_fonts.scss */
 .icon-profile:before {
   content: "\e08a";
 }

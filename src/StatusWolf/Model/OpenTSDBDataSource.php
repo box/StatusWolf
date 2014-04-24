@@ -293,20 +293,6 @@ class OpenTSDBDataSource implements TimeSeriesDataInterface {
                 $metric_keys[$query_key] = $metric['name'];
                 $query_bits['key'] = $query_bits['key'] . $query_key;
 
-                // Downsampling interval
-                if (array_key_exists('ds_interval', $metric)) {
-                    $downsample_interval[$metric['name']] = $metric['ds_interval'];
-                } else {
-                    $downsample_interval[$metric['name']] = $this->downsample_interval;
-                }
-
-                // Downsampling type
-                if (array_key_exists('ds_type', $metric)) {
-                    $downsample_type[$metric['name']] = $metric['ds_type'];
-                } else {
-                    $downsample_type[$metric['name']] = $this->downsample_type;
-                }
-
                 // Treat null as zero setting
                 if (array_key_exists('null_zero', $metric)) {
                     $null_as_zero[$metric['name']] = $metric['null_zero'];
@@ -402,28 +388,7 @@ class OpenTSDBDataSource implements TimeSeriesDataInterface {
             ));
             array_multisort($series_timestamps, SORT_ASC, $series_values, SORT_ASC, $incoming_data);
 
-            if ($downsample_type[$series_metric] !== "none") {
-                $this->sw['logger']->addDebug(
-                    sprintf("Calling downsampler, interval: %d method: %s",
-                        $downsample_interval[$series_metric],
-                        $downsample_type[$series_metric]
-                    )
-                );
-                $downsampler = new TimeSeriesDownsample($this->sw, @$this, $downsample_interval[$series_metric], $downsample_type[$series_metric], $null_as_zero[$series_metric]);
-                $this->sw['logger']->addDebug(sprintf("Downsampling data, start: %s, end: %s", $this->start_timestamp, $this->end_timestamp));
-                $downsampling_timer_start = time();
-                $graph_data[$series] = $downsampler->downsample($incoming_data, $this->start_timestamp, $this->end_timestamp);
-                $downsampling_timer_end = time();
-                $downsampling_time = $downsampling_timer_end - $downsampling_timer_start;
-                $this->sw['logger']->addDebug(sprintf("Downsampling completed in %d seconds", $downsampling_time));
-                $this->sw['logger']->addDebug(sprintf(
-                    "%d incoming data points downsampled to %d buckets",
-                    count($incoming_data),
-                    count($graph_data[$series])
-                ));
-            } else {
-                $graph_data[$series] = $incoming_data;
-            }
+            $graph_data[$series] = $incoming_data;
         }
 
         $this->opentsdb_data = $graph_data;
