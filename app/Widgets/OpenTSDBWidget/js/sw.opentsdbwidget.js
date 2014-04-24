@@ -394,11 +394,11 @@
                         return (widget.graph.x(d.end_time) - widget.graph.x(d.start_time));
                     });
             }
+            widget.graph.data_left = [];
+            if (typeof widget.graph.data_right !== "undefined") {
+                widget.graph.data_right = [];
+            }
             $.each(widget.graph.raw_data, function(s, d) {
-                widget.graph.data_left = [];
-                if (typeof widget.graph.data_right !== "undefined") {
-                    widget.graph.data_right = [];
-                }
                 var line_values;
                 if (widget.query_data.metrics[d.search_key].ds_type) {
                     line_values = widget.downsample_series(d.values, widget.graph.width * 0.5);
