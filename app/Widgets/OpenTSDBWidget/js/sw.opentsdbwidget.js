@@ -720,8 +720,10 @@
                         minChars: 2,
                         serviceUrl: window.location.origin + '/api/datasource/opentsdb/suggest_metrics',
                         containerClass: 'autocomplete-suggestions dropdown-menu',
+                        appendTo: '#metric-options' + widget_num + '-' + widget.metric_count + ' .metric-input-textbox',
                         zIndex: '',
-                        maxHeight: ''
+                        maxHeight: '300',
+                        width: 300
                     });
                     if (widget.metric_count == 6) {
                         $(this).addClass('hidden');
