@@ -402,6 +402,8 @@
                 var line_values;
                 if (widget.query_data.metrics[d.search_key].ds_type) {
                     line_values = widget.downsample_series(d.values, widget.graph.width * 0.5);
+                } else {
+                    line_values = d.values;
                 }
                 $.each(line_values, function(v) {
                     line_values[v]['date'] = new Date(line_values[v]['timestamp'] * 1000);
@@ -2124,6 +2126,8 @@
                 var line_values;
                 if (widget.query_data.metrics[d.search_key].ds_type) {
                     line_values = widget.downsample_series(d.values, widget.graph.width * 0.5);
+                } else {
+                    line_values = d.values;
                 }
                 $.each(line_values, function(v) {
                     line_values[v]['date'] = new Date(line_values[v]['timestamp'] * 1000);
