@@ -2118,7 +2118,6 @@
             widget.graph.width = (graphdiv.innerWidth() - widget.graph.margin.left - widget.graph.margin.right);
             widget.graph.height = (graphdiv.innerHeight() - widget.graph.margin.top - widget.graph.margin.bottom);
 
-            widget.downsample_series(data[0].values, widget.graph.width * 0.5);
             widget.graph.raw_data = data;
             delete(data);
 
