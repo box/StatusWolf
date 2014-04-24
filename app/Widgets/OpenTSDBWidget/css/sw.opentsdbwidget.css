@@ -269,7 +269,7 @@
   line-height: 1.2em;
   padding: 10px 0 0 0;
   margin-top: 5px;
-  background-color: rgba(24, 24, 24, 0.9);
+  background-color: rgba(48, 48, 48, 0.5);
   border-top: 1px solid rgba(234, 234, 234, 0.25);
 }
 /* line 246, ../sass/sw.opentsdbwidget.scss */

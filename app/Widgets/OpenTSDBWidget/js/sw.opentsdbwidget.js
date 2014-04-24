@@ -121,15 +121,15 @@
                 .appendTo(sw_opentsdbwidget_frontmain);
 
             if (this.options.legend === "off") {
-                this.hide_legend();
+                that.hide_legend();
             }
 
             this.sw_opentsdbwidget_frontmain.on('click', 'button.legend-hide', function() {
-                this.hide_legend(this);
+                that.hide_legend(this);
             });
 
             this.sw_opentsdbwidget_frontmain.on('click', 'button.legend-show', function() {
-                this.show_legend(this);
+                that.show_legend(this);
             });
 
             sw_opentsdbwidget_action = (this.sw_opentsdbwidget_action = $('<div>'))
