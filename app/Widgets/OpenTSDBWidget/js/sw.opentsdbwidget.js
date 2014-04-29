@@ -223,6 +223,10 @@
                 that.dropdown_menu_handler(this);
             });
 
+            $(window).resize(function() {
+                that.resize_graph();
+            })
+
             // @Todo - implement resizing and dragging
 //            $(that.sw_opentsdbwidget_container).resize(function() {
 //                console.log('widget container is resizing!');
@@ -418,11 +422,14 @@
             });
             var metric = widget.svg.selectAll('.metric.left');
             metric.selectAll('path')
+                .data(widget.graph.data_left)
                 .attr('d', function(d) {
+                    console.log('Points graphed: ' + d.values.length);
                     return widget.graph.line(d.values);
                 });
             if (widget.graph.right_axis == true) {
                 widget.svg.selectAll('.metric.right').selectAll('path')
+                    .data(widget.graph.data_right)
                     .attr('d', function(d) {
                         return widget.graph.line_right(d.values);
                     });
