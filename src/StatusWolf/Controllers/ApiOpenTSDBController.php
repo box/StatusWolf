@@ -141,6 +141,30 @@ class ApiOpenTSDBController implements ControllerProviderInterface {
 
         });
 
+        $controllers->get('/shared/{search_id}', function(Application $sw, $search_id) {
+
+            $expiration = time() - 86400;
+
+            $sql = "SELECT * FROM shared_searches WHERE search_id = ? AND data_source='OpenTSDB'";
+            $shared_search_query = $sw['db']->prepare($sql);
+            $shared_search_query->bindValue(1, $search_id);
+            $shared_search_query->execute();
+            if (!$shared_search = $shared_search_query->fetch(PDO::FETCH_ASSOC)) {
+                $shared_search_config = 'Not Found';
+            } else if ($shared_search['timestamp'] < $expiration) {
+                $expiry_query = $sw['db']->prepare("DELETE FROM shared_searches WHERE search_id = ? AND data_source='OpenTSDB'");
+                $expiry_query->bindValue(1, $search_id);
+                $expiry_query->execute();
+                $shared_search_config = 'Expired';
+            } else {
+                $serialized_search = $shared_search['search_params'];
+                $shared_search_config = unserialize($serialized_search);
+            }
+
+            return json_encode($shared_search_config);
+
+        });
+
         $controllers->post('/search', function(Application $sw, Request $request) {
             $query_data = $request->request->get('query_data');
             $sw['logger']->addDebug(sprintf("Query: %s", json_encode($query_data)));
