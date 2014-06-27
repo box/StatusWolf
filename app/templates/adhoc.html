@@ -1,0 +1,27 @@
+{% include 'header.twig' %}
+{% include 'navbar.twig' %}
+
+    <div class="container">
+      <div class="container-spacer"></div>
+      <div id="adhoc-container" class="adhoc-container"></div>
+    </div>
+
+    {% if extra_js %}
+      {% for js in extra_js %}
+        <script type="text/javascript" src="{{ url('home') }}static/js/{{ js }}"></script>
+      {% endfor %}
+    {% endif %}
+
+    {% if d3 == "local" %}
+      <script type="text/javascript" src="{{ url('home') }}static/js/lib/d3.min.js"></script>
+        {% else %}
+      <script type="text/javascript" src="{{ d3 }}"></script>
+    {% endif %}
+
+    {% for key, widget in adhoc_widget %}
+      <script type="text/javascript" src="{{ url('home')}}Widgets/{{ key }}/js/{{ widget.name }}.js"></script>
+    {% endfor %}
+
+    {% include 'adhoc_js.twig'|raw %}
+
+    {% include 'footer.twig' %}

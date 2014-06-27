@@ -1,0 +1,43 @@
+{% autoescape 'js' %}
+
+<script type="text/javascript">
+    $('title').text('AdHoc Search - StatusWolf');
+    document._session = {};
+    document._session.adhoc_username = '{{ username }}';
+    document._session.adhoc_userid = '{{ user_id }}';
+
+    var adhoc_widget = eval({{ adhoc_widget_json|raw }});
+    var widget_key = '{{ widget_type }}';
+    var widget_type = adhoc_widget[widget_key].name.split('.')[1];
+
+    $('document').ready(function() {
+        if (typeof adhoc_widget[widget_key].dependencies !== "undefined") {
+            if (typeof adhoc_widget[widget_key].dependencies.js !== "undefined") {
+                $.each(adhoc_widget[widget_key].dependencies.js, function(i, js) {
+                    if ($('script[src*=" + js + "]').length === 0) {
+                        loadScript(window.location.origin + '/static/js/lib/' + js, function() {
+                            add_widget(widget_type);
+                        });
+                    }
+                });
+            }
+        }
+    });
+
+    function add_widget(widget_type) {
+        var widget_id = 'widget' + md5(document._session.adhoc_username);
+        var widget;
+
+        $('#adhoc-container').append('<div class="widget-container adhoc-widget"  id="' + widget_id + '" data-widget-type="' + widget_type + '">');
+        var widget_div = $('#' + widget_id)[widget_type]();
+        $('div.widget-close').remove();
+        $('ul.widget-action-options').children('li.dropdown').remove();
+        $('li.clone-widget').remove();
+        setTimeout(function() {
+            $(widget_div).removeClass('transparent');
+        }, 100);
+
+    }
+</script>
+
+{% endautoescape %}

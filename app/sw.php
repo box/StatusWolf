@@ -179,6 +179,8 @@ $sw->mount('/dashboard', new \StatusWolf\Controllers\DashboardController());
 
 $sw->mount('/api', new \StatusWolf\Controllers\ApiController());
 
+$sw->mount('/adhoc', new \StatusWolf\Controllers\AdhocController());
+
 $sw['get_widgets'] = $sw->share(function() use($sw) {
     $widget_main = WIDGETS;
     $widget_iterator = new \DirectoryIterator($widget_main);

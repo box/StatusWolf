@@ -1,0 +1,13 @@
+.adhoc-container {
+    height: 90%;
+}
+
+.widget-container.opentsdb-widget.adhoc-widget {
+    position: relative;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    z-index: 2000;
+}
