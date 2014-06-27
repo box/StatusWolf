@@ -419,20 +419,22 @@
                 else {
                     widget.graph.data_left.push({axis: d.axis, name: d.name, search_key: d.search_key, values: line_values});
                 }
+                delete(line_values);
             });
             var metric = widget.svg.selectAll('.metric.left');
+            metric.data(widget.graph.data_left);
             metric.selectAll('path')
-                .data(widget.graph.data_left)
                 .attr('d', function(d) {
                     console.log('Points graphed: ' + d.values.length);
                     return widget.graph.line(d.values);
                 });
             if (widget.graph.right_axis == true) {
-                widget.svg.selectAll('.metric.right').selectAll('path')
+                widget.svg.selectAll('.metric.right')
                     .data(widget.graph.data_right)
-                    .attr('d', function(d) {
-                        return widget.graph.line_right(d.values);
-                    });
+                    .selectAll('path')
+                        .attr('d', function(d) {
+                            return widget.graph.line_right(d.values);
+                        });
             }
         },
         clone_widget: function(widget_id) {
