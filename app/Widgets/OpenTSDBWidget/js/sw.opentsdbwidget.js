@@ -129,6 +129,7 @@
                     '<span class="elegant-icons icon-cog"></span></span>' +
                     '<ul class="dropdown-menu sub-menu-item widget-action-options" role="menu">' +
                     '<li data-menu-action="maximize_widget"><span class="maximize-me">Maximize</span></li>' +
+                    '<li data-menu-action="change_title"><span>Change Title</span></li>' +
                     '<li data-menu-action="edit_params"><span>Edit Parameters</span></li>' +
                     '<li data-menu-action="show_graph_data"><span>Show graph data</span></li>' +
                     '<li class="clone-widget" data-parent="' + that.element.attr('id') + '"><span>Clone Widget</span></li>' +
@@ -336,6 +337,46 @@
                     }, 350);
                 }
             }
+        },
+        change_title: function() {
+            var widget=this;
+            $(widget.sw_opentsdbwidget_front).append('<div id="change-title-popup" class="popup mfp-hide">');
+            $('#change-title-popup').append('<h3>Change Graph Title</h3>' +
+            '<input type="text" id="change-graph-title" name="change-graph-title">' +
+            '<div id="change-graph-title-buttons">' +
+            '<div id="cancel-change-graph-title-button" class="sw-button"><span>Cancel</span></div>' +
+            '<div id="save-change-graph-title-button" class="sw-button"><span>Save</span></div></div>');
+            $('input#change-graph-title').val(widget.query_data.title);
+
+            $.magnificPopup.open({
+                items: {
+                    src: '#change-title-popup',
+                    type: 'inline'
+                },
+                prependTo: widget.sw_opentsdbwidget_container,
+                preloader: false,
+                removalDelay: 300,
+                mainClass: 'popup-animate',
+                callbacks: {
+                    afterClose: function() {
+                        $('#change-title-popup').remove();
+                    }
+                }
+            });
+
+            $('div#cancel-change-graph-title-button').click(function() {
+                $.magnificPopup.close();
+            });
+            $('div#save-change-graph-title-button').click(function() {
+                if ($('input#change-graph-title').val().length > 0) {
+                    var new_title = $('input#change-graph-title').val();
+                    widget.svg.g.selectAll('.graph-title').text(new_title);
+                    $('td#search-title' + widget.uuid).children('h3').text(new_title);
+                    $('td#search-title' + widget.uuid).children('input').val(new_title);
+                    widget.query_data.title = new_title;
+                }
+                $.magnificPopup.close();
+            });
         },
         resize_graph: function() {
             var widget = this;

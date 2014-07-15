@@ -615,3 +615,17 @@
   min-width: 600px;
   max-width: 600px;
 }
+
+/* line 555, ../sass/sw.opentsdbwidget.scss */
+#change-title-popup h3 {
+  margin-left: 10px;
+}
+/* line 558, ../sass/sw.opentsdbwidget.scss */
+#change-title-popup input {
+  margin: 10px 0 10px 10px;
+  width: 300px;
+}
+/* line 562, ../sass/sw.opentsdbwidget.scss */
+#change-title-popup #change-graph-title-buttons {
+  margin: 10px 0 10px 10px;
+}

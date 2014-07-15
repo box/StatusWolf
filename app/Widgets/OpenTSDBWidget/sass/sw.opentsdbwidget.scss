@@ -550,6 +550,19 @@
         }
     }
 }
+
+#change-title-popup {
+    h3 {
+        margin-left: 10px;
+    }
+    input {
+        margin: 10px 0 10px 10px;
+        width: 300px;
+    }
+    #change-graph-title-buttons {
+        margin: 10px 0 10px 10px;
+    }
+}
 //
 //#saved-search-list-popup {
 //    margin-bottom: 15px;
