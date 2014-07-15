@@ -1,49 +1,6 @@
 @import '../../../static/sass/colors_dark';
 @import '../../../static/sass/mixins';
 
-.dataTable {
-    tbody {
-        margin-top: 20px;
-        font-size: 0.75em;
-    }
-    thead {
-        th.sorting {
-            cursor: pointer;
-        }
-        th.sorting_asc {
-            cursor: pointer;
-        }
-        th.sorting_desc {
-            cursor: pointer;
-        }
-    }
-}
-
-.dataTables_info {
-    font-size: 0.8em;
-    margin-top: 12px;
-    margin-bottom: 10px;
-}
-
-.dataTables_length,
-.dataTables_filter,
-.dataTables_exportCSV {
-    display: inline-block;
-    margin: 5px 25px 10px 0;
-}
-
-.dataTables_paginate > a.paginate_enabled_next,
-.dataTables_paginate > a.paginate_enabled_previous {
-    margin: 10px 25px;
-    cursor: pointer;
-}
-
-.dataTables_paginate > a.paginate_disabled_next,
-.dataTables_paginate > a.paginate_disabled_previous {
-    margin: 10px 25px;
-    opacity: 0.5;
-}
-
 .datetimepicker-widget {
     top: 0;
     left: 0;

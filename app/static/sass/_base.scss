@@ -810,30 +810,51 @@ button.mfp-close {
     margin-bottom: 20px;
 }
 
-.dataTables_paginate {
-    .paginate_button {
-        margin: 0 10px;
-        padding: 2px 8px;
-        font-size: 0.75em;
-        line-height: 1.5em;
-        font-weight: normal;
-        cursor: pointer;
+table.dataTable {
+    thead {
+        tr {
+            th {
+                cursor: pointer;
+            }
+        }
     }
-    .paginate_button.previous,
-    .paginate_button.next {
-        display: inline-block;
-        background-color: $button_bg;
-        border: 1px solid $button_border;
-        @include sw-button-radius;
+}
+
+.dataTables_wrapper {
+    height: 100%;
+    .dataTables_info {
+        position: absolute;
+        bottom: 65px;
+        padding-left: 10px;
     }
-    .paginate_button.current {
-        color: $font_bright;
-        cursor: default;
-    }
-    .paginate_button.disabled {
-        cursor: default;
-        color: $font_dim;
-        background-color: $button_border_pushed;
+
+    .dataTables_paginate {
+        position: absolute;
+        bottom: 25px;
+        .paginate_button {
+            margin: 0 10px;
+            padding: 2px 8px;
+            font-size: 0.75em;
+            line-height: 1.5em;
+            font-weight: normal;
+            cursor: pointer;
+        }
+        .paginate_button.previous,
+        .paginate_button.next {
+            display: inline-block;
+            background-color: $button_bg;
+            border: 1px solid $button_border;
+            @include sw-button-radius;
+        }
+        .paginate_button.current {
+            color: $font_bright;
+            cursor: default;
+        }
+        .paginate_button.disabled {
+            cursor: default;
+            color: $font_dim;
+            background-color: $button_border_pushed;
+        }
     }
 }
 

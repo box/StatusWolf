@@ -1011,8 +1011,28 @@ button.mfp-close {
   margin-bottom: 20px;
 }
 
-/* line 814, ../sass/_base.scss */
-.dataTables_paginate .paginate_button {
+/* line 816, ../sass/_base.scss */
+table.dataTable thead tr th {
+  cursor: pointer;
+}
+
+/* line 823, ../sass/_base.scss */
+.dataTables_wrapper {
+  height: 100%;
+}
+/* line 825, ../sass/_base.scss */
+.dataTables_wrapper .dataTables_info {
+  position: absolute;
+  bottom: 65px;
+  padding-left: 10px;
+}
+/* line 831, ../sass/_base.scss */
+.dataTables_wrapper .dataTables_paginate {
+  position: absolute;
+  bottom: 25px;
+}
+/* line 834, ../sass/_base.scss */
+.dataTables_wrapper .dataTables_paginate .paginate_button {
   margin: 0 10px;
   padding: 2px 8px;
   font-size: 0.75em;
@@ -1020,9 +1040,9 @@ button.mfp-close {
   font-weight: normal;
   cursor: pointer;
 }
-/* line 823, ../sass/_base.scss */
-.dataTables_paginate .paginate_button.previous,
-.dataTables_paginate .paginate_button.next {
+/* line 843, ../sass/_base.scss */
+.dataTables_wrapper .dataTables_paginate .paginate_button.previous,
+.dataTables_wrapper .dataTables_paginate .paginate_button.next {
   display: inline-block;
   background-color: #404040;
   border: 1px solid rgba(234, 234, 234, 0.1);
@@ -1032,13 +1052,13 @@ button.mfp-close {
   -o-border-radius: 3px;
   border-radius: 3px;
 }
-/* line 829, ../sass/_base.scss */
-.dataTables_paginate .paginate_button.current {
+/* line 849, ../sass/_base.scss */
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
   color: #f0f0f0;
   cursor: default;
 }
-/* line 833, ../sass/_base.scss */
-.dataTables_paginate .paginate_button.disabled {
+/* line 853, ../sass/_base.scss */
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
   cursor: default;
   color: rgba(205, 205, 205, 0.25);
   background-color: rgba(24, 24, 24, 0.25);
@@ -1049,7 +1069,7 @@ button.mfp-close {
  * Tooltip Classes
  *================
  */
-/* line 846, ../sass/_base.scss */
+/* line 867, ../sass/_base.scss */
 .tooltip {
   position: absolute;
   z-index: 1030;
@@ -1059,18 +1079,18 @@ button.mfp-close {
   visibility: visible;
 }
 
-/* line 855, ../sass/_base.scss */
+/* line 876, ../sass/_base.scss */
 .tooltip.in {
   opacity: 1.0;
   filter: alpha(opacity=1);
 }
 
-/* line 860, ../sass/_base.scss */
+/* line 881, ../sass/_base.scss */
 .tooltip.top {
   padding: 5px 0;
   margin-top: -3px;
 }
-/* line 863, ../sass/_base.scss */
+/* line 884, ../sass/_base.scss */
 .tooltip.top .tooltip-arrow {
   bottom: 0;
   left: 50%;
@@ -1079,12 +1099,12 @@ button.mfp-close {
   border-width: 5px 5px 0;
 }
 
-/* line 872, ../sass/_base.scss */
+/* line 893, ../sass/_base.scss */
 .tooltip.right {
   padding: 0 5px;
   margin-right: 3px;
 }
-/* line 875, ../sass/_base.scss */
+/* line 896, ../sass/_base.scss */
 .tooltip.right .tooltip-arrow {
   top: 50%;
   left: 0;
@@ -1093,12 +1113,12 @@ button.mfp-close {
   border-width: 5px 5px 5px 0;
 }
 
-/* line 884, ../sass/_base.scss */
+/* line 905, ../sass/_base.scss */
 .tooltip.bottom {
   padding: 5px 0;
   margin-top: 3px;
 }
-/* line 887, ../sass/_base.scss */
+/* line 908, ../sass/_base.scss */
 .tooltip.bottom .tooltip-arrow {
   top: 0;
   left: 50%;
@@ -1107,12 +1127,12 @@ button.mfp-close {
   border-width: 0 5px 5px;
 }
 
-/* line 896, ../sass/_base.scss */
+/* line 917, ../sass/_base.scss */
 .tooltip.left {
   padding: 0 5px;
   margin-left: -12px;
 }
-/* line 899, ../sass/_base.scss */
+/* line 920, ../sass/_base.scss */
 .tooltip.left .tooltip-arrow {
   top: 50%;
   right: 0;
@@ -1121,7 +1141,7 @@ button.mfp-close {
   border-width: 5px 0 5px 5px;
 }
 
-/* line 908, ../sass/_base.scss */
+/* line 929, ../sass/_base.scss */
 .tooltip-arrow {
   position: absolute;
   width: 0;
@@ -1130,7 +1150,7 @@ button.mfp-close {
   border-style: solid;
 }
 
-/* line 916, ../sass/_base.scss */
+/* line 937, ../sass/_base.scss */
 .tooltip-inner {
   max-width: 300px;
   padding: 8px;
@@ -1150,14 +1170,14 @@ button.mfp-close {
  * Base classes for Widgets
  *=========================
  */
-/* line 932, ../sass/_base.scss */
+/* line 953, ../sass/_base.scss */
 .flipped {
   -webkit-transform: rotateY(180deg);
   -moz-transform: rotateY(180deg);
   transform: rotateY(180deg);
 }
 
-/* line 938, ../sass/_base.scss */
+/* line 959, ../sass/_base.scss */
 .widget {
   -webkit-transition: 0.25s;
   -moz-transition: 0.25s;
@@ -1170,7 +1190,7 @@ button.mfp-close {
   width: 100%;
 }
 
-/* line 950, ../sass/_base.scss */
+/* line 971, ../sass/_base.scss */
 .widget-action {
   display: inline-block;
   position: absolute;
@@ -1182,12 +1202,12 @@ button.mfp-close {
   cursor: pointer;
 }
 
-/* line 961, ../sass/_base.scss */
+/* line 982, ../sass/_base.scss */
 .widget-action:hover {
   color: #f0f0f0;
 }
 
-/* line 965, ../sass/_base.scss */
+/* line 986, ../sass/_base.scss */
 .widget-back {
   width: 100%;
   height: 100%;
@@ -1211,12 +1231,12 @@ button.mfp-close {
   transform: rotateY(180deg);
   overflow: hidden;
 }
-/* line 983, ../sass/_base.scss */
+/* line 1004, ../sass/_base.scss */
 .widget-back .widget-main {
   overflow: hidden;
 }
 
-/* line 988, ../sass/_base.scss */
+/* line 1009, ../sass/_base.scss */
 .widget-close {
   display: inline-block;
   position: absolute;
@@ -1226,12 +1246,12 @@ button.mfp-close {
   cursor: pointer;
 }
 
-/* line 997, ../sass/_base.scss */
+/* line 1018, ../sass/_base.scss */
 .widget-close:hover {
   color: #f0f0f0;
 }
 
-/* line 1001, ../sass/_base.scss */
+/* line 1022, ../sass/_base.scss */
 .widget-container {
   display: inline-block;
   -webkit-perspective: 1000;
@@ -1250,23 +1270,23 @@ button.mfp-close {
   transition: all 0.25s linear;
 }
 
-/* line 1013, ../sass/_base.scss */
+/* line 1034, ../sass/_base.scss */
 .widget-container.cols-1 {
   width: 100%;
   height: 100%;
 }
 
-/* line 1018, ../sass/_base.scss */
+/* line 1039, ../sass/_base.scss */
 .widget-container.cols-2 {
   width: 48%;
 }
 
-/* line 1022, ../sass/_base.scss */
+/* line 1043, ../sass/_base.scss */
 .widget-container.cols-3 {
   width: 31%;
 }
 
-/* line 1026, ../sass/_base.scss */
+/* line 1047, ../sass/_base.scss */
 .widget-footer, .popup .popup-footer {
   position: absolute;
   left: 0;
@@ -1284,7 +1304,7 @@ button.mfp-close {
   border-bottom-right-radius: 2px;
 }
 
-/* line 1039, ../sass/_base.scss */
+/* line 1060, ../sass/_base.scss */
 .widget-footer-button, .popup .popup-footer .popup-footer-button {
   display: inline-block;
   height: 100%;
@@ -1294,19 +1314,19 @@ button.mfp-close {
   cursor: pointer;
 }
 
-/* line 1048, ../sass/_base.scss */
+/* line 1069, ../sass/_base.scss */
 .widget-footer-button:hover, .popup .popup-footer .popup-footer-button:hover {
   background-color: #404040;
 }
 
-/* line 1052, ../sass/_base.scss */
+/* line 1073, ../sass/_base.scss */
 .widget-footer-button.go-button, .popup .popup-footer .go-button.popup-footer-button {
   position: absolute;
   top: 0;
   right: 0;
 }
 
-/* line 1058, ../sass/_base.scss */
+/* line 1079, ../sass/_base.scss */
 .widget-footer-button.left-button, .popup .popup-footer .left-button.popup-footer-button {
   border-right: 1px solid rgba(234, 234, 234, 0.1);
   -webkit-border-bottom-left-radius: 2px;
@@ -1314,7 +1334,7 @@ button.mfp-close {
   border-bottom-left-radius: 2px;
 }
 
-/* line 1063, ../sass/_base.scss */
+/* line 1084, ../sass/_base.scss */
 .widget-footer-button.right-button, .popup .popup-footer .right-button.popup-footer-button {
   border-left: 1px solid rgba(234, 234, 234, 0.1);
   -webkit-border-bottom-right-radius: 2px;
@@ -1322,7 +1342,7 @@ button.mfp-close {
   border-bottom-right-radius: 2px;
 }
 
-/* line 1068, ../sass/_base.scss */
+/* line 1089, ../sass/_base.scss */
 .widget-front {
   width: 100%;
   height: 100%;
@@ -1344,7 +1364,7 @@ button.mfp-close {
   z-index: 2;
 }
 
-/* line 1085, ../sass/_base.scss */
+/* line 1106, ../sass/_base.scss */
 .widget-main {
   width: 100%;
   height: 100%;

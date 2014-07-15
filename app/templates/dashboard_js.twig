@@ -195,48 +195,90 @@
         });
 
         chain.done(function(data) {
-            var my_dashboards = data['user_dashboards'];
-            var shared_dashboards = data['shared_dashboards'];
-            var max = menu_length;
-            $('#load-dashboard-menu-options').empty();
-            $('#load-dashboard-menu-options').append('<li class="menu-section"><span>My Dashboards</span></li>');
-            $('table#my-dashboards-list-table').empty();
-            $('table#my-dashboards-list-table').append('<tr><th>Title</th></tr>');
-            $('table#shared-dashboards-list-table').empty();
-            $('table#shared-dashboards-list-table').append('<tr><th>Rank</td><th>Title</th><th>Owner</th></tr>');
-            if (my_dashboards.length > 0) {
-                max = (my_dashboards.length < menu_length ? my_dashboards.length : menu_length);
+            var dashboard_options = $('ul#load-dashboard-menu-options'),
+                my_dashboards_table = $('table#my-dashboards-list-table'),
+                shared_dashboards_table = $('table#shared-dashboards-list-table'),
+                my_dashboards_list = [],
+                shared_dashboards_list = [],
+                my_dashboards_columns = [
+                    {'sTitle': 'Title'}
+                ],
+                shared_dashboards_columns = [
+                    {'sTitle': 'Rank'},
+                    {'sTitle': 'Title'},
+                    {'sTitle': 'Owner'}
+                ];
+
+            dashboard_options.empty();
+
+            if ($.fn.dataTable.isDataTable('#my-dashboards-list-talbe')) {
+                my_dashboards_table.DataTable().destroy();
+            }
+            if ($.fn.dataTable.isDataTable('#shared-dashboards-list-table')) {
+                shared_dashboards_table.DataTable().destroy();
+            }
+
+            if (data.user_dashboards.length > 0) {
+                dashboard_options.append('<li class="menu-section"><span>My Searches</span></li>');
+                max = (data.user_dashboards.length < menu_length ? data.user_dashboards.length : menu_length);
                 for (i = 0; i < max; i++) {
-                    $('#load-dashboard-menu-options').append('<li><span><a href="{{ url('home') }}dashboard/' + my_dashboards[i]['id'] + '">' + my_dashboards[i]['title'] + '</span></li>');
+                    dashboard_options.append('<li><span><a href="{{ url('home') }}dashboard/' + data.user_dashboards[i]['id'] + '">' + data.user_dashboards[i]['title'] + '</span></li>');
                     menu_length--;
                 }
-                $.each(my_dashboards, function(i, dashboard) {
-                    $('table#my-dashboards-list-table').append('<tr class="dashboard-item"><td><a href="{{ url('home') }}dashboard/' + dashboard.id + '">' + dashboard.title + '</a></td></tr>');
+                $.each(data.user_dashboards, function(i, dashboard) {
+                    my_dashboards_list.push([
+                        '<a href="{{ url('home') }}dashboard/' + dashboard.id + '">' + dashboard.title + '</a>'
+                    ])
                 });
             }
 
-            if (menu_length > 0 && shared_dashboards.length > 0) {
-                $('#load-dashboard-menu-options').append('<li class="divider">');
-                $('#load-dashboard-menu-options').append('<li class="menu-section"><span>Shared Dashboards</span></li>');
-                max = (shared_dashboards.length < menu_length ? shared_dashboards.length : menu_length);
+            if (menu_length > 0 && data.shared_dashboards.length > 0) {
+                dashboard_options.append('<li class="divider">');
+                dashboard_options.append('<li class="menu-section"><span>Shared Dashboards</span></li>');
+                max = (data.shared_dashboards.length < menu_length ? data.shared_dashboards.length : menu_length);
                 for (i = 0; i < max; i++) {
-                    if (shared_dashboards[i]['user_id'] === document._session.dashboard_userid) {
-                        $('#load-dashboard-menu-options').children('li.menu-section:last').after('<li><span><a href="{{ url('home') }}dashboard/' + shared_dashboards[i]['id'] + '">' + shared_dashboards[i]['title'] + ' (' + shared_dashboards[i]['username'] + ')</a></span></li>');
+                    if (data.shared_dashboards[i]['user_id'] === document._session.dashboard_userid) {
+                        dashboard_options.children('li.menu-section:last').after('<li><span><a href="{{ url('home') }}dashboard/' + data.shared_dashboards[i]['id'] + '">' + data.shared_dashboards[i]['title'] + ' (' + data.shared_dashboards[i]['username'] + ')</a></span></li>');
                     } else {
-                        $('#load-dashboard-menu-options').append('<li><span><a href="{{ url('home') }}dashboard/' + shared_dashboards[i]['id'] + '">' + shared_dashboards[i]['title'] + ' (' + shared_dashboards[i]['username'] + ')</a></span></li>');
+                        $('#load-dashboard-menu-options').append('<li><span><a href="{{ url('home') }}dashboard/' + data.shared_dashboards[i]['id'] + '">' + data.shared_dashboards[i]['title'] + ' (' + data.shared_dashboards[i]['username'] + ')</a></span></li>');
                     }
                     menu_length--;
                 }
-                $.each(shared_dashboards, function(i, shared) {
-                    if (shared.user_id === document._session.dashboard_userid) {
-                        $('table#shared-dashboards-list-table').children('tbody').children('tr:first-child').after('<tr class="dashboard-item"><td>' + (i + 1) + '</td><td><a href="{{ url('home') }}dashboard/' + shared.id + '">' + shared.title + '</a></td><td>' + shared.username + '</td></tr>');
-                    } else {
-                        $('table#shared-dashboards-list-table').append('<tr class="dashboard-item"><td>' + (i + 1) + '</td><td><a href="{{ url('home') }}dashboard/' + shared.id + '">' + shared.title + '</a></td><td>' + shared.username + '</td></tr>');
-                    }
+                $.each(data.shared_dashboards, function(i, shared) {
+                    var rank = i + 1;
+                    shared_dashboards_list.push([
+                        rank,
+                        '<a href="{{ url('home') }}dashboard/' + shared.id + '">' + shared.title + '</a>',
+                        shared.username
+                    ])
                 });
             }
-            var my_dash_count = typeof(my_dashboards !== "undefined") ? my_dashboards.length : 0;
-            var shared_dash_count = typeof(shared_dashboards !== "undefined") ? shared_dashboards.length : 0;
+
+            if (my_dashboards_list.length > 0) {
+                my_dashboards_table.dataTable({
+                    'aaData': my_dashboards_list,
+                    'aoColumns': my_dashboards_columns,
+                    'lengthChange': false
+                });
+            }
+            shared_dashboards_table.dataTable({
+                'aaData': shared_dashboards_list,
+                'aoColumns': shared_dashboards_columns,
+                'lengthChange': false
+            });
+            // Remove the 'Search:' label from the search field and replace it
+            // with placeholder text.
+            $('#my-dashboards-list-table_filter').children('label').contents().filter(function() {
+                return (this.nodeType == 3);
+            }).remove();
+            $('#my-dashboards-list-table_filter').children('label').children('input').attr('placeholder', 'Filter');
+            $('#shared-dashboards-list-table_filter').children('label').contents().filter(function() {
+                return (this.nodeType == 3);
+            }).remove();
+            $('#shared-dashboards-list-table_filter').children('label').children('input').attr('placeholder', 'Filter');
+
+            var my_dash_count = typeof(data.user_dashboards !== "undefined") ? data.user_dashboards.length : 0;
+            var shared_dash_count = typeof(data.shared_dashboards !== "undefined") ? data.shared_dashboards.length : 0;
             item_length = my_dash_count + shared_dash_count;
 
             dashboard_menu.resolve([menu_length, item_length]);

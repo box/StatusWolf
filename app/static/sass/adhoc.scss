@@ -16,13 +16,20 @@
 }
 
 #search-list-popup {
-    min-width: 900px;
-    min-height: 600px;
+    width: 1100px;
+    height: 600px;
     table {
+        table-layout: fixed;
         margin-right: 20px;
         border-spacing: 0;
         td {
             padding: 3px 5px;
+        }
+        td:first-child {
+            width: 300px;
+            min-width: 300px;
+            max-width: 300px;
+            overflow: hidden;
         }
         th {
             font-size: 1em;
@@ -36,10 +43,12 @@
     .saved-search-box {
         display: inline-block;
         vertical-align: top;
+        height: 100%;
     }
     .saved-search-list {
         line-height: 2em;
-        min-width: 400px;
+        width: 525px;
+        height: 92%;
         overflow: auto;
         vertical-align: top;
         white-space: nowrap;

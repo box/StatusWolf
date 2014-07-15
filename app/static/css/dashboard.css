@@ -12,70 +12,89 @@
   margin-top: 15px;
 }
 
-/* line 18, ../sass/dashboard.scss */
+/* line 17, ../sass/dashboard.scss */
+#dashboard-list-popup {
+  width: 1100px;
+  height: 600px;
+}
+/* line 20, ../sass/dashboard.scss */
 #dashboard-list-popup table {
+  table-layout: fixed;
   margin-right: 20px;
   border-spacing: 0;
 }
-/* line 21, ../sass/dashboard.scss */
+/* line 24, ../sass/dashboard.scss */
 #dashboard-list-popup table td {
   padding: 3px 5px;
 }
-/* line 24, ../sass/dashboard.scss */
+/* line 27, ../sass/dashboard.scss */
 #dashboard-list-popup table th {
   font-size: 1em;
   padding: 5px;
 }
-/* line 28, ../sass/dashboard.scss */
+/* line 31, ../sass/dashboard.scss */
+#dashboard-list-popup table th:first-child {
+  width: 55px;
+  min-width: 55px;
+  max-width: 55px;
+}
+/* line 36, ../sass/dashboard.scss */
 #dashboard-list-popup table tr.dashboard-item:hover {
   background-color: rgba(234, 234, 234, 0.25);
   cursor: pointer;
 }
-/* line 33, ../sass/dashboard.scss */
+/* line 41, ../sass/dashboard.scss */
 #dashboard-list-popup .saved-dashboard-box {
   display: inline-block;
   vertical-align: top;
+  height: 100%;
 }
-/* line 37, ../sass/dashboard.scss */
+/* line 46, ../sass/dashboard.scss */
 #dashboard-list-popup .saved-dashboard-list {
-  font-size: 0.75em;
   line-height: 2em;
-  max-height: 400px;
-  min-width: 350px;
+  width: 525px;
+  height: 92%;
   overflow: auto;
   vertical-align: top;
   white-space: nowrap;
 }
+/* line 55, ../sass/dashboard.scss */
+#dashboard-list-popup #shared-dashboards-list-table td:nth-child(2) {
+  width: 320px;
+  min-width: 320px;
+  max-width: 320px;
+  overflow: hidden;
+}
 
-/* line 48, ../sass/dashboard.scss */
+/* line 64, ../sass/dashboard.scss */
 #failure-popup {
   max-width: 500px;
 }
-/* line 50, ../sass/dashboard.scss */
+/* line 66, ../sass/dashboard.scss */
 #failure-popup .failure-error-message {
   font-size: 0.8em;
   font-weight: normal;
 }
 
-/* line 56, ../sass/dashboard.scss */
+/* line 72, ../sass/dashboard.scss */
 #load-dashboard-menu-options {
   min-width: 500px;
 }
 
-/* line 61, ../sass/dashboard.scss */
+/* line 77, ../sass/dashboard.scss */
 #save-dashboard-popup h5 {
   display: inline-block;
 }
-/* line 64, ../sass/dashboard.scss */
+/* line 80, ../sass/dashboard.scss */
 #save-dashboard-popup .save-dashboard-form-buttons {
   margin-top: 15px;
 }
-/* line 67, ../sass/dashboard.scss */
+/* line 83, ../sass/dashboard.scss */
 #save-dashboard-popup .popup-form-data {
   margin-left: 0;
   display: inline-block;
 }
-/* line 71, ../sass/dashboard.scss */
+/* line 87, ../sass/dashboard.scss */
 #save-dashboard-popup #shared-dashboard-button {
   display: inline-block;
   margin-left: 10px;

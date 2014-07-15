@@ -15,7 +15,10 @@
 }
 
 #dashboard-list-popup {
+    width: 1100px;
+    height: 600px;
     table {
+        table-layout: fixed;
         margin-right: 20px;
         border-spacing: 0;
         td {
@@ -25,6 +28,11 @@
             font-size: 1em;
             padding: 5px;
         }
+        th:first-child {
+            width: 55px;
+            min-width: 55px;
+            max-width: 55px;
+        }
         tr.dashboard-item:hover {
             background-color: $popup_mfp_bg;
             cursor: pointer;
@@ -33,15 +41,23 @@
     .saved-dashboard-box {
         display: inline-block;
         vertical-align: top;
+        height: 100%;
     }
     .saved-dashboard-list {
-        font-size: 0.75em;
         line-height: 2em;
-        max-height: 400px;
-        min-width: 350px;
+        width: 525px;
+        height: 92%;
         overflow: auto;
         vertical-align: top;
         white-space: nowrap;
+    }
+    #shared-dashboards-list-table {
+        td:nth-child(2) {
+            width: 320px;
+            min-width: 320px;
+            max-width: 320px;
+            overflow: hidden;
+        }
     }
 }
 
