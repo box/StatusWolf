@@ -16,48 +16,47 @@
   height: 100%;
   width: 100%;
   margin: 0;
-  z-index: 2000;
 }
 
-/* line 18, ../sass/adhoc.scss */
+/* line 17, ../sass/adhoc.scss */
 #search-list-popup {
   width: 1100px;
   height: 600px;
 }
-/* line 21, ../sass/adhoc.scss */
+/* line 20, ../sass/adhoc.scss */
 #search-list-popup table {
   table-layout: fixed;
   margin-right: 20px;
   border-spacing: 0;
 }
-/* line 25, ../sass/adhoc.scss */
+/* line 24, ../sass/adhoc.scss */
 #search-list-popup table td {
   padding: 3px 5px;
 }
-/* line 28, ../sass/adhoc.scss */
+/* line 27, ../sass/adhoc.scss */
 #search-list-popup table td:first-child {
   width: 300px;
   min-width: 300px;
   max-width: 300px;
   overflow: hidden;
 }
-/* line 34, ../sass/adhoc.scss */
+/* line 33, ../sass/adhoc.scss */
 #search-list-popup table th {
   font-size: 1em;
   padding: 5px;
 }
-/* line 38, ../sass/adhoc.scss */
+/* line 37, ../sass/adhoc.scss */
 #search-list-popup table tr.search-item:hover {
   background-color: rgba(234, 234, 234, 0.25);
   cursor: pointer;
 }
-/* line 43, ../sass/adhoc.scss */
+/* line 42, ../sass/adhoc.scss */
 #search-list-popup .saved-search-box {
   display: inline-block;
   vertical-align: top;
   height: 100%;
 }
-/* line 48, ../sass/adhoc.scss */
+/* line 47, ../sass/adhoc.scss */
 #search-list-popup .saved-search-list {
   line-height: 2em;
   width: 525px;
@@ -67,46 +66,46 @@
   white-space: nowrap;
 }
 
-/* line 59, ../sass/adhoc.scss */
+/* line 58, ../sass/adhoc.scss */
 #save-search-popup h5 {
   display: inline-block;
 }
-/* line 62, ../sass/adhoc.scss */
+/* line 61, ../sass/adhoc.scss */
 #save-search-popup .save-search-form-buttons {
   margin-top: 15px;
 }
-/* line 65, ../sass/adhoc.scss */
+/* line 64, ../sass/adhoc.scss */
 #save-search-popup .popup-form-data {
   margin-left: 0;
   display: inline-block;
 }
-/* line 70, ../sass/adhoc.scss */
+/* line 69, ../sass/adhoc.scss */
 #save-search-popup #public-search-button,
 #save-search-popup #save-search-times-button {
   display: inline-block;
   margin-left: 10px;
 }
-/* line 74, ../sass/adhoc.scss */
+/* line 73, ../sass/adhoc.scss */
 #save-search-popup #save-search-info {
   margin: 0 20px;
   font-size: 0.8em;
   max-width: 550px;
 }
-/* line 78, ../sass/adhoc.scss */
+/* line 77, ../sass/adhoc.scss */
 #save-search-popup #save-search-info li {
   margin-bottom: 15px;
 }
 
-/* line 87, ../sass/adhoc.scss */
+/* line 86, ../sass/adhoc.scss */
 #confirm-save-search-popup #confirmation-main #confirmation-info #save-new-title-prompt {
   margin-top: 15px;
 }
-/* line 91, ../sass/adhoc.scss */
+/* line 90, ../sass/adhoc.scss */
 #confirm-save-search-popup #confirmation-main #confirmation-buttons {
   margin-top: 15px;
 }
 
-/* line 97, ../sass/adhoc.scss */
+/* line 96, ../sass/adhoc.scss */
 li#change-datasource-menu-item {
   white-space: nowrap;
 }

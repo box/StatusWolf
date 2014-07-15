@@ -574,42 +574,44 @@
 }
 
 /* line 519, ../sass/sw.opentsdbwidget.scss */
-#saved-search-list-popup {
-  margin-bottom: 15px;
-  max-height: 500px;
-  overflow: hidden;
+#raw-data {
+  width: 1100px;
+  height: 600px;
 }
-/* line 523, ../sass/sw.opentsdbwidget.scss */
-#saved-search-list-popup table {
-  margin-right: 20px;
-  border-spacing: 0;
-}
-/* line 527, ../sass/sw.opentsdbwidget.scss */
-#saved-search-list-popup table tr th {
-  font-size: 1em;
-  padding: 5px;
-}
-/* line 531, ../sass/sw.opentsdbwidget.scss */
-#saved-search-list-popup table tr td {
-  padding: 3px 5px;
-}
-/* line 535, ../sass/sw.opentsdbwidget.scss */
-#saved-search-list-popup table tr.search-item:hover {
-  background-color: rgba(234, 234, 234, 0.25);
-  cursor: pointer;
-}
-/* line 540, ../sass/sw.opentsdbwidget.scss */
-#saved-search-list-popup .saved-search-box {
+/* line 524, ../sass/sw.opentsdbwidget.scss */
+#raw-data .dataTables_length,
+#raw-data .dataTables_filter,
+#raw-data .dataTables_exportCSV {
   display: inline-block;
-  vertical-align: top;
+  margin-left: 15px;
 }
-/* line 544, ../sass/sw.opentsdbwidget.scss */
-#saved-search-list-popup .saved-search-list {
+/* line 528, ../sass/sw.opentsdbwidget.scss */
+#raw-data .dataTables_exportCSV {
+  position: absolute;
+  right: 30px;
+}
+/* line 532, ../sass/sw.opentsdbwidget.scss */
+#raw-data .dataTables_info {
   font-size: 0.75em;
-  line-height: 2em;
-  max-height: 450px;
-  min-width: 300px;
-  overflow: auto;
-  vertical-align: top;
-  white-space: nowrap;
+  bottom: 60px;
+}
+/* line 536, ../sass/sw.opentsdbwidget.scss */
+#raw-data #data-spinner {
+  margin-top: 25%;
+}
+/* line 539, ../sass/sw.opentsdbwidget.scss */
+#raw-data input[type="search"] {
+  width: 350px;
+}
+/* line 542, ../sass/sw.opentsdbwidget.scss */
+#raw-data table {
+  margin-top: 10px;
+  font-size: 0.8em;
+  table-layout: fixed;
+}
+/* line 546, ../sass/sw.opentsdbwidget.scss */
+#raw-data table th:first-child {
+  width: 600px;
+  min-width: 600px;
+  max-width: 600px;
 }

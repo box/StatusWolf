@@ -516,39 +516,74 @@
     z-index: 2000;
 }
 
-#saved-search-list-popup {
-    margin-bottom: 15px;
-    max-height: 500px;
-    overflow: hidden;
-    table {
-        margin-right: 20px;
-        border-spacing: 0;
-        tr {
-            th {
-                font-size: 1em;
-                padding: 5px;
-            }
-            td {
-                padding: 3px 5px;
-            }
-        }
-        tr.search-item:hover {
-            background-color: $popup_mfp_bg;
-            cursor: pointer;
-        }
-    }
-    .saved-search-box {
+#raw-data {
+    width: 1100px;
+    height: 600px;
+    .dataTables_length,
+    .dataTables_filter,
+    .dataTables_exportCSV {
         display: inline-block;
-        vertical-align: top;
+        margin-left: 15px;
     }
-    .saved-search-list {
+    .dataTables_exportCSV {
+        position: absolute;
+        right: 30px;
+    }
+    .dataTables_info {
         font-size: 0.75em;
-        line-height: 2em;
-        max-height: 450px;
-        min-width: 300px;
-        overflow: auto;
-        vertical-align: top;
-        white-space: nowrap;
+        bottom: 60px;
+    }
+    #data-spinner {
+        margin-top: 25%;
+    }
+    input[type="search"] {
+        width: 350px;
+    }
+    table {
+        margin-top: 10px;
+        font-size: 0.8em;
+        table-layout: fixed;
+        th:first-child {
+            width: 600px;
+            min-width: 600px;
+            max-width: 600px;
+        }
     }
 }
+//
+//#saved-search-list-popup {
+//    margin-bottom: 15px;
+//    max-height: 500px;
+//    overflow: hidden;
+//    table {
+//        margin-right: 20px;
+//        border-spacing: 0;
+//        tr {
+//            th {
+//                font-size: 1em;
+//                padding: 5px;
+//            }
+//            td {
+//                padding: 3px 5px;
+//            }
+//        }
+//        tr.search-item:hover {
+//            background-color: $popup_mfp_bg;
+//            cursor: pointer;
+//        }
+//    }
+//    .saved-search-box {
+//        display: inline-block;
+//        vertical-align: top;
+//    }
+//    .saved-search-list {
+//        font-size: 0.75em;
+//        line-height: 2em;
+//        max-height: 450px;
+//        min-width: 300px;
+//        overflow: auto;
+//        vertical-align: top;
+//        white-space: nowrap;
+//    }
+//}
 

@@ -2867,25 +2867,8 @@
         show_graph_data: function() {
             var widget = this;
             var table_data = [];
-            $('body').append('<div id="raw-data" class="popup mfp-hide">' +
-                '<table id="raw-data-table" class="table"></table></div>');
-            if (widget.graph.raw_data.length > 0) {
-                $.each(widget.graph.raw_data, function(i, metric) {
-                    $.each(metric.values, function(i, point_data) {
-                        table_data.push([metric.name, point_data.timestamp, point_data.value, metric.axis]);
-                    })
-                })
-            }
-            $('#raw-data-table').dataTable({
-                'aaData': table_data,
-                'aoColumns': [
-                    {'sTitle': 'Metric Name'},
-                    {'sTitle': 'Timestamp'},
-                    {'sTitle': 'Value'},
-                    {'sTitle': 'Display Axis'}
-                ],
-                'bDestroy': true
-            });
+            $('body').append('<div id="raw-data" class="popup mfp-hide">');
+            $('#raw-data').append('<div id="data-spinner" class="spinner"><div class="spinner-holder elegant-icons icon-loading"></div></div>');
             $.magnificPopup.open({
                 items: {
                     src: '#raw-data',
@@ -2895,23 +2878,47 @@
                 removalDelay: 300,
                 mainClass: 'popup-animate',
                 callbacks: {
-                    beforeOpen: function() {
-                        $('#raw-data-table').siblings('div.dataTables_filter').children('label').children('input').attr('size', '50');
-                        $('#raw-data-table').before('<div class="dataTables_exportCSV" id="raw-data-table_exportcsv"><span class="sw-button raw-data-export-csv-button" id="raw-data-export-csv-button">Export CSV</span></div>');
-                    },
-                    open: function() {
-                        $('span.raw-data-export-csv-button').click(function() {
-                            var raw_data_csv = 'Metric Name, Timestamp, Value, Display Axis\n';
-                            $.each(table_data, function(i, line) {
-                                raw_data_csv += line.join(',') + '\n';
-                            });
-                            window.location.href = 'data:text/csv;charset=UTF-8,' + encodeURIComponent(raw_data_csv);
-                        });
-                    },
                     afterClose: function() {
-                        widget.reset_data_table();
+                        $('#raw-data-table').DataTable().destroy({remove: true});
+                        $('#raw-data').remove();
                     }
                 }
+            });
+            if (widget.graph.raw_data.length > 0) {
+                $.each(widget.graph.raw_data, function(i, metric) {
+                    $.each(metric.values, function(i, point_data) {
+                        table_data.push([metric.name, point_data.timestamp, point_data.value, metric.axis]);
+                    })
+                })
+            }
+            $('#data-spinner').remove();
+            $('#raw-data').append('<table id="raw-data-table" class="table">');
+            var raw_data_table = $('table#raw-data-table');
+            raw_data_table.dataTable({
+                'aaData': table_data,
+                'aoColumns': [
+                    {'sTitle': 'Metric Name'},
+                    {'sTitle': 'Timestamp'},
+                    {'sTitle': 'Value'},
+                    {'sTitle': 'Display Axis'}
+                ],
+                'bDestroy': true,
+                'pageLength': 25,
+                'lengthChange': false
+            });
+            $('#raw-data-table_filter').children('label').contents().filter(function() {
+                return (this.nodeType == 3);
+            }).remove();
+            $('#raw-data-table_filter').children('label').children('input').attr('placeholder', 'Filter');
+            raw_data_table.before('<div id="raw-data-datable_exportcsv" class="dataTables_exportCSV">' +
+                    '<span id="raw-data-export-csv-button" class="sw-button raw-data-export-csv-button">' +
+                    'Export CSV</span></div>');
+            $('span.raw-data-export-csv-button').click(function() {
+                var raw_data_csv = 'Metric Name,Timestamp,Value,Display Axis\n';
+                $.each(table_data, function(i, line) {
+                    raw_data_csv += line.join(',') + '\n';
+                });
+                window.location.href = 'data:text/csv;charset=UTF-8,' + encodeURIComponent(raw_data_csv);
             });
         },
         reset_data_table: function() {
