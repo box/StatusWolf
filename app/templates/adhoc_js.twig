@@ -175,14 +175,28 @@
         chain.done(function(data) {
             console.log(data);
             var search_list_options = $('ul#load-saved-search-menu-options');
-            var my_search_list = $('table#my-searches-list-table');
-            var shared_search_list = $('table#shared-searches-list-table');
+            var my_search_list_table = $('table#my-searches-list-table');
+            var shared_search_list_table = $('table#shared-searches-list-table');
+            var my_search_list = [];
+            var shared_search_list = [];
+            var my_search_columns = [
+                {'sTitle': 'Title'},
+                {'sTitle': 'Datasource'}
+            ];
+            var shared_search_columns = [
+                {'sTitle': 'Title'},
+                {'sTitle': 'Datasource'},
+                {'sTitle': 'Owner'}
+            ];
 
             search_list_options.empty();
-            my_search_list.empty()
-                .append('<tr><th>Title</th><th>Datasource</th></tr>');
-            shared_search_list.empty()
-                .append('<tr><th>Title</th><th>Datasource</th><th>Owner</th></tr>');
+
+            if ($.fn.dataTable.isDataTable('#my-searches-list-table')) {
+                my_search_list_table.DataTable().destroy();
+            }
+            if ($.fn.dataTable.isDataTable('#shared-searches-list-table')) {
+                shared_search_list_table.DataTable().destroy();
+            }
 
             if (data.user_searches.length > 0) {
                 search_list_options.append('<li class="menu-section"><span>My Searches</span></li>');
@@ -192,9 +206,10 @@
                     menu_length--;
                 }
                 $.each(data.user_searches, function(i, search) {
-                    my_search_list.append('<tr class="search-item"><td>' +
-                        '<a href="{{ url('home') }}adhoc/' + search.datasource + '/saved/' + search.id + '">' +
-                        search.title + '</a></td><td>' + search.datasource + '</td></tr>');
+                    my_search_list.push([
+                        '<a href="{{  url('home')  }}adhoc/' + search.datasource + '/saved/' + search.id + '">' + search.title + '</a>',
+                        search.datasource
+                    ]);
                 });
             }
             if (menu_length > 0 && data.shared_searches.length > 0) {
@@ -211,16 +226,41 @@
                 }
                 $.each(data.shared_searches, function(i, search) {
                     if (search.user_id === document._session.adhoc_userid) {
-                        shared_search_list.children('tbody').children('tr:first-child').after('<tr class="search-item"><td>' +
-                            '<a href="{{ url('home') }}adhoc/' + search.datasource + '/saved/' + search.id + '">' +
-                            search.title + '</a></td><td>' + search.datasource + '</td><td>' + search.username + '</td></tr>');
+                        shared_search_list.unshift([
+                            '<a href="{{ url('home') }}adhoc/' + search.datasource + '/saved/' + search.id + '">' + search.title + '</a>',
+                            search.datasource,
+                            search.username
+                        ]);
                     } else {
-                        shared_search_list.append('<tr class="search-item"><td>' +
-                            '<a href="{{ url('home') }}adhoc/' + search.datasource + '/saved/' + search.id + '">' +
-                            search.title + '</a></td><td>' + search.datasource + '</td><td>' + search.username + '</td></tr>')
+                        shared_search_list.push([
+                                '<a href="{{ url('home') }}adhoc/' + search.datasource + '/saved/' + search.id + '">' + search.title + '</a>',
+                            search.datasource,
+                            search.username
+                        ]);
                     }
                 });
             }
+
+            my_search_list_table.dataTable({
+                'aaData': my_search_list,
+                'aoColumns': my_search_columns,
+                'lengthChange': false
+            });
+            shared_search_list_table.dataTable({
+                'aaData': shared_search_list,
+                'aoColumns': shared_search_columns,
+                'lengthChange': false
+            });
+            // Remove the 'Search:' label from the search field and replace it
+            // with placeholder text.
+            $('#my-searches-list-table_filter').children('label').contents().filter(function() {
+                return (this.nodeType == 3);
+            }).remove();
+            $('#my-searches-list-table_filter').children('label').children('input').attr('placeholder', 'Filter');
+            $('#shared-searches-list-table_filter').children('label').contents().filter(function() {
+                return (this.nodeType == 3);
+            }).remove();
+            $('#shared-searches-list-table_filter').children('label').children('input').attr('placeholder', 'Filter');
 
             var my_search_count = data.user_searches.length;
             var shared_search_count = data.shared_searches.length;
@@ -448,13 +488,6 @@
                                 return;
                         }
                     } else {
-                        $.when(build_saved_search_menu()).then(
-                            function(data) {
-                                if (data[0] == 0 && data[1] > 0) {
-                                    $('ul#load-saved-search-menu-options').append('<li id="full-search-list"><span>More...</span></li>');
-                                }
-                            }
-                        );
                         $.magnificPopup.open({
                             items: {
                                 src: '#success-popup',
@@ -464,13 +497,21 @@
                             mainClass: 'popup-animate',
                             removalDelay: 300
                         });
-                        setTimeout(function() {
-                            $.magnificPopup.close();
-                            var url_search_id = window.location.pathname.split('/').pop();
-                            if (url_search_id !== search_id) {
-                                window.location.href = '/adhoc/' + widget_datasource + '/saved/' + search_id;
-                            }
-                        }, 750);
+                        var url_search_id = window.location.pathname.split('/').pop();
+                        if (url_search_id !== search_id) {
+                            window.location.href = '/adhoc/' + widget_datasource + '/saved/' + search_id;
+                        } else {
+                            $.when(build_saved_search_menu()).then(
+                                function(data) {
+                                    if (data[0] == 0 && data[1] > 0) {
+                                        $('ul#load-saved-search-menu-options').append('<li id="full-search-list"><span>More...</span></li>');
+                                    }
+                                }
+                            );
+                            setTimeout(function() {
+                                $.magnificPopup.close();
+                            }, 750);
+                        }
                     }
                 }
             });

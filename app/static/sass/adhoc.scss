@@ -1,4 +1,5 @@
 @import 'colors_dark';
+@import 'mixins';
 
 .adhoc-container {
     height: 90%;
@@ -15,6 +16,8 @@
 }
 
 #search-list-popup {
+    min-width: 900px;
+    min-height: 600px;
     table {
         margin-right: 20px;
         border-spacing: 0;
@@ -35,10 +38,8 @@
         vertical-align: top;
     }
     .saved-search-list {
-        font-size: 0.75em;
         line-height: 2em;
-        max-height: 400px;
-        min-width: 350px;
+        min-width: 400px;
         overflow: auto;
         vertical-align: top;
         white-space: nowrap;

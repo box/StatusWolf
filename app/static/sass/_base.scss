@@ -810,6 +810,33 @@ button.mfp-close {
     margin-bottom: 20px;
 }
 
+.dataTables_paginate {
+    .paginate_button {
+        margin: 0 10px;
+        padding: 2px 8px;
+        font-size: 0.75em;
+        line-height: 1.5em;
+        font-weight: normal;
+        cursor: pointer;
+    }
+    .paginate_button.previous,
+    .paginate_button.next {
+        display: inline-block;
+        background-color: $button_bg;
+        border: 1px solid $button_border;
+        @include sw-button-radius;
+    }
+    .paginate_button.current {
+        color: $font_bright;
+        cursor: default;
+    }
+    .paginate_button.disabled {
+        cursor: default;
+        color: $font_dim;
+        background-color: $button_border_pushed;
+    }
+}
+
 /*
  *================
  * Tooltip Classes
