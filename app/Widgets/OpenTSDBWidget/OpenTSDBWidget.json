@@ -18,6 +18,9 @@
     "dependencies": {
         "js": [
             "bootstrap-datetimepicker.js"
+        ],
+        "css": [
+            "sw.opentsdbwidget.css"
         ]
     },
     "datasource": "OpenTSDB"

@@ -10,23 +10,14 @@
     document._session.dashboard_userid = '{{ user_id }}';
     document._session.dashboard_columns = '{{ app.session.get('columns') ?: '2' }}';
 
+    dependencies_event = new Event('dependencies_loaded');
+
     {% if dashboard_id %}
         dashboard_id = '{{ dashboard_id }}';
     {% endif %}
     {% if opentsdb_tags %}
         opentsdb_tags = eval({{ opentsdb_tags|raw }});
     {% endif %}
-
-    if (dashboard_id) {
-        console.log('Loading dashboard ' + dashboard_id);
-        $.when(get_dashboard_config(dashboard_id)).then(
-            function(data) {
-                document._session.dashboard_id = dashboard_id;
-                document._session.dashboard_owner = data.user_id;
-                build_dashboard(data);
-            }
-        )
-    }
 
     $('document').ready(function() {
         var widgets = eval({{ widgets_json|raw }});
@@ -36,19 +27,35 @@
             var widget_type = widget_data.name.split('.');
             $('#add-widget-menu-options').append('<li onclick="add_widget(\'' + widget_type[1] + '\')"><span>' + widget_data.title + '</span></li>');
             console.log('Checking widget dependencies');
-            console.log(typeof widget_data.dependencies);
             if (typeof widget_data.dependencies !== "undefined") {
                 if (typeof widget_data.dependencies.js !== "undefined") {
                     console.log('loading js dependencies for ' + widget_type[1]);
                     $.each(widget_data.dependencies.js, function(i, js) {
-                        console.log('loading script ' + js);
                         if ($('script[src*="' + js + '"]').length === 0) {
-                            loadScript(window.location.origin + '/static/js/lib/' + js, function() {});
+                            console.log('loading script ' + js);
+//                            loadScript(window.location.origin + '/static/js/lib/' + js, function() {});
+                            $.getScript('/static/js/lib/' + js)
+                                .done(function(script, textStatus) {
+                                    console.log(textStatus);
+                                });
                         }
                     });
                 }
+                if (typeof widget_data.dependencies.css !== "undefined") {
+                    console.log('loading css dependencies for ' + widget_type[1]);
+                    $.each(widget_data.dependencies.css, function(i, css) {
+                        if ($('link[src*="' + css + '"]').length === 0) {
+                            console.log('loading stylesheet ' + css);
+                            var widget_css = document.createElement('link');
+                            widget_css.setAttribute('rel', 'stylesheet');
+                            widget_css.setAttribute('href', '/Widgets/' + widget_index + '/css/' + css);
+                            document.getElementsByTagName('head')[0].appendChild(widget_css);
+                        }
+                    })
+                }
             }
         });
+        document.dispatchEvent(dependencies_event);
 
         $('#dashboard-menu').after('<div class="dashboard-columns menubar-button info-tooltip" id="three-cols" title="Set 3-Column Layout" data-columns="3"><span class="menu-label">III</span></div>');
         $('#three-cols').css('right', $('#login-button').outerWidth());
@@ -119,6 +126,19 @@
                 }
             }
         });
+    });
+
+    document.addEventListener('dependencies_loaded', function() {
+        if (dashboard_id) {
+            console.log('Loading dashboard ' + dashboard_id);
+            $.when(get_dashboard_config(dashboard_id)).then(
+                function(data) {
+                    document._session.dashboard_id = dashboard_id;
+                    document._session.dashboard_owner = data.user_id;
+                    build_dashboard(data);
+                }
+            )
+        }
     });
 
     $('#save-dashboard-popup').on('click', '#shared-dashboard-button', function() {
@@ -383,26 +403,28 @@
             }
 
             $.each(dashboard_config.widgets, function(widget_id, query_data) {
-                $('#dashboard-container').append('<div class="widget-container cols-' + document._session.dashboard_columns + '" id="' + widget_id + '" data-widget-type="' + query_data.widget_type + '">')
-                if (query_data['widget_type'] === "opentsdbwidget") {
-                    console.log('checking for OpenTSDB tags in the query');
-                    if (typeof opentsdb_tags !== "undefined" && Object.keys(opentsdb_tags).length > 0) {
-                        console.log(opentsdb_tags);
-                        $.each(query_data.metrics, function(search_key, search_params) {
-                            var search_tags = create_tag_object(search_params.tags || []);
-                            $.each(opentsdb_tags, function(new_tag_key, new_tag_value) {
-                                if (new_tag_value.length === 0) {
-                                    if (typeof search_tags[new_tag_key] !== "undefined") {
-                                        delete(search_tags[new_tag_key]);
-                                    }
-                                } else {
-                                    search_tags[new_tag_key] = new_tag_value;
-                                }
-                            });
-                            search_params.tags = create_tag_list(search_tags);
-                        });
-                    }
-                }
+                console.log('adding widget ' + widget_id);
+                console.log(query_data);
+                $('#dashboard-container').append('<div class="widget-container cols-' + document._session.dashboard_columns + '" id="' + widget_id + '" data-widget-type="' + query_data.widget_type + '">');
+//                if (query_data['widget_type'] === "opentsdbwidget") {
+//                    console.log('checking for OpenTSDB tags in the query');
+//                    if (typeof opentsdb_tags !== "undefined" && Object.keys(opentsdb_tags).length > 0) {
+//                        console.log(opentsdb_tags);
+//                        $.each(query_data.metrics, function(search_key, search_params) {
+//                            var search_tags = create_tag_object(search_params.tags || []);
+//                            $.each(opentsdb_tags, function(new_tag_key, new_tag_value) {
+//                                if (new_tag_value.length === 0) {
+//                                    if (typeof search_tags[new_tag_key] !== "undefined") {
+//                                        delete(search_tags[new_tag_key]);
+//                                    }
+//                                } else {
+//                                    search_tags[new_tag_key] = new_tag_value;
+//                                }
+//                            });
+//                            search_params.tags = create_tag_list(search_tags);
+//                        });
+//                    }
+//                }
                 var new_widget = $('div#' + widget_id)[query_data['widget_type']](query_data.options, { query_data: query_data });
                 setTimeout(function() {
                     $(new_widget).removeClass('transparent');

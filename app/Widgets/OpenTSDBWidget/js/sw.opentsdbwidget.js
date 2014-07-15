@@ -44,15 +44,6 @@
                 sw_opentsdbwidget_querycancelbutton,
                 sw_opentsdbwidget_gobutton;
 
-            // If this is the first OpenTSDB widget added, load the
-            // widget-specific CSS file
-            if ($('link[href*="opentsdb"]').length === 0) {
-                var widget_css = document.createElement('link');
-                widget_css.setAttribute('rel', 'stylesheet');
-                widget_css.setAttribute('href', window.location.origin + '/Widgets/OpenTSDBWidget/css/sw.opentsdbwidget.css');
-                document.getElementsByTagName('head')[0].appendChild(widget_css);
-            }
-
             this.sw_opentsdbwidget_timespanmap = {
                 '600': '10 Minutes',
                 '1800': '30 Minutes',
