@@ -131,7 +131,7 @@ class ApiSearchController implements ControllerProviderInterface {
                 $saved_search_config = unserialize($serialized_search);
             }
 
-            return json_encode($saved_search_config);
+            return json_encode(array('search_owner' => $saved_search['user_id'], 'search_config' => $saved_search_config));
 
         });
 
@@ -148,46 +148,54 @@ class ApiSearchController implements ControllerProviderInterface {
             }
             $search_string = serialize($query_data['search']);
             $sw['logger']->addDebug(json_encode($query_data));
-            if (!$query_data['confirmation']) {
-                $check_id_sql = "SELECT * FROM saved_searches WHERE id='?' AND data_source='?' AND user_id='?'";
-                $id_query = $sw['db']->prepare($check_id_sql);
-                $id_query->bindValue(1, $search_id);
-                $id_query->bindValue(2, $datasource);
-                $id_query->bindValue(3, $query_data['user_id']);
-                $id_query->execute();
-                if ($id_result = $id_query->fetch()) {
-                    $sw['logger']->addDebug('Search ID already exists');
-                    return $sw->json(array('query_result' => 'Error', 'query_info' => 'ID'));
-                }
-
-                $check_title_sql = "SELECT * FROM saved_searches WHERE title='?' AND user_id='?'";
+            $sw['logger']->addDebug('confirmation? ' . $query_data['confirmation']);
+            if ($query_data['confirmation'] === "false") {
+                $sw['logger']->addDebug('checking for existing search with that title');
+                $check_title_sql = 'SELECT * FROM saved_searches WHERE title=? AND user_id=?';
                 $title_query = $sw['db']->prepare($check_title_sql);
-                $title_query->bindValue(1, $query_data['title']);
+                $title_query->bindValue(1, $query_data['search']['title']);
                 $title_query->bindValue(2, $query_data['user_id']);
                 $title_query->execute();
                 if ($title_result = $title_query->fetch()) {
                     $sw['logger']->addDebug('Search title already exists');
                     return $sw->json(array('query_result' => 'Error', 'query_info' => 'Title', 'query_data' => $title_result['id']));
                 }
+
+                $sw['logger']->addDebug('Checking for existing search with ID ' . $search_id . ', data_source ' . $datasource . ' and user_id ' . $query_data['user_id']);
+                $check_id_sql = 'SELECT * FROM saved_searches WHERE id=? AND data_source=? AND user_id=?';
+                $id_query = $sw['db']->prepare($check_id_sql);
+                $id_query->bindValue(1, $search_id);
+                $id_query->bindValue(2, $datasource);
+                $id_query->bindValue(3, $query_data['user_id']);
+                $id_query->execute();
+                if ($id_result = $id_query->fetchAll()) {
+                    $sw['logger']->addDebug('Search ID already exists');
+                    return $sw->json(array('query_result' => 'Error', 'query_info' => 'ID'));
+                }
+
             }
 
             try {
-                $sw['db']->executeUpdate("REPLACE INTO saved_searches VALUES(?, ?, ?, ?, ?, ?)",
+                $sw['logger']->addDebug('search parameters: id = ' . $search_id . ', title = ' . $query_data['search']['title'] . ', user_id = ' . $query_data['user_id'] . ', shared = ' . $query_data['shared'] . ', datasource = ' . $datasource);
+                $sw['logger']->addDebug($search_string);
+                $row_count = $sw['db']->executeUpdate('REPLACE INTO saved_searches SET id = ?, title = ?, user_id = ?, shared = ?, search_params = ?, data_source = ?',
                     array(
-                        $query_data['id'],
-                        $query_data['title'].
+                        $search_id,
+                        $query_data['search']['title'],
                         $query_data['user_id'],
                         $query_data['shared'],
                         $search_string,
-                        $query_data['data_source']
+                        $datasource
                     )
                 );
-                return $sw->json(array('query_result' => 'Success'));
+                $sw['logger']->addDebug('Update complete: ' . $row_count . ' rows updated');
             } catch(\PDOException $e) {
-                $sw['logger']->addInfo(sprintf('Failed to save search %s (%s)', $query_data['id'], $query_data['title']));
+                $sw['logger']->addInfo(sprintf('Failed to save search %s (%s)', $search_id, $query_data['search']['title']));
                 $sw['logger']->addDebug($e->getMessage());
                 return $sw->json(array('query_result' => 'Error', 'query_info' => $e->getMessage()));
             }
+            return $sw->json(array('query_result' => 'Success'));
+
         });
 
         $controllers->get('/shared/{datasource}/{search_id}', function(Application $sw, $datasource, $search_id) {

@@ -79,7 +79,16 @@
   margin-bottom: 15px;
 }
 
-/* line 74, ../sass/adhoc.scss */
+/* line 77, ../sass/adhoc.scss */
+#confirm-save-search-popup #confirmation-main #confirmation-info #save-new-title-prompt {
+  margin-top: 15px;
+}
+/* line 81, ../sass/adhoc.scss */
+#confirm-save-search-popup #confirmation-main #confirmation-buttons {
+  margin-top: 15px;
+}
+
+/* line 87, ../sass/adhoc.scss */
 li#change-datasource-menu-item {
   white-space: nowrap;
 }

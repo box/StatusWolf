@@ -71,6 +71,19 @@
     }
 }
 
+#confirm-save-search-popup {
+    #confirmation-main {
+        #confirmation-info {
+            #save-new-title-prompt {
+                margin-top: 15px;
+            }
+        }
+        #confirmation-buttons {
+            margin-top: 15px;
+        }
+    }
+}
+
 li#change-datasource-menu-item {
     white-space: nowrap;
 }
