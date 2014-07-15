@@ -1,9 +1,9 @@
-/* line 1, ../sass/adhoc.scss */
+/* line 3, ../sass/adhoc.scss */
 .adhoc-container {
   height: 90%;
 }
 
-/* line 5, ../sass/adhoc.scss */
+/* line 7, ../sass/adhoc.scss */
 .widget-container.opentsdb-widget.adhoc-widget {
   position: relative;
   top: 0;
@@ -12,4 +12,74 @@
   width: 100%;
   margin: 0;
   z-index: 2000;
+}
+
+/* line 18, ../sass/adhoc.scss */
+#search-list-popup table {
+  margin-right: 20px;
+  border-spacing: 0;
+}
+/* line 21, ../sass/adhoc.scss */
+#search-list-popup table td {
+  padding: 3px 5px;
+}
+/* line 24, ../sass/adhoc.scss */
+#search-list-popup table th {
+  font-size: 1em;
+  padding: 5px;
+}
+/* line 28, ../sass/adhoc.scss */
+#search-list-popup table tr.search-item:hover {
+  background-color: rgba(234, 234, 234, 0.25);
+  cursor: pointer;
+}
+/* line 33, ../sass/adhoc.scss */
+#search-list-popup .saved-search-box {
+  display: inline-block;
+  vertical-align: top;
+}
+/* line 37, ../sass/adhoc.scss */
+#search-list-popup .saved-search-list {
+  font-size: 0.75em;
+  line-height: 2em;
+  max-height: 400px;
+  min-width: 350px;
+  overflow: auto;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+/* line 49, ../sass/adhoc.scss */
+#save-search-popup h5 {
+  display: inline-block;
+}
+/* line 52, ../sass/adhoc.scss */
+#save-search-popup .save-search-form-buttons {
+  margin-top: 15px;
+}
+/* line 55, ../sass/adhoc.scss */
+#save-search-popup .popup-form-data {
+  margin-left: 0;
+  display: inline-block;
+}
+/* line 60, ../sass/adhoc.scss */
+#save-search-popup #public-search-button,
+#save-search-popup #save-search-times-button {
+  display: inline-block;
+  margin-left: 10px;
+}
+/* line 64, ../sass/adhoc.scss */
+#save-search-popup #save-search-info {
+  margin: 0 20px;
+  font-size: 0.8em;
+  max-width: 550px;
+}
+/* line 68, ../sass/adhoc.scss */
+#save-search-popup #save-search-info li {
+  margin-bottom: 15px;
+}
+
+/* line 74, ../sass/adhoc.scss */
+li#change-datasource-menu-item {
+  white-space: nowrap;
 }

@@ -19,8 +19,14 @@
     var widget_key = '{{ widget_type }}';
     var widget_type = adhoc_widget[widget_key].name.split('.')[1];
     var widget_datasource = '{{ datasource }}';
+    var datasource_options = eval({{ datasource_options|raw }});
 
     $('document').ready(function() {
+        $('#menu-placeholder').replaceWith({% include 'adhoc_menu.twig' %});
+        console.log(datasource_options);
+        $.each(datasource_options, function(i, datasource_name) {
+            $('#change-datasource-menu-options').append('<li><a href="/adhoc/' + datasource_name + '"><span>' + datasource_name + '</span></a></li>');
+        });
         if (typeof adhoc_widget[widget_key].dependencies !== "undefined") {
             if (typeof adhoc_widget[widget_key].dependencies.js !== "undefined") {
                 $.each(adhoc_widget[widget_key].dependencies.js, function(i, js) {
@@ -44,6 +50,80 @@
                 });
             }
         }
+
+        $.when(build_saved_search_menu()).then(function(data) {
+            console.log(data);
+            if (data[0] == 0 && data[1] > 0) {
+                $('ul#load-saved-search-menu-options').append('<li id="full-search-list"><span>More...</span></li>');
+            }
+        });
+
+        $('#adhoc-menu').on('click', 'li#full-search-list', function() {
+            $.magnificPopup.open({
+                items: {
+                    src: '#search-list-popup',
+                    type: 'inline'
+                },
+                preloader: false,
+                mainClass: 'popup-animate',
+                removalDelay: 300,
+                callbacks: {
+                    open: function() {
+                        setTimeout(function() {
+                            $('.container').addClass('blur');
+                            $('.menubar').addClass('blur');
+                        }, 150);
+                    },
+                    close: function() {
+                        setTimeout(function() {
+                            $('.container').removeClass('blur');
+                            $('.menubar').removeClass('blur');
+                        }, 150);
+                    }
+                }
+            })
+        });
+
+        $('#save-search-menu-choice').magnificPopup({
+            items: {
+                src: '#save-search-popup',
+                type: 'inline'
+            },
+            preloader: false,
+            focus: '#save-search-title',
+            removalDelay: 300,
+            mainClass: 'popup-animate',
+            callbacks: {
+                open: function() {
+                    setTimeout(function() {
+                        $('.container').addClass('blur');
+                        $('.menubar').addClass('blur');
+                    }, 150);
+                    if ($('text.graph-title').text().length > 1) {
+                        $('input#save-search-title').attr('value', $('text.graph-title').text());
+                    }
+                },
+                close: function() {
+                    $('.container').removeClass('blur');
+                    $('.menubar').removeClass('blur');
+                }
+            }
+        });
+
+        $('#save-search-popup').on('click', '#save-search-times-button', function() {
+            statuswolf_button(this);
+        }).on('click', '#public-search-button', function() {
+            statuswolf_button(this);
+        }).on('click', '#save-search-cancel-button', function() {
+            $.magnificPopup.close();
+        }).on('click', '#save-search-button', function() {
+            if (typeof document._session.search_id !== "undefined") {
+                if (document._session.adhoc_userid !== document._session.search_owner) {
+                    delete document._session.search_id;
+                }
+            }
+            save_search_handler(event, false);
+        });
     });
 
     function add_widget(widget_type) {
@@ -55,14 +135,93 @@
         $('div.widget-close').remove();
         $('ul.widget-action-options').children('li.dropdown').remove();
         $('li.clone-widget').remove();
+        $('div.saved-searches-menu').remove();
         setTimeout(function() {
             $(widget_div).removeClass('transparent');
         }, 100);
 
     }
 
+    function build_saved_search_menu() {
+        var menu_length = 15;
+        var item_length = 0;
+        var max;
+
+        var api_url = '{{ url('home') }}api/search/saved';
+        var get_search_list_object = new $.Deferred();
+        var get_search_list_query = $.ajax({
+            url: api_url,
+            type: 'GET',
+            dataType: 'json'
+        }),
+        chain = get_search_list_query.then(function(data) {
+            return data;
+        });
+
+        chain.done(function(data) {
+            console.log(data);
+            var search_list_options = $('ul#load-saved-search-menu-options');
+            var my_search_list = $('table#my-searches-list-table');
+            var shared_search_list = $('table#shared-searches-list-table');
+
+            search_list_options.empty();
+            my_search_list.empty()
+                .append('<tr><th>Title</th><th>Datasource</th></tr>');
+            shared_search_list.empty()
+                .append('<tr><th>Title</th><th>Datasource</th><th>Owner</th></tr>');
+
+            if (data.user_searches.length > 0) {
+                search_list_options.append('<li class="menu-section"><span>My Searches</span></li>');
+                max = (data.user_searches.length < menu_length ? data.user_searches.length : menu_length);
+                for (i = 0; i < max ; i++) {
+                    search_list_options.append('<li><a href="{{ url('home') }}adhoc/' + data.user_searches[i].datasource + '/saved/' + data.user_searches[i].id + '"><span>' + data.user_searches[i].title + '</span></a></li>');
+                    menu_length--;
+                }
+                $.each(data.user_searches, function(i, search) {
+                    my_search_list.append('<tr class="search-item"><td>' +
+                        '<a href="{{ url('home') }}adhoc/' + search.datasource + '/saved/' + search.id + '">' +
+                        search.title + '</a></td><td>' + search.datasource + '</td></tr>');
+                });
+            }
+            if (menu_length > 0 && data.shared_searches.length > 0) {
+                search_list_options.append('<li class="divider"></li>');
+                search_list_options.append('<li class="menu-section"><span>Shared Searches</span></li>');
+                max = (data.shared_searches.length < menu_length ? data.shared_searches.length : menu_length);
+                for (i = 0; i < max; i++) {
+                    if (data.shared_searches[i].user_id === document._session.adhoc_userid) {
+                        search_list_options.children('li.menu-section:last').after('<li><a href="{{ url('home') }}adhoc/' + data.shared_searches[i].datasource + '/saved/' + data.shared_searches[i].id +'"><span>' + data.shared_searches[i].title + '</span></a></li>');
+                    } else {
+                        search_list_options.append('<li><a href="{{ url('home') }}adhoc/' + data.shared_searches[i].datasource + '/saved' + data.shared_searches[i].id + '"><span>' + data.shared_searches[i].title + '</span></a></li>');
+                    }
+                    menu_length--;
+                }
+                $.each(data.shared_searches, function(i, search) {
+                    if (search.user_id === document._session.adhoc_userid) {
+                        shared_search_list.children('tbody').children('tr:first-child').after('<tr class="search-item"><td>' +
+                            '<a href="{{ url('home') }}adhoc/' + search.datasource + '/saved/' + search.id + '">' +
+                            search.title + '</a></td><td>' + search.datasource + '</td><td>' + search.username + '</td></tr>');
+                    } else {
+                        shared_search_list.append('<tr class="search-item"><td>' +
+                            '<a href="{{ url('home') }}adhoc/' + search.datasource + '/saved/' + search.id + '">' +
+                            search.title + '</a></td><td>' + search.datasource + '</td><td>' + search.username + '</td></tr>')
+                    }
+                });
+            }
+
+            var my_search_count = data.user_searches.length;
+            var shared_search_count = data.shared_searches.length;
+            item_length = my_search_count + shared_search_count;
+            console.log('menu length: ' + menu_length + ', item length: ' + item_length);
+
+            get_search_list_object.resolve([menu_length, item_length]);
+
+        });
+
+        return get_search_list_object.promise();
+    }
+
     function get_search_config(search_type, datasource, search_id) {
-        var api_url = '{{ url('home') }}api/datasource/' + datasource + '/' + search_type + '/' + search_id;
+        var api_url = '{{ url('home') }}api/search/saved/' + datasource + '/' + search_id;
         var get_search_object = new $.Deferred();
         var get_search_query = $.ajax({
             url: api_url,
@@ -70,7 +229,7 @@
             dataType: 'json'
         }),
         chain = get_search_query.then(function(data) {
-            return(data);
+            return data;
         });
 
         chain.done(function(data) {
@@ -183,6 +342,100 @@
                 $(widget_div).removeClass('transparent');
             }, 100);
         }
+    }
+
+    function save_search_handler(event, confirmation) {
+        var widget = $('.widget-container').data('sw-opentsdbwidget');
+        var search_config = {};
+        if ($('input#save-search-title').val().length < 1) {
+            $('input#save-search-title').addClass('missing-value').focus();
+        } else {
+            var form_title = $('input#save-search-title').val();
+            search_config.user_id = document._session.adhoc_userid;
+            if (widget.query_data.title.length > 0) {
+                if (widget.query_data.title !== form_title) {
+                    widget.query_data.title = form_title;
+                }
+            } else {
+                widget.query_data.title = form_title;
+            }
+            search_config.save_search_times = $('input#save-search-times').prop('checked') ? 1 : 0;
+            search_config.shared = $('input#public-search').prop('checked') ? 1 : 0;
+            search_config.confirmation = confirmation ? confirmation : false;
+            search_config.search = widget.query_data;
+            search_config.search_id = typeof document._session.search_id === "undefined" ? md5(search_config) : document._session.search_id;
+
+            var api_url = '{{ url('home') }}api/search/saved/' + widget_datasource + '/' + search_id;
+            $.ajax({
+                url: api_url,
+                type: 'POST',
+                data: search_config,
+                dataType: 'json'
+            }).done(function(data) {
+                if (typeof data.query_result !== "undefined") {
+                    if (data.query_result === "Error") {
+                        switch (data.query_info) {
+                            case "Title":
+                                $('div#confirmation-info').empty()
+                                    .append('<span>A search with that name already exists, overwrite or save with new title?</span>')
+                                    .append('<div id="save-new-title-promprt"><input type="text" class="input" id="save-search-new-title" name="save-search-new-title" size="50"></div>');
+                                $('input#save-search-new-title').attr('value', search_config.search.title);
+                                $('div#save-new-title-prompt').append('<input type="hidden" id="new-title-search-id" name="new-title-search-id" value="' + data.query_data + '">');
+                                $('div#confirmation-buttons').append('<div id="save-new-title-button" class="sw-button"><span>Save with new title</span></div>');
+                                $.magnificPopup.open({
+                                    items: {
+                                        src: '#confirm-save-search-popup',
+                                        type: 'inline'
+                                    },
+                                    preloader: false,
+                                    mainClass: 'popup-animate',
+                                    removalDealy: 300
+                                });
+                                return;
+                            case "ID":
+                                $('div#confirmation-info').empty()
+                                    .append('<span>A search with that ID already exists, overwrite?</span>');
+                                $.magnificPopup.open({
+                                    items: {
+                                        src: '#confim-save-search-popup',
+                                        type: 'inline'
+                                    },
+                                    preloader: false,
+                                    mainClass: 'popup-animate',
+                                    removalDelay: 300
+                                });
+                                return;
+                            default:
+                                $('div#failure-popup').empty()
+                                    .append('<span>There was an error saving your search.</span>')
+                                    .append('<br><span>' + data.query_info + '</span>');
+                                $.magnificPopup.open({
+                                    items: {
+                                        src: '#failure-popup',
+                                        type: 'inline'
+                                    },
+                                    preloader: false,
+                                    mainClass: 'popup-animate',
+                                    removalDelay: 300
+                                });
+                                return;
+                        }
+                    } else {
+
+                    }
+                }
+            });
+        }
+
+        $('div#confirm-save-search-popup').on('click', 'cancel-confirm-save-button', function() {
+            $.magnificPopup.close();
+        }).on('click', 'confirm-save-button', function() {
+            save_search_handler(event, true);
+        }).on('click', 'save-new-title-button', function() {
+            $('input#save-search-title').attr('value', $('input#save-search-new-title').val());
+            document._session.search_id = $('input#new-title-search-id');
+            save_search_handler(event, true)
+        })
     }
 
 </script>

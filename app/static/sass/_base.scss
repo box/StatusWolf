@@ -64,6 +64,10 @@ input.input-append {
     vertical-align: top;
 }
 
+input[type="text"].missing-value {
+    border: 2px solid red;
+}
+
 select {
     -webkit-appearance: push-button;
     -moz-appearance: push-button;
@@ -419,8 +423,8 @@ ul.sub-menu-item {
         float: right;
         position: relative;
         top: auto;
-        margin-top: -25px;
-        margin-left: -6px;
+        margin-top: -22px;
+        margin-left: -2px;
         -webkit-animation: fadeOut 0.5s;
         animation: fadeOut 0.5s;
         white-space: nowrap;
@@ -449,6 +453,18 @@ ul.sub-menu-item {
             -webkit-animation: fadeIn 0.5s;
             animation: fadeIn 0.5s;
             @include sw-radius;
+        }
+    }
+    li.dropdown {
+        div.menu-arrow-wrapper {
+            width: 100%;
+            white-space: nowrap;
+            span.sub-menu-arrow {
+                margin: 3px 5px 0 0;
+                position: absolute;
+                right: 0;
+                vertical-align: top;
+            }
         }
     }
 }

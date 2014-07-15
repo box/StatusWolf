@@ -41,22 +41,27 @@ class AdhocController implements ControllerProviderInterface {
             $fullname = $user instanceof SWUser ? $user->getFullName() : '';
             $user_id = $user instanceof SWUser ? $user->getId() : '0';
             $widgets = $sw['get_widgets'];
+            $widget_datasources = array();
+            foreach ($widgets as $type => $config) {
+                $widget_datasources[] = $config['datasource'];
+            }
             $datasource_key = $datasource . 'Widget';
             if (array_key_exists($datasource_key, $widgets)) {
                 $adhoc_widget = Array();
                 $adhoc_widget[$datasource_key] = $widgets[$datasource_key];
                 $adhoc_widget_json = json_encode($adhoc_widget);
                 return $sw['twig']->render('adhoc.html', array(
-                    'username'          => $username,
-                    'fullname'          => $fullname,
-                    'user_id'           => $user_id,
-                    'd3'                => $sw['sw_config.config']['graphing']['d3_location'],
-                    'datasource'        => $datasource,
-                    'widget_type'       => $datasource_key,
-                    'adhoc_widget'      => $adhoc_widget,
-                    'adhoc_widget_json' => $adhoc_widget_json,
-                    'extra_css'         => array('adhoc.css',),
-                    'extra_js'          => array(
+                    'username'           => $username,
+                    'fullname'           => $fullname,
+                    'user_id'            => $user_id,
+                    'd3'                 => $sw['sw_config.config']['graphing']['d3_location'],
+                    'datasource'         => $datasource,
+                    'datasource_options' => json_encode($widget_datasources),
+                    'widget_type'        => $datasource_key,
+                    'adhoc_widget'       => $adhoc_widget,
+                    'adhoc_widget_json'  => $adhoc_widget_json,
+                    'extra_css'          => array('adhoc.css',),
+                    'extra_js'           => array(
                         'sw_lib.js',
                         'lib/jquery-ui.js',
                         'lib/date.js',
@@ -76,24 +81,29 @@ class AdhocController implements ControllerProviderInterface {
             $fullname = $user instanceof SWUser ? $user->getFullName() : '';
             $user_id = $user instanceof SWUser ? $user->getId() : '0';
             $widgets = $sw['get_widgets'];
+            $widget_datasources = array();
+            foreach ($widgets as $type => $config) {
+                $widget_datasources[] = $config['datasource'];
+            }
             $datasource_key = $datasource . 'Widget';
             if (array_key_exists($datasource_key, $widgets)) {
                 $adhoc_widget = Array();
                 $adhoc_widget[$datasource_key] = $widgets[$datasource_key];
                 $adhoc_widget_json = json_encode($adhoc_widget);
                 return $sw['twig']->render('adhoc.html', array(
-                    'username'          => $username,
-                    'fullname'          => $fullname,
-                    'user_id'           => $user_id,
-                    'd3'                => $sw['sw_config.config']['graphing']['d3_location'],
-                    'datasource'        => $datasource,
-                    'widget_type'       => $datasource_key,
-                    'adhoc_widget'      => $adhoc_widget,
-                    'adhoc_widget_json' => $adhoc_widget_json,
-                    'search_type'       => 'saved',
-                    'search_id'         => $id,
-                    'extra_css'         => array('adhoc.css',),
-                    'extra_js'          => array(
+                    'username'           => $username,
+                    'fullname'           => $fullname,
+                    'user_id'            => $user_id,
+                    'd3'                 => $sw['sw_config.config']['graphing']['d3_location'],
+                    'datasource'         => $datasource,
+                    'datasource_options' => json_encode($widget_datasources),
+                    'widget_type'        => $datasource_key,
+                    'adhoc_widget'       => $adhoc_widget,
+                    'adhoc_widget_json'  => $adhoc_widget_json,
+                    'search_type'        => 'saved',
+                    'search_id'          => $id,
+                    'extra_css'          => array('adhoc.css',),
+                    'extra_js'           => array(
                         'sw_lib.js',
                         'status_wolf_colors.js',
                         'lib/jquery-ui.js',
@@ -113,24 +123,29 @@ class AdhocController implements ControllerProviderInterface {
             $fullname = $user instanceof SWUser ? $user->getFullName() : '';
             $user_id = $user instanceof SWUser ? $user->getId() : '0';
             $widgets = $sw['get_widgets'];
+            $widget_datasources = array();
+            foreach ($widgets as $type => $config) {
+                $widget_datasources[] = $config['datasource'];
+            }
             $datasource_key = $datasource . 'Widget';
             if (array_key_exists($datasource_key, $widgets)) {
                 $adhoc_widget = Array();
                 $adhoc_widget[$datasource_key] = $widgets[$datasource_key];
                 $adhoc_widget_json = json_encode($adhoc_widget);
                 return $sw['twig']->render('adhoc.html', array(
-                    'username'          => $username,
-                    'fullname'          => $fullname,
-                    'user_id'           => $user_id,
-                    'd3'                => $sw['sw_config.config']['graphing']['d3_location'],
-                    'datasource'        => $datasource,
-                    'widget_type'       => $datasource_key,
-                    'adhoc_widget'      => $adhoc_widget,
-                    'adhoc_widget_json' => $adhoc_widget_json,
-                    'search_type'       => 'shared',
-                    'search_id'         => $id,
-                    'extra_css'         => array('adhoc.css',),
-                    'extra_js'          => array(
+                    'username'           => $username,
+                    'fullname'           => $fullname,
+                    'user_id'            => $user_id,
+                    'd3'                 => $sw['sw_config.config']['graphing']['d3_location'],
+                    'datasource'         => $datasource,
+                    'datasource_options' => json_encode($widget_datasources),
+                    'widget_type'        => $datasource_key,
+                    'adhoc_widget'       => $adhoc_widget,
+                    'adhoc_widget_json'  => $adhoc_widget_json,
+                    'search_type'        => 'shared',
+                    'search_id'          => $id,
+                    'extra_css'          => array('adhoc.css',),
+                    'extra_js'           => array(
                         'sw_lib.js',
                         'status_wolf_colors.js',
                         'lib/jquery-ui.js',

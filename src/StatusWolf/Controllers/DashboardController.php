@@ -60,6 +60,7 @@ class DashboardController implements ControllerProviderInterface {
             $widgets = $sw['get_widgets'];
             $widgets_json = json_encode($widgets);
             $query_data = $request->query->all();
+            // @TODO: genericize this - should not be datasource specific
             if (count($query_data) > 0) {
                 $opentsdb_tags = json_encode($query_data);
             } else {

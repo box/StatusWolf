@@ -225,7 +225,7 @@
 
             $(window).resize(function() {
                 that.resize_graph();
-            })
+            });
 
             // @Todo - implement resizing and dragging
 //            $(that.sw_opentsdbwidget_container).resize(function() {
@@ -834,7 +834,8 @@
                     var saved_query = {};
                     if (search_id = $(this).children('td').children('span').attr('data-search-id')) {
                         $.ajax({
-                            url: window.location.origin + "/api/datasource/opentsdb/saved/" + search_id,
+                            url: window.location.origin + "/" +
+                                "/saved/OpenTSDB/" + search_id,
                             type: 'GET',
                             dataType: 'json',
                             success: function(data) {
@@ -1056,7 +1057,7 @@
         build_saved_search_menu: function() {
             var widget = this;
             var user_id = document._session.dashboard_userid;
-            var api_url = window.location.origin + '/api/datasource/opentsdb/saved_searches/' + user_id;
+            var api_url = window.location.origin + '/api/search/saved/OpenTSDB';
             var menu_length = 15;
             widget.saved_searches = {};
 
@@ -1106,7 +1107,7 @@
                         var search_bits = search_name.split('-');
                         var search_id = search_bits[1];
                         $.ajax({
-                            url: window.location.origin + "/api/datasource/opentsdb/saved/" + search_id,
+                            url: window.location.origin + "/api/search/saved/OpenTSDB/" + search_id,
                             type: 'GET',
                             dataType: 'json',
                             success: function(data) {

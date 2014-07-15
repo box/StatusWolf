@@ -1,0 +1,38 @@
+{% autoescape 'js' %}
+'<div class="adhoc-menu menubar-button dropdown" id="adhoc-menu">' +
+'   <span id="adhoc-menu-content" data-toggle="dropdown">' +
+'       <span class="menu-lable" id="adhoc-menu-label">Options</span>' +
+'       <span class="elegant-icons arrow-triangle-down"></span>' +
+'   </span>' +
+'   <ul class="dropdown-menu sub-menu-item" id="adhoc-menu-options" role="menu" aria-labelledby="dLabel">' +
+'       <li id="clear-search-menu-choice">' +
+'           <a href="{{ url('home') }}adhoc/{{ datasource }}"><span>Clear Search</span></a>' +
+'       </li>' +
+'       <li id="load-saved-search-menu-item" class="dropdown">' +
+'           <div class="menu-arrow-wrapper">' +
+'               <span>Load Search</span>' +
+'               <span class="elegant-icons arrow-triangle-right sub-menu-arrow"></span>' +
+'           </div>' +
+'           <ul id="load-saved-search-menu-options" class="dropdown-menu sub-menu"></ul>' +
+'       </li>' +
+{% if user_id > 0 %}
+'       <li id="save-search-menu-choice">' +
+'           <span>Save Search</span>' +
+'       </li>' +
+{% endif %}
+'       <li id="share-search-menu-choice">' +
+'           <span>Share Search</span>' +
+'       </li>' +
+'       <li class="dropdown" id="change-datasource-menu-item">' +
+'           <div class="menu-arrow-wrapper">' +
+'               <span>Change Datasource</span>' +
+'               <span class="elegant-icons arrow-triangle-right sub-menu-arrow"></span>' +
+'           </div>' +
+'           <ul class="dropdown-menu sub-menu" id="change-datasource-menu-options"></ul>' +
+'       </li>' +
+'       <li id="dashboard-menu-choice">' +
+'           <a href="{{ url('home') }}dashboard"><span>Go To Dashboard</span></a>' +
+'       </li>' +
+'   </ul>' +
+'</div>'
+{% endautoescape %}

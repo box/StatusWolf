@@ -6,6 +6,83 @@
       <div id="adhoc-container" class="adhoc-container"></div>
     </div>
 
+    <div id="search-list-popup" class="popup mfp-hide">
+      <div id="my-searches-box" class="saved-search-box">
+        <div id="my-searches-head">
+          <h2>My Searches</h2>
+        </div>
+        <div id="my-searches-list" class="saved-search-list">
+          <table id="my-searches-list-table"></table>
+        </div>
+      </div>
+      <div id="shared-searches-box" class="saved-search-box">
+        <div id="shared-searches-head">
+          <h2>Shared Searches</h2>
+        </div>
+        <div id="shared-searches-list" class="saved-search-list">
+          <table id="shared-searches-list-table"></table>
+        </div>
+      </div>
+    </div>
+
+    <div id="save-search-popup" class="popup mfp-hide">
+      <div id="save-search-form">
+        <form onsubmit="return false">
+          <h5 style="display: inline-block;">Title: </h5>
+          <div class="popup-form-data">
+            <input type="text" class="input" id="save-search-title" name="search-title" size="50" placeholder="Please specify a title for your search">
+          </div>
+          <div class="sw-button push-button" id="save-search-times-button">
+            <input type="checkbox" id="save-search-times" name="save-search-times"><label for="save-search-times"><span class="elegant-icons icon-close-alt red"></span><span class="button-label">Save Search Times</span></label>
+          </div>
+          <div class="sw-button push-button" id="public-search-button">
+            <input type="checkbox" id="public-search" name="public-search"><label for="public-search"><span class="elegant-icons icon-close-alt red"></span><span class="button-label">Public Search</span></label>
+          </div>
+        </form>
+      </div>
+      <div id="save-search-info">
+        <ul>
+          <li><em>Save Search Times:</em> If selected, will save the exact times for this search.<br>
+            If not selected and the search was built with specific start and end times, you will be prompted
+            for new times when loading the search.<br>
+            If not selected and the search was built with a time span (e.g. "Show me the past 8 hours"), the
+            span setting will be saved with the search and used when it is loaded again.
+          </li>
+          <li><em>Public Search: </em>If selected, this search will show up for all users in their Shared Searches
+            list. Otherwise it will be visible only to you, in your Saved Searches list.
+          </li>
+        </ul>
+      </div>
+      <div id="save-search-action-buttons">
+        <div class="save-search-form-buttons">
+          <div class="sw-button" id="save-search-cancel-button"><span>Cancel</span></div>
+          <div class="sw-button" id="save-search-button"><span>Save</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="confirm-save-search-popup" class="popup mfp-hide">
+      <div id="confirmation-main">
+        <div id="confirmation-info"></div>
+        <div id="confirmation-buttons">
+          <div id="cancel-confirm-save-button" class="sw-button"><span>Cancel</span></div>
+          <div id="confirm-save-button" class="sw-button"><span>Overwrite</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="failure-popup" class="popup mfp-hide">
+      <h5>Error</h5>
+      <div id="failure-info" class="popup-form-data"></div>
+    </div>
+
+    <div id="success-popup" class="popup mfp-hide">
+      <h5>Success</h5>
+      <div id="success-info" class="popup-form-data">
+        Your search has been saved.
+      </div>
+    </div>
+
     {% if extra_js %}
       {% for js in extra_js %}
         <script type="text/javascript" src="{{ url('home') }}static/js/{{ js }}"></script>
