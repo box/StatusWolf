@@ -80,7 +80,9 @@
             }
         );
 
-        $('#dashboard-menu').on('click', 'li#full-dashboard-list', function() {
+        $('#dashboard-menu').on('click', 'li#clear-dashboard-menu-choice', function() {
+            window.location.href = '/dashboard/';
+        }).on('click', 'li#full-dashboard-list', function() {
             $.magnificPopup.open({
                 items: {
                     src: '#dashboard-list-popup',
@@ -102,6 +104,11 @@
                     }
                 }
             })
+        });
+
+        $('ul#load-dashboard-menu-options').on('click', 'li', function() {
+            var target_dashboard = $(this).attr('data-dashboard-id');
+            window.location.href = '/dashboard/' + target_dashboard;
         });
 
         $('#save-dashboard-menu-choice').magnificPopup({
@@ -231,7 +238,7 @@
 
             dashboard_options.empty();
 
-            if ($.fn.dataTable.isDataTable('#my-dashboards-list-talbe')) {
+            if ($.fn.dataTable.isDataTable('#my-dashboards-list-table')) {
                 my_dashboards_table.DataTable().destroy();
             }
             if ($.fn.dataTable.isDataTable('#shared-dashboards-list-table')) {
@@ -242,7 +249,7 @@
                 dashboard_options.append('<li class="menu-section"><span>My Searches</span></li>');
                 max = (data.user_dashboards.length < menu_length ? data.user_dashboards.length : menu_length);
                 for (i = 0; i < max; i++) {
-                    dashboard_options.append('<li><span><a href="{{ url('home') }}dashboard/' + data.user_dashboards[i]['id'] + '">' + data.user_dashboards[i]['title'] + '</span></li>');
+                    dashboard_options.append('<li data-dashboard-id="' + data.user_dashboards[i].id + '"><span>' + data.user_dashboards[i]['title'] + '</span></li>');
                     menu_length--;
                 }
                 $.each(data.user_dashboards, function(i, dashboard) {
@@ -258,9 +265,9 @@
                 max = (data.shared_dashboards.length < menu_length ? data.shared_dashboards.length : menu_length);
                 for (i = 0; i < max; i++) {
                     if (data.shared_dashboards[i]['user_id'] === document._session.dashboard_userid) {
-                        dashboard_options.children('li.menu-section:last').after('<li><span><a href="{{ url('home') }}dashboard/' + data.shared_dashboards[i]['id'] + '">' + data.shared_dashboards[i]['title'] + ' (' + data.shared_dashboards[i]['username'] + ')</a></span></li>');
+                        dashboard_options.children('li.menu-section:last').after('<li data-dashboard-id="' + data.shared_dashboards[i].id + '"><span>' + data.shared_dashboards[i]['title'] + ' (' + data.shared_dashboards[i]['username'] + ')</span></li>');
                     } else {
-                        $('#load-dashboard-menu-options').append('<li><span><a href="{{ url('home') }}dashboard/' + data.shared_dashboards[i]['id'] + '">' + data.shared_dashboards[i]['title'] + ' (' + data.shared_dashboards[i]['username'] + ')</a></span></li>');
+                        dashboard_options.append('<li data-dashboard-id="' + data.shared_dashboards[i].id + '"><span>' + data.shared_dashboards[i]['title'] + ' (' + data.shared_dashboards[i]['username'] + ')</span></li>');
                     }
                     menu_length--;
                 }
@@ -406,25 +413,25 @@
                 console.log('adding widget ' + widget_id);
                 console.log(query_data);
                 $('#dashboard-container').append('<div class="widget-container cols-' + document._session.dashboard_columns + '" id="' + widget_id + '" data-widget-type="' + query_data.widget_type + '">');
-//                if (query_data['widget_type'] === "opentsdbwidget") {
-//                    console.log('checking for OpenTSDB tags in the query');
-//                    if (typeof opentsdb_tags !== "undefined" && Object.keys(opentsdb_tags).length > 0) {
-//                        console.log(opentsdb_tags);
-//                        $.each(query_data.metrics, function(search_key, search_params) {
-//                            var search_tags = create_tag_object(search_params.tags || []);
-//                            $.each(opentsdb_tags, function(new_tag_key, new_tag_value) {
-//                                if (new_tag_value.length === 0) {
-//                                    if (typeof search_tags[new_tag_key] !== "undefined") {
-//                                        delete(search_tags[new_tag_key]);
-//                                    }
-//                                } else {
-//                                    search_tags[new_tag_key] = new_tag_value;
-//                                }
-//                            });
-//                            search_params.tags = create_tag_list(search_tags);
-//                        });
-//                    }
-//                }
+                if (query_data['widget_type'] === "opentsdbwidget") {
+                    console.log('checking for OpenTSDB tags in the query');
+                    if (typeof opentsdb_tags !== "undefined" && Object.keys(opentsdb_tags).length > 0) {
+                        console.log(opentsdb_tags);
+                        $.each(query_data.metrics, function(search_key, search_params) {
+                            var search_tags = create_tag_object(search_params.tags || []);
+                            $.each(opentsdb_tags, function(new_tag_key, new_tag_value) {
+                                if (new_tag_value.length === 0) {
+                                    if (typeof search_tags[new_tag_key] !== "undefined") {
+                                        delete(search_tags[new_tag_key]);
+                                    }
+                                } else {
+                                    search_tags[new_tag_key] = new_tag_value;
+                                }
+                            });
+                            search_params.tags = create_tag_list(search_tags);
+                        });
+                    }
+                }
                 var new_widget = $('div#' + widget_id)[query_data['widget_type']](query_data.options, { query_data: query_data });
                 setTimeout(function() {
                     $(new_widget).removeClass('transparent');

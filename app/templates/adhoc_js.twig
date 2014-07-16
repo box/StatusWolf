@@ -28,6 +28,17 @@
             $('#change-datasource-menu-options').append('<li><a href="/adhoc/' + datasource_name + '"><span>' + datasource_name + '</span></a></li>');
         });
         if (typeof adhoc_widget[widget_key].dependencies !== "undefined") {
+            if (typeof adhoc_widget[widget_key].dependencies.css !== "undefined") {
+                $.each(adhoc_widget[widget_key].dependencies.css, function(i, css) {
+                    if ($('link[src*="' + css + '"]').length === 0) {
+                        console.log('loading stylesheet ' + css);
+                        var widget_css = document.createElement('link');
+                        widget_css.setAttribute('rel', 'stylesheet');
+                        widget_css.setAttribute('href', '/Widgets/' + widget_key + '/css/' + css);
+                        document.getElementsByTagName('head')[0].appendChild(widget_css);
+                    }
+                })
+            }
             if (typeof adhoc_widget[widget_key].dependencies.js !== "undefined") {
                 $.each(adhoc_widget[widget_key].dependencies.js, function(i, js) {
                     if ($('script[src*=" + js + "]').length === 0) {
