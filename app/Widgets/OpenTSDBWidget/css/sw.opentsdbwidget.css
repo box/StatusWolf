@@ -629,3 +629,8 @@
 #change-title-popup #change-graph-title-buttons {
   margin: 10px 0 10px 10px;
 }
+
+/* line 568, ../sass/sw.opentsdbwidget.scss */
+#save-search-popup div#save-search-options {
+  margin-left: 30px;
+}

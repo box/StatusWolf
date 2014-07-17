@@ -563,40 +563,9 @@
         margin: 10px 0 10px 10px;
     }
 }
-//
-//#saved-search-list-popup {
-//    margin-bottom: 15px;
-//    max-height: 500px;
-//    overflow: hidden;
-//    table {
-//        margin-right: 20px;
-//        border-spacing: 0;
-//        tr {
-//            th {
-//                font-size: 1em;
-//                padding: 5px;
-//            }
-//            td {
-//                padding: 3px 5px;
-//            }
-//        }
-//        tr.search-item:hover {
-//            background-color: $popup_mfp_bg;
-//            cursor: pointer;
-//        }
-//    }
-//    .saved-search-box {
-//        display: inline-block;
-//        vertical-align: top;
-//    }
-//    .saved-search-list {
-//        font-size: 0.75em;
-//        line-height: 2em;
-//        max-height: 450px;
-//        min-width: 300px;
-//        overflow: auto;
-//        vertical-align: top;
-//        white-space: nowrap;
-//    }
-//}
 
+#save-search-popup {
+    div#save-search-options {
+        margin-left: 30px;
+    }
+}

@@ -1000,38 +1000,126 @@ button.mfp-close {
   display: inline-block;
 }
 
+/* line 806, ../sass/_base.scss */
+.confirmation-popup .confirmation-main .confirmation-info #save-new-title-prompt {
+  margin-top: 15px;
+}
+/* line 810, ../sass/_base.scss */
+.confirmation-popup .confirmation-main .confirmation-buttons {
+  margin-top: 15px;
+}
+
+/* line 817, ../sass/_base.scss */
+#save-search-popup h5 {
+  display: inline-block;
+  margin-right: 5px;
+}
+/* line 821, ../sass/_base.scss */
+#save-search-popup .save-search-form-buttons {
+  margin-top: 15px;
+}
+/* line 824, ../sass/_base.scss */
+#save-search-popup .popup-form-data {
+  margin-left: 0;
+  display: inline-block;
+}
+/* line 829, ../sass/_base.scss */
+#save-search-popup #save-search-times-button,
+#save-search-popup #public-search-button {
+  display: inline-block;
+  margin-left: 10px;
+}
+/* line 833, ../sass/_base.scss */
+#save-search-popup #save-search-info {
+  margin: 0 20px;
+  font-size: 0.8em;
+  max-width: 550px;
+}
+/* line 837, ../sass/_base.scss */
+#save-search-popup #save-search-info li {
+  margin-bottom: 15px;
+}
+
+/* line 843, ../sass/_base.scss */
+#search-list-popup {
+  width: 1100px;
+  height: 600px;
+}
+/* line 846, ../sass/_base.scss */
+#search-list-popup table {
+  table-layout: fixed;
+  margin-right: 20px;
+  border-spacing: 0;
+}
+/* line 850, ../sass/_base.scss */
+#search-list-popup table td {
+  padding: 3px 5px;
+}
+/* line 853, ../sass/_base.scss */
+#search-list-popup table td:first-child {
+  width: 300px;
+  min-width: 300px;
+  max-width: 300px;
+  overflow: hidden;
+}
+/* line 859, ../sass/_base.scss */
+#search-list-popup table th {
+  font-size: 1em;
+  padding: 5px;
+}
+/* line 863, ../sass/_base.scss */
+#search-list-popup table tr.search-item:hover {
+  background-color: rgba(234, 234, 234, 0.25);
+  cursor: pointer;
+}
+/* line 868, ../sass/_base.scss */
+#search-list-popup .saved-search-box {
+  display: inline-block;
+  vertical-align: top;
+  height: 100%;
+}
+/* line 873, ../sass/_base.scss */
+#search-list-popup .saved-search-list {
+  line-height: 2em;
+  width: 525px;
+  height: 92%;
+  overflow: auto;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
 /*
  *==============
  * Table classes
  *==============
  */
-/* line 808, ../sass/_base.scss */
+/* line 889, ../sass/_base.scss */
 .table {
   width: 100%;
   margin-bottom: 20px;
 }
 
-/* line 816, ../sass/_base.scss */
+/* line 897, ../sass/_base.scss */
 table.dataTable thead tr th {
   cursor: pointer;
 }
 
-/* line 823, ../sass/_base.scss */
+/* line 904, ../sass/_base.scss */
 .dataTables_wrapper {
   height: 100%;
 }
-/* line 825, ../sass/_base.scss */
+/* line 906, ../sass/_base.scss */
 .dataTables_wrapper .dataTables_info {
   position: absolute;
   bottom: 65px;
   padding-left: 10px;
 }
-/* line 831, ../sass/_base.scss */
+/* line 912, ../sass/_base.scss */
 .dataTables_wrapper .dataTables_paginate {
   position: absolute;
   bottom: 25px;
 }
-/* line 834, ../sass/_base.scss */
+/* line 915, ../sass/_base.scss */
 .dataTables_wrapper .dataTables_paginate .paginate_button {
   margin: 0 10px;
   padding: 2px 8px;
@@ -1040,7 +1128,7 @@ table.dataTable thead tr th {
   font-weight: normal;
   cursor: pointer;
 }
-/* line 843, ../sass/_base.scss */
+/* line 924, ../sass/_base.scss */
 .dataTables_wrapper .dataTables_paginate .paginate_button.previous,
 .dataTables_wrapper .dataTables_paginate .paginate_button.next {
   display: inline-block;
@@ -1052,12 +1140,12 @@ table.dataTable thead tr th {
   -o-border-radius: 3px;
   border-radius: 3px;
 }
-/* line 849, ../sass/_base.scss */
+/* line 930, ../sass/_base.scss */
 .dataTables_wrapper .dataTables_paginate .paginate_button.current {
   color: #f0f0f0;
   cursor: default;
 }
-/* line 853, ../sass/_base.scss */
+/* line 934, ../sass/_base.scss */
 .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
   cursor: default;
   color: rgba(205, 205, 205, 0.25);
@@ -1069,7 +1157,7 @@ table.dataTable thead tr th {
  * Tooltip Classes
  *================
  */
-/* line 867, ../sass/_base.scss */
+/* line 948, ../sass/_base.scss */
 .tooltip {
   position: absolute;
   z-index: 1030;
@@ -1079,18 +1167,18 @@ table.dataTable thead tr th {
   visibility: visible;
 }
 
-/* line 876, ../sass/_base.scss */
+/* line 957, ../sass/_base.scss */
 .tooltip.in {
   opacity: 1.0;
   filter: alpha(opacity=1);
 }
 
-/* line 881, ../sass/_base.scss */
+/* line 962, ../sass/_base.scss */
 .tooltip.top {
   padding: 5px 0;
   margin-top: -3px;
 }
-/* line 884, ../sass/_base.scss */
+/* line 965, ../sass/_base.scss */
 .tooltip.top .tooltip-arrow {
   bottom: 0;
   left: 50%;
@@ -1099,12 +1187,12 @@ table.dataTable thead tr th {
   border-width: 5px 5px 0;
 }
 
-/* line 893, ../sass/_base.scss */
+/* line 974, ../sass/_base.scss */
 .tooltip.right {
   padding: 0 5px;
   margin-right: 3px;
 }
-/* line 896, ../sass/_base.scss */
+/* line 977, ../sass/_base.scss */
 .tooltip.right .tooltip-arrow {
   top: 50%;
   left: 0;
@@ -1113,12 +1201,12 @@ table.dataTable thead tr th {
   border-width: 5px 5px 5px 0;
 }
 
-/* line 905, ../sass/_base.scss */
+/* line 986, ../sass/_base.scss */
 .tooltip.bottom {
   padding: 5px 0;
   margin-top: 3px;
 }
-/* line 908, ../sass/_base.scss */
+/* line 989, ../sass/_base.scss */
 .tooltip.bottom .tooltip-arrow {
   top: 0;
   left: 50%;
@@ -1127,12 +1215,12 @@ table.dataTable thead tr th {
   border-width: 0 5px 5px;
 }
 
-/* line 917, ../sass/_base.scss */
+/* line 998, ../sass/_base.scss */
 .tooltip.left {
   padding: 0 5px;
   margin-left: -12px;
 }
-/* line 920, ../sass/_base.scss */
+/* line 1001, ../sass/_base.scss */
 .tooltip.left .tooltip-arrow {
   top: 50%;
   right: 0;
@@ -1141,7 +1229,7 @@ table.dataTable thead tr th {
   border-width: 5px 0 5px 5px;
 }
 
-/* line 929, ../sass/_base.scss */
+/* line 1010, ../sass/_base.scss */
 .tooltip-arrow {
   position: absolute;
   width: 0;
@@ -1150,7 +1238,7 @@ table.dataTable thead tr th {
   border-style: solid;
 }
 
-/* line 937, ../sass/_base.scss */
+/* line 1018, ../sass/_base.scss */
 .tooltip-inner {
   max-width: 300px;
   padding: 8px;
@@ -1170,14 +1258,14 @@ table.dataTable thead tr th {
  * Base classes for Widgets
  *=========================
  */
-/* line 953, ../sass/_base.scss */
+/* line 1034, ../sass/_base.scss */
 .flipped {
   -webkit-transform: rotateY(180deg);
   -moz-transform: rotateY(180deg);
   transform: rotateY(180deg);
 }
 
-/* line 959, ../sass/_base.scss */
+/* line 1040, ../sass/_base.scss */
 .widget {
   -webkit-transition: 0.25s;
   -moz-transition: 0.25s;
@@ -1190,7 +1278,7 @@ table.dataTable thead tr th {
   width: 100%;
 }
 
-/* line 971, ../sass/_base.scss */
+/* line 1052, ../sass/_base.scss */
 .widget-action {
   display: inline-block;
   position: absolute;
@@ -1202,12 +1290,12 @@ table.dataTable thead tr th {
   cursor: pointer;
 }
 
-/* line 982, ../sass/_base.scss */
+/* line 1063, ../sass/_base.scss */
 .widget-action:hover {
   color: #f0f0f0;
 }
 
-/* line 986, ../sass/_base.scss */
+/* line 1067, ../sass/_base.scss */
 .widget-back {
   width: 100%;
   height: 100%;
@@ -1231,12 +1319,12 @@ table.dataTable thead tr th {
   transform: rotateY(180deg);
   overflow: hidden;
 }
-/* line 1004, ../sass/_base.scss */
+/* line 1085, ../sass/_base.scss */
 .widget-back .widget-main {
   overflow: hidden;
 }
 
-/* line 1009, ../sass/_base.scss */
+/* line 1090, ../sass/_base.scss */
 .widget-close {
   display: inline-block;
   position: absolute;
@@ -1246,12 +1334,12 @@ table.dataTable thead tr th {
   cursor: pointer;
 }
 
-/* line 1018, ../sass/_base.scss */
+/* line 1099, ../sass/_base.scss */
 .widget-close:hover {
   color: #f0f0f0;
 }
 
-/* line 1022, ../sass/_base.scss */
+/* line 1103, ../sass/_base.scss */
 .widget-container {
   display: inline-block;
   -webkit-perspective: 1000;
@@ -1270,23 +1358,23 @@ table.dataTable thead tr th {
   transition: all 0.25s linear;
 }
 
-/* line 1034, ../sass/_base.scss */
+/* line 1115, ../sass/_base.scss */
 .widget-container.cols-1 {
   width: 100%;
   height: 100%;
 }
 
-/* line 1039, ../sass/_base.scss */
+/* line 1120, ../sass/_base.scss */
 .widget-container.cols-2 {
   width: 48%;
 }
 
-/* line 1043, ../sass/_base.scss */
+/* line 1124, ../sass/_base.scss */
 .widget-container.cols-3 {
   width: 31%;
 }
 
-/* line 1047, ../sass/_base.scss */
+/* line 1128, ../sass/_base.scss */
 .widget-footer, .popup .popup-footer {
   position: absolute;
   left: 0;
@@ -1304,7 +1392,7 @@ table.dataTable thead tr th {
   border-bottom-right-radius: 2px;
 }
 
-/* line 1060, ../sass/_base.scss */
+/* line 1141, ../sass/_base.scss */
 .widget-footer-button, .popup .popup-footer .popup-footer-button {
   display: inline-block;
   height: 100%;
@@ -1314,19 +1402,19 @@ table.dataTable thead tr th {
   cursor: pointer;
 }
 
-/* line 1069, ../sass/_base.scss */
+/* line 1150, ../sass/_base.scss */
 .widget-footer-button:hover, .popup .popup-footer .popup-footer-button:hover {
   background-color: #404040;
 }
 
-/* line 1073, ../sass/_base.scss */
+/* line 1154, ../sass/_base.scss */
 .widget-footer-button.go-button, .popup .popup-footer .go-button.popup-footer-button {
   position: absolute;
   top: 0;
   right: 0;
 }
 
-/* line 1079, ../sass/_base.scss */
+/* line 1160, ../sass/_base.scss */
 .widget-footer-button.left-button, .popup .popup-footer .left-button.popup-footer-button {
   border-right: 1px solid rgba(234, 234, 234, 0.1);
   -webkit-border-bottom-left-radius: 2px;
@@ -1334,7 +1422,7 @@ table.dataTable thead tr th {
   border-bottom-left-radius: 2px;
 }
 
-/* line 1084, ../sass/_base.scss */
+/* line 1165, ../sass/_base.scss */
 .widget-footer-button.right-button, .popup .popup-footer .right-button.popup-footer-button {
   border-left: 1px solid rgba(234, 234, 234, 0.1);
   -webkit-border-bottom-right-radius: 2px;
@@ -1342,7 +1430,7 @@ table.dataTable thead tr th {
   border-bottom-right-radius: 2px;
 }
 
-/* line 1089, ../sass/_base.scss */
+/* line 1170, ../sass/_base.scss */
 .widget-front {
   width: 100%;
   height: 100%;
@@ -1364,7 +1452,7 @@ table.dataTable thead tr th {
   z-index: 2;
 }
 
-/* line 1106, ../sass/_base.scss */
+/* line 1187, ../sass/_base.scss */
 .widget-main {
   width: 100%;
   height: 100%;

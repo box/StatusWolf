@@ -20,7 +20,7 @@
             handles: '',
             legend: "on",
             nointerpolation: false,
-            query_data: null
+            query_data: null,
         },
         _create: function() {
 
@@ -138,6 +138,7 @@
                     '<li data-menu-action="set_all_spans"><span>Use this time span for all OpenTSDB Widgets</span></li>' +
                     '<li data-menu-action="set_all_tags_form"><span>Set tags for all OpenTSDB Widgets</span></li>' +
                     '<li data-menu-action="add_tags_to_all_form"><span>Add tag(s) to all OpenTSDB Widgets</span></li></ul></li>' +
+                    '<li data-menu-action="save_search"><span>Save this search</span></li>' +
                     '<li data-menu-action="go_click_handler"><span>Refresh Graph</span></li></ul>')
                 .appendTo(sw_opentsdbwidget_frontmain);
             $('li.clone-widget').click(function(event) {
@@ -197,7 +198,9 @@
             that.build_search_form();
 
             if (that.options.query_data) {
-                that.populate_search_form(that.options.query_data);
+                var query_data = that.options.query_data;
+                delete that.options.query_data;
+                that.populate_search_form(query_data);
             } else {
                 setTimeout(function() {
                     that.edit_params();
@@ -217,6 +220,24 @@
 
             $(window).resize(function() {
                 that.resize_graph();
+            });
+
+            that.sw_opentsdbwidget_savedsearchesmenu.children('ul.saved-searches-options').on('click', 'li', function() {
+                if (search_name = $(this).attr('data-name')) {
+                    var search_bits = search_name.split('-');
+                    var search_id = search_bits[1];
+                    $.ajax({
+                        url: window.location.origin + "/api/search/saved/OpenTSDB/" + search_id,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function(data) {
+                            widget.search_id = search_id;
+                            widget.search_owner = data.search_owner;
+                            widget.populate_search_form(data.search_config, true);
+                        }
+                    });
+                }
+
             });
 
             // @Todo - implement resizing and dragging
@@ -358,6 +379,11 @@
                 removalDelay: 300,
                 mainClass: 'popup-animate',
                 callbacks: {
+                    open: function() {
+                        setTimeout(function() {
+                            $('input#change-graph-title').select().focus();
+                        }, 250);
+                    },
                     afterClose: function() {
                         $('#change-title-popup').remove();
                     }
@@ -376,6 +402,27 @@
                     widget.query_data.title = new_title;
                 }
                 $.magnificPopup.close();
+            });
+        },
+        save_search: function() {
+            var widget = this;
+            $.magnificPopup.open({
+                items: {
+                    src: '#save-search-popup',
+                    type: 'inline'
+                },
+                prependTo: widget.element,
+                preloader: false,
+                focus: '#save-search-title',
+                removalDelay: 300,
+                mainClass: 'popup-animate',
+                callbacks: {
+                    open: function() {
+                        if (widget.svg.g.selectAll('text.graph-title').text().length > 1) {
+                            $('input#save-search-title').val(widget.svg.g.selectAll('text.graph-title').text()).focus();
+                        }
+                    }
+                }
             });
         },
         resize_graph: function() {
@@ -474,8 +521,6 @@
             var widget = $('#' + widget_id).data('sw-opentsdbwidget');
             var username = document._session.dashboard_username;
             var new_widget_id = "widget" + md5(username + new Date.now().getTime());
-            var new_widget_options = widget.options;
-            new_widget_options.query_data = null;
             $('#dashboard-container').append('<div id="' + new_widget_id + '" class="widget-container cols-' + document._session.dashboard_columns + '" data-widget-type="opentsdbwidget">');
             var new_widget = $('div#' + new_widget_id).opentsdbwidget(widget.options);
             setTimeout(function() {
@@ -805,42 +850,45 @@
             );
 
             widget.sw_opentsdbwidget_savedsearchesmenu.on('click', 'li.full-saved-search-list', function() {
-                $('body').append('<div id="saved-search-list-popup" class="popup mfp-hide"></div>');
-                var search_popup = $('div#saved-search-list-popup');
-                search_popup.append('<div id="my-searches-box" class="saved-search-box">' +
-                    '<div id="my-searches-head"><h2>My Searches</h2></div>' +
-                    '<div id="my-searches-list" class="saved-search-list">' +
-                    '<table id="my-searches-list-table"><tr><th>Search Title</th></tr></table>' +
-                    '</div></div>');
+                if ($.fn.dataTable.isDataTable('#my-searches-list-table')) {
+                    my_search_list_table.DataTable().destroy();
+                }
+                if ($.fn.dataTable.isDataTable('#shared-searches-list-table')) {
+                    shared_search_list_table.DataTable().destroy();
+                }
 
-                $.each(widget.saved_searches.my_searches, function(i, search) {
-                    $('table#my-searches-list-table').append('<tr class="search-item">' +
-                        '<td><span data-search-id="' + search.id + '">' + search.title + '</span></td></tr>');
+                var user_search_columns = [
+                    {'sTitle': 'Title'}
+                ];
+                var shared_search_columns = [
+                    {'sTitle': 'Title'},
+                    {'sTitle': 'Owner'}
+                ];
+
+                $('#my-searches-list-table').dataTable({
+                    'aaData': widget.user_search_list,
+                    'aoColumns': user_search_columns,
+                    'lengthChange': false
                 });
-
-                search_popup.append('<div id="shared-searches-box" class="saved-search-box">' +
-                    '<div id="shared-searches-head"><h2>Shared Searches</h2></div>' +
-                    '<div id="shared-searches-list" class="saved-search-list">' +
-                    '<table id="shared-searches-list-table">' +
-                    '<tr class="header-row"><th>Search Title</th><th>User</th></tr></table>' +
-                    '</div></div>');
-
-                $.each(widget.saved_searches.shared_searches, function(i, search) {
-                    if (search.username === document._session.dashboard_username) {
-                        $('table#shared-searches-list-table').children('tbody').children('tr.header-row')
-                            .after('<tr class="search-item">' +
-                                '<td><span data-search-id="' + search.id + '">' + search.title + '</span></td>' +
-                                '<td>' + search.username + '</td></tr>')
-                    } else {
-                        $('table#shared-searches-list-table').append('<tr class="search-item">' +
-                            '<td><span data-search-id="' + search.id + '">' + search.title + '</span></td>' +
-                            '<td>' + search.username + '</td></tr>');
-                    }
+                $('#shared-searches-list-table').dataTable({
+                    'aaData': widget.shared_search_list,
+                    'aoColumns': shared_search_columns,
+                    'lengthChange': false
                 });
+                // Remove the 'Search:' label from the search field and replace it
+                // with placeholder text.
+                $('#my-searches-list-table_filter').children('label').contents().filter(function() {
+                    return (this.nodeType == 3);
+                }).remove();
+                $('#my-searches-list-table_filter').children('label').children('input').attr('placeholder', 'Filter');
+                $('#shared-searches-list-table_filter').children('label').contents().filter(function() {
+                    return (this.nodeType == 3);
+                }).remove();
+                $('#shared-searches-list-table_filter').children('label').children('input').attr('placeholder', 'Filter');
 
                 $.magnificPopup.open({
                     items: {
-                        src: search_popup,
+                        src: '#search-list-popup',
                         type: 'inline'
                     },
                     preloader: false,
@@ -862,21 +910,18 @@
                     }
                 });
 
-                search_popup.on('click', 'tr.search-item', function() {
-                    var saved_query = {};
-                    if (search_id = $(this).children('td').children('span').attr('data-search-id')) {
+                $('#search-list-popup').on('click', 'span.search-item', function() {
+                    if (search_name = $(this).attr('data-name')) {
+                        var search_bits = search_name.split('-');
+                        var search_id = search_bits[1];
                         $.ajax({
-                            url: window.location.origin + "/" +
-                                "/saved/OpenTSDB/" + search_id,
+                            url: window.location.origin + "/api/search/saved/OpenTSDB/" + search_id,
                             type: 'GET',
                             dataType: 'json',
-                            success: function(data) {
-                                saved_query = data;
-                                delete(saved_query.private);
-                                delete(saved_query.save_span);
-                                delete(saved_query.user_id);
-                                $.magnificPopup.close();
-                                widget.populate_search_form(saved_query);
+                            success: function (data) {
+                                widget.search_id = search_id;
+                                widget.search_owner = data.search_owner;
+                                widget.populate_search_form(data.search_config, true);
                             }
                         });
                     }
@@ -1088,79 +1133,60 @@
         },
         build_saved_search_menu: function() {
             var widget = this;
-            var user_id = document._session.dashboard_userid;
-            var api_url = window.location.origin + '/api/search/saved/OpenTSDB';
             var menu_length = 15;
-            widget.saved_searches = {};
+            var item_length = 0;
 
-            var saved_search_menu = new $.Deferred();
-            var saved_search_menu_query = $.ajax({
-                    url: api_url,
-                    type: 'GET',
-                    dataType: 'json'
-                }),
-                chain = saved_search_menu_query.then( function(data) {
-                    return(data)
-                });
+            var api_url = window.location.origin + '/api/search/saved/OpenTSDB';
+            var get_search_list_object = new $.Deferred();
+            var get_search_list_query = $.ajax({
+                url: api_url,
+                type: 'GET',
+                dataType: 'json'
+            }),
+            chain = get_search_list_query.then( function(data) {
+                return(data)
+            });
             chain.done( function(data) {
-                var my_searches = data.user_searches;
-                var shared_searches = data.shared_searches;
-                var saved_search_list = widget.sw_opentsdbwidget_backmain.children('.saved-searches-menu').children('ul.saved-searches-options')
-                saved_search_list.empty();
-                var max = menu_length;
-                saved_search_list.append('<li class="menu-section"><span>My Searches</span></li>');
-                if (my_searches) {
-                    widget.saved_searches.my_searches = my_searches;
-                    max = (my_searches.length < menu_length ? my_searches.length : menu_length);
-                    for (i = 0; i < max; i++) {
-                        saved_search_list.append('<li><span data-name="search-' + my_searches[i].id + '">' + my_searches[i].title + '</span></li>');
-                        menu_length--;
-                    }
-                }
-                if (shared_searches) {
-                    widget.saved_searches.shared_searches = shared_searches;
-                    if (menu_length > 0) {
-                        max = (shared_searches.length < menu_length ? shared_searches.length : menu_length);
-                        saved_search_list.append('<li class="menu-section"><span class="divider"></span></li>');
-                        saved_search_list.append('<li class="menu-section"><span>Shared Searches</span></li>');
-                        for (i = 0; i < max; i++) {
-                            if (shared_searches[i].user_id === document._session.dashboard_userid) {
-                                saved_search_list.children('li.menu-section:last').after('<li><span data-name="search-' + shared_searches[i].id + '">' + shared_searches[i].title + '</span></li>');
-                            } else {
-                                saved_search_list.append('<li><span data-name="search-' + shared_searches[i].id + '">' + shared_searches[i].title + '</span></li>');
-                            }
+                var search_list_options = widget.sw_opentsdbwidget_savedsearchesmenu.children('ul.saved-searches-options');
+                widget.user_search_list = [];
+                widget.shared_search_list = [];
+
+                search_list_options.empty();
+
+                if (data.user_searches.length > 0) {
+                    search_list_options.append('<li class="menu-section"><span>My Searches</span>');
+                    $.each(data.user_searches, function(i, search) {
+                        if (menu_length > 0) {
+                            search_list_options.append('<li data-name=search-"' + search.id + '"><span>' + search.title + '</span></li>');
+                            menu_length--
                         }
-                    }
+                        widget.user_search_list.push([
+                            '<span class="search-item" data-name="search-' + search.id + '">' + search.title + '</span>'
+                        ]);
+                    });
+                }
+                if (data.shared_searches.length > 0) {
+                    search_list_options.append('<li class="divider"></li>');
+                    search_list_options.append('<li class="menu-section"><span>Shared Searches</span></li>');
+                    $.each(data.shared_searches, function(i, search) {
+                        if (menu_length > 0) {
+                            search_list_options.append('<li data-name="search-' + search.id + '"><span>' + search.title + '</span></li>');
+                            menu_length--;
+                        }
+                        widget.shared_search_list.push([
+                            '<span class="search-item" data-name="search-"' + search.id + '">' + search.title + '</span>',
+                            search.username
+                        ]);
+                    });
                 }
 
-                widget.sw_opentsdbwidget_backmain.children('.saved-searches-menu').children('ul.saved-searches-options').on('click', 'li', function() {
-                    var saved_query = {};
-                    if (search_name = $(this).children('span').attr('data-name')) {
-                        var search_bits = search_name.split('-');
-                        var search_id = search_bits[1];
-                        $.ajax({
-                            url: window.location.origin + "/api/search/saved/OpenTSDB/" + search_id,
-                            type: 'GET',
-                            dataType: 'json',
-                            success: function(data) {
-                                saved_query = data;
-                                delete(saved_query.private);
-                                delete(saved_query.save_span);
-                                delete(saved_query.user_id);
-                                widget.populate_search_form(saved_query, true);
-                            }
-                        });
-                    }
-
-                });
-
-                var my_search_count = (typeof my_searches !== "undefined" ? my_searches.length : 0);
-                var shared_search_count = (typeof shared_searches !== "undefined" ? shared_searches.length : 0);
+                var my_search_count = data.user_searches.length;
+                var shared_search_count = data.shared_searches.length;
                 var item_length = my_search_count + shared_search_count;
-                saved_search_menu.resolve([menu_length, item_length]);
+                get_search_list_object.resolve([menu_length, item_length]);
             });
 
-            return saved_search_menu.promise();
+            return get_search_list_object.promise();
         },
         populate_search_form: function(query_data, force_prompt_user) {
 

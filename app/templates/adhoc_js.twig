@@ -455,7 +455,7 @@
                                 $('div#confirmation-info').empty()
                                     .append('<span>A search with that name already exists, overwrite or change title and save as new search?</span>')
                                     .append('<div id="save-new-title-prompt"><input type="text" class="input" id="save-search-new-title" name="save-search-new-title" size="50"></div>');
-                                $('input#save-search-new-title').attr('value', search_query.search_config.search.title);
+                                $('input#save-search-new-title').val(search_query.search_config.search.title);
                                 $('div#save-new-title-prompt').append('<input type="hidden" id="existing-search-id" name="existing-search-id" value="' + data.query_data + '">');
                                 $.magnificPopup.open({
                                     items: {
@@ -472,7 +472,7 @@
                                     .append('<span>A search with that ID already exists, overwrite?</span>')
                                     .append('<input type="hidden" id="existing-search-id" name="existing-search-id" value="' + document._session.search_id + '">')
                                     .append('<input type="hidden" id="save-search-new-title" name="save-search-new-title">');
-                                $('input#save-search-new-title').val(search_query.search_config.search.title);
+                                $('input#save-search-new-title').attr('value', search_query.search_config.search.title);
                                 $.magnificPopup.open({
                                     items: {
                                         src: '#confirm-save-search-popup',

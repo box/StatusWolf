@@ -12,6 +12,9 @@
 
     dependencies_event = new Event('dependencies_loaded');
 
+    var widgets = eval({{ widgets_json|raw }});
+    var widget_datasources = {};
+
     {% if dashboard_id %}
         dashboard_id = '{{ dashboard_id }}';
     {% endif %}
@@ -20,11 +23,10 @@
     {% endif %}
 
     $('document').ready(function() {
-        var widgets = eval({{ widgets_json|raw }});
-
         $('#menu-placeholder').replaceWith({% include 'dashboard_menu.twig' %});
         $.each(widgets, function(widget_index, widget_data) {
             var widget_type = widget_data.name.split('.');
+            widget_datasources[widget_type[1]] = widget_data.datasource;
             $('#add-widget-menu-options').append('<li onclick="add_widget(\'' + widget_type[1] + '\')"><span>' + widget_data.title + '</span></li>');
             console.log('Checking widget dependencies');
             if (typeof widget_data.dependencies !== "undefined") {
@@ -158,6 +160,22 @@
         } else {
             save_dashboard_handler(event, 0);
         }
+    });
+
+    $('#save-search-popup').on('click', '#shared-search-button', function() {
+        statuswolf_button(this);
+    }).on('click', '#save-search-cancel-button', function() {
+        $.magnificPopup.close();
+    }).on('click', '#save-search-button', function() {
+        var my_widget_element = $(this).parentsUntil('.dashboard-container').filter('.widget-container');
+        console.log(my_widget_element);
+        var my_widget = my_widget_element.data('sw-' + my_widget_element.attr('data-widget-type'));
+        if (my_widget.search_id !== "undefined") {
+            if (my_widget.search_owner !== document._session.dashboard_userid) {
+                delete my_widget.search_id;
+            }
+        }
+        save_search_handler(event, my_widget, false);
     });
 
     function dashboard_column_toggle(button) {
@@ -433,6 +451,24 @@
                     }
                 }
                 var new_widget = $('div#' + widget_id)[query_data['widget_type']](query_data.options, { query_data: query_data });
+                console.log('adding new widget');
+                console.log(new_widget);
+                new_widget.on('search_saved', function(event, event_datasource) {
+                    console.log('saved_search event triggered');
+                    console.log(event);
+                    if (event_datasource === "OpenTSDB") {
+                        new_widget_object = new_widget.data('sw-' + query_data['widget_type']);
+                        $.when(new_widget_object.build_saved_search_menu()).then(
+                            function(data) {
+                                if (data[1] > data[0]) {
+                                    new_widget_object.sw_opentsdbwidget_savedsearchesmenu.children('ul.saved-searches-options')
+                                        .append('<li class="full-saved-search-list"><span>More...</span></li>');
+                                }
+                            }
+                        );
+                    }
+                });
+
                 setTimeout(function() {
                     $(new_widget).removeClass('transparent');
                 }, 100);
@@ -529,7 +565,7 @@
                     if (data.query_result === "Error") {
                         switch (data.query_info) {
                             case "Title":
-                                $('#confirmation-info').empty().append('<span>A dashboard with that name already exists, overwrite?</span>');
+                                $('#dashboard-confirmation-info').empty().append('<span>A dashboard with that name already exists, overwrite?</span>');
                                 query_data.dashboard_config.id = data.query_data;
                                 $.magnificPopup.open({
                                     items: {
@@ -542,7 +578,7 @@
                                 });
                                 return;
                             case "ID":
-                                $('#confirmation-info').empty().append('<span>A dashboard with this ID already exists, overwrite?</span>');
+                                $('#dashboard-confirmation-info').empty().append('<span>A dashboard with this ID already exists, overwrite?</span>');
                                 $.magnificPopup.open({
                                     items: {
                                         src: '#confirm-dashboard-save-popup',
@@ -577,6 +613,7 @@
                                 }
                             }
                         );
+                        $('div#success-popup').children('div.popup-form-data').empty().text('Your dashboard has been saved.');
                         $.magnificPopup.open({
                             items: {
                                 src: '#success-popup',
@@ -594,12 +631,125 @@
             });
         }
 
-        $('#confirm-dashboard-save-popup').on('click', '#cancel-confirm-save-button', function() {
+        $('#confirm-dashboard-save-popup').on('click', '#cancel-confirm-dashboard-save-button', function() {
             $.magnificPopup.close();
-        }).on('click', '#confirm-save-button', function() {
+        }).on('click', '#confirm-dashboard-save-button', function() {
             save_dashboard_handler(event, true, query_data.dashboard_config.id);
         });
 
+    }
+
+    function save_search_handler(event, my_widget, confirmation) {
+        var search_query = {};
+        if ($('input#save-search-title').val().length < 1) {
+            $('input#save-search-title').addClass('missing-value').focus();
+        } else {
+            var form_title = $('input#save-search-title').val();
+            if (my_widget.query_data.title.length > 0) {
+                if (my_widget.query_data.title !== form_title) {
+                    my_widget.query_data.title = form_title;
+                }
+            } else {
+                my_widget.query_data.title = form_title;
+            }
+        }
+
+        search_query = {
+            search_config: {
+                user_id: document._session.dashboard_userid,
+                save_search_times: $('input#save-search-times').prop('checked') ? 1 : 0,
+                shared: $('input#public-search').prop('checked') ? 1 : 0,
+                confirmation: confirmation ? confirmation : false,
+                search: my_widget.query_data
+            }
+        };
+
+        var my_datasource = widget_datasources[my_widget.element.attr('data-widget-type')];
+        var search_id = typeof my_widget.search_id === "undefined" ? md5(JSON.stringify(search_query)) : my_widget.search_id;
+        var api_url = '{{ url('home') }}api/search/saved/' + my_datasource + '/' + search_id;
+        $.ajax({
+            url: api_url,
+            type: 'POST',
+            data: search_query,
+            dataType: 'json'
+        }).done(function(data) {
+            if (typeof data.query_result !== "undefined") {
+                if (data.query_result === "Error") {
+                    switch (data.query_info) {
+                        case "Title":
+                            $('div#search-confirmation-info').empty()
+                                .append('<span>A search with that name already exists, overwrite or change title and save as new search?</span>')
+                                .append('<div id="save-new-title-prompt"><input type="text" id="save-search-new-title" class="input" name="save-search-new-title" size="50"></div>');
+                            $('input#save-search-new-title').val(search_query.search_config.search.title);
+                            $('div#save-new-title-prompt').append('<input type="hidden" id="existing-search-id" name="existing-search-id" value="' + data.query_data + '">');
+                            $.magnificPopup.open({
+                                items: {
+                                    src: '#confirm-save-search-popup',
+                                    type: 'inline'
+                                },
+                                prependTo: my_widget.element,
+                                preloader: false,
+                                mainClass: 'popup-animate',
+                                removalDelay: 300
+                            });
+                            return;
+                        case "ID":
+                            $('div#search-confirmation-info').empty()
+                                .append('<span>A search with this ID alerady exisits, overwrite?</span>')
+                                .append('<input type="hidden" id="existing-search-id" name="existing-search-id" value="' + search_id + '">')
+                                .append('<input type="hidden" id="save-search-new-title" name="save-search-new-title">');
+                            $('input#save-search-new-title').attr('value', search_query.search_config.search.title);
+                            $.magnificPopup.open({
+                                items: {
+                                    src: '#confirm-save-search-popup',
+                                    type: 'inline'
+                                },
+                                prependTo: my_widget.element,
+                                preloader: false,
+                                mainClass: 'popup-animate',
+                                removalDelay: 300
+                            });
+                            return;
+                        default:
+                            $('div#failure-popup').empty()
+                                .append('<span>There was an error saving your search.</span>')
+                                .append('<br><span>' + data.query_info + '</span>');
+                            $.magnificPopup.open({
+                                items: {
+                                    src: '#failure-popup',
+                                    type: 'inline'
+                                },
+                                prependTo: my_widget.element,
+                                preloader: false,
+                                mainClass: 'popup-animate',
+                                removalDelay: 300
+                            });
+                            return
+                    }
+                } else {
+                    $('div#success-popup').children('div.popup-form-data').empty().text('Your search has been saved.');
+                    $.magnificPopup.open({
+                        items: {
+                            src: '#success-popup',
+                            type: 'inline'
+                        },
+                        prependTo: my_widget.element,
+                        preloader: false,
+                        mainClass: 'popup-animate',
+                        removalDelay: 300
+                    });
+                    $('div.widget-container').trigger('search_saved', my_datasource);
+                    setTimeout(function() {
+                        $.magnificPopup.close();
+                    }, 750);
+                }
+            }
+        });
+        $('#confirm-save-search-popup').on('click', '#cancel-confirm-search-save-button', function() {
+            $.magnificPopup.close();
+        }).on('click', '#confirm-search-save-button', function() {
+            save_search_handler(event, my_widget, true);
+        });
     }
 
 </script>

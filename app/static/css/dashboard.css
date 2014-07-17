@@ -7,49 +7,44 @@
   font-weight: bold;
 }
 
-/* line 12, ../sass/dashboard.scss */
-#confirm-dashboard-save-popup #confirmation-buttons {
-  margin-top: 15px;
-}
-
-/* line 17, ../sass/dashboard.scss */
+/* line 11, ../sass/dashboard.scss */
 #dashboard-list-popup {
   width: 1100px;
   height: 600px;
 }
-/* line 20, ../sass/dashboard.scss */
+/* line 14, ../sass/dashboard.scss */
 #dashboard-list-popup table {
   table-layout: fixed;
   margin-right: 20px;
   border-spacing: 0;
 }
-/* line 24, ../sass/dashboard.scss */
+/* line 18, ../sass/dashboard.scss */
 #dashboard-list-popup table td {
   padding: 3px 5px;
 }
-/* line 27, ../sass/dashboard.scss */
+/* line 21, ../sass/dashboard.scss */
 #dashboard-list-popup table th {
   font-size: 1em;
   padding: 5px;
 }
-/* line 31, ../sass/dashboard.scss */
+/* line 25, ../sass/dashboard.scss */
 #dashboard-list-popup table th:first-child {
   width: 55px;
   min-width: 55px;
   max-width: 55px;
 }
-/* line 36, ../sass/dashboard.scss */
+/* line 30, ../sass/dashboard.scss */
 #dashboard-list-popup table tr.dashboard-item:hover {
   background-color: rgba(234, 234, 234, 0.25);
   cursor: pointer;
 }
-/* line 41, ../sass/dashboard.scss */
+/* line 35, ../sass/dashboard.scss */
 #dashboard-list-popup .saved-dashboard-box {
   display: inline-block;
   vertical-align: top;
   height: 100%;
 }
-/* line 46, ../sass/dashboard.scss */
+/* line 40, ../sass/dashboard.scss */
 #dashboard-list-popup .saved-dashboard-list {
   line-height: 2em;
   width: 525px;
@@ -58,7 +53,7 @@
   vertical-align: top;
   white-space: nowrap;
 }
-/* line 55, ../sass/dashboard.scss */
+/* line 49, ../sass/dashboard.scss */
 #dashboard-list-popup #shared-dashboards-list-table td:nth-child(2) {
   width: 320px;
   min-width: 320px;
@@ -66,35 +61,35 @@
   overflow: hidden;
 }
 
-/* line 64, ../sass/dashboard.scss */
+/* line 58, ../sass/dashboard.scss */
 #failure-popup {
   max-width: 500px;
 }
-/* line 66, ../sass/dashboard.scss */
+/* line 60, ../sass/dashboard.scss */
 #failure-popup .failure-error-message {
   font-size: 0.8em;
   font-weight: normal;
 }
 
-/* line 72, ../sass/dashboard.scss */
+/* line 66, ../sass/dashboard.scss */
 #load-dashboard-menu-options {
   min-width: 500px;
 }
 
-/* line 77, ../sass/dashboard.scss */
+/* line 71, ../sass/dashboard.scss */
 #save-dashboard-popup h5 {
   display: inline-block;
 }
-/* line 80, ../sass/dashboard.scss */
+/* line 74, ../sass/dashboard.scss */
 #save-dashboard-popup .save-dashboard-form-buttons {
   margin-top: 15px;
 }
-/* line 83, ../sass/dashboard.scss */
+/* line 77, ../sass/dashboard.scss */
 #save-dashboard-popup .popup-form-data {
   margin-left: 0;
   display: inline-block;
 }
-/* line 87, ../sass/dashboard.scss */
+/* line 81, ../sass/dashboard.scss */
 #save-dashboard-popup #shared-dashboard-button {
   display: inline-block;
   margin-left: 10px;
