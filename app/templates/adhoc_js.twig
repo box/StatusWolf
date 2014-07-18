@@ -45,10 +45,13 @@
                         loadScript(window.location.origin + '/static/js/lib/' + js, function() {
                             if (typeof search_type !== "undefined") {
                                 if (typeof search_id !== "undefined") {
-                                    $.when(get_search_config(search_type, widget_datasource.toLowerCase(), search_id)).then(
+                                    $.when(get_search_config(search_type, widget_datasource, search_id)).then(
                                         function(data) {
-                                            document._session.search_id = search_id;
-                                            document._session.search_owner = data.search_owner;
+                                            if (search_type === "saved") {
+                                                document._session.search_id = search_id;
+                                                document._session.search_owner = data.search_owner;
+                                            }
+                                            console.log('loading ' + widget_type + ' search', data.search_config);
                                             display_search(widget_type, data.search_config, widget_datasource);
                                         }
                                     )
@@ -79,20 +82,24 @@
                 mainClass: 'popup-animate',
                 removalDelay: 300,
                 callbacks: {
-                    open: function() {
-                        setTimeout(function() {
+                    open: function () {
+                        setTimeout(function () {
                             $('.container').addClass('blur');
                             $('.menubar').addClass('blur');
                         }, 150);
                     },
-                    close: function() {
-                        setTimeout(function() {
+                    close: function () {
+                        setTimeout(function () {
                             $('.container').removeClass('blur');
                             $('.menubar').removeClass('blur');
                         }, 150);
                     }
                 }
             })
+        }).on('click', 'li#share-search-menu-choice', function() {
+            setup_shared_search()
+        }).on('click', 'li#dashboard-menu-choice', function() {
+            window.location.href = '/dashboard';
         });
 
         $('#save-search-menu-choice').magnificPopup({
@@ -286,7 +293,7 @@
     }
 
     function get_search_config(search_type, datasource, search_id) {
-        var api_url = '{{ url('home') }}api/search/saved/' + datasource + '/' + search_id;
+        var api_url = '{{ url('home') }}api/search/' + search_type + '/' + datasource + '/' + search_id;
         var get_search_object = new $.Deferred();
         var get_search_query = $.ajax({
             url: api_url,
@@ -410,7 +417,7 @@
     }
 
     function save_search_handler(event, confirmation) {
-        var widget = $('.widget-container').data('sw-opentsdbwidget');
+        var widget = $('.widget-container').data('sw-' + widget_type);
         var search_query = {};
         if ($('input#save-search-title').val().length < 1) {
             $('input#save-search-title').addClass('missing-value').focus();
@@ -528,6 +535,71 @@
             });
         }
 
+    }
+
+    function setup_shared_search() {
+        var widget = $('.widget-container').data('sw-' + widget_type);
+        var search_query = {};
+        var query_data = widget.query_data;
+
+        query_data.title = 'Shared search from ' + document._session.adhoc_username;
+        if ($.inArray('time-span', query_data)) {
+            delete query_data.time_span;
+        }
+
+        search_query = {
+            search_config:  widget.query_data
+        };
+
+        var search_id = md5(JSON.stringify(search_query));
+        var api_url = '/api/search/shared/' + widget_datasource + '/' + search_id;
+        $.ajax({
+            url: api_url,
+            type: 'POST',
+            data: search_query,
+            dataType: 'json'
+        }).done(function(data) {
+            if (typeof data.query_result !== "undefined") {
+                if (data.query_result === "Error") {
+                    $('div#failure-popup').empty()
+                        .append('<span>There was an error saving this search for sharing.</span>')
+                        .append('<br><span>' + data.query_info + '</span>');
+                    $.magnificPopup.open({
+                        items: {
+                            src: '#failure-popup',
+                            type: 'inline'
+                        },
+                        preloader: false,
+                        mainClass: 'popup-animate',
+                        removalDelay: 300
+                    });
+                } else {
+                    $('#shared-search-url').text(window.location.origin + '/adhoc/' + widget_datasource + '/shared/' + search_id);
+                    $.magnificPopup.open({
+                        items: {
+                            src: '#share-search-popup',
+                            type: 'inline'
+                        },
+                        preloader: false,
+                        mainClass: 'popup-animate',
+                        removalDelay: 300
+                    });
+                }
+            }
+        }).fail(function(jqXHR) {
+            $('div#failure-popup').empty()
+                .append('<span>There was an error saving this search for sharing.</span>')
+                .append('<br><span>' + jqXHR.status + ': ' + jqXHR.statusText + '</span>');
+            $.magnificPopup.open({
+                items: {
+                    src: '#failure-popup',
+                    type: 'inline'
+                },
+                preloader: false,
+                mainClass: 'popup-animate',
+                removalDelay: 300
+            });
+        });
     }
 
 </script>

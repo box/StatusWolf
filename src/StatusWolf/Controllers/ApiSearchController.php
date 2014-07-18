@@ -202,7 +202,7 @@ class ApiSearchController implements ControllerProviderInterface {
 
             $expiration = time() - 86400;
 
-            $sql = "SELECT * FROM shared_searches WHERE search_id = ? AND data_source='?'";
+            $sql = "SELECT * FROM shared_searches WHERE search_id=? AND data_source=?";
             $shared_search_query = $sw['db']->prepare($sql);
             $shared_search_query->bindValue(1, $search_id);
             $shared_search_query->bindValue(2, $datasource);
@@ -215,11 +215,40 @@ class ApiSearchController implements ControllerProviderInterface {
                 $expiry_query->execute();
                 $shared_search_config = 'Expired';
             } else {
+                $sw['logger']->addDebug('Shared search retrieved: ' . json_encode($shared_search));
                 $serialized_search = $shared_search['search_params'];
                 $shared_search_config = unserialize($serialized_search);
+                $sw['logger']->addDebug('unserialized config: ', $shared_search_config);
             }
 
-            return json_encode($shared_search_config);
+            return json_encode(array('search_config' => $shared_search_config));
+
+        });
+
+        $controllers->post('/shared/{datasource}/{search_id}', function(Application $sw, Request $request, $datasource, $search_id) {
+
+            $query_data = $request->request->get('search_config');
+            $search_string = serialize($query_data);
+            $timestamp = time();
+
+            try {
+                $sw['logger']->addDebug('Saving shared search config ' . $search_id . ', datasource: ' . $datasource);
+                $sw['logger']->addDebug(json_encode($query_data));
+                $sw['db']->executeUpdate('REPLACE INTO shared_searches SET search_id = ?, data_source = ?, search_params = ?, timestamp = ?',
+                    array(
+                        $search_id,
+                        $datasource,
+                        $search_string,
+                        $timestamp
+                    )
+                );
+            } catch(\PDOException $e) {
+                $sw['logger']->addInfo(sprintf('Failed to save config for shared search %s', $search_id));
+                $sw['logger']->addDebug($e->getMessage());
+                return $sw->json(array('query_result' => 'Error', 'query_info' => $e->getMessage()));
+            }
+
+            return $sw->json(array('query_result' => 'Success'));
 
         });
 
