@@ -108,7 +108,7 @@
             })
         });
 
-        $('ul#load-dashboard-menu-options').on('click', 'li', function() {
+        $('ul#load-dashboard-menu-options').on('click', 'li[data-dashboard-id]', function() {
             var target_dashboard = $(this).attr('data-dashboard-id');
             window.location.href = '/dashboard/' + target_dashboard;
         });
