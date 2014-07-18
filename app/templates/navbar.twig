@@ -4,15 +4,14 @@
                 <span class="sw-version">{{ app.version }}</span>
             </div>
             <div id="menu-placeholder"></div>
+            {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+            <div class="login-button menubar-button" id="logout-button">
+                <span class="elegant-icons icon-profile"></span>
+                <span class="font-reset menu-label">{{ fullname }} - </span>
+                <span id="login-function">Logout</span>
+            {% else %}
             <div class="login-button menubar-button" id="login-button">
-                {% if is_granted('IS_AUTHENTICATED_FULLY') %}
-                    <a href="{{ path('logout') }}">
-                        <span class="elegant-icons icon-profile"></span>
-                        <span class="font-reset menu-label">{{ fullname }} - </span>
-                        <span id="login-function">Logout</span>
-                    </a>
-                {% else %}
-                    <span id="login-function"><a href="{{ path('login') }}">Login</a></span>
-                {% endif %}
+                <span id="login-function">Login</span>
+            {% endif %}
 			</div>
 		</div>

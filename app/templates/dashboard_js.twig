@@ -60,11 +60,11 @@
         document.dispatchEvent(dependencies_event);
 
         $('#dashboard-menu').after('<div class="dashboard-columns menubar-button info-tooltip" id="three-cols" title="Set 3-Column Layout" data-columns="3"><span class="menu-label">III</span></div>');
-        $('#three-cols').css('right', $('#login-button').outerWidth());
+        $('#three-cols').css('right', $('div.login-button').outerWidth());
         $('#dashboard-menu').after('<div class="dashboard-columns menubar-button info-tooltip" id="two-cols" title="Set 2-Column Layout" data-columns="2"><span class="menu-label">II</span></div>');
-        $('#two-cols').css('right', $('#login-button').outerWidth() + $('#three-cols').outerWidth());
+        $('#two-cols').css('right', $('div.login-button').outerWidth() + $('#three-cols').outerWidth());
         $('#dashboard-menu').after('<div class="dashboard-columns menubar-button info-tooltip" id="one-col" title="Set 1-Column Layout" data-columns="1"><span class="menu-label">I</span></div>');
-        $('#one-col').css('right', $('#login-button').outerWidth() + $('#three-cols').outerWidth() + $('#two-cols').outerWidth());
+        $('#one-col').css('right', $('div.login-button').outerWidth() + $('#three-cols').outerWidth() + $('#two-cols').outerWidth());
         dashboard_column_toggle($('.dashboard-columns[data-columns="' + document._session.dashboard_columns + '"]'));
 
         $('.dashboard-columns.info-tooltip').tooltip({placement: 'bottom', delay: {show: 500, hide: 100}});

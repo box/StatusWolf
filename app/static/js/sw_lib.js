@@ -63,3 +63,11 @@ function statuswolf_button(button)
     $(button).siblings('div.toggle-button').children('label').children('input').attr('checked', null);
   }
 }
+
+$('div#login-button').click(function() {
+    window.location.href = '/login';
+});
+
+$('div#logout-button').click(function() {
+    window.location.href = '/logout';
+});
