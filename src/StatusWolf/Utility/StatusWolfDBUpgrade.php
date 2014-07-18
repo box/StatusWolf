@@ -122,7 +122,7 @@ class StatusWolfDBUpgrade {
     public function migrate_saved_searches(Connection $db, $uid_map) {
 
         $new_searches_query = "CREATE TABLE saved_searches_new ( " .
-            "id int(11) unsigned NOT NULL AUTO_INCREMENT, " .
+            "id varchar(32) NOT NULL, " .
             "title varchar(255) NOT NULL, " .
             "user_id int(11) NOT NULL, " .
             "shared tinyint(1) NOT NULL DEFAULT 0, " .
@@ -143,6 +143,7 @@ class StatusWolfDBUpgrade {
             $old_search['search_params'] = serialize($params);
 
             $db->insert('saved_searches_new', array(
+                'id' => $old_search['id'],
                 'title' => $old_search['title'],
                 'user_id' => $uid_map[$old_search['user_id']],
                 'shared' => abs($old_search['private'] - 1),

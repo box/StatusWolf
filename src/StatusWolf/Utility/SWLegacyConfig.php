@@ -19,7 +19,7 @@ class SWLegacyConfig {
         $this->_logger = $sw['logger'];
     }
 
-    public function load_legacy_config($config_file, $categor = null) {
+    public function load_legacy_config($config_file, $category = null) {
         $file = CFG . $config_file;
         $this->_logger->addDebug("Loading config from " . $config_file);
         $contents = parse_ini_file($file, true);
