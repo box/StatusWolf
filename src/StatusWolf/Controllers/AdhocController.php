@@ -68,7 +68,7 @@ class AdhocController implements ControllerProviderInterface {
                         'lib/md5.js',
                         'status_wolf_colors.js',
                         'lib/jquery.autocomplete.js',
-                        'lib/jquery.datatables.min.js',
+                        'lib/jquery.dataTables.min.js',
                     ),
                 ));
             }
@@ -110,7 +110,7 @@ class AdhocController implements ControllerProviderInterface {
                         'lib/date.js',
                         'lib/md5.js',
                         'lib/jquery.autocomplete.js',
-                        'lib/jquery.datatables.min.js',
+                        'lib/jquery.dataTables.min.js',
                     ),
                 ));
             }
@@ -152,7 +152,7 @@ class AdhocController implements ControllerProviderInterface {
                         'lib/date.js',
                         'lib/md5.js',
                         'lib/jquery.autocomplete.js',
-                        'lib/jquery.datatables.min.js',
+                        'lib/jquery.dataTables.min.js',
                     ),
                 ));
             }
