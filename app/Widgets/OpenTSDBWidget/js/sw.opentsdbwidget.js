@@ -231,9 +231,10 @@
                         type: 'GET',
                         dataType: 'json',
                         success: function(data) {
-                            widget.search_id = search_id;
-                            widget.search_owner = data.search_owner;
-                            widget.populate_search_form(data.search_config, true);
+                            console.log(data);
+                            that.search_id = search_id;
+                            that.search_owner = data.search_owner;
+                            that.populate_search_form(data.search_config, true);
                         }
                     });
                 }
@@ -903,9 +904,6 @@
                         close: function() {
                             $('.container').removeClass('blur');
                             $('.navbar').removeClass('blur');
-                        },
-                        afterClose: function() {
-                            search_popup.remove();
                         }
                     }
                 });
@@ -1157,7 +1155,7 @@
                     search_list_options.append('<li class="menu-section"><span>My Searches</span>');
                     $.each(data.user_searches, function(i, search) {
                         if (menu_length > 0) {
-                            search_list_options.append('<li data-name=search-"' + search.id + '"><span>' + search.title + '</span></li>');
+                            search_list_options.append('<li data-name="search-' + search.id + '"><span>' + search.title + '</span></li>');
                             menu_length--
                         }
                         widget.user_search_list.push([
@@ -1174,7 +1172,7 @@
                             menu_length--;
                         }
                         widget.shared_search_list.push([
-                            '<span class="search-item" data-name="search-"' + search.id + '">' + search.title + '</span>',
+                            '<span class="search-item" data-name="search-' + search.id + '">' + search.title + '</span>',
                             search.username
                         ]);
                     });
@@ -1261,6 +1259,7 @@
                 none: 'None'
             };
 
+            console.log(query_data);
             var auto_update_input = $('input#auto-update-button' + widget_num);
             if (query_data.auto_update === "true") {
                 auto_update_input.parent('.push-button').addClass('pushed');
@@ -2409,11 +2408,11 @@
 
                 var point_format = d3.format('.2f');
 
-                var dot_data = widget.graph.right_axis ? widget.graph.data_left.concat(widget.graph.data_right) : widget.graph.data_left;
+                widget.dot_data = widget.graph.right_axis ? widget.graph.data_left.concat(widget.graph.data_right) : widget.graph.data_left;
                 widget.graph.dots = widget.svg.g.append('g')
                     .attr('class', 'dot-container')
                     .selectAll('g')
-                    .data(dot_data)
+                    .data(widget.dot_data)
                     .enter().append('g')
                         .attr('opacity', 0)
                         .attr('data-name', function(d) {
@@ -2422,7 +2421,7 @@
 
                 widget.graph.dots
                     .append('circle')
-                        .attr('cx', widget.graph.x(dot_data[0].values[0].date))
+                        .attr('cx', widget.graph.x(widget.dot_data[0].values[0].date))
                         .attr('cy', function(d) {
                             if (d.axis === "right") {
                                 return widget.graph.y1(d.values[0].value);
@@ -2591,7 +2590,7 @@
                             widget.resize_graph();
                             if (widget.query_data['auto_update']) {
                                 widget.autoupdate_timer = setTimeout(function() {
-                                    widget.update_graph('line');
+                                    widget.update_graph();
                                 }, 300 * 1000);
                             }
                         }
@@ -2630,8 +2629,8 @@
                         })
                         .on('mousemove', function() {
                             var x_position = widget.graph.x.invert(d3.mouse(this)[0]),
-                                x_position_index = bisect(dot_data[0].values, x_position),
-                                closest_timestamp = dot_data[0].values[x_position_index].date;
+                                x_position_index = bisect(widget.dot_data[0].values, x_position),
+                                closest_timestamp = widget.dot_data[0].values[x_position_index].date;
                             widget.graph.dots.select('circle')
                                 .attr('cx', widget.graph.x(closest_timestamp))
                                 .attr('cy', function(d) {
@@ -2674,169 +2673,155 @@
                     }
                     console.log('setting auto-update timer to ' + widget.graph.autoupdate_interval / 60 + ' minutes for widget ' + widget_string + ' at ' + new Date.now().toTimeString());
                     widget.autoupdate_timer = setTimeout(function() {
-                        widget.update_graph('line');
+                        widget.update_graph();
                     }, widget.graph.autoupdate_interval * 1000);
                 }
 
             }
         },
-        update_graph: function(type) {
+        update_graph: function() {
             var widget = this;
-            if (widget.options.datasource = "OpenTSDB") {
-                var last_point_bits = widget.graph.data_left[0].values.slice(-1);
-                var last_point = last_point_bits.pop();
-                var new_start = last_point.timestamp;
-                var new_end = new Date.now().getTime();
-                new_end = parseInt(new_end / 1000);
-                if ((new_end - new_start) > widget.query_data.time_span) {
-                    new_start = new_end - widget.query_data.time_span;
-                }
-                widget.query_data.start_time = new_start;
-                widget.query_data.end_time = new_end;
-                widget.query_data.new_query = false;
-                var update_tracker = {};
-                $.each(widget.graph.legend_map, function(name, lname) {
-                    update_tracker[name] = 1;
-                });
-                $.when(widget.opentsdb_search()).then(function(incoming_new_data) {
-                    $.when(widget.process_timeseries_data(incoming_new_data)).then(
-                        function(incoming_new_data) {
-                            if (type === "line") {
-                                var new_data = incoming_new_data;
-                                var new_point_count = new_data[0].values.length;
-                                delete(incoming_new_data);
-                                delete(new_data.legend_map);
-                                if (widget.query_data['history_graph'] === "anomaly") {
-                                    widget.graph.anomalies = widget.graph.anomalies.concat(new_data.anomalies);
-                                    delete(new_data.anomalies);
-                                }
-                                $.each(new_data, function(s, d) {
-                                    $.each(d.values, function(v) {
-                                        d.values[v]['date'] = new Date(d.values[v]['timestamp'] * 1000);
-                                    });
-                                });
-
-                                if (widget.graph.right_axis == true) {
-                                    $.each(widget.graph.data_left.concat(widget.graph.data_right), function(i, d) {
-                                        $.each(new_data, function(ni, nd) {
-                                            if (nd.name === d.name) {
-                                                d.values = d.values.concat(nd.values);
-                                                d.values.splice(0, new_point_count);
-                                                delete update_tracker[d.name];
-                                            }
-                                        });
-                                    });
-                                    if (Object.keys(update_tracker).length > 0) {
-                                        $.each(widget.graph.data_left.concat(widget.graph.data_right), function(i, d) {
-                                            if (typeof update_tracker[d.name] !== "undefined") {
-                                                d.values.splice(0, new_point_count);
-                                            }
-                                        });
-                                    }
-                                    widget.graph.x.domain([
-                                        d3.min(widget.graph.data_left.concat(widget.graph.data_right), function(d) {
-                                            return d3.min(d.values, function(v) {
-                                                return v.date;
-                                            })
-                                        })
-                                        , d3.max(widget.graph.data_left.concat(widget.graph.data_right), function(d) {
-                                            return d3.max(d.values, function(v) {
-                                                return v.date;
-                                            })
-                                        })
-                                    ]);
-                                }
-                                else {
-                                    $.each(widget.graph.data_left, function(i, d) {
-                                        $.each(new_data, function(ni, nd) {
-                                            if (nd.name === d.name) {
-                                                d.values = d.values.concat(nd.values);
-                                                d.values.splice(0, new_point_count);
-                                                delete update_tracker[d.name];
-                                            }
-                                        });
-                                    });
-                                    if (Object.keys(update_tracker).length > 0) {
-                                        $.each(widget.graph.data_left, function(i, d) {
-                                            if (typeof update_tracker[d.name] !== "undefined") {
-                                                console.log('No new data received for ' + d.name + ', forcing trim');
-                                                d.values.splice(0, new_point_count);
-                                            }
-                                        });
-                                    }
-                                    widget.graph.x.domain([
-                                        d3.min(widget.graph.data_left, function(d) {
-                                            return d3.min(d.values, function(v) {
-                                                return v.date;
-                                            })
-                                        })
-                                        , d3.max(widget.graph.data_left, function(d) {
-                                            return d3.max(d.values, function(v) {
-                                                return v.date;
-                                            })
-                                        })
-                                    ]);
-                                }
-                                if (widget.graph.x.domain()[0] == "Invalid Date" || widget.graph.x.domain()[1] == "Invalid Date") {
-                                    console.log('Invalid x domain, refreshing');
-                                    widget.go_click_handler();
-                                }
-                                var current_time = new Date();
-                                var nominal_start = new Date(current_time - (widget.query_data.time_span * 1000));
-                                if ((current_time - widget.graph.x.domain()[1]) / 1000 > 3600) {
-                                    console.log('Graph end is more than 1 hour off, refreshing');
-                                    widget.go_click_handler();
-                                }
-                                if (Math.abs((nominal_start - widget.graph.x.domain()[0]) / 1000) > 3600) {
-                                    console.log('Graph start is more than 1 hour off, refreshing');
-                                    widget.go_click_handler();
-                                }
-                                widget.graph.y.domain([
-                                    0, (d3.max(widget.graph.data_left, function(d) {
-                                        return d3.max(d.values, function(v) {
-                                            return parseFloat(v.value);
-                                        })
-                                    }) * 1.05)
-                                ]);
-                                widget.svg.g.select('.x.axis').call(widget.graph.x_axis);
-                                widget.svg.g.select('.y.axis').call(widget.graph.y_axis);
-                                widget.svg.g.selectAll('.y.axis text').attr('dy', '0.75em');
-                                if (widget.graph.right_axis == true) {
-                                    widget.graph.y1.domain([
-                                        0, (d3.max(widget.graph.data_right, function(d) {
-                                            return d3.max(d.values, function(v) {
-                                                return parseFloat(v.value);
-                                            })
-                                        }) * 1.05)
-                                    ]);
-                                    widget.svg.g.selectAll('.y1.axis text').attr('dy', '0.75em');
-                                }
-                                widget.svg.g.selectAll('.metric path')
-                                    .attr('d', function(d) {
-                                        if (d.axis === "right") {
-                                            return widget.graph.line_right(d.values);
-                                        } else {
-                                            return widget.graph.line(d.values);
-                                        }
-                                    });
-
-                                if (widget.query_data['history_graph'] === "anomaly") {
-                                    widget.svg.g.selectAll('.anomaly-bars').selectAll('rect')
-                                        .attr('x', function(d) {
-                                            return widget.graph.x(d.start_time)
-                                        });
-                                }
-                                $(widget.sw_opentsdbwidget_containerid + ' .dots').remove();
-//                                widget.add_graph_dots();
-                            }
-                        }
-                    );
-                });
+            var last_point_bits = widget.graph.data_left[0].values.slice(-1);
+            var last_point = last_point_bits.pop();
+            var new_start = last_point.timestamp;
+            var new_end = new Date.now().getTime();
+            new_end = parseInt(new_end / 1000);
+            if ((new_end - new_start) > widget.query_data.time_span) {
+                new_start = new_end - widget.query_data.time_span;
             }
+            widget.query_data.start_time = new_start;
+            widget.query_data.end_time = new_end;
+            widget.query_data.new_query = false;
+            console.log(widget.svg.g);
+            $.when(widget.opentsdb_search()).then(function(incoming_new_data) {
+                $.when(widget.process_timeseries_data(incoming_new_data)).then(
+                    function(incoming_new_data) {
+                        widget.graph.data_left = [];
+                        if (widget.graph.right_axis == true) {
+                            widget.graph.data_right = [];
+                        }
+                        var new_data = incoming_new_data;
+                        var new_point_count = new_data[0].values.length;
+                        delete(incoming_new_data);
+                        delete(new_data.legend_map);
+                        if (widget.query_data['history_graph'] === "anomaly") {
+                            widget.graph.anomalies = widget.graph.anomalies.concat(new_data.anomalies);
+                            delete(new_data.anomalies);
+                        }
+                        $.each(new_data, function(s, d) {
+                            $.each(d.values, function(v) {
+                                d.values[v]['date'] = new Date(d.values[v]['timestamp'] * 1000);
+                            });
+                        });
+                        console.log('new data received', new_data);
+                        $.each(widget.graph.raw_data, function(s, d) {
+                            var line_values;
+                            $.each(new_data, function(ns, nd) {
+                                if (nd.name === d.name) {
+                                    d.values = d.values.concat(nd.values);
+                                    d.values.splice(0, new_point_count);
+                                }
+                                if (widget.query_data.metrics[d.search_key].ds_type) {
+                                    line_values = widget.downsample_series(d.values, widget.graph.width * 0.5);
+                                } else {
+                                    line_values = d.values;
+                                }
+                                $.each(line_values, function(v) {
+                                    line_values[v]['date'] = new Date(line_values[v]['timestamp'] * 1000);
+                                });
+                            });
+                            if (widget.graph.right_axis == true && d.axis === "right") {
+                                widget.graph.data_right.push({axis: d.axis, name: d.name, search_key: d.search_key, values: line_values});
+                            } else {
+                                widget.graph.data_left.push({axis: d.axis, name: d.name, search_key: d.search_key, values: line_values});
+                            }
+                        });
+
+                        widget.graph.y.domain([
+                            0, (d3.max(widget.graph.data_left, function(d) {
+                                return d3.max(d.values, function(v) {
+                                    return parseFloat(v.value);
+                                })
+                            }) * 1.05)
+                        ]);
+                        if (widget.graph.right_axis == true) {
+                            widget.graph.y1.domain([
+                                0, (d3.max(widget.graph.data_right, function(d) {
+                                    return d3.max(d.values, function(v) {
+                                        return parseFloat(v.value);
+                                    })
+                                }) * 1.05)
+                            ]);
+                            widget.graph.x.domain([
+                                d3.min(widget.graph.data_left.concat(widget.graph.data_right), function(d) {
+                                    return d3.min(d.values, function(v) {
+                                        return v.date;
+                                    })
+                                }),
+                                d3.max(widget.graph.data_left.concat(widget.graph.data_right), function(d) {
+                                    return d3.min(d.values, function(v) {
+                                        return v.date;
+                                    })
+                                })
+                            ]);
+                        } else {
+                            widget.graph.x.domain([
+                                d3.min(widget.graph.data_left, function(d) {
+                                    return d3.min(d.values, function(v) {
+                                        return v.date;
+                                    })
+                                }),
+                                d3.max(widget.graph.data_left, function(d) {
+                                    return d3.max(d.values, function(v) {
+                                        return v.date;
+                                    })
+                                })
+                            ]);
+                        }
+                        widget.graph.y_master_domain = widget.graph.y.domain();
+                        widget.graph.x_master_domain = widget.graph.x.domain();
+                        widget.svg.select('.x.axis').call(widget.graph.x_axis);
+                        widget.svg.select('.y.axis').call(widget.graph.y_axis);
+                        if (widget.graph.x.domain()[0] === "Invalid Date" || widget.graph.x.domain()[1] === "Invalid Date") {
+                            console.log('Invalid x domain, refreshing');
+                            widget.go_click_handler();
+                        }
+                        var current_time = new Date();
+                        var nominal_start = new Date(current_time - (widget.query_data.time_span * 1000));
+                        if ((current_time - widget.graph.x.domain()[1]) / 1000 > 3600) {
+                            console.log('Graph end is more than 1 hour off, refreshing');
+                            widget.go_click_handler();
+                        }
+                        if (Math.abs((nominal_start - widget.graph.x.domain()[0]) / 1000) > 3600) {
+                            console.log('Graph start is more than 1 hour off, refreshing');
+                            widget.go_click_handler();
+                        }
+                        var metric = widget.svg.selectAll('.metric.left');
+                        metric.datum(widget.graph.data_left);
+                        metric.select('path')
+                            .data(widget.graph.data_left)
+                            .attr('d', function(d) {
+                                console.log('Points graphed: ' + d.values.length);
+                                return widget.graph.line(d.values);
+                            });
+                        if (widget.graph.right_axis == true) {
+                            widget.svg.selectAll('.metric.right')
+                                .datum(widget.graph.data_right)
+                                .select('path')
+                                    .data(widget.graph.data_right)
+                                    .attr('d', function(d) {
+                                        return widget.graph.line_right(d.values);
+                                    });
+                        }
+                        widget.dot_data = widget.graph.right_axis ? widget.graph.data_left.concat(widget.graph.data_right) : widget.graph.data_left;
+                        widget.graph.dots.data(widget.dot_data);
+                    }
+                );
+            });
             var widget_string = widget.query_data.title.length > 0 ? widget.query_data.title : widget.sw_opentsdbwidget_container;
             console.log('Widget ' + widget_string + ' refreshed at ' + new Date.now().toTimeString() + ', next refresh in ' + widget.graph.autoupdate_interval / 60 + ' minutes');
             widget.autoupdate_timer = setTimeout(function() {
-                widget.update_graph('line');
+                widget.update_graph();
             }, widget.graph.autoupdate_interval * 1000);
         },
         format_graph_title: function() {
