@@ -536,8 +536,7 @@
             if (proto_widget.graph.brush.empty() !== true) {
                 var proto_period = 'date-search';
                 var proto_no_autoupdate = true;
-            }
-            else {
+            } else {
                 var proto_period = proto_widget.query_data.period;
             }
             var proto_time_span = proto_period === "span-search" ? proto_widget.query_data.time_span : false;
@@ -583,8 +582,7 @@
                             var new_tags = [];
                             if (new_tag_string.match(',')) {
                                 new_tags = new_tag_string.split(',');
-                            }
-                            else {
+                            } else {
                                 new_tags = new_tag_string.split(' ');
                             }
                             widget_list = $('.widget-container[data-widget-type="opentsdbwidget"]');
@@ -599,7 +597,8 @@
                         }
                         $.magnificPopup.close();
                     }
-                }, preloader: false,
+                },
+                preloader: false,
                 removalDelay: 300,
                 mainClass: 'popup-animate',
                 callbacks: {
@@ -608,10 +607,12 @@
                             $('.container').addClass('blur');
                             $('.navbar').addClass('blur');
                         }, 150);
-                    }, close: function() {
+                    },
+                    close: function() {
                         $('.container').removeClass('blur');
                         $('.navbar').addClass('blur');
-                    }, afterClose: function() {
+                    },
+                    afterClose: function() {
                         $('#set-all-tags-popup').remove();
                     }
                 }
@@ -657,7 +658,8 @@
                         }
                         $.magnificPopup.close();
                     }
-                }, preloader: false,
+                },
+                preloader: false,
                 removalDelay: 300,
                 mainClass: 'popup-animate',
                 callbacks: {
@@ -666,10 +668,12 @@
                             $('.container').addClass('blur');
                             $('.navbar').addClass('blur');
                         }, 150);
-                    }, close: function() {
+                    },
+                    close: function() {
                         $('.container').removeClass('blur');
                         $('.navbar').addClass('blur');
-                    }, afterClose: function() {
+                    },
+                    afterClose: function() {
                         $('#set-all-tags-popup').remove();
                     }
                 }
@@ -690,8 +694,8 @@
                     '<li data-action="set-span"><span data-ms=14400>4 Hours</span></li>' +
                     '<li data-action="set-span"><span data-ms=28800>8 Hours</span></li>' +
                     '<li data-action="set-span"><span data-ms=43200>12 Hours</span></li>' +
-                    '<li data-action="set-span"><span data-ms=86400>1 Day</span></li>'
-                , wow_span_menu = '<li data-action="set-span"><span data-ms=600>10 minutes</span></li>' +
+                    '<li data-action="set-span"><span data-ms=86400>1 Day</span></li>',
+                wow_span_menu = '<li data-action="set-span"><span data-ms=600>10 minutes</span></li>' +
                     '<li data-action="set-span"><span data-ms=1800>30 minutes</span></li>' +
                     '<li data-action="set-span"><span data-ms=3600>1 Hour</span></li>' +
                     '<li data-action="set-span"><span data-ms=7200>2 Hours</span></li>' +
@@ -699,8 +703,8 @@
                     '<li data-action="set-span"><span data-ms=28800>8 Hours</span></li>' +
                     '<li data-action="set-span"><span data-ms=43200>12 Hours</span></li>' +
                     '<li data-action="set-span"><span data-ms=86400>1 Day</span></li>' +
-                    '<li data-action="set-span"><span data-ms=604800>1 Week</span></li>'
-                , long_span_menu = '<li data-action="set-span"><span data-ms="600">10 minutes</span></li>' +
+                    '<li data-action="set-span"><span data-ms=604800>1 Week</span></li>',
+                long_span_menu = '<li data-action="set-span"><span data-ms="600">10 minutes</span></li>' +
                     '<li data-action="set-span"><span data-ms=1800>30 minutes</span></li>' +
                     '<li data-action="set-span"><span data-ms=3600>1 Hour</span></li>' +
                     '<li data-action="set-span"><span data-ms=7200>2 Hours</span></li>' +
@@ -973,9 +977,9 @@
             var widget = this;
             tab_num++;
 
-            var tab_content = $('div#tab-content' + widget_num)
-                , tab_tag = widget_num + '-' + tab_num
-                , tab_list = $('ul#tab-list' + widget_num);
+            var tab_content = $('div#tab-content' + widget_num),
+                tab_tag = widget_num + '-' + tab_num,
+                tab_list = $('ul#tab-list' + widget_num);
 
             $(tab_content).append('<div class="tab-pane" id="tab' + tab_tag + '">');
             var tab_pane = $(tab_content).children('div#tab' + tab_tag);
@@ -1112,9 +1116,9 @@
 
                 // Set up some AJAX that will fetch suggested tags and then render.
                 $.ajax({
-                    url: window.location.origin + '/api/datasource/opentsdb/suggest_tags?metric=' + metric
-                    ,type: 'GET'
-                    ,success: function(data) {
+                    url: window.location.origin + '/api/datasource/opentsdb/suggest_tags?metric=' + metric,
+                    type: 'GET',
+                    success: function(data) {
                         data = $.parseJSON(data);
                         window.GLOBAL_METRIC_TO_TAG_CACHE[data['metric']] = data['suggestions'];
                         if (parent_node.children('.tag-suggestions').length == 0) {
@@ -1200,8 +1204,7 @@
             if (typeof query_data.period === "undefined") {
                 if (typeof query_data.time_span === "undefined") {
                     query_data.period = 'date-search';
-                }
-                else {
+                } else {
                     query_data.period = 'span-search';
                 }
             }
@@ -1210,8 +1213,7 @@
                 if (typeof query_data['history-graph'] !== "undefined") {
                     query_data.history_graph = query_data['history-graph'];
                     delete(query_data['history-graph']);
-                }
-                else {
+                } else {
                     query_data.history_graph = 'no';
                 }
             }
@@ -1228,8 +1230,8 @@
                     '<li data-action="set-span"><span data-ms=14400>4 Hours</span></li>' +
                     '<li data-action="set-span"><span data-ms=28800>8 Hours</span></li>' +
                     '<li data-action="set-span"><span data-ms=43200>12 Hours</span></li>' +
-                    '<li data-action="set-span"><span data-ms=86400>1 Day</span></li>'
-                , wow_span_menu = '<li data-action="set-span"><span data-ms=600>10 minutes</span></li>' +
+                    '<li data-action="set-span"><span data-ms=86400>1 Day</span></li>',
+                wow_span_menu = '<li data-action="set-span"><span data-ms=600>10 minutes</span></li>' +
                     '<li data-action="set-span"><span data-ms=1800>30 minutes</span></li>' +
                     '<li data-action="set-span"><span data-ms=3600>1 Hour</span></li>' +
                     '<li data-action="set-span"><span data-ms=7200>2 Hours</span></li>' +
@@ -1237,8 +1239,8 @@
                     '<li data-action="set-span"><span data-ms=28800>8 Hours</span></li>' +
                     '<li data-action="set-span"><span data-ms=43200>12 Hours</span></li>' +
                     '<li data-action="set-span"><span data-ms=86400>1 Day</span></li>' +
-                    '<li data-action="set-span"><span data-ms=604800>1 Week</span></li>'
-                , long_span_menu = '<li data-action="set-span"><span data-ms="600">10 minutes</span></li>' +
+                    '<li data-action="set-span"><span data-ms=604800>1 Week</span></li>',
+                long_span_menu = '<li data-action="set-span"><span data-ms="600">10 minutes</span></li>' +
                     '<li data-action="set-span"><span data-ms=1800>30 minutes</span></li>' +
                     '<li data-action="set-span"><span data-ms=3600>1 Hour</span></li>' +
                     '<li data-action="set-span"><span data-ms=7200>2 Hours</span></li>' +
@@ -1267,8 +1269,7 @@
                     auto_update_input.attr('checked', 'Checked').prop('checked', true);
                     auto_update_input.siblings('label').children('span.elegant-icons').removeClass('icon-close-alt red').addClass('icon-check-alt green');
                 }
-            }
-            else {
+            } else {
                 auto_update_input.parent('.push-button').removeClass('pushed');
                 if (auto_update_input.prop('checked')) {
                     auto_update_input.attr('checked', null).prop('checked', false);
@@ -1283,16 +1284,14 @@
                 $(el).children('input').attr('checked', 'Checked');
                 $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
                 $('ul#time-span-options' + widget_num).html(anomaly_span_menu);
-            }
-            else if (query_data.history_graph.match(/wow/)) {
+            } else if (query_data.history_graph.match(/wow/)) {
                 var el = $('input[data-target="history-wow' + widget_num + '"]').parent('label');
                 $(el).parent('div.toggle-button').addClass('toggle-on');
                 $(el).parent('div.toggle-button').siblings('div.toggle-button').removeClass('toggle-on');
                 $(el).children('input').attr('checked', 'Checked');
                 $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
                 $('ul#time-span-options' + widget_num).html(wow_span_menu);
-            }
-            else {
+            } else {
                 var el = $('input[data-target="history-no' + widget_num + '"]').parent('label');
                 $(el).parent('div.toggle-button').addClass('toggle-on');
                 $(el).parent('div.toggle-button').siblings('div.toggle-button').removeClass('toggle-on');
@@ -1312,8 +1311,7 @@
                 var section = $('#' + data_target);
                 section.removeClass('section-off').addClass('section-on').siblings('.section').addClass('section-off').removeClass('section-on');
                 $('#time-span' + widget_num).attr('data-ms', span).text(widget.sw_opentsdbwidget_timespanmap[span]);
-            }
-            else {
+            } else {
                 var el = $('input[data-target="widget-dates' + widget_num + '"]').parent('label');
                 $(el).parent('div.toggle-button').addClass('toggle-on');
                 $(el).parent('div.toggle-button').siblings('div.toggle-button').removeClass('toggle-on');
@@ -1322,8 +1320,7 @@
                 if ((start_in = parseInt(query_data.start_time)) && (end_in = parseInt(query_data.end_time))) {
                     $('div#start-time' + widget_num).children('input').val(new Date(start_in * 1000).toString('yyyy/MM/dd HH:mm:ss'));
                     $('div#end-time' + widget_num).children('input').val(new Date(end_in * 1000).toString('yyyy/MM/dd HH:mm:ss'));
-                }
-                else {
+                } else {
                     prompt_user = true;
                 }
                 var data_target = $(el).children('input').attr('data-target');
@@ -1366,8 +1363,7 @@
                     if (!lerp_input.prop('checked')) {
                         lerp_input.prop('checked', true).attr('checked', 'Checked');
                     }
-                }
-                else {
+                } else {
                     lerp_input.parent('.push-button').removeClass('pushed');
                     lerp_input.siblings('label').children('span.elegant-icons').addClass('icon-close-alt red').removeClass('icon-check-alt green');
                     if (lerp_input.prop('checked')) {
@@ -1382,8 +1378,7 @@
                     if (!rate_input.prop('checked')) {
                         rate_input.prop('checked', true).attr('checked', 'Checked');
                     }
-                }
-                else {
+                } else {
                     rate_input.parent('.push-button').removeClass('pushed');
                     rate_input.siblings('label').children('span.elegant-icons').addClass('icon-close-alt red').removeClass('icon-check-alt green');
                     if (rate_input.prop('checked')) {
@@ -1398,8 +1393,7 @@
                     if (!y2_input.prop('checked')) {
                         y2_input.prop('checked', true).attr('checked', 'Checked');
                     }
-                }
-                else {
+                } else {
                     y2_input.parent('.push-button').removeClass('pushed');
                     y2_input.siblings('label').children('span.elegant-icons').addClass('icon-close-alt red').removeClass('icon-check-alt green');
                     if (y2_input.prop('checked')) {
@@ -1555,8 +1549,7 @@
                         var metric_tag_string = metric_bits.shift();
                         metric_tag_string = metric_tag_string.substring(0, metric_tag_string.length - 1);
                         build_metric.tags = metric_tag_string.split(',');
-                    }
-                    else {
+                    } else {
                         metric_bits = metric_search_string.split(' ');
                         build_metric.name = metric_bits.shift();
                         if (build_metric.name.length < 1) {
@@ -1567,13 +1560,7 @@
                         }
                     }
                     var agg_type = $('#active-aggregation-type' + widget_num + '-' + i).text().toLowerCase();
-//                    var ds_type = $('#active-downsample-type' + widget_num + '-' + i).text().toLowerCase();
                     build_metric.agg_type = methods[agg_type];
-//                    build_metric.ds_type = methods[ds_type];
-//                    build_metric.ds_interval = $('#active-downsample-interval' + widget_num + '-' + i).attr('data-value');
-//                    if ((widget.query_data['downsample_master_interval'] < 1) || (build_metric.ds_interval > widget.query_data['downsample_master_interval'])) {
-//                        widget.query_data['downsample_master_interval'] = build_metric.ds_interval;
-//                    }
 //
                     if ($('#rate-button' + widget_num + '-' + i).prop('checked')) {
                         build_metric.rate = true;
@@ -1694,9 +1681,9 @@
                             $('#' + widget.element.attr('id') + ' .status-message').empty().append('<p>' + status[1] + '</p>');
                         }
                     );
-                }
+                },
                 // fail: Show error image and error message
-                , function(status) {
+                function(status) {
                     $('#spinner' + widget_num).empty()
                         .append('<div class="spinner-error elegant-icons icon-error-triangle red"></div>');
 
@@ -1789,12 +1776,10 @@
                 if (data[0] === "error") {
                     widget.ajax_request.abort();
                     widget.ajax_object.reject(data[1])
-                }
-                else if (Object.keys(data).length <= 4) {
+                } else if (Object.keys(data).length <= 4) {
                     widget.ajax_request.abort();
                     widget.ajax_object.reject(["0", "Query returned no data"]);
-                }
-                else {
+                } else {
                     delete widget.ajax_request;
                     widget.ajax_object.resolve(data);
                 }
@@ -1831,12 +1816,10 @@
                 if (current_data[0] === "error") {
                     widget.ajax_request.abort();
                     widget.ajax_object.reject(current_data[1])
-                }
-                else if (Object.keys(current_data).length <= 4) {
+                } else if (Object.keys(current_data).length <= 4) {
                     widget.ajax_request.abort();
                     widget.ajax_object.reject(["0", "Current week query returned no data"]);
-                }
-                else {
+                } else {
                     status.html('<p>Fetching Metric Data For Previous Week</p>');
                     metric_data.start = current_data.start;
                     delete current_data.start;
@@ -1869,18 +1852,15 @@
                 if (!data) {
                     widget.ajax_request.abort();
                     widget.ajax_object.reject();
-                }
-                else {
+                } else {
                     past_data = data;
                     if (past_data[0] === "error") {
                         widget.ajax_request.abort();
                         widget.ajax_object.reject(past_data[1])
-                    }
-                    else if (Object.keys(past_data).length <= 4) {
+                    } else if (Object.keys(past_data).length <= 4) {
                         widget.ajax_request.abort();
                         widget.ajax_object.reject(["0", "Previous week query returned no data"]);
-                    }
-                    else {
+                    } else {
                         delete past_data.start;
                         delete past_data.end;
                         delete past_data.query_url;
@@ -1929,12 +1909,10 @@
                 if (data[0] === "error") {
                     widget.ajax_request.abort();
                     widget.ajax_object.reject(data[1])
-                }
-                else if (Object.keys(data).length <= 4) {
+                } else if (Object.keys(data).length <= 4) {
                     widget.ajax_request.abort();
                     widget.ajax_object.reject(["0", "Query returned no data"]);
-                }
-                else {
+                } else {
                     metric_data = data;
                     data_for_detection = {query_data: widget.query_data, ts_data: metric_data};
                     status.html('<p>Calculating anomalies</p>');
@@ -1952,13 +1930,11 @@
                 if (!data) {
                     widget.ajax_request.abort();
                     widget.ajax_object.reject();
-                }
-                else {
+                } else {
                     if (data[0] === "error") {
                         widget.ajax_request.abort();
                         widget.ajax_object.reject(data[1])
-                    }
-                    else {
+                    } else {
                         metric_data.anomalies = data;
                         widget.ajax_object.resolve(metric_data);
                     }
@@ -1997,8 +1973,7 @@
                 $.each(data, function(series, series_data) {
                     graph_data.push({name: series, search_key: (Object.keys(widget.query_data.metrics))[0], axis: 'left', values: series_data});
                 })
-            }
-            else {
+            } else {
                 var tag_map = {};
                 $.each(widget.query_data.metrics, function(search_key, search_data) {
                     if (typeof search_data.tags !== "undefined") {
@@ -2007,19 +1982,16 @@
                             var tag_parts = tag.split('=');
                             if (tag_parts[1] === '*') {
                                 tag_map[search_key].tags.push(tag_parts[0] + '=ALL');
-                            }
-                            else if (tag_parts[1].match(/\|/)) {
+                            } else if (tag_parts[1].match(/\|/)) {
                                 var matches = tag_parts[1].split('|');
                                 $.each(matches, function(i, m) {
                                     tag_map[search_key].tags.push(tag_parts[0] + '=' + m);
                                 });
-                            }
-                            else {
+                            } else {
                                 tag_map[search_key].tags.push(tag);
                             }
                         });
-                    }
-                    else {
+                    } else {
                         tag_map[search_key] = {name: search_data.name, tags: ['NONE'], tag_count: 0};
                     }
                 });
@@ -2031,8 +2003,7 @@
                         if (series_metric === search_data.name) {
                             if (search_data.tags[0] === "NONE") {
                                 key_map = search_key;
-                            }
-                            else {
+                            } else {
                                 var search_matched = 0;
                                 $.each(search_data.tags, function(i, t) {
                                     if (t.match(/ALL/)) {
@@ -2042,8 +2013,7 @@
                                                 search_matched++;
                                             }
                                         })
-                                    }
-                                    else {
+                                    } else {
                                         $.each(series_key, function(i, k) {
                                             if (k === t) {
                                                 search_matched++;
@@ -2203,8 +2173,7 @@
                 if (d.axis === "right") {
                     widget.graph.right_axis = true;
                     widget.graph.data_right.push({axis: d.axis, name: d.name, search_key: d.search_key, values: line_values});
-                }
-                else {
+                } else {
                     widget.graph.data_left.push({axis: d.axis, name: d.name, search_key: d.search_key, values: line_values});
                 }
             });
@@ -2250,8 +2219,8 @@
                             return d3.min(d.values, function(v) {
                                 return v.date;
                             })
-                        })
-                        , d3.max(widget.graph.data_left.concat(widget.graph.data_right), function(d) {
+                        }),
+                        d3.max(widget.graph.data_left.concat(widget.graph.data_right), function(d) {
                             return d3.max(d.values, function(v) {
                                 return v.date;
                             })
@@ -2264,8 +2233,8 @@
                             return d3.min(d.values, function(v) {
                                 return v.date;
                             })
-                        })
-                        , d3.max(widget.graph.data_left, function(d) {
+                        }),
+                        d3.max(widget.graph.data_left, function(d) {
                             return d3.max(d.values, function(v) {
                                 return v.date;
                             })
@@ -2535,8 +2504,7 @@
                                     d3.select(this).classed('hidden', 1);
                                 }
                             })
-                        }
-                        else {
+                        } else {
                             if (metric_line.classed('hidden')) {
                                 $(this).removeClass('fade');
                                 metric_line.classed('hidden', 0);
@@ -2545,8 +2513,7 @@
                                         d3.select(this).classed('hidden', 0);
                                     }
                                 });
-                            }
-                            else {
+                            } else {
                                 $(this).addClass('fade');
                                 metric_line.classed('hidden', 1);
                                 widget.graph.dots.each(function() {
@@ -2593,8 +2560,7 @@
                                     widget.update_graph();
                                 }, 300 * 1000);
                             }
-                        }
-                        else {
+                        } else {
                             widget.graph.x.domain([widget.graph.brush.extent()[0][0], widget.graph.brush.extent()[1][0]]);
                             widget.graph.y.domain([widget.graph.brush.extent()[0][1], widget.graph.brush.extent()[1][1]]);
                             widget.resize_graph();
