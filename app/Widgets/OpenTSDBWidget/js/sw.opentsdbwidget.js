@@ -1664,7 +1664,6 @@
             var widget = this;
             widget_num = widget.uuid;
 
-            var graph_type = 'line';
             // Start deferred query for metric data
             $.when(widget.opentsdb_search()).then(
                 // done: Send the data over to be parsed
@@ -1672,7 +1671,7 @@
                     $.when(widget.process_timeseries_data(data)).then(
                         // done: Build the graph
                         function(data) {
-                            widget.build_graph(data, graph_type);
+                            widget.build_graph(data, false);
                         }
                         // fail: Show error image and error message
                         , function(status) {
@@ -2130,18 +2129,9 @@
 //            console.log(downsampled);
 
         },
-        build_graph: function(data, type) {
+        build_graph: function(data, update_graph) {
 
             var widget = this;
-
-            widget.graph = {};
-            widget.graph.legend_map = data.legend_map;
-            delete(data.legend_map);
-            if (widget.query_data['history_graph'] === "anomaly") {
-                widget.graph.anomalies = data.anomalies;
-                delete(data.anomalies);
-            }
-            widget.graph.autoupdate_interval = widget.query_data.downsample_master_interval > 1 ? widget.query_data.downsample_master_interval * 60 : 300;
 
             var graphdiv = widget.sw_opentsdbwidget_graphdiv.empty();
             var graphdiv_offset = graphdiv.position().top;
@@ -2151,11 +2141,42 @@
             widget.sw_opentsdbwidget_legendbox.css('width', widget.sw_opentsdbwidget_frontmain.innerWidth())
                 .removeClass('hidden');
 
-            widget.graph.margin = {top: 0, right: 5, bottom: 20, left: 45};
-            widget.graph.width = (graphdiv.innerWidth() - widget.graph.margin.left - widget.graph.margin.right);
-            widget.graph.height = (graphdiv.innerHeight() - widget.graph.margin.top - widget.graph.margin.bottom);
+            if (update_graph) {
+                console.log('updating graph');
+                var range_start = widget.query_data.end_time - widget.query_data.time_span;
+                var new_point_count = data[0].values.length;
+                $.each(widget.graph.raw_data, function(s, d) {
+                    var point_count = 0;
+                    $.each(data, function(ns, nd) {
+                        if (nd.name === d.name) {
+                            d.values = d.values.concat(nd.values);
+                        }
+                    });
+                    $.each(d, function(i, values) {
+                        if (values.timestamp < range_start) {
+                            point_count++;
+                        } else {
+                            return false;
+                        }
+                    });
+                    d.values.splice(0, point_count);
+                });
 
-            widget.graph.raw_data = data;
+            } else {
+                widget.graph = {};
+                widget.graph.autoupdate_interval = widget.query_data.downsample_master_interval > 1 ? widget.query_data.downsample_master_interval * 60 : 300;
+                widget.graph.margin = {top: 0, right: 5, bottom: 20, left: 45};
+                widget.graph.width = (graphdiv.innerWidth() - widget.graph.margin.left - widget.graph.margin.right);
+                widget.graph.height = (graphdiv.innerHeight() - widget.graph.margin.top - widget.graph.margin.bottom);
+
+                widget.graph.legend_map = data.legend_map;
+                delete(data.legend_map);
+                if (widget.query_data['history_graph'] === "anomaly") {
+                    widget.graph.anomalies = data.anomalies;
+                    delete(data.anomalies);
+                }
+                widget.graph.raw_data = data;
+            }
             delete(data);
 
             widget.graph.data_left = [];
@@ -2191,159 +2212,179 @@
             widget.svg.g = widget.svg.append('g')
                 .attr('transform', 'translate(' + widget.graph.margin.left + ',' + widget.graph.margin.top + ')');
 
-            if (type === "line") {
-                widget.graph.x = d3.time.scale()
-                    .range([0, widget.graph.width]);
+            widget.graph.x = d3.time.scale()
+                .range([0, widget.graph.width]);
 
-                widget.graph.y = d3.scale.linear()
+            widget.graph.y = d3.scale.linear()
+                .range([widget.graph.height, 0]);
+
+            widget.graph.x_axis = d3.svg.axis()
+                .scale(widget.graph.x)
+                .orient('bottom')
+                .tickSize(-widget.graph.height, 0)
+                .tickPadding(8)
+                .tickFormat(d3.time.format('%H:%M'));
+
+            widget.graph.y_axis = d3.svg.axis()
+                .scale(widget.graph.y)
+                .orient('left')
+                .ticks(5)
+                .tickSize(-widget.graph.width, 0)
+                .tickPadding(5)
+                .tickFormat(d3.format('.3s'));
+
+            if (widget.graph.right_axis == true) {
+                widget.graph.x.domain([
+                    d3.min(widget.graph.data_left.concat(widget.graph.data_right), function(d) {
+                        return d3.min(d.values, function(v) {
+                            return v.date;
+                        })
+                    }),
+                    d3.max(widget.graph.data_left.concat(widget.graph.data_right), function(d) {
+                        return d3.max(d.values, function(v) {
+                            return v.date;
+                        })
+                    })
+                ]);
+            }
+            else {
+                widget.graph.x.domain([
+                    d3.min(widget.graph.data_left, function(d) {
+                        return d3.min(d.values, function(v) {
+                            return v.date;
+                        })
+                    }),
+                    d3.max(widget.graph.data_left, function(d) {
+                        return d3.max(d.values, function(v) {
+                            return v.date;
+                        })
+                    })
+                ]);
+
+            }
+
+            widget.graph.x_master_domain = widget.graph.x.domain();
+
+            widget.graph.y.domain([
+                0, (d3.max(widget.graph.data_left, function(d) {
+                    return d3.max(d.values, function(v) {
+                        return parseFloat(v.value);
+                    })
+                }) * 1.05)
+            ]);
+
+            widget.graph.y_master_domain = widget.graph.y.domain();
+
+            if (widget.graph.right_axis == true) {
+                widget.graph.y1 = d3.scale.linear()
                     .range([widget.graph.height, 0]);
 
-                widget.graph.x_axis = d3.svg.axis()
-                    .scale(widget.graph.x)
-                    .orient('bottom')
-                    .tickSize(-widget.graph.height, 0)
-                    .tickPadding(8)
-                    .tickFormat(d3.time.format('%H:%M'));
-
-                widget.graph.y_axis = d3.svg.axis()
-                    .scale(widget.graph.y)
-                    .orient('left')
+                widget.graph.y_axis_right = d3.svg.axis()
+                    .scale(widget.graph.y1)
+                    .orient('right')
                     .ticks(5)
-                    .tickSize(-widget.graph.width, 0)
                     .tickPadding(5)
                     .tickFormat(d3.format('.3s'));
 
-                if (widget.graph.right_axis == true) {
-                    widget.graph.x.domain([
-                        d3.min(widget.graph.data_left.concat(widget.graph.data_right), function(d) {
-                            return d3.min(d.values, function(v) {
-                                return v.date;
-                            })
-                        }),
-                        d3.max(widget.graph.data_left.concat(widget.graph.data_right), function(d) {
-                            return d3.max(d.values, function(v) {
-                                return v.date;
-                            })
-                        })
-                    ]);
-                }
-                else {
-                    widget.graph.x.domain([
-                        d3.min(widget.graph.data_left, function(d) {
-                            return d3.min(d.values, function(v) {
-                                return v.date;
-                            })
-                        }),
-                        d3.max(widget.graph.data_left, function(d) {
-                            return d3.max(d.values, function(v) {
-                                return v.date;
-                            })
-                        })
-                    ]);
-
-                }
-
-                widget.graph.x_master_domain = widget.graph.x.domain();
-
-                widget.graph.y.domain([
-                    0, (d3.max(widget.graph.data_left, function(d) {
+                widget.graph.y1.domain([
+                    0, (d3.max(widget.graph.data_right, function(d) {
                         return d3.max(d.values, function(v) {
                             return parseFloat(v.value);
                         })
                     }) * 1.05)
                 ]);
+            }
 
-                widget.graph.y_master_domain = widget.graph.y.domain();
+            widget.graph.color = d3.scale.ordinal()
+                .domain(function(d) {
+                    return widget.graph.legend_map[d.name];
+                })
+                .range(swcolors.Wheel_DarkBG[5]);
 
-                if (widget.graph.right_axis == true) {
-                    widget.graph.y1 = d3.scale.linear()
-                        .range([widget.graph.height, 0]);
+            widget.graph.line = d3.svg.line()
+                .interpolate('linear')
+                .x(function(d) {
+                    return widget.graph.x(d.date);
+                })
+                .y(function(d) {
+                    return widget.graph.y(+d.value);
+                });
 
-                    widget.graph.y_axis_right = d3.svg.axis()
-                        .scale(widget.graph.y1)
-                        .orient('right')
-                        .ticks(5)
-                        .tickPadding(5)
-                        .tickFormat(d3.format('.3s'));
+            widget.graph.line_right = d3.svg.line()
+                .interpolate('linear')
+                .x(function(d) {
+                    return widget.graph.x(d.date);
+                })
+                .y(function(d) {
+                    return widget.graph.y1(+d.value);
+                });
 
-                    widget.graph.y1.domain([
-                        0, (d3.max(widget.graph.data_right, function(d) {
-                            return d3.max(d.values, function(v) {
-                                return parseFloat(v.value);
-                            })
-                        }) * 1.05)
-                    ]);
-                }
+            widget.svg.g.append('defs').append('clipPath')
+                .attr('id', 'clip' + widget.uuid)
+                .append('rect')
+                .attr('width', widget.graph.width)
+                .attr('height', widget.graph.height);
 
-                widget.graph.color = d3.scale.ordinal()
-                    .domain(function(d) {
-                        return widget.graph.legend_map[d.name];
-                    })
-                    .range(swcolors.Wheel_DarkBG[5]);
+            widget.svg.g.append('g')
+                .attr('class', 'x axis')
+                .attr('transform', 'translate(0,' + ($('#' + graphdiv.attr('id') + ' svg').innerHeight() - widget.graph.margin.bottom) + ')')
+                .call(widget.graph.x_axis)
+                .append('text')
+                .classed('graph-title', 1)
+                .classed('hidden', 1)
+                .attr('text-anchor', 'middle')
+                .text(widget.query_data.title);
 
-                widget.graph.line = d3.svg.line()
-                    .interpolate('linear')
-                    .x(function(d) {
-                        return widget.graph.x(d.date);
-                    })
-                    .y(function(d) {
-                        return widget.graph.y(+d.value);
-                    });
+            widget.format_graph_title();
 
-                widget.graph.line_right = d3.svg.line()
-                    .interpolate('linear')
-                    .x(function(d) {
-                        return widget.graph.x(d.date);
-                    })
-                    .y(function(d) {
-                        return widget.graph.y1(+d.value);
-                    });
+            widget.svg.g.append('g')
+                .attr('class', 'y axis')
+                .call(widget.graph.y_axis);
 
-                widget.svg.g.append('defs').append('clipPath')
-                    .attr('id', 'clip' + widget.uuid)
-                    .append('rect')
-                    .attr('width', widget.graph.width)
-                    .attr('height', widget.graph.height);
+            widget.svg.g.selectAll('.y.axis text').attr('dy', '0.75em');
 
+            if (widget.graph.right_axis == true) {
                 widget.svg.g.append('g')
-                    .attr('class', 'x axis')
-                    .attr('transform', 'translate(0,' + ($('#' + graphdiv.attr('id') + ' svg').innerHeight() - widget.graph.margin.bottom) + ')')
-                    .call(widget.graph.x_axis)
-                    .append('text')
-                    .classed('graph-title', 1)
-                    .classed('hidden', 1)
-                    .attr('text-anchor', 'middle')
-                    .text(widget.query_data.title);
+                    .attr('class', 'y1 axis')
+                    .attr('transform', 'translate(' + widget.graph.width + ',0)')
+                    .call(widget.graph.y_axis_right);
 
-                widget.format_graph_title();
+                widget.svg.g.selectAll('.y1.axis text').attr('dy', '0.75em');
 
-                widget.svg.g.append('g')
-                    .attr('class', 'y axis')
-                    .call(widget.graph.y_axis);
+            }
 
-                widget.svg.g.selectAll('.y.axis text').attr('dy', '0.75em');
+            widget.svg.g.selectAll('.metric.left')
+                .data(widget.graph.data_left)
+                .enter().append('g')
+                .classed('metric', 1)
+                .classed('left', 1)
+                .attr('clip-path', 'url(#clip' + widget.uuid + ')')
+                .append('path')
+                .classed('line', 1)
+                .classed('left', 1)
+                .attr('d', function(d) {
+                    return widget.graph.line(d.values);
+                })
+                .attr('data-name', function(d) {
+                    return widget.graph.legend_map[d.name];
+                })
+                .style('stroke', function(d) {
+                    return widget.graph.color(widget.graph.legend_map[d.name]);
+                })
+                .style('pointer-events', 'none');
 
-                if (widget.graph.right_axis == true) {
-                    widget.svg.g.append('g')
-                        .attr('class', 'y1 axis')
-                        .attr('transform', 'translate(' + widget.graph.width + ',0)')
-                        .call(widget.graph.y_axis_right);
-
-                    widget.svg.g.selectAll('.y1.axis text').attr('dy', '0.75em');
-
-                }
-
-                widget.svg.g.selectAll('.metric.left')
-                    .data(widget.graph.data_left)
+            if (widget.graph.right_axis == true) {
+                widget.svg.g.selectAll('.metric.right')
+                    .data(widget.graph.data_right)
                     .enter().append('g')
                     .classed('metric', 1)
-                    .classed('left', 1)
+                    .classed('right', 1)
                     .attr('clip-path', 'url(#clip' + widget.uuid + ')')
                     .append('path')
                     .classed('line', 1)
-                    .classed('left', 1)
+                    .classed('right', 1)
                     .attr('d', function(d) {
-                        return widget.graph.line(d.values);
+                        return widget.graph.line_right(d.values);
                     })
                     .attr('data-name', function(d) {
                         return widget.graph.legend_map[d.name];
@@ -2352,87 +2393,67 @@
                         return widget.graph.color(widget.graph.legend_map[d.name]);
                     })
                     .style('pointer-events', 'none');
+            }
 
-                if (widget.graph.right_axis == true) {
-                    widget.svg.g.selectAll('.metric.right')
-                        .data(widget.graph.data_right)
-                        .enter().append('g')
-                        .classed('metric', 1)
-                        .classed('right', 1)
-                        .attr('clip-path', 'url(#clip' + widget.uuid + ')')
-                        .append('path')
-                        .classed('line', 1)
-                        .classed('right', 1)
-                        .attr('d', function(d) {
-                            return widget.graph.line_right(d.values);
-                        })
-                        .attr('data-name', function(d) {
-                            return widget.graph.legend_map[d.name];
-                        })
-                        .style('stroke', function(d) {
-                            return widget.graph.color(widget.graph.legend_map[d.name]);
-                        })
-                        .style('pointer-events', 'none');
-                }
+            var point_format = d3.format('.2f');
 
-                var point_format = d3.format('.2f');
+            widget.dot_data = widget.graph.right_axis ? widget.graph.data_left.concat(widget.graph.data_right) : widget.graph.data_left;
+            widget.graph.dots = widget.svg.g.append('g')
+                .attr('class', 'dot-container')
+                .selectAll('g')
+                .data(widget.dot_data)
+                .enter().append('g')
+                    .attr('opacity', 0)
+                    .attr('data-name', function(d) {
+                        return widget.graph.legend_map[d.name];
+                    });
 
-                widget.dot_data = widget.graph.right_axis ? widget.graph.data_left.concat(widget.graph.data_right) : widget.graph.data_left;
-                widget.graph.dots = widget.svg.g.append('g')
-                    .attr('class', 'dot-container')
-                    .selectAll('g')
-                    .data(widget.dot_data)
-                    .enter().append('g')
-                        .attr('opacity', 0)
-                        .attr('data-name', function(d) {
-                            return widget.graph.legend_map[d.name];
-                        });
-
-                widget.graph.dots
-                    .append('circle')
-                        .attr('cx', widget.graph.x(widget.dot_data[0].values[0].date))
-                        .attr('cy', function(d) {
-                            if (d.axis === "right") {
-                                return widget.graph.y1(d.values[0].value);
-                            } else {
-                                return widget.graph.y(d.values[0].value);
-                            }
-                        })
-                        .attr('r', 4)
-                        .style('fill', 'none')
-                        .style('stroke-width', '1.5px')
-                        .style('stroke', function(d) {
-                            return (widget.graph.color(widget.graph.legend_map[d.name]));
-                        })
-                        .classed('dot', 1);
-                widget.graph.dots.append('text')
-                    .attr('x', 0)
-                    .attr('y', 0)
-                    .style('fill', function(d) {
+            widget.graph.dots
+                .append('circle')
+                    .attr('cx', widget.graph.x(widget.dot_data[0].values[0].date))
+                    .attr('cy', function(d) {
+                        if (d.axis === "right") {
+                            return widget.graph.y1(d.values[0].value);
+                        } else {
+                            return widget.graph.y(d.values[0].value);
+                        }
+                    })
+                    .attr('r', 4)
+                    .style('fill', 'none')
+                    .style('stroke-width', '1.5px')
+                    .style('stroke', function(d) {
                         return (widget.graph.color(widget.graph.legend_map[d.name]));
                     })
-                    .style('font-size', '.71em')
-                    .style('text-shadow', '2px 2px 2px #000');
+                    .classed('dot', 1);
+            widget.graph.dots.append('text')
+                .attr('x', 0)
+                .attr('y', 0)
+                .style('fill', function(d) {
+                    return (widget.graph.color(widget.graph.legend_map[d.name]));
+                })
+                .style('font-size', '.71em')
+                .style('text-shadow', '2px 2px 2px #000');
 
-                var bisect = d3.bisector(function(d) { return d.date; }).left;
+            var bisect = d3.bisector(function(d) { return d.date; }).left;
 
-                if (Object.keys(widget.graph.legend_map).length > 9) {
-                    legend.css({
-                        '-webkit-columns': 'auto 4', '-moz-columns': 'auto 4', columns: 'auto 4'
-                    });
-                }
-                else if (Object.keys(widget.graph.legend_map).length > 6) {
-                    legend.css({
-                        '-webkit-columns': 'auto 2', '-moz-columns': 'auto 3', columns: 'auto 3'
-                    });
-                }
-                else if (Object.keys(widget.graph.legend_map).length > 3) {
-                    legend.css({
-                        '-webkit-columns': 'auto 2', '-moz-columns': 'auto 2', columns: 'auto 2'
-                    });
-                }
+            if (Object.keys(widget.graph.legend_map).length > 9) {
+                legend.css({
+                    '-webkit-columns': 'auto 4', '-moz-columns': 'auto 4', columns: 'auto 4'
+                });
+            }
+            else if (Object.keys(widget.graph.legend_map).length > 6) {
+                legend.css({
+                    '-webkit-columns': 'auto 2', '-moz-columns': 'auto 3', columns: 'auto 3'
+                });
+            }
+            else if (Object.keys(widget.graph.legend_map).length > 3) {
+                legend.css({
+                    '-webkit-columns': 'auto 2', '-moz-columns': 'auto 2', columns: 'auto 2'
+                });
+            }
 
-                $.each(widget.graph.legend_map, function(series, label) {
+            $.each(widget.graph.legend_map, function(series, label) {
+                if (legend.has('span[title="' + label + '"]').length == 0) {
                     var item_color = widget.graph.color(widget.graph.legend_map[series]);
                     legend.append('<span title="' + label + '" class="legend-title" style="color: ' + item_color + '">' + label + '</span>');
                     var name_span = legend.children('span[title="' + label + '"]');
@@ -2443,207 +2464,217 @@
                             $(name_span).prepend('<span class="elegant-icons arrow-triangle-right" style="font-size: .75em"></span>');
                         }
                     }
-                });
+                }
+            });
 
-                legend.children('span')
-                    .css('cursor', 'pointer')
-                    .on('mouseover', function() {
-                        $(this).css('font-weight', 'bold');
-                        widget.svg.g.selectAll('.metric path').classed('fade', 1);
-                        var moved_metric = widget.svg.g.select('.metric path[data-name="' + $(this).attr('title') + '"]');
-                        var axis_position_class = 'left';
-                        if (moved_metric.classed('right')) {
-                            axis_position_class = 'right';
-                        }
-                        if (!moved_metric.classed('hidden')) {
-                            var moved_metric_node = moved_metric.node();
-                            var moved_metric_data = moved_metric.data();
-                            $(moved_metric_node).parent().remove();
-                            var new_metric = d3.select('#' + widget.element.attr('id') + ' svg>g').insert('g', 'g.dot-container');
-                            new_metric
-                                .classed('metric', 1)
-                                .classed(axis_position_class, 1)
-                                .attr('clip-path', 'url(#clip' + widget.uuid + ')')
-                                .data(moved_metric_data)
-                                .append('path')
-                                .classed('line', 1)
-                                .classed(axis_position_class, 1)
-                                .attr('d', function(d) {
-                                    if (d.axis === "right") {
-                                        return widget.graph.line_right(d.values);
-                                    } else {
-                                        return widget.graph.line(d.values);
-                                    }
-                                })
-                                .attr('data-name', $(this).attr('title'))
-                                .style('stroke', function(d) {
-                                    return widget.graph.color(widget.graph.legend_map[d.name]);
-                                })
-                                .style('stroke-width', '3px')
-                                .style('pointer-events', 'none');
-                        }
-                    })
-                    .on('mouseout', function() {
-                        $(this).css('font-weight', 'normal');
-                        widget.svg.g.select('.widget path[data-name="' + $(this).attr('title') + '"]').style('stroke-width', '1.5px');
-                        widget.svg.g.selectAll('.metric path').classed('fade', 0);
-                    })
-                    .on('click', function(e) {
-                        var series_title = $(this).attr('title'),
-                            metric_line = widget.svg.g.select('.metric path[data-name="' + series_title + '"]');
-                        if (e.altKey) {
-                            legend.children('span').addClass('fade');
+            legend.children('span')
+                .css('cursor', 'pointer')
+                .on('mouseover', function() {
+                    $(this).css('font-weight', 'bold');
+                    widget.svg.g.selectAll('.metric path').classed('fade', 1);
+                    var moved_metric = widget.svg.g.select('.metric path[data-name="' + $(this).attr('title') + '"]');
+                    var axis_position_class = 'left';
+                    if (moved_metric.classed('right')) {
+                        axis_position_class = 'right';
+                    }
+                    if (!moved_metric.classed('hidden')) {
+                        var moved_metric_node = moved_metric.node();
+                        var moved_metric_data = moved_metric.data();
+                        $(moved_metric_node).parent().remove();
+                        var new_metric = d3.select('#' + widget.element.attr('id') + ' svg>g').insert('g', 'g.dot-container');
+                        new_metric
+                            .classed('metric', 1)
+                            .classed(axis_position_class, 1)
+                            .attr('clip-path', 'url(#clip' + widget.uuid + ')')
+                            .data(moved_metric_data)
+                            .append('path')
+                            .classed('line', 1)
+                            .classed(axis_position_class, 1)
+                            .attr('d', function(d) {
+                                if (d.axis === "right") {
+                                    return widget.graph.line_right(d.values);
+                                } else {
+                                    return widget.graph.line(d.values);
+                                }
+                            })
+                            .attr('data-name', $(this).attr('title'))
+                            .style('stroke', function(d) {
+                                return widget.graph.color(widget.graph.legend_map[d.name]);
+                            })
+                            .style('stroke-width', '3px')
+                            .style('pointer-events', 'none');
+                    }
+                })
+                .on('mouseout', function() {
+                    $(this).css('font-weight', 'normal');
+                    widget.svg.g.select('.widget path[data-name="' + $(this).attr('title') + '"]').style('stroke-width', '1.5px');
+                    widget.svg.g.selectAll('.metric path').classed('fade', 0);
+                })
+                .on('click', function(e) {
+                    var series_title = $(this).attr('title'),
+                        metric_line = widget.svg.g.select('.metric path[data-name="' + series_title + '"]');
+                    if (e.altKey) {
+                        legend.children('span').addClass('fade');
+                        $(this).removeClass('fade');
+                        widget.svg.g.selectAll('.metric path')
+                            .classed('hidden', 1);
+                        metric_line.classed('hidden', 0);
+                        widget.graph.dots.each(function() {
+                            if ($(this).attr('data-name') === series_title) {
+                                d3.select(this).classed('hidden', 0);
+                            } else {
+                                d3.select(this).classed('hidden', 1);
+                            }
+                        })
+                    } else {
+                        if (metric_line.classed('hidden')) {
                             $(this).removeClass('fade');
-                            widget.svg.g.selectAll('.metric path')
-                                .classed('hidden', 1);
                             metric_line.classed('hidden', 0);
                             widget.graph.dots.each(function() {
                                 if ($(this).attr('data-name') === series_title) {
                                     d3.select(this).classed('hidden', 0);
-                                } else {
+                                }
+                            });
+                        } else {
+                            $(this).addClass('fade');
+                            metric_line.classed('hidden', 1);
+                            widget.graph.dots.each(function() {
+                                if ($(this).attr('data-name') === series_title) {
                                     d3.select(this).classed('hidden', 1);
                                 }
-                            })
-                        } else {
-                            if (metric_line.classed('hidden')) {
-                                $(this).removeClass('fade');
-                                metric_line.classed('hidden', 0);
-                                widget.graph.dots.each(function() {
-                                    if ($(this).attr('data-name') === series_title) {
-                                        d3.select(this).classed('hidden', 0);
-                                    }
-                                });
-                            } else {
-                                $(this).addClass('fade');
-                                metric_line.classed('hidden', 1);
-                                widget.graph.dots.each(function() {
-                                    if ($(this).attr('data-name') === series_title) {
-                                        d3.select(this).classed('hidden', 1);
-                                    }
-                                });
-                            }
+                            });
                         }
-                    });
-
-                if (widget.query_data['history_graph'] === "anomaly") {
-                    $.each(widget.graph.anomalies, function(i, anomaly) {
-                        anomaly.start_time = new Date(parseInt(anomaly.start) * 1000);
-                        anomaly.end_time = new Date(parseInt(anomaly.end) * 1000);
-                    });
-                    widget.svg.g.selectAll('.anomaly-bars')
-                        .data(widget.graph.anomalies)
-                        .enter().insert('g', ':first-child')
-                        .classed('anomaly-bars', 1)
-                        .append('rect')
-                        .attr('y', 0)
-                        .attr('height', widget.graph.height)
-                        .attr('x', function(d) {
-                            return widget.graph.x(d.start_time)
-                        })
-                        .attr('width', function(d) {
-                            return (widget.graph.x(d.end_time) - widget.graph.x(d.start_time))
-                        })
-                        .attr('fill', 'red')
-                        .attr('opacity', 0.25);
-                }
-
-                widget.graph.brush = d3.svg.brush()
-                    .x(widget.graph.x)
-                    .y(widget.graph.y)
-                    .on('brushend', function() {
-                        if (widget.graph.brush.empty()) {
-                            widget.graph.x.domain(widget.graph.x_master_domain);
-                            widget.graph.y.domain(widget.graph.y_master_domain);
-                            widget.resize_graph();
-                            if (widget.query_data['auto_update']) {
-                                widget.autoupdate_timer = setTimeout(function() {
-                                    widget.update_graph();
-                                }, 300 * 1000);
-                            }
-                        } else {
-                            widget.graph.x.domain([widget.graph.brush.extent()[0][0], widget.graph.brush.extent()[1][0]]);
-                            widget.graph.y.domain([widget.graph.brush.extent()[0][1], widget.graph.brush.extent()[1][1]]);
-                            widget.resize_graph();
-                            widget.graph.zoombox.select('rect.extent')
-                                .attr('x', 0)
-                                .attr('y', 0)
-                                .attr('height', 0)
-                                .attr('width', 0)
-                                .style('pointer-events', 'none');
-                            widget.graph.zoombox.selectAll('g')
-                                .style('display', 'none');
-                            if (typeof widget.autoupdate_timer !== "undefined") {
-                                clearTimeout(widget.autoupdate_timer);
-                            }
-                        }
-                    });
-
-                widget.graph.zoombox = widget.svg.g.append('g')
-                    .attr('class', 'brush');
-
-                widget.graph.zoombox.call(widget.graph.brush)
-                    .selectAll('rect.background')
-                        .attr('height', widget.graph.height)
-                        .attr('width', widget.graph.width)
-                        .on('mouseover', function() {
-                            widget.graph.dots.attr('opacity', 1);
-                            widget.svg.g.selectAll('.metric path').attr('opacity', .5);
-                        })
-                        .on('mouseout', function() {
-                            widget.graph.dots.attr('opacity', 0);
-                            widget.svg.g.selectAll('.metric path').attr('opacity', 1);
-                        })
-                        .on('mousemove', function() {
-                            var x_position = widget.graph.x.invert(d3.mouse(this)[0]),
-                                x_position_index = bisect(widget.dot_data[0].values, x_position),
-                                closest_timestamp = widget.dot_data[0].values[x_position_index].date;
-                            widget.graph.dots.select('circle')
-                                .attr('cx', widget.graph.x(closest_timestamp))
-                                .attr('cy', function(d) {
-                                    if (d.axis === "right") {
-                                        return d.values[x_position_index].value ? widget.graph.y1(d.values[x_position_index].value) : widget.graph.y1(0);
-                                    } else {
-                                        return d.values[x_position_index].value ? widget.graph.y(d.values[x_position_index].value) : widget.graph.y(0);
-                                    }
-                                });
-                            widget.graph.dots.select('text')
-                                .text(function(d) { return point_format(d.values[x_position_index].value); })
-                                .attr('x', function(d) {
-                                    if ((x_position_index / d.values.length) > .85) {
-                                        return widget.graph.x(closest_timestamp) - 5;
-                                    } else {
-                                        return widget.graph.x(closest_timestamp) + 5;
-                                    }
-                                })
-                                .attr('text-anchor', function(d) {
-                                    if ((x_position_index / d.values.length) > .85) {
-                                        return 'end';
-                                    } else {
-                                        return 'start';
-                                    }
-                                })
-                                .attr('y', function(d) {
-                                    if (d.axis === "right") {
-                                        return widget.graph.y1(d.values[x_position_index].value) - 2.5;
-                                    } else {
-                                        return widget.graph.y(d.values[x_position_index].value) - 2.5;
-                                    }
-                                });
-                        });
-
-                // Set the interval for adding new data if Auto Update is selected
-                if (widget.query_data['auto_update']) {
-                    var widget_string = widget.sw_opentsdbwidget_containerid;
-                    if (widget.query_data.title.length > 0) {
-                        widget_string = widget.query_data.title;
                     }
-                    console.log('setting auto-update timer to ' + widget.graph.autoupdate_interval / 60 + ' minutes for widget ' + widget_string + ' at ' + new Date.now().toTimeString());
-                    widget.autoupdate_timer = setTimeout(function() {
-                        widget.update_graph();
-                    }, widget.graph.autoupdate_interval * 1000);
-                }
+                });
 
+            if (widget.query_data['history_graph'] === "anomaly") {
+                $.each(widget.graph.anomalies, function(i, anomaly) {
+                    anomaly.start_time = new Date(parseInt(anomaly.start) * 1000);
+                    anomaly.end_time = new Date(parseInt(anomaly.end) * 1000);
+                });
+                widget.svg.g.selectAll('.anomaly-bars')
+                    .data(widget.graph.anomalies)
+                    .enter().insert('g', ':first-child')
+                    .classed('anomaly-bars', 1)
+                    .append('rect')
+                    .attr('y', 0)
+                    .attr('height', widget.graph.height)
+                    .attr('x', function(d) {
+                        return widget.graph.x(d.start_time)
+                    })
+                    .attr('width', function(d) {
+                        return (widget.graph.x(d.end_time) - widget.graph.x(d.start_time))
+                    })
+                    .attr('fill', 'red')
+                    .attr('opacity', 0.25);
             }
+
+            widget.graph.brush = d3.svg.brush()
+                .x(widget.graph.x)
+                .y(widget.graph.y)
+                .on('brushend', function() {
+                    if (widget.graph.brush.empty()) {
+                        widget.graph.x.domain(widget.graph.x_master_domain);
+                        widget.graph.y.domain(widget.graph.y_master_domain);
+                        widget.resize_graph();
+                        if (widget.query_data['auto_update']) {
+                            widget.autoupdate_timer = setTimeout(function() {
+                                widget.update_graph();
+                            }, 300 * 1000);
+                        }
+                    } else {
+                        widget.graph.x.domain([widget.graph.brush.extent()[0][0], widget.graph.brush.extent()[1][0]]);
+                        widget.graph.y.domain([widget.graph.brush.extent()[0][1], widget.graph.brush.extent()[1][1]]);
+                        widget.resize_graph();
+                        widget.graph.zoombox.select('rect.extent')
+                            .attr('x', 0)
+                            .attr('y', 0)
+                            .attr('height', 0)
+                            .attr('width', 0)
+                            .style('pointer-events', 'none');
+                        widget.graph.zoombox.selectAll('g')
+                            .style('display', 'none');
+                        if (typeof widget.autoupdate_timer !== "undefined") {
+                            clearTimeout(widget.autoupdate_timer);
+                        }
+                    }
+                });
+
+            widget.graph.zoombox = widget.svg.g.append('g')
+                .attr('class', 'brush');
+
+            widget.graph.zoombox.call(widget.graph.brush)
+                .selectAll('rect.background')
+                    .attr('height', widget.graph.height)
+                    .attr('width', widget.graph.width)
+                    .on('mouseover', function() {
+                        widget.graph.dots.attr('opacity', 1);
+                        widget.svg.g.selectAll('.metric path').attr('opacity', .5);
+                    })
+                    .on('mouseout', function() {
+                        widget.graph.dots.attr('opacity', 0);
+                        widget.svg.g.selectAll('.metric path').attr('opacity', 1);
+                    })
+                    .on('mousemove', function() {
+                        var x_position = widget.graph.x.invert(d3.mouse(this)[0]),
+                            x_position_index = bisect(widget.dot_data[0].values, x_position);
+//                            closest_timestamp = widget.dot_data[0].values[x_position_index].date
+                        $.each(widget.dot_data, function(i, d) {
+                            if (typeof d.values[x_position_index].date !== "undefined") {
+                                closest_timestamp = d.values[x_position_index].date;
+                                return false;
+                            }
+                        });
+                        widget.graph.dots.select('circle')
+                            .attr('cx', widget.graph.x(closest_timestamp))
+                            .attr('cy', function(d) {
+                                if (d.axis === "right") {
+                                    return d.values[x_position_index].value ? widget.graph.y1(d.values[x_position_index].value) : widget.graph.y1(0);
+                                } else {
+                                    return d.values[x_position_index].value ? widget.graph.y(d.values[x_position_index].value) : widget.graph.y(0);
+                                }
+                            });
+                        widget.graph.dots.select('text')
+                            .text(function(d) { return point_format(d.values[x_position_index].value); })
+                            .attr('x', function(d) {
+                                if ((x_position_index / d.values.length) > .85) {
+                                    return widget.graph.x(closest_timestamp) - 5;
+                                } else {
+                                    return widget.graph.x(closest_timestamp) + 5;
+                                }
+                            })
+                            .attr('text-anchor', function(d) {
+                                if ((x_position_index / d.values.length) > .85) {
+                                    return 'end';
+                                } else {
+                                    return 'start';
+                                }
+                            })
+                            .attr('y', function(d) {
+                                if (d.axis === "right") {
+                                    return widget.graph.y1(d.values[x_position_index].value) - 2.5;
+                                } else {
+                                    return widget.graph.y(d.values[x_position_index].value) - 2.5;
+                                }
+                            });
+                    });
+
+            // Set the interval for adding new data if Auto Update is selected
+            if (widget.query_data['auto_update']) {
+                var widget_string = widget.sw_opentsdbwidget_containerid;
+                if (widget.query_data.title.length > 0) {
+                    widget_string = widget.query_data.title;
+                }
+                if (update_graph) {
+                    console.log('Widget ' + widget_string + ' refreshed at ' + new Date.now().toTimeString() + ', next refresh in ' + widget.graph.autoupdate_interval / 60 + ' minutes');
+                } else {
+                    console.log('setting auto-update timer to ' + widget.graph.autoupdate_interval / 60 + ' minutes for widget ' + widget_string + ' at ' + new Date.now().toTimeString());
+                }
+                widget.autoupdate_timer = setTimeout(function() {
+                    widget.update_graph();
+                }, widget.graph.autoupdate_interval * 1000);
+            }
+
         },
         update_graph: function() {
             var widget = this;
@@ -2659,16 +2690,13 @@
             widget.query_data.end_time = new_end;
             widget.query_data.new_query = false;
             console.log(widget.svg.g);
-            $.when(widget.opentsdb_search()).then(function(incoming_new_data) {
-                $.when(widget.process_timeseries_data(incoming_new_data)).then(
-                    function(incoming_new_data) {
+            $.when(widget.opentsdb_search()).then(function(new_data) {
+                $.when(widget.process_timeseries_data(new_data)).then(
+                    function(new_data) {
                         widget.graph.data_left = [];
                         if (widget.graph.right_axis == true) {
                             widget.graph.data_right = [];
                         }
-                        var new_data = incoming_new_data;
-                        var new_point_count = new_data[0].values.length;
-                        delete(incoming_new_data);
                         delete(new_data.legend_map);
                         if (widget.query_data['history_graph'] === "anomaly") {
                             widget.graph.anomalies = widget.graph.anomalies.concat(new_data.anomalies);
@@ -2680,115 +2708,10 @@
                             });
                         });
                         console.log('new data received', new_data);
-                        $.each(widget.graph.raw_data, function(s, d) {
-                            var line_values;
-                            $.each(new_data, function(ns, nd) {
-                                if (nd.name === d.name) {
-                                    d.values = d.values.concat(nd.values);
-                                    d.values.splice(0, new_point_count);
-                                }
-                                if (widget.query_data.metrics[d.search_key].ds_type) {
-                                    line_values = widget.downsample_series(d.values, widget.graph.width * 0.5);
-                                } else {
-                                    line_values = d.values;
-                                }
-                                $.each(line_values, function(v) {
-                                    line_values[v]['date'] = new Date(line_values[v]['timestamp'] * 1000);
-                                });
-                            });
-                            if (widget.graph.right_axis == true && d.axis === "right") {
-                                widget.graph.data_right.push({axis: d.axis, name: d.name, search_key: d.search_key, values: line_values});
-                            } else {
-                                widget.graph.data_left.push({axis: d.axis, name: d.name, search_key: d.search_key, values: line_values});
-                            }
-                        });
-
-                        widget.graph.y.domain([
-                            0, (d3.max(widget.graph.data_left, function(d) {
-                                return d3.max(d.values, function(v) {
-                                    return parseFloat(v.value);
-                                })
-                            }) * 1.05)
-                        ]);
-                        if (widget.graph.right_axis == true) {
-                            widget.graph.y1.domain([
-                                0, (d3.max(widget.graph.data_right, function(d) {
-                                    return d3.max(d.values, function(v) {
-                                        return parseFloat(v.value);
-                                    })
-                                }) * 1.05)
-                            ]);
-                            widget.graph.x.domain([
-                                d3.min(widget.graph.data_left.concat(widget.graph.data_right), function(d) {
-                                    return d3.min(d.values, function(v) {
-                                        return v.date;
-                                    })
-                                }),
-                                d3.max(widget.graph.data_left.concat(widget.graph.data_right), function(d) {
-                                    return d3.min(d.values, function(v) {
-                                        return v.date;
-                                    })
-                                })
-                            ]);
-                        } else {
-                            widget.graph.x.domain([
-                                d3.min(widget.graph.data_left, function(d) {
-                                    return d3.min(d.values, function(v) {
-                                        return v.date;
-                                    })
-                                }),
-                                d3.max(widget.graph.data_left, function(d) {
-                                    return d3.max(d.values, function(v) {
-                                        return v.date;
-                                    })
-                                })
-                            ]);
-                        }
-                        widget.graph.y_master_domain = widget.graph.y.domain();
-                        widget.graph.x_master_domain = widget.graph.x.domain();
-                        widget.svg.select('.x.axis').call(widget.graph.x_axis);
-                        widget.svg.select('.y.axis').call(widget.graph.y_axis);
-                        if (widget.graph.x.domain()[0] === "Invalid Date" || widget.graph.x.domain()[1] === "Invalid Date") {
-                            console.log('Invalid x domain, refreshing');
-                            widget.go_click_handler();
-                        }
-                        var current_time = new Date();
-                        var nominal_start = new Date(current_time - (widget.query_data.time_span * 1000));
-                        if ((current_time - widget.graph.x.domain()[1]) / 1000 > 3600) {
-                            console.log('Graph end is more than 1 hour off, refreshing');
-                            widget.go_click_handler();
-                        }
-                        if (Math.abs((nominal_start - widget.graph.x.domain()[0]) / 1000) > 3600) {
-                            console.log('Graph start is more than 1 hour off, refreshing');
-                            widget.go_click_handler();
-                        }
-                        var metric = widget.svg.selectAll('.metric.left');
-                        metric.datum(widget.graph.data_left);
-                        metric.select('path')
-                            .data(widget.graph.data_left)
-                            .attr('d', function(d) {
-                                console.log('Points graphed: ' + d.values.length);
-                                return widget.graph.line(d.values);
-                            });
-                        if (widget.graph.right_axis == true) {
-                            widget.svg.selectAll('.metric.right')
-                                .datum(widget.graph.data_right)
-                                .select('path')
-                                    .data(widget.graph.data_right)
-                                    .attr('d', function(d) {
-                                        return widget.graph.line_right(d.values);
-                                    });
-                        }
-                        widget.dot_data = widget.graph.right_axis ? widget.graph.data_left.concat(widget.graph.data_right) : widget.graph.data_left;
-                        widget.graph.dots.data(widget.dot_data);
+                        widget.build_graph(new_data, true);
                     }
                 );
             });
-            var widget_string = widget.query_data.title.length > 0 ? widget.query_data.title : widget.sw_opentsdbwidget_container;
-            console.log('Widget ' + widget_string + ' refreshed at ' + new Date.now().toTimeString() + ', next refresh in ' + widget.graph.autoupdate_interval / 60 + ' minutes');
-            widget.autoupdate_timer = setTimeout(function() {
-                widget.update_graph();
-            }, widget.graph.autoupdate_interval * 1000);
         },
         format_graph_title: function() {
             var widget = this;
