@@ -70,6 +70,7 @@ class AdhocController implements ControllerProviderInterface {
                         'lib/jquery.autocomplete.js',
                         'lib/jquery.dataTables.min.js',
                     ),
+                    'sw_debug' => $sw['sw_config.config']['sw_app']['debug'] ? 1 : 0,
                 ));
             }
         })->bind('adhoc_datasource');
@@ -112,6 +113,7 @@ class AdhocController implements ControllerProviderInterface {
                         'lib/jquery.autocomplete.js',
                         'lib/jquery.dataTables.min.js',
                     ),
+                    'sw_debug' => $sw['sw_config.config']['sw_app']['debug'] ? 1 : 0,
                 ));
             }
         })->bind('adhoc_saved_search');
@@ -154,6 +156,7 @@ class AdhocController implements ControllerProviderInterface {
                         'lib/jquery.autocomplete.js',
                         'lib/jquery.dataTables.min.js',
                     ),
+                    'sw_debug' => $sw['sw_config.config']['sw_app']['debug'] ? 1 : 0,
                 ));
             }
         })->bind('adhoc_shared_search');

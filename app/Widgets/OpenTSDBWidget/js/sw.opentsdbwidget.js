@@ -231,7 +231,7 @@
                         type: 'GET',
                         dataType: 'json',
                         success: function(data) {
-                            console.log(data);
+                            debug_print(data);
                             that.search_id = search_id;
                             that.search_owner = data.search_owner;
                             that.populate_search_form(data.search_config, true);
@@ -243,14 +243,14 @@
 
             // @Todo - implement resizing and dragging
 //            $(that.sw_opentsdbwidget_container).resize(function() {
-//                console.log('widget container is resizing!');
+//                debug_print('widget container is resizing!');
 //                if (typeof that.svg !== "undefined") {
 //                    that.resize_graph();
 //                }
 //            });
 //
 //            $(that.sw_opentsdbwidget_container).bind("resizestop", function(event, ui) {
-//                console.log('resize stopped');
+//                debug_print('resize stopped');
 //                if (typeof that.svg !== "undefined") {
 //                    that.resize_graph();
 //                }
@@ -258,7 +258,7 @@
 
         },
         _destroy: function() {
-            console.log('_destroy called');
+            debug_print('_destroy called');
             if (typeof this.autoupdate_timer !== "undefined") {
                 clearTimeout(this.autoupdate_timer);
             }
@@ -505,7 +505,7 @@
             metric.data(widget.graph.data_left);
             metric.selectAll('path')
                 .attr('d', function(d) {
-                    console.log('Points graphed: ' + d.values.length);
+                    debug_print('Points graphed: ' + d.values.length);
                     return widget.graph.line(d.values);
                 });
             if (widget.graph.right_axis == true) {
@@ -1261,7 +1261,7 @@
                 none: 'None'
             };
 
-            console.log(query_data);
+            debug_print(query_data);
             var auto_update_input = $('input#auto-update-button' + widget_num);
             if (query_data.auto_update === "true") {
                 auto_update_input.parent('.push-button').addClass('pushed');
@@ -1793,7 +1793,7 @@
             var status = widget.sw_opentsdbwidget_graphdiv.children('#status-box' + widget_num).children('#status-message' + widget_num);
 
             if (typeof widget.ajax_request !== 'undefined') {
-                console.log('Previous request still in flight, aborting');
+                debug_print('Previous request still in flight, aborting');
                 widget.ajax_request.abort();
             }
 
@@ -1886,7 +1886,7 @@
             var status = widget.sw_opentsdbwidget_graphdiv.children('#status-box' + widget_num).children('#status-message' + widget_num);
 
             if (typeof widget.ajax_request !== 'undefined') {
-                console.log('Previous request still in flight, aborting');
+                debug_print('Previous request still in flight, aborting');
                 widget.ajax_request.abort();
             }
 
@@ -2057,11 +2057,11 @@
          */
         downsample_series: function(data, threshold) {
 
-            console.log('downsampling');
+            debug_print('downsampling');
 
             var data_length = data.length;
-            console.log('data_length: ' + data_length);
-            console.log('threshold: ' + threshold);
+            debug_print('data_length: ' + data_length);
+            debug_print('threshold: ' + threshold);
 
             if (threshold >= data_length || threshold === 0) {
                 return data;
@@ -2071,7 +2071,7 @@
                 downsampled_index = 0;
 
             var bucket = (data_length - 2) / (threshold - 2);
-            console.log('bucket: ' + bucket);
+            debug_print('bucket: ' + bucket);
 
             var point = 0,
                 max_area_point,
@@ -2126,7 +2126,7 @@
 
             return downsampled;
 
-//            console.log(downsampled);
+//            debug_print(downsampled);
 
         },
         build_graph: function(data, update_graph) {
@@ -2142,7 +2142,7 @@
                 .removeClass('hidden');
 
             if (update_graph) {
-                console.log('updating graph');
+                debug_print('updating graph');
                 var range_start = widget.query_data.end_time - widget.query_data.time_span;
                 var new_point_count = data[0].values.length;
                 $.each(widget.graph.raw_data, function(s, d) {
@@ -2666,9 +2666,9 @@
                     widget_string = widget.query_data.title;
                 }
                 if (update_graph) {
-                    console.log('Widget ' + widget_string + ' refreshed at ' + new Date.now().toTimeString() + ', next refresh in ' + widget.graph.autoupdate_interval / 60 + ' minutes');
+                    debug_print('Widget ' + widget_string + ' refreshed at ' + new Date.now().toTimeString() + ', next refresh in ' + widget.graph.autoupdate_interval / 60 + ' minutes');
                 } else {
-                    console.log('setting auto-update timer to ' + widget.graph.autoupdate_interval / 60 + ' minutes for widget ' + widget_string + ' at ' + new Date.now().toTimeString());
+                    debug_print('setting auto-update timer to ' + widget.graph.autoupdate_interval / 60 + ' minutes for widget ' + widget_string + ' at ' + new Date.now().toTimeString());
                 }
                 widget.autoupdate_timer = setTimeout(function() {
                     widget.update_graph();
@@ -2689,7 +2689,7 @@
             widget.query_data.start_time = new_start;
             widget.query_data.end_time = new_end;
             widget.query_data.new_query = false;
-            console.log(widget.svg.g);
+            debug_print(widget.svg.g);
             $.when(widget.opentsdb_search()).then(function(new_data) {
                 $.when(widget.process_timeseries_data(new_data)).then(
                     function(new_data) {
@@ -2707,7 +2707,7 @@
                                 d.values[v]['date'] = new Date(d.values[v]['timestamp'] * 1000);
                             });
                         });
-                        console.log('new data received', new_data);
+                        debug_print('new data received', new_data);
                         widget.build_graph(new_data, true);
                     }
                 );

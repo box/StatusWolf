@@ -8,6 +8,8 @@
     document._session.adhoc_username = '{{ username }}';
     document._session.adhoc_userid = '{{ user_id }}';
 
+    sw_debug = {{ sw_debug }};
+
     {% if search_id %}
         search_id = '{{ search_id }}';
     {% endif %}
@@ -23,7 +25,7 @@
 
     $('document').ready(function() {
         $('#menu-placeholder').replaceWith({% include 'adhoc_menu.twig' %});
-        console.log(datasource_options);
+        debug_print(datasource_options);
         $.each(datasource_options, function(i, datasource_name) {
             $('#change-datasource-menu-options').append('<li><a href="/adhoc/' + datasource_name + '"><span>' + datasource_name + '</span></a></li>');
         });
@@ -31,7 +33,7 @@
             if (typeof adhoc_widget[widget_key].dependencies.css !== "undefined") {
                 $.each(adhoc_widget[widget_key].dependencies.css, function(i, css) {
                     if ($('link[src*="' + css + '"]').length === 0) {
-                        console.log('loading stylesheet ' + css);
+                        debug_print('loading stylesheet ' + css);
                         var widget_css = document.createElement('link');
                         widget_css.setAttribute('rel', 'stylesheet');
                         widget_css.setAttribute('href', '/Widgets/' + widget_key + '/css/' + css);
@@ -51,7 +53,7 @@
                                                 document._session.search_id = search_id;
                                                 document._session.search_owner = data.search_owner;
                                             }
-                                            console.log('loading ' + widget_type + ' search', data.search_config);
+                                            debug_print('loading ' + widget_type + ' search', data.search_config);
                                             display_search(widget_type, data.search_config, widget_datasource);
                                         }
                                     )
@@ -66,7 +68,7 @@
         }
 
         $.when(build_saved_search_menu()).then(function(data) {
-            console.log(data);
+            debug_print(data);
             if (data[0] == 0 && data[1] > 0) {
                 $('ul#load-saved-search-menu-options').append('<li id="full-search-list"><span>More...</span></li>');
             }
@@ -191,7 +193,7 @@
         });
 
         chain.done(function(data) {
-            console.log(data);
+            debug_print(data);
             var search_list_options = $('ul#load-saved-search-menu-options');
             var my_search_list_table = $('table#my-searches-list-table');
             var shared_search_list_table = $('table#shared-searches-list-table');
@@ -283,7 +285,7 @@
             var my_search_count = data.user_searches.length;
             var shared_search_count = data.shared_searches.length;
             item_length = my_search_count + shared_search_count;
-            console.log('menu length: ' + menu_length + ', item length: ' + item_length);
+            debug_print('menu length: ' + menu_length + ', item length: ' + item_length);
 
             get_search_list_object.resolve([menu_length, item_length]);
 
@@ -314,7 +316,7 @@
 
     function display_search(widget_type, query_data, datasource) {
 
-        console.log(query_data);
+        debug_print(query_data);
         if (query_data === "Not Allowed") {
             $('.container').append('<div id="not-allowed-popup" class="popup">' +
                 '<h5>Not Allowed</h5><div class="popup-form-data">' +
@@ -440,11 +442,11 @@
                     search: widget.query_data
                 }
             };
-            console.log('search id: ' + document._session.search_id);
+            debug_print('search id: ' + document._session.search_id);
             var search_id = typeof document._session.search_id === "undefined" ? md5(JSON.stringify(search_query)) : document._session.search_id;
 
-            console.log('saving search');
-            console.log(search_query);
+            debug_print('saving search');
+            debug_print(search_query);
 
             var api_url = '{{ url('home') }}api/search/saved/' + widget_datasource + '/' + search_id;
             $.ajax({
@@ -453,8 +455,8 @@
                 data: search_query,
                 dataType: 'json'
             }).done(function(data) {
-                console.log('save search result');
-                console.log(data);
+                debug_print('save search result');
+                debug_print(data);
                 if (typeof data.query_result !== "undefined") {
                     if (data.query_result === "Error") {
                         switch (data.query_info) {

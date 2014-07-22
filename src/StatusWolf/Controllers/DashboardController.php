@@ -48,6 +48,7 @@ class DashboardController implements ControllerProviderInterface {
                 'widgets' => $widgets,
                 'widgets_json' => $widgets_json,
                 'dashboard_id' => false,
+                'sw_debug' => $sw['sw_config.config']['sw_app']['debug'] ? 1 : 0,
             ));
         })->bind('dashboard_home');
 
@@ -84,6 +85,7 @@ class DashboardController implements ControllerProviderInterface {
                 'widgets' => $widgets,
                 'widgets_json' => $widgets_json,
                 'dashboard_id' => $id,
+                'sw_debug' => $sw['sw_config.config']['sw_app']['debug'] ? 1 : 0,
                 'opentsdb_tags' => $opentsdb_tags,
             ));
         })->bind('dashboard_load');

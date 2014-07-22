@@ -10,6 +10,8 @@
     document._session.dashboard_userid = '{{ user_id }}';
     document._session.dashboard_columns = '{{ app.session.get('columns') ?: '2' }}';
 
+    sw_debug = {{ sw_debug }};
+
     dependencies_event = new Event('dependencies_loaded');
 
     var widgets = eval({{ widgets_json|raw }});
@@ -28,26 +30,26 @@
             var widget_type = widget_data.name.split('.');
             widget_datasources[widget_type[1]] = widget_data.datasource;
             $('#add-widget-menu-options').append('<li onclick="add_widget(\'' + widget_type[1] + '\')"><span>' + widget_data.title + '</span></li>');
-            console.log('Checking widget dependencies');
+            debug_print('Checking widget dependencies');
             if (typeof widget_data.dependencies !== "undefined") {
                 if (typeof widget_data.dependencies.js !== "undefined") {
-                    console.log('loading js dependencies for ' + widget_type[1]);
+                    debug_print('loading js dependencies for ' + widget_type[1]);
                     $.each(widget_data.dependencies.js, function(i, js) {
                         if ($('script[src*="' + js + '"]').length === 0) {
-                            console.log('loading script ' + js);
+                            debug_print('loading script ' + js);
 //                            loadScript(window.location.origin + '/static/js/lib/' + js, function() {});
                             $.getScript('/static/js/lib/' + js)
                                 .done(function(script, textStatus) {
-                                    console.log(textStatus);
+                                    debug_print(textStatus);
                                 });
                         }
                     });
                 }
                 if (typeof widget_data.dependencies.css !== "undefined") {
-                    console.log('loading css dependencies for ' + widget_type[1]);
+                    debug_print('loading css dependencies for ' + widget_type[1]);
                     $.each(widget_data.dependencies.css, function(i, css) {
                         if ($('link[src*="' + css + '"]').length === 0) {
-                            console.log('loading stylesheet ' + css);
+                            debug_print('loading stylesheet ' + css);
                             var widget_css = document.createElement('link');
                             widget_css.setAttribute('rel', 'stylesheet');
                             widget_css.setAttribute('href', '/Widgets/' + widget_index + '/css/' + css);
@@ -139,7 +141,7 @@
 
     document.addEventListener('dependencies_loaded', function() {
         if (dashboard_id) {
-            console.log('Loading dashboard ' + dashboard_id);
+            debug_print('Loading dashboard ' + dashboard_id);
             $.when(get_dashboard_config(dashboard_id)).then(
                 function(data) {
                     document._session.dashboard_id = dashboard_id;
@@ -168,7 +170,7 @@
         $.magnificPopup.close();
     }).on('click', '#save-search-button', function() {
         var my_widget_element = $(this).parentsUntil('.dashboard-container').filter('.widget-container');
-        console.log(my_widget_element);
+        debug_print(my_widget_element);
         var my_widget = my_widget_element.data('sw-' + my_widget_element.attr('data-widget-type'));
         if (my_widget.search_id !== "undefined") {
             if (my_widget.search_owner !== document._session.dashboard_userid) {
@@ -428,13 +430,13 @@
             }
 
             $.each(dashboard_config.widgets, function(widget_id, query_data) {
-                console.log('adding widget ' + widget_id);
-                console.log(query_data);
+                debug_print('adding widget ' + widget_id);
+                debug_print(query_data);
                 $('#dashboard-container').append('<div class="widget-container cols-' + document._session.dashboard_columns + '" id="' + widget_id + '" data-widget-type="' + query_data.widget_type + '">');
                 if (query_data['widget_type'] === "opentsdbwidget") {
-                    console.log('checking for OpenTSDB tags in the query');
+                    debug_print('checking for OpenTSDB tags in the query');
                     if (typeof opentsdb_tags !== "undefined" && Object.keys(opentsdb_tags).length > 0) {
-                        console.log(opentsdb_tags);
+                        debug_print(opentsdb_tags);
                         $.each(query_data.metrics, function(search_key, search_params) {
                             var search_tags = create_tag_object(search_params.tags || []);
                             $.each(opentsdb_tags, function(new_tag_key, new_tag_value) {
@@ -451,11 +453,11 @@
                     }
                 }
                 var new_widget = $('div#' + widget_id)[query_data['widget_type']](query_data.options, { query_data: query_data });
-                console.log('adding new widget');
-                console.log(new_widget);
+                debug_print('adding new widget');
+                debug_print(new_widget);
                 new_widget.on('search_saved', function(event, event_datasource) {
-                    console.log('saved_search event triggered');
-                    console.log(event);
+                    debug_print('saved_search event triggered');
+                    debug_print(event);
                     if (event_datasource === "OpenTSDB") {
                         new_widget_object = new_widget.data('sw-' + query_data['widget_type']);
                         $.when(new_widget_object.build_saved_search_menu()).then(
@@ -531,7 +533,7 @@
                 var sw_widget = $(widget).data('sw-' + $(widget).attr('data-widget-type'));
                 var widget_id = $(widget).attr('id');
                 if (typeof sw_widget.query_data === "undefined") {
-                    console.log('No query data defined for widget ' + widget_id);
+                    debug_print('No query data defined for widget ' + widget_id);
                 } else {
                     dashboard_widgets[widget_id] = sw_widget.query_data;
                     dashboard_widgets[widget_id]['widget_type'] = $(widget).attr('data-widget-type');
@@ -553,7 +555,7 @@
                     widgets: dashboard_widgets
                 }
             };
-            console.log(query_data);
+            debug_print(query_data);
 
             $.ajax({
                 url: window.location.origin + '/api/dashboard/config/' + dashboard_id,

@@ -64,6 +64,12 @@ function statuswolf_button(button)
   }
 }
 
+function debug_print(log_string) {
+    if (sw_debug) {
+        console.log(log_string);
+    }
+}
+
 $('div#login-button').click(function() {
     window.location.href = '/login';
 });
