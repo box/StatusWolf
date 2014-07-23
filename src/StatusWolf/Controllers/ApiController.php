@@ -19,7 +19,7 @@ class ApiController implements ControllerProviderInterface {
 
     public function connect(Application $sw) {
 
-        $sw->mount('/api/anomaly', new ApiAnomalyController());
+//        $sw->mount('/api/anomaly', new ApiAnomalyController());
         $sw->mount('/api/dashboard', new ApiDashboardController());
         $sw->mount('/api/datasource', new ApiDatasourceController());
         $sw->mount('/api/search', new ApiSearchController());

@@ -468,16 +468,6 @@
                 .attr('text-anchor', 'middle')
                 .text(widget.query_data.title);
             widget.format_graph_title();
-            if (widget.query_data['history_graph'] === "anomaly") {
-                widget.svg.selectAll('.anomaly-bars').selectAll('rect')
-                    .attr('x', function(d) {
-                        return widget.graph.x(d.start_time);
-                    })
-                    .attr('height', widget.graph.height)
-                    .attr('width', function(d) {
-                        return (widget.graph.x(d.end_time) - widget.graph.x(d.start_time));
-                    });
-            }
             widget.graph.data_left = [];
             if (typeof widget.graph.data_right !== "undefined") {
                 widget.graph.data_right = [];
@@ -687,15 +677,7 @@
 
             widget.metric_count = 0;
 
-            var anomaly_span_menu = '<li data-action="set-span"><span data-ms=600>10 minutes</span></li>' +
-                    '<li data-action="set-span"><span data-ms=1800>30 minutes</span></li>' +
-                    '<li data-action="set-span"><span data-ms=3600>1 Hour</span></li>' +
-                    '<li data-action="set-span"><span data-ms=7200>2 Hours</span></li>' +
-                    '<li data-action="set-span"><span data-ms=14400>4 Hours</span></li>' +
-                    '<li data-action="set-span"><span data-ms=28800>8 Hours</span></li>' +
-                    '<li data-action="set-span"><span data-ms=43200>12 Hours</span></li>' +
-                    '<li data-action="set-span"><span data-ms=86400>1 Day</span></li>',
-                wow_span_menu = '<li data-action="set-span"><span data-ms=600>10 minutes</span></li>' +
+            var wow_span_menu = '<li data-action="set-span"><span data-ms=600>10 minutes</span></li>' +
                     '<li data-action="set-span"><span data-ms=1800>30 minutes</span></li>' +
                     '<li data-action="set-span"><span data-ms=3600>1 Hour</span></li>' +
                     '<li data-action="set-span"><span data-ms=7200>2 Hours</span></li>' +
@@ -754,9 +736,6 @@
                 '<td><div class="toggle-button-group"><div class="toggle-button section-toggle toggle-on"><label>' +
                 '<input type="radio" class="history-no" name="history-graph" checked="checked" data-target="history-no' + widget_num + '" value="no">' +
                 '<span>No History</span></label>' +
-                '</div><div class="toggle-button section-toggle"><label>' +
-                '<input type="radio" class="history-anomaly" name="history-graph" data-target="history-anomaly' + widget_num + '" value="anomaly">' +
-                '<span>Anomaly</span></label>' +
                 '</div><div class="toggle-button section-toggle"><label>' +
                 '<input type="radio" class="history-wow" name="history-graph" data-target="history-wow' + widget_num + '" value="wow">' +
                 '<span>Week-Over-Week</span></label></div></div></td></tr>');
@@ -936,16 +915,7 @@
                     var data_target = $(this).children('label').children('input').attr('data-target');
                     var section = $('#' + data_target);
                     section.removeClass('section-off').addClass('section-on').siblings('.section').addClass('section-off').removeClass('section-on');
-                    if (data_target === 'history-anomaly' + widget_num) {
-                        $('ul#time-span-options' + widget_num).html(anomaly_span_menu);
-                        if ($('div#time-span' + widget_num).attr('data-ms') > 86400) {
-                            $('div#time-span' + widget_num).text('1 day').attr('data-ms', "86400");
-                        }
-                        $('ul#tab-list' + widget_num + ' a[href="#tab' + widget_num + '-1"]').click();
-                        $('ul#tab-list' + widget_num).addClass('hidden');
-                        $('#' + add_metric_button_id).addClass('hidden');
-                    }
-                    else if (data_target === 'history-wow' + widget_num) {
+                    if (data_target === 'history-wow' + widget_num) {
                         $('ul#time-span-options' + widget_num).html(wow_span_menu);
                         if ($('div#time-span' + widget_num).attr('data-ms') > 604800) {
                             $('div#time-span' + widget_num).text('1 week').attr('data-ms', "604800");
@@ -953,8 +923,7 @@
                         $('ul#tab-list' + widget_num + ' a[href="#tab' + widget_num + '-1"]').click();
                         $('ul#tab-list' + widget_num).addClass('hidden');
                         $('#' + add_metric_button_id).addClass('hidden');
-                    }
-                    else if (data_target === 'history-no' + widget_num) {
+                    } else if (data_target === 'history-no' + widget_num) {
                         $('ul#time-span-options' + widget_num).html(long_span_menu);
                         $('ul#tab-list' + widget_num).removeClass('hidden');
                         $('#' + add_metric_button_id).removeClass('hidden');
@@ -1223,15 +1192,7 @@
                     .siblings('input').val(query_data.title);
             }
 
-            var anomaly_span_menu = '<li data-action="set-span"><span data-ms=600>10 minutes</span></li>' +
-                    '<li data-action="set-span"><span data-ms=1800>30 minutes</span></li>' +
-                    '<li data-action="set-span"><span data-ms=3600>1 Hour</span></li>' +
-                    '<li data-action="set-span"><span data-ms=7200>2 Hours</span></li>' +
-                    '<li data-action="set-span"><span data-ms=14400>4 Hours</span></li>' +
-                    '<li data-action="set-span"><span data-ms=28800>8 Hours</span></li>' +
-                    '<li data-action="set-span"><span data-ms=43200>12 Hours</span></li>' +
-                    '<li data-action="set-span"><span data-ms=86400>1 Day</span></li>',
-                wow_span_menu = '<li data-action="set-span"><span data-ms=600>10 minutes</span></li>' +
+            var wow_span_menu = '<li data-action="set-span"><span data-ms=600>10 minutes</span></li>' +
                     '<li data-action="set-span"><span data-ms=1800>30 minutes</span></li>' +
                     '<li data-action="set-span"><span data-ms=3600>1 Hour</span></li>' +
                     '<li data-action="set-span"><span data-ms=7200>2 Hours</span></li>' +
@@ -1277,14 +1238,7 @@
                 }
             }
 
-            if (query_data.history_graph.match(/anomaly/)) {
-                var el = $('input[data-target="history-anomaly' + widget_num + '"]').parent('label');
-                $(el).parent('div.toggle-button').addClass('toggle-on');
-                $(el).parent('div.toggle-button').siblings('div.toggle-button').removeClass('toggle-on');
-                $(el).children('input').attr('checked', 'Checked');
-                $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
-                $('ul#time-span-options' + widget_num).html(anomaly_span_menu);
-            } else if (query_data.history_graph.match(/wow/)) {
+            if (query_data.history_graph.match(/wow/)) {
                 var el = $('input[data-target="history-wow' + widget_num + '"]').parent('label');
                 $(el).parent('div.toggle-button').addClass('toggle-on');
                 $(el).parent('div.toggle-button').siblings('div.toggle-button').removeClass('toggle-on');
@@ -1598,10 +1552,6 @@
                     alert('Week-over-week history comparison searches are limited to 1 week or less of data');
                     $('input:text[name=start-time]').css('border-color', 'red').css('background-color', 'rgb(255, 200, 200)').focus();
                     input_error = true;
-                } else if (widget.query_data.history_graph === "anomaly" && (end - start) > 86400) {
-                    alert('Anomaly detection searches are limited to 1 day or less');
-                    $('input:text[name=start-time]').css('border-color', 'red').css('background-color', 'rgb(255, 200, 200)').focus();
-                    input_error = true;
                 } else {
                     input_error = false;
                     var build_metric = {};
@@ -1709,20 +1659,24 @@
             var widget_num = widget.uuid;
             var status = widget.sw_opentsdbwidget_graphdiv.children('#status-box' + widget_num).children('#status-message' + widget_num);
 
+// Anomaly detection disabled for the time being, leaving this in place and
+// commented, it will be back soon.
+//
             // Generate model data for the metric
-            if (widget.query_data.history_graph == "anomaly") {
-                status.html('<p>Fetching Metric Data</p>');
-                $.when(widget.get_opentsdb_data_anomaly()
-                    .done(function(data) {
-                        query_object.resolve(data);
-                    })
-                    .fail(function(data) {
-                        query_object.reject(data);
-                    })
-                );
-            }
-            // Search current and previous week for metric data
-            else if (widget.query_data.history_graph == "wow") {
+//            if (widget.query_data.history_graph == "anomaly") {
+//                status.html('<p>Fetching Metric Data</p>');
+//                $.when(widget.get_opentsdb_data_anomaly()
+//                    .done(function(data) {
+//                        query_object.resolve(data);
+//                    })
+//                    .fail(function(data) {
+//                        query_object.reject(data);
+//                    })
+//                );
+//            }
+//            // Search current and previous week for metric data
+//            else if (widget.query_data.history_graph == "wow") {
+            if (widget.query_data.history_graph == "wow") {
                 status.html('<p>Fetching Metric Data</p>');
                 $.when(widget.get_opentsdb_data_wow()
                     .done(function(data) {
@@ -1732,8 +1686,7 @@
                         query_object.reject(data);
                     })
                 );
-            }
-            else {
+            } else {
                 status.html('<p>Fetching Metric Data</p>');
                 $.when(widget.get_opentsdb_data()
                     .done(function(data) {
@@ -1883,72 +1836,75 @@
             return widget.ajax_object.promise();
 
         },
-        get_opentsdb_data_anomaly: function() {
-
-            var widget = this;
-            var status = widget.sw_opentsdbwidget_graphdiv.children('#status-box' + widget_num).children('#status-message' + widget_num);
-
-            if (typeof widget.ajax_request !== 'undefined') {
-                debug_print('Previous request still in flight, aborting');
-                widget.ajax_request.abort();
-            }
-
-            widget.ajax_object = new $.Deferred();
-
-            var query_data = {};
-            query_data['query_data'] = widget.query_data;
-            var metric_data = {};
-            var data_for_detection = [];
-
-            widget.ajax_request = $.ajax({
-                url: window.location.origin + "/api/datasource/opentsdb/search",
-                type: 'POST',
-                data: query_data,
-                dataType: 'json',
-                timeout: 120000
-            }),
-            chained = widget.ajax_request.then(function(data) {
-                if (data[0] === "error") {
-                    widget.ajax_request.abort();
-                    widget.ajax_object.reject(data[1])
-                } else if (Object.keys(data).length <= 4) {
-                    widget.ajax_request.abort();
-                    widget.ajax_object.reject(["0", "Query returned no data"]);
-                } else {
-                    metric_data = data;
-                    data_for_detection = {query_data: widget.query_data, ts_data: metric_data};
-                    status.html('<p>Calculating anomalies</p>');
-//                    return ['error', ['0', 'testing']];
-                    return $.ajax({
-                        url: window.location.origin + "/api/anomaly/time-series",
-                        type: 'POST',
-                        data: data_for_detection,
-                        dataType: 'json'
-                    });
-                }
-            });
-
-            chained.done(function(data) {
-                if (!data) {
-                    widget.ajax_request.abort();
-                    widget.ajax_object.reject();
-                } else {
-                    if (data[0] === "error") {
-                        widget.ajax_request.abort();
-                        widget.ajax_object.reject(data[1])
-                    } else {
-                        metric_data.anomalies = data;
-                        widget.ajax_object.resolve(metric_data);
-                    }
-                }
-            }).fail(function(data) {
-                    widget.ajax_request.abort();
-                    widget.ajax_object.reject([data.status, data.statusText]);
-                });
-
-            return widget.ajax_object.promise();
-
-        },
+// Anomaly detection disabled for the time being, leaving this in place and
+// commented, it will be back soon.
+//
+//        get_opentsdb_data_anomaly: function() {
+//
+//            var widget = this;
+//            var status = widget.sw_opentsdbwidget_graphdiv.children('#status-box' + widget_num).children('#status-message' + widget_num);
+//
+//            if (typeof widget.ajax_request !== 'undefined') {
+//                debug_print('Previous request still in flight, aborting');
+//                widget.ajax_request.abort();
+//            }
+//
+//            widget.ajax_object = new $.Deferred();
+//
+//            var query_data = {};
+//            query_data['query_data'] = widget.query_data;
+//            var metric_data = {};
+//            var data_for_detection = [];
+//
+//            widget.ajax_request = $.ajax({
+//                url: window.location.origin + "/api/datasource/opentsdb/search",
+//                type: 'POST',
+//                data: query_data,
+//                dataType: 'json',
+//                timeout: 120000
+//            }),
+//            chained = widget.ajax_request.then(function(data) {
+//                if (data[0] === "error") {
+//                    widget.ajax_request.abort();
+//                    widget.ajax_object.reject(data[1])
+//                } else if (Object.keys(data).length <= 4) {
+//                    widget.ajax_request.abort();
+//                    widget.ajax_object.reject(["0", "Query returned no data"]);
+//                } else {
+//                    metric_data = data;
+//                    data_for_detection = {query_data: widget.query_data, ts_data: metric_data};
+//                    status.html('<p>Calculating anomalies</p>');
+////                    return ['error', ['0', 'testing']];
+//                    return $.ajax({
+//                        url: window.location.origin + "/api/anomaly/time-series",
+//                        type: 'POST',
+//                        data: data_for_detection,
+//                        dataType: 'json'
+//                    });
+//                }
+//            });
+//
+//            chained.done(function(data) {
+//                if (!data) {
+//                    widget.ajax_request.abort();
+//                    widget.ajax_object.reject();
+//                } else {
+//                    if (data[0] === "error") {
+//                        widget.ajax_request.abort();
+//                        widget.ajax_object.reject(data[1])
+//                    } else {
+//                        metric_data.anomalies = data;
+//                        widget.ajax_object.resolve(metric_data);
+//                    }
+//                }
+//            }).fail(function(data) {
+//                    widget.ajax_request.abort();
+//                    widget.ajax_object.reject([data.status, data.statusText]);
+//                });
+//
+//            return widget.ajax_object.promise();
+//
+//        },
         process_timeseries_data: function(data) {
 
             var widget = this;
@@ -1960,10 +1916,6 @@
             delete data.start;
             delete data.end;
             delete data.query_url;
-            if (widget.query_data.history_graph == "anomaly") {
-                var anomalies = data.anomalies;
-                delete data.anomalies;
-            }
 
             status.html('<p>Parsing Metric Data</p>');
 
@@ -2037,10 +1989,6 @@
                     }
                     graph_data.push({name: series, search_key: key_map, axis: axis, values: series_data});
                 });
-            }
-
-            if (widget.query_data.history_graph == "anomaly") {
-                graph_data.anomalies = anomalies;
             }
 
             var parsed_data = graph_data;
@@ -2174,10 +2122,6 @@
 
                 widget.graph.legend_map = data.legend_map;
                 delete(data.legend_map);
-                if (widget.query_data['history_graph'] === "anomaly") {
-                    widget.graph.anomalies = data.anomalies;
-                    delete(data.anomalies);
-                }
                 widget.graph.raw_data = data;
             }
             delete(data);
@@ -2550,28 +2494,6 @@
                     }
                 });
 
-            if (widget.query_data['history_graph'] === "anomaly") {
-                $.each(widget.graph.anomalies, function(i, anomaly) {
-                    anomaly.start_time = new Date(parseInt(anomaly.start) * 1000);
-                    anomaly.end_time = new Date(parseInt(anomaly.end) * 1000);
-                });
-                widget.svg.g.selectAll('.anomaly-bars')
-                    .data(widget.graph.anomalies)
-                    .enter().insert('g', ':first-child')
-                    .classed('anomaly-bars', 1)
-                    .append('rect')
-                    .attr('y', 0)
-                    .attr('height', widget.graph.height)
-                    .attr('x', function(d) {
-                        return widget.graph.x(d.start_time)
-                    })
-                    .attr('width', function(d) {
-                        return (widget.graph.x(d.end_time) - widget.graph.x(d.start_time))
-                    })
-                    .attr('fill', 'red')
-                    .attr('opacity', 0.25);
-            }
-
             widget.graph.brush = d3.svg.brush()
                 .x(widget.graph.x)
                 .y(widget.graph.y)
@@ -2702,10 +2624,6 @@
                             widget.graph.data_right = [];
                         }
                         delete(new_data.legend_map);
-                        if (widget.query_data['history_graph'] === "anomaly") {
-                            widget.graph.anomalies = widget.graph.anomalies.concat(new_data.anomalies);
-                            delete(new_data.anomalies);
-                        }
                         $.each(new_data, function(s, d) {
                             $.each(d.values, function(v) {
                                 d.values[v]['date'] = new Date(d.values[v]['timestamp'] * 1000);
