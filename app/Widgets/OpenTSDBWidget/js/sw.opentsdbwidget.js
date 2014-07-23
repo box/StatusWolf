@@ -1832,6 +1832,9 @@
                     metric_data.legend[current_key] = current_key;
                     metric_data[current_key] = current_data[current_keys[0]];
                     delete current_data;
+                    $.each(metric_data[current_key], function(index, entry) {
+                        entry.timestamp = parseInt(entry.timestamp);
+                    });
                     var past_query = {};
                     past_query['query_data'] = $.extend(true, {}, widget.query_data);
                     var query_span = parseInt(widget.query_data.end_time) - parseInt(widget.query_data.start_time);
@@ -2618,29 +2621,30 @@
                     .on('mousemove', function() {
                         var x_position = widget.graph.x.invert(d3.mouse(this)[0]),
                             x_position_index = bisect(widget.dot_data[0].values, x_position);
-//                            closest_timestamp = widget.dot_data[0].values[x_position_index].date
-                        $.each(widget.dot_data, function(i, d) {
-                            if (typeof d.values[x_position_index].date !== "undefined") {
-                                closest_timestamp = d.values[x_position_index].date;
-                                return false;
-                            }
-                        });
                         widget.graph.dots.select('circle')
-                            .attr('cx', widget.graph.x(closest_timestamp))
+                            .attr('cx', function(d) {
+                                if (x_position_index > d.values.length - 1) {
+                                    return widget.graph.x(d.values[d.values.length - 1].date);
+                                } else {
+                                    return widget.graph.x(d.values[x_position_index].date);
+                                }
+                            })
                             .attr('cy', function(d) {
                                 if (d.axis === "right") {
-                                    return d.values[x_position_index].value ? widget.graph.y1(d.values[x_position_index].value) : widget.graph.y1(0);
+                                    return d.values[x_position_index] ? widget.graph.y1(d.values[x_position_index].value) : widget.graph.y1(0);
                                 } else {
-                                    return d.values[x_position_index].value ? widget.graph.y(d.values[x_position_index].value) : widget.graph.y(0);
+                                    return d.values[x_position_index] ? widget.graph.y(d.values[x_position_index].value) : widget.graph.y(0);
                                 }
                             });
                         widget.graph.dots.select('text')
-                            .text(function(d) { return point_format(d.values[x_position_index].value); })
+                            .text(function(d) { return d.values[x_position_index] ? point_format(d.values[x_position_index].value) : null; })
                             .attr('x', function(d) {
-                                if ((x_position_index / d.values.length) > .85) {
-                                    return widget.graph.x(closest_timestamp) - 5;
+                                if (x_position_index > d.values.length - 1) {
+                                    return widget.graph.x(d.values[d.values.length - 1].date - 5);
+                                } else if ((x_position_index / d.values.length) > .85) {
+                                    return widget.graph.x(d.values[x_position_index].date) - 5;
                                 } else {
-                                    return widget.graph.x(closest_timestamp) + 5;
+                                    return widget.graph.x(d.values[x_position_index].date) + 5;
                                 }
                             })
                             .attr('text-anchor', function(d) {
@@ -2652,9 +2656,9 @@
                             })
                             .attr('y', function(d) {
                                 if (d.axis === "right") {
-                                    return widget.graph.y1(d.values[x_position_index].value) - 2.5;
+                                    return d.values[x_position_index] ? widget.graph.y1(d.values[x_position_index].value) - 2.5 : widget.graph.y1(0);
                                 } else {
-                                    return widget.graph.y(d.values[x_position_index].value) - 2.5;
+                                    return d.values[x_position_index] ? widget.graph.y(d.values[x_position_index].value) - 2.5 : widget.graph.y(0);
                                 }
                             });
                     });
