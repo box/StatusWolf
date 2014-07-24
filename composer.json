@@ -4,7 +4,7 @@
     "description": "StatusWolf Operations Dashboard",
     "keywords": ["statuswolf", "dashboard"],
     "homepage": "http://github.com/box/StatusWolf",
-    "license": "Apache 2.0",
+    "license": "Apache-2.0",
     "authors": [
         {
             "name": "Mark Troyer",
@@ -20,7 +20,7 @@
         "symfony/twig-bridge": "~2.3",
         "twig/twig": ">=1.8,<2.0-dev",
         "doctrine/dbal": "2.2.*",
-        "monolog/monolog": ">=1.0.0"
+        "monolog/monolog": ">=1.0.0,<2.0"
     },
     "require-dev": {
         "symfony/browser-kit": ">=2.3,<2.4-dev"
