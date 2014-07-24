@@ -1,6 +1,10 @@
 StatusWolf
 ==========
 
+Configurable operations dashboard designed to bring together the
+disparate datasources that operations teams need to manage and present
+them in a flexible and beautiful way.
+
 > ## Announcing StatusWolf Version 0.9
 > 
 > You've heard this before, but this is a significant update to the
@@ -39,10 +43,10 @@ StatusWolf
 > but as StatusWolf moves to a multi-data-source, multi-widget-type
 > ops dashboard the adhoc interface will be deprecated.
 
-Configurable operations dashboard designed to bring together the
-disparate datasources that operations teams need to manage and present
-them in a flexible and beautiful way.
-
+## Installing StatusWolf
+Read [Installing StatusWolf v0.9](https://github.com/box/StatusWolf/wiki/Installing-StatusWolf-v0.9) for a new install,
+or [Upgrading from v0.8.x to v0.9](https://github.com/box/StatusWolf/wiki/Upgrading-from-v0.8.x-to-v0.9) for
+upgrading.
 
 ## Copyright and License
 
