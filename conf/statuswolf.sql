@@ -21,6 +21,8 @@ CREATE TABLE `auth` (
   KEY `password` (`password`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+INSERT INTO auth (username,password,full_name) VALUES ('swadmin','806aab343b43ca141f89f996e58f8667','StatusWolf Admin');
+
 
 
 # Dump of table dashboard_rank
@@ -123,6 +125,8 @@ CREATE TABLE `users` (
   PRIMARY KEY (`id`),
   KEY `username` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO users (username,roles,auth_source) VALUES ('swadmin','ROLE_SUPER_USER','mysql');
 
 
 
