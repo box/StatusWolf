@@ -135,19 +135,19 @@
 
     {% if extra_js %}
       {% for js in extra_js %}
-        <script type="text/javascript" src="{{ url('home') }}static/js/{{ js }}"></script>
+        <script type="text/javascript" src="/static/js/{{ js }}"></script>
       {% endfor %}
     {% endif %}
 
     {% if d3 == "local" %}
-      <script type="text/javascript" src="{{ url('home') }}static/js/lib/d3.min.js"></script>
+      <script type="text/javascript" src="/static/js/lib/d3.min.js"></script>
     {% else %}
       <script type="text/javascript" src="{{ d3 }}"></script>
     {% endif %}
 
     {% if widgets %}
       {% for key, widget in widgets %}
-        <script type="text/javascript" src="{{ url('home')}}Widgets/{{ key }}/js/{{ widget.name }}.js"></script>
+        <script type="text/javascript" src="/Widgets/{{ key }}/js/{{ widget.name }}.js"></script>
       {% endfor %}
     {% endif %}
 

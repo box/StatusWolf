@@ -189,7 +189,7 @@
                 var session_data = {session_data_key: 'columns', session_data_value: new_columns};
                 document._session.dashboard_columns = new_columns;
                 $.ajax({
-                    url: "{{ url('home') }}api/session/",
+                    url: "/api/session/",
                     type: 'PUT',
                     data: session_data,
                     dataType: 'json',
@@ -226,7 +226,7 @@
     }
 
     function build_dashboard_list() {
-        var api_url = '{{ url('home') }}api/dashboard/saved/' + document._session.dashboard_userid;
+        var api_url = '/api/dashboard/saved/' + document._session.dashboard_userid;
         var menu_length = 15;
         var item_length = 0;
 
@@ -274,7 +274,7 @@
                 }
                 $.each(data.user_dashboards, function(i, dashboard) {
                     my_dashboards_list.push([
-                        '<a href="{{ url('home') }}dashboard/' + dashboard.id + '">' + dashboard.title + '</a>'
+                        '<a href="/dashboard/' + dashboard.id + '">' + dashboard.title + '</a>'
                     ])
                 });
             }
@@ -295,7 +295,7 @@
                     var rank = i + 1;
                     shared_dashboards_list.push([
                         rank,
-                        '<a href="{{ url('home') }}dashboard/' + shared.id + '">' + shared.title + '</a>',
+                        '<a href="/dashboard/' + shared.id + '">' + shared.title + '</a>',
                         shared.username
                     ])
                 });
@@ -335,7 +335,7 @@
     }
 
     function get_dashboard_config(dashboard_id) {
-        var api_url = "{{ url('home') }}api/dashboard/config/" + dashboard_id;
+        var api_url = "/api/dashboard/config/" + dashboard_id;
 
         var dashboard_config = new $.Deferred();
         var dashboard_config_query = $.ajax({
@@ -558,7 +558,7 @@
             debug_print(query_data);
 
             $.ajax({
-                url: window.location.origin + '/api/dashboard/config/' + dashboard_id,
+                url: '/api/dashboard/config/' + dashboard_id,
                 type: 'POST',
                 data: query_data,
                 dataType: 'json'
@@ -668,7 +668,7 @@
 
         var my_datasource = widget_datasources[my_widget.element.attr('data-widget-type')];
         var search_id = typeof my_widget.search_id === "undefined" ? md5(JSON.stringify(search_query)) : my_widget.search_id;
-        var api_url = '{{ url('home') }}api/search/saved/' + my_datasource + '/' + search_id;
+        var api_url = '/api/search/saved/' + my_datasource + '/' + search_id;
         $.ajax({
             url: api_url,
             type: 'POST',
