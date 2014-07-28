@@ -94,3 +94,11 @@
   display: inline-block;
   margin-left: 10px;
 }
+
+/* line 87, ../sass/dashboard.scss */
+#dashboard-title {
+  display: inline-block;
+  font-size: 0.8em;
+  line-height: 2em;
+  color: #f0f0f0;
+}

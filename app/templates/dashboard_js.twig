@@ -418,6 +418,7 @@
             var cols = document._session.dashboard_columns;
 
             $('title').text(dashboard_config.title + ' - StatusWolf');
+            $('div#dashboard-menu').after('<div id="dashboard-title" class="info-tooltip" title="Creator: ' + dashboard_config.username + '">' + dashboard_config.title + '</div>');
             $('input#save-dashboard-title').val(dashboard_config.title);
             if (dashboard_config.shared == 1) {
                 $('div#shared-dashboard-button').addClass('pushed');
