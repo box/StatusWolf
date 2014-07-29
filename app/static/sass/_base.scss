@@ -255,7 +255,7 @@ ul, ol {
 
 .push-button.pushed {
     background-color: $button_bg_pushed;
-    border-top-left-radius: 1px solid $button_border_pushed;
+    border: 1px solid $button_border_pushed;
 }
 
 .toggle-button {
@@ -1191,4 +1191,69 @@ table.dataTable {
     left: 0;
     padding: 0;
     overflow: hidden;
+}
+
+/*
+ *=================
+ * Slider controle
+ *=================
+ */
+
+
+.ui-slider {
+    position: relative;
+    text-align: center;
+    background-color: $button_bg_pushed;
+    border: 1px solid $button_border_pushed;
+    @include sw-radius;
+    .slider-label {
+        font-size: 0.75em;
+        text-align: center;
+        width: 100%;
+        vertical-align: top;
+    }
+    .ui-slider-handle {
+        position: absolute;
+        z-index: 2;
+        width: 2em;
+        height: 1.5em;
+        line-height: 1.4em;
+        cursor: default;
+        text-align: center;
+        font-size: 0.8em;
+        color: $font_dim;
+        background-color: $button_bg;
+        border: 1px solid $button_border;
+        @include sw-button-radius;
+    }
+    .ui-slider-handle:hover {
+        background-color: $button_bg_hover;
+    }
+    .ui-slider-range {
+        position: absolute;
+        z-index: 1;
+        font-size: .7em;
+        display: block;
+        border: 0;
+        background-position: 0 0;
+    }
+}
+
+.ui-slider-horizontal {
+    height: 1em;
+    margin-top: 10px;
+    .ui-slider-handle {
+        top: -0.3em;
+        margin-left: -0.6em;
+    }
+    .ui-slider-range {
+        top: 0;
+        height: 100%;
+    }
+    .ui-slider-range-min {
+        left: 0;
+    }
+    .ui-slider-range-max {
+        right: 0;
+    }
 }

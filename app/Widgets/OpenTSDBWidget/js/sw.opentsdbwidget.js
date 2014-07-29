@@ -319,9 +319,6 @@
                     $('div.bodyshade').remove();
                 }, 600);
                 setTimeout(function() {
-                    if (typeof widget.svg !== "undefined") {
-                        widget.resize_graph();
-                    }
                     widget.sw_opentsdbwidget.removeClass('flipped');
                 }, 700);
             }
@@ -474,8 +471,12 @@
             }
             $.each(widget.graph.raw_data, function(s, d) {
                 var line_values;
+                var ds_threshold = 0.5;
                 if (widget.query_data.metrics[d.search_key].ds_type) {
-                    line_values = widget.downsample_series(d.values, widget.graph.width * 0.5);
+                    if (widget.query_data.metrics[d.search_key].ds_multiplier !== "undefined") {
+                        ds_threshold = (ds_threshold / widget.query_data.metrics[d.search_key].ds_multiplier);
+                    }
+                    line_values = widget.downsample_series(d.values, widget.graph.width * parseFloat(ds_threshold.toPrecision(1)));
                 } else {
                     line_values = d.values;
                 }
@@ -491,20 +492,18 @@
                 }
                 delete(line_values);
             });
-            var metric = widget.svg.selectAll('.metric.left');
-            metric.data(widget.graph.data_left);
-            metric.selectAll('path')
+            widget.svg.g.selectAll('path.left')
+                .data(widget.graph.data_left)
                 .attr('d', function(d) {
-                    debug_print('Points graphed: ' + d.values.length);
                     return widget.graph.line(d.values);
                 });
+
             if (widget.graph.right_axis == true) {
-                widget.svg.selectAll('.metric.right')
+                widget.svg.g.selectAll('.path.right')
                     .data(widget.graph.data_right)
-                    .selectAll('path')
-                        .attr('d', function(d) {
-                            return widget.graph.line_right(d.values);
-                        });
+                    .attr('d', function(d) {
+                        return widget.graph.line_right(d.values);
+                    });
             }
         },
         clone_widget: function(widget_id) {
@@ -962,12 +961,13 @@
             tab_table.append('<tr><td colspan="4"><div class="metric-input-textbox" id="metric-input-textbox' + tab_tag + '">' +
                 '<input type="text" class="metric-autocomplete" name="metric' + tab_tag + '" placeholder="Metric name and tags">' +
                 '</div></td></tr>' +
+
                 '<tr><td width="25%"><div class="widget-form-item menu-label" style="min-width: 155px;">' +
                 '<div class="push-button" style="margin-top: 10px; width: 95%;">' +
                 '<input type="checkbox" id="rate-button' + tab_tag + '" name="rate' + tab_tag + '">' +
                 '<label for="rate-button' + tab_tag + '"><span class="elegant-icons icon-close-alt red"></span>' +
                 '<span class="binary-label">Rate</span></label></div></div></td>' +
-                '<td width="75%"><div class="widget-form-item menu-label" id="aggregation' + tab_tag + '" style="margin-right: 0;">' +
+                '<td width="25%"><div class="widget-form-item menu-label" id="aggregation' + tab_tag + '" style="margin-right: 0;">' +
                 '<h4>Aggregation</h4><div class="dropdown sw-button">' +
                 '<span data-toggle="dropdown"><div class="widget-button-label" id="active-aggregation-type' + tab_tag + '">Sum</div>' +
                 '<span class="dropdown-arrow-container"><span class="elegant-icons arrow-triangle-down"></span></span></span>' +
@@ -977,7 +977,8 @@
                 '<li data-action="set-agg-type"><span>Minimum Value</span></li>' +
                 '<li data-action="set-agg-type"><span>Maximum Value</span></li>' +
                 '<li data-action="set-agg-type"><span>Standard Deviation</span></li>' +
-                '</ul></div></td></tr>' +
+                '</ul></div></td><td width="25%"></td><td></td></tr>' +
+
                 '<tr><td><div class="widget-form-item menu-label" style="min-width: 155px;">' +
                 '<div class="push-button" style="margin-top: 10px; width: 95%;">' +
                 '<input type="checkbox" id="y2-button' + tab_tag + '" name="y2-' + tab_tag + '">' +
@@ -987,12 +988,15 @@
                 '<div class="push-button pushed" style="margin-top: 10px;">' +
                 '<input type="checkbox" id="ds-button' + tab_tag + '" name="ds-' + tab_tag + '" checked="Checked">' +
                 '<label for="ds-button' + tab_tag + '"><span class="elegant-icons icon-check-alt green"></span>' +
-                '<span class="binary-label">Downsample</span></label></div></div></td></tr>' +
+                '<span class="binary-label">Downsample</span></label></div></div></td>' +
+                '<td><div id="downsample-level' + tab_tag + '" class="slider"><span class="slider-label">Downsampling Level</span></div></td><td></td></tr>' +
+
                 '<tr><td><div class="widget-form-item menu-label" style="min-width: 155px;">' +
                 '<div class="push-button info-tooltip-right" style="margin-top: 10px; width: 95%;" title="If selected, timestamp buckets with no data will be displayed as 0, otherwise they\'ll be skipped over.">' +
                 '<input type="checkbox" id="null-zero-button' + tab_tag + '" name="null-zero' + tab_tag + '">' +
                 '<label for="null-zero-button' + tab_tag + '"><span class="elegant-icons icon-close-alt red"></span>' +
-                '<span class="binary-label">Treat Null As Zero</span></label></div></td><td></td></tr>' +
+                '<span class="binary-label">Treat Null As Zero</span></label></div></td><td></td><td></td></tr>' +
+
                 '<tr><td><div id="lerp-button-container" class="hidden widget-form-item menu-label" style="min-width: 155px;">' +
                 '<div class="push-button info-tooltip-right" style="margin-top: 10px; width: 95%;" title="Interpolation should be disabled unless you are absolutely sure that you need it.">' +
                 '<input type="checkbox" id="lerp-button' + tab_tag + '" name="lerp' + tab_tag + '">' +
@@ -1017,6 +1021,13 @@
             $('.info-tooltip-right').tooltip({placement: 'right'});
             $('.info-tooltip-left').tooltip({placement: 'left'});
             $('.info-tooltip-top').tooltip({placement: 'top'});
+
+            $('div#downsample-level' + tab_tag).slider({
+                animate: true,
+                min: 1,
+                max: 10
+            });
+            $('div#downsample-level' + tab_tag).children('span.ui-slider-handle').text('|||');
 
             return tab_num;
         },
@@ -1377,6 +1388,9 @@
                     if (!ds_input.prop('checked')) {
                         ds_input.prop('checked', true).attr('checked', 'Checked');
                     }
+                    if (typeof metric.ds_multiplier !== "undefined") {
+                        $('#downsample-level' + widget_num + '-' + metric_num).slider('value', metric.ds_multiplier);
+                    }
                 } else {
                     ds_input.parent('.push_button').removeClass('pushed');
                     ds_input.siblings('label').children('span.elegant-icons').addClass('icon-close-alt red').removeClass('icon-check-alt green');
@@ -1531,6 +1545,8 @@
                     }
                     if ($('#ds-button' + widget_num + '-' + i).prop('checked')) {
                         build_metric.ds_type = true;
+                        build_metric.ds_multiplier = $('#downsample-level' + widget_num + '-' + i).slider("value");
+                        debug_print('metric' + widget_num + '-' + i + ' downsampling multiplier: ' + build_metric.ds_multiplier);
                     }
 
                     var search_key = md5(JSON.stringify(build_metric));
@@ -1581,6 +1597,8 @@
 
                     if ($('#ds-button' + widget_num + '-1').prop('checked')) {
                         build_metric.ds_type = true;
+                        build_metric.ds_multiplier = $('#downsample-level' + widget_num + '-1').slider("value");
+                        debug_print('metric' + widget_num + '-1 downsampling multiplier: ' + build_metric.ds_multiplier);
                     }
 
                     var search_key = md5(JSON.stringify(build_metric));
@@ -2130,8 +2148,12 @@
             widget.graph.data_right = [];
             $.each(widget.graph.raw_data, function(s, d) {
                 var line_values;
+                var ds_threshold = 0.5;
                 if (widget.query_data.metrics[d.search_key].ds_type) {
-                    line_values = widget.downsample_series(d.values, widget.graph.width * 0.5);
+                    if (typeof widget.query_data.metrics[d.search_key].ds_multiplier !== "undefined") {
+                        ds_threshold = (ds_threshold / widget.query_data.metrics[d.search_key].ds_multiplier);
+                    }
+                    line_values = widget.downsample_series(d.values, widget.graph.width * parseFloat(ds_threshold.toPrecision(1)));
                 } else {
                     line_values = d.values;
                 }
@@ -2307,18 +2329,19 @@
                 .classed('left', 1)
                 .attr('clip-path', 'url(#clip' + widget.uuid + ')')
                 .append('path')
-                .classed('line', 1)
-                .classed('left', 1)
-                .attr('d', function(d) {
-                    return widget.graph.line(d.values);
-                })
-                .attr('data-name', function(d) {
-                    return widget.graph.legend_map[d.name];
-                })
-                .style('stroke', function(d) {
-                    return widget.graph.color(widget.graph.legend_map[d.name]);
-                })
-                .style('pointer-events', 'none');
+                    .data(widget.graph.data_left)
+                    .classed('line', 1)
+                    .classed('left', 1)
+                    .attr('d', function(d) {
+                        return widget.graph.line(d.values);
+                    })
+                    .attr('data-name', function(d) {
+                        return widget.graph.legend_map[d.name];
+                    })
+                    .style('stroke', function(d) {
+                        return widget.graph.color(widget.graph.legend_map[d.name]);
+                    })
+                    .style('pointer-events', 'none');
 
             if (widget.graph.right_axis == true) {
                 widget.svg.g.selectAll('.metric.right')
@@ -2328,18 +2351,19 @@
                     .classed('right', 1)
                     .attr('clip-path', 'url(#clip' + widget.uuid + ')')
                     .append('path')
-                    .classed('line', 1)
-                    .classed('right', 1)
-                    .attr('d', function(d) {
-                        return widget.graph.line_right(d.values);
-                    })
-                    .attr('data-name', function(d) {
-                        return widget.graph.legend_map[d.name];
-                    })
-                    .style('stroke', function(d) {
-                        return widget.graph.color(widget.graph.legend_map[d.name]);
-                    })
-                    .style('pointer-events', 'none');
+                        .data(widget.graph.data_right)
+                        .classed('line', 1)
+                        .classed('right', 1)
+                        .attr('d', function(d) {
+                            return widget.graph.line_right(d.values);
+                        })
+                        .attr('data-name', function(d) {
+                            return widget.graph.legend_map[d.name];
+                        })
+                        .style('stroke', function(d) {
+                            return widget.graph.color(widget.graph.legend_map[d.name]);
+                        })
+                        .style('pointer-events', 'none');
             }
 
             var point_format = d3.format('.2f');

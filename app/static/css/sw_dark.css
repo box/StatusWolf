@@ -364,8 +364,8 @@ ul, ol {
 
 /* line 256, ../sass/_base.scss */
 .push-button.pushed {
-  background-color: #303030;
-  border-top-left-radius: 1px solid rgba(24, 24, 24, 0.25);
+  background-color: #202020;
+  border: 1px solid rgba(234, 234, 234, 0.25);
 }
 
 /* line 261, ../sass/_base.scss */
@@ -405,8 +405,8 @@ ul, ol {
 
 /* line 294, ../sass/_base.scss */
 .toggle-button.toggle-on {
-  background-color: #303030;
-  border: 1px solid rgba(24, 24, 24, 0.25);
+  background-color: #202020;
+  border: 1px solid rgba(234, 234, 234, 0.25);
 }
 
 /* line 299, ../sass/_base.scss */
@@ -1149,7 +1149,7 @@ table.dataTable thead tr th {
 .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
   cursor: default;
   color: rgba(205, 205, 205, 0.25);
-  background-color: rgba(24, 24, 24, 0.25);
+  background-color: rgba(234, 234, 234, 0.25);
 }
 
 /*
@@ -1460,6 +1460,87 @@ table.dataTable thead tr th {
   left: 0;
   padding: 0;
   overflow: hidden;
+}
+
+/*
+ *=================
+ * Slider controle
+ *=================
+ */
+/* line 1203, ../sass/_base.scss */
+.ui-slider {
+  position: relative;
+  text-align: center;
+  background-color: #202020;
+  border: 1px solid rgba(234, 234, 234, 0.25);
+  -webkit-border-radius: 0 2px 2px 2px;
+  -moz-border-radius: 0 2px 2px 2px;
+  -ms-border-radius: 0 2px 2px 2px;
+  -o-border-radius: 0 2px 2px 2px;
+  border-radius: 0 2px 2px 2px;
+}
+/* line 1209, ../sass/_base.scss */
+.ui-slider .slider-label {
+  font-size: 0.75em;
+  text-align: center;
+  width: 100%;
+  vertical-align: top;
+}
+/* line 1215, ../sass/_base.scss */
+.ui-slider .ui-slider-handle {
+  position: absolute;
+  z-index: 2;
+  width: 2em;
+  height: 1.5em;
+  line-height: 1.4em;
+  cursor: default;
+  text-align: center;
+  font-size: 0.8em;
+  color: rgba(205, 205, 205, 0.25);
+  background-color: #404040;
+  border: 1px solid rgba(234, 234, 234, 0.1);
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -o-border-radius: 3px;
+  border-radius: 3px;
+}
+/* line 1229, ../sass/_base.scss */
+.ui-slider .ui-slider-handle:hover {
+  background-color: #505050;
+}
+/* line 1232, ../sass/_base.scss */
+.ui-slider .ui-slider-range {
+  position: absolute;
+  z-index: 1;
+  font-size: .7em;
+  display: block;
+  border: 0;
+  background-position: 0 0;
+}
+
+/* line 1242, ../sass/_base.scss */
+.ui-slider-horizontal {
+  height: 1em;
+  margin-top: 10px;
+}
+/* line 1245, ../sass/_base.scss */
+.ui-slider-horizontal .ui-slider-handle {
+  top: -0.3em;
+  margin-left: -0.6em;
+}
+/* line 1249, ../sass/_base.scss */
+.ui-slider-horizontal .ui-slider-range {
+  top: 0;
+  height: 100%;
+}
+/* line 1253, ../sass/_base.scss */
+.ui-slider-horizontal .ui-slider-range-min {
+  left: 0;
+}
+/* line 1256, ../sass/_base.scss */
+.ui-slider-horizontal .ui-slider-range-max {
+  right: 0;
 }
 
 @font-face {
