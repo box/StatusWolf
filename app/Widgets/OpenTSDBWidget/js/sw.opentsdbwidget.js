@@ -19,7 +19,7 @@
             label: null,
             handles: '',
             legend: "on",
-            nointerpolation: false,
+            nointerpolation: true,
             query_data: null,
         },
         _create: function() {
@@ -984,8 +984,8 @@
                 '<input type="checkbox" id="y2-button' + tab_tag + '" name="y2-' + tab_tag + '">' +
                 '<label for="y2-button' + tab_tag + '"><span class="elegant-icons icon-close-alt red"></span>' +
                 '<span class="binary-label">Right Axis</span></label></div></div></td>' +
-                '<td><div class=""widget-form-item menu-label" style="min-width: 155px;">' +
-                '<div class="push-button pushed" style="margin-top: 10px;">' +
+                '<td><div class="widget-form-item menu-label" style="min-width: 155px;">' +
+                '<div class="push-button pushed" style="margin-top: 10px; width: 90%">' +
                 '<input type="checkbox" id="ds-button' + tab_tag + '" name="ds-' + tab_tag + '" checked="Checked">' +
                 '<label for="ds-button' + tab_tag + '"><span class="elegant-icons icon-check-alt green"></span>' +
                 '<span class="binary-label">Downsample</span></label></div></div></td>' +
@@ -995,7 +995,12 @@
                 '<div class="push-button info-tooltip-right" style="margin-top: 10px; width: 95%;" title="If selected, timestamp buckets with no data will be displayed as 0, otherwise they\'ll be skipped over.">' +
                 '<input type="checkbox" id="null-zero-button' + tab_tag + '" name="null-zero' + tab_tag + '">' +
                 '<label for="null-zero-button' + tab_tag + '"><span class="elegant-icons icon-close-alt red"></span>' +
-                '<span class="binary-label">Treat Null As Zero</span></label></div></td><td></td><td></td></tr>' +
+                '<span class="binary-label">Treat Null As Zero</span></label></div></td>' +
+                '<td><div class="widget-form-item menu-label" style="min-width: 155px;">' +
+                '<div class="push-button info-tooltip-right" style="margin-top: 10px; width: 90%;" title="Note that smoothing may cause your graph lines to not match up with all actual point locations.">' +
+                '<input type="checkbox" id="smoothing-button' + tab_tag + '" name="smoothing' + tab_tag + '">' +
+                '<label for="smoothing-button' + tab_tag + '"><span class="elegant-icons icon-close-alt red"></span>' +
+                '<span class="binary-label">Smoothing</span></label></div></td><td></td></tr>' +
 
                 '<tr><td><div id="lerp-button-container" class="hidden widget-form-item menu-label" style="min-width: 155px;">' +
                 '<div class="push-button info-tooltip-right" style="margin-top: 10px; width: 95%;" title="Interpolation should be disabled unless you are absolutely sure that you need it.">' +
@@ -1398,6 +1403,21 @@
                         ds_input.prop('checked', false).attr('checked', null);
                     }
                 }
+
+                var smoothing_input = $('input#smoothing-button' + widget_num + '-' + metric_num);
+                if (metric.smoothing && metric.smoothing !== "false") {
+                    smoothing_input.parent('.push-button').addClass('pushed');
+                    smoothing_input.siblings('label').children('span.elegant-icons').addClass('icon-check-alt green').removeClass('icon-close-alt red');
+                    if (!smoothing_input.prop('checked')) {
+                        smoothing_input.prop('checked', true).attr('checked', 'Checked');
+                    }
+                } else {
+                    smoothing_input.parent('.push_button').removeClass('pushed');
+                    smoothing_input.siblings('label').children('span.elegant-icons').addClass('icon-close-alt red').removeClass('icon-check-alt green');
+                    if (smoothing_input.prop('checked')) {
+                        smoothing_input.prop('checked', false).attr('checked', null);
+                    }
+                }
             });
 
             if (prompt_user) {
@@ -1548,6 +1568,9 @@
                         build_metric.ds_multiplier = $('#downsample-level' + widget_num + '-' + i).slider("value");
                         debug_print('metric' + widget_num + '-' + i + ' downsampling multiplier: ' + build_metric.ds_multiplier);
                     }
+                    if ($('#smoothing-button' + widget_num + '-' + i).prop('checked')) {
+                        build_metric.smoothing = true;
+                    }
 
                     var search_key = md5(JSON.stringify(build_metric));
                     widget.query_data.metrics[search_key] = (build_metric);
@@ -1599,6 +1622,10 @@
                         build_metric.ds_type = true;
                         build_metric.ds_multiplier = $('#downsample-level' + widget_num + '-1').slider("value");
                         debug_print('metric' + widget_num + '-1 downsampling multiplier: ' + build_metric.ds_multiplier);
+                    }
+
+                    if ($('#smoothing-button' + widget_num + '-1').prop('checked')) {
+                        build_metric.smoothing = true;
                     }
 
                     var search_key = md5(JSON.stringify(build_metric));
@@ -1943,7 +1970,15 @@
 
             if (widget.query_data.history_graph !== "no") {
                 $.each(data, function(series, series_data) {
-                    graph_data.push({name: series, search_key: (Object.keys(widget.query_data.metrics))[0], axis: 'left', values: series_data});
+                    var search_key = Object.keys(widget.query_data.metrics)[0];
+                    var smoothing = (widget.query_data.metrics[search_key].smoothing && widget.query_data.metrics[search_key].smoothing !== "false") ? true : false;
+                    graph_data.push({
+                        name: series,
+                        search_key: search_key,
+                        axis: 'left',
+                        smoothing: smoothing,
+                        values: series_data
+                    });
                 })
             } else {
                 var tag_map = {};
@@ -2005,7 +2040,14 @@
                             axis = 'right';
                         }
                     }
-                    graph_data.push({name: series, search_key: key_map, axis: axis, values: series_data});
+                    var smoothing = (widget.query_data.metrics[key_map].smoothing && widget.query_data.metrics[key_map].smoothing !== "false") ? true : false;
+                    graph_data.push({
+                        name: series,
+                        search_key: key_map,
+                        axis: axis,
+                        smoothing: smoothing,
+                        values: series_data
+                    });
                 });
             }
 
@@ -2113,7 +2155,6 @@
             if (update_graph) {
                 debug_print('updating graph');
                 var range_start = widget.query_data.end_time - widget.query_data.time_span;
-                var new_point_count = data[0].values.length;
                 $.each(widget.graph.raw_data, function(s, d) {
                     var point_count = 0;
                     $.each(data, function(ns, nd) {
@@ -2162,9 +2203,21 @@
                 });
                 if (d.axis === "right") {
                     widget.graph.right_axis = true;
-                    widget.graph.data_right.push({axis: d.axis, name: d.name, search_key: d.search_key, values: line_values});
+                    widget.graph.data_right.push({
+                        smoothing: d.smoothing,
+                        axis: d.axis,
+                        name: d.name,
+                        search_key: d.search_key,
+                        values: line_values
+                    });
                 } else {
-                    widget.graph.data_left.push({axis: d.axis, name: d.name, search_key: d.search_key, values: line_values});
+                    widget.graph.data_left.push({
+                        smoothing: d.smoothing,
+                        axis: d.axis,
+                        name: d.name,
+                        search_key: d.search_key,
+                        values: line_values
+                    });
                 }
             });
 
@@ -2271,7 +2324,7 @@
                 .range(swcolors.Wheel_DarkBG[5]);
 
             widget.graph.line = d3.svg.line()
-                .interpolate('linear')
+                //.interpolate('linear')
                 .x(function(d) {
                     return widget.graph.x(d.date);
                 })
@@ -2280,7 +2333,7 @@
                 });
 
             widget.graph.line_right = d3.svg.line()
-                .interpolate('linear')
+                //.interpolate('linear')
                 .x(function(d) {
                     return widget.graph.x(d.date);
                 })
@@ -2333,6 +2386,8 @@
                     .classed('line', 1)
                     .classed('left', 1)
                     .attr('d', function(d) {
+                        var interpolation = d.smoothing ? 'basis' : 'linear';
+                        widget.graph.line.interpolate(interpolation);
                         return widget.graph.line(d.values);
                     })
                     .attr('data-name', function(d) {
@@ -2355,6 +2410,8 @@
                         .classed('line', 1)
                         .classed('right', 1)
                         .attr('d', function(d) {
+                            var interpolation = d.smoothing ? 'basis' : 'linear';
+                            widget.graph.line_right.interpolate(interpolation);
                             return widget.graph.line_right(d.values);
                         })
                         .attr('data-name', function(d) {
