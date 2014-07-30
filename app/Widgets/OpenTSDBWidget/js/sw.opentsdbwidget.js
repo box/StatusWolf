@@ -127,16 +127,17 @@
                 .addClass('widget-action dropdown')
                 .append('<span data-toggle="dropdown">' +
                     '<span class="elegant-icons icon-cog"></span></span>' +
-                    '<ul class="dropdown-menu sub-menu-item widget-action-options" role="menu">' +
+                    '<ul id="widget-action-main" class="dropdown-menu sub-menu-item widget-action-options" role="menu">' +
                     '<li data-menu-action="maximize_widget"><span class="maximize-me">Maximize</span></li>' +
-                    '<li class="dropdown"><span>Options</span><span class="elegant-icons arrow-triangle-right"></span>' +
-                    '<ul class="dropdown-menu sub-menu opentsdbwidget-options-menu">' +
+                    '<li id="widget-action-options-menu"class="dropdown"><span>Options</span><span class="elegant-icons arrow-triangle-right"></span>' +
+                    '<ul id="widget-action-options" class="dropdown-menu sub-menu opentsdbwidget-options-menu">' +
+                    '<li data-menu-action="change_title"><span>Change Title</span></li>' +
                     '<li data-menu-action="change_downsample_level"><span>Change the downsampling level</span></li>' +
                     '<li data-menu-action="apply_smoothing"><span>Apply smoothing</span></li>' +
+                    '<li data-menu-action="disable_smoothing" class="nodisplay"><span>Disable smoothing</span></li>' +
                     '<li data-menu-action="set_all_spans"><span>Use this time span for all OpenTSDB Widgets</span></li>' +
                     '<li data-menu-action="set_all_tags_form"><span>Set tags for all OpenTSDB Widgets</span></li>' +
                     '<li data-menu-action="add_tags_to_all_form"><span>Add tag(s) to all OpenTSDB Widgets</span></li></ul></li>' +
-                    '<li data-menu-action="change_title"><span>Change Title</span></li>' +
                     '<li data-menu-action="edit_params"><span>Edit Parameters</span></li>' +
                     '<li data-menu-action="show_graph_data"><span>Show graph data</span></li>' +
                     '<li class="clone-widget" data-parent="' + that.element.attr('id') + '"><span>Clone Widget</span></li>' +
@@ -466,6 +467,32 @@
                 widget.resize_graph();
             });
         },
+        apply_smoothing: function() {
+            var widget = this;
+            var option_sub_menu = widget.sw_opentsdbwidget_action
+                .children('ul#widget-action-main')
+                .children('li#widget-action-options-menu')
+                .children('ul#widget-action-options');
+            option_sub_menu.children('li[data-menu-action="apply_smoothing"]').addClass('nodisplay');
+            option_sub_menu.children('li[data-menu-action="disable_smoothing"]').removeClass('nodisplay');
+            $.each(widget.query_data.metrics, function(key, values) {
+                values.smoothing = true;
+            });
+            widget.resize_graph();
+        },
+        disable_smoothing: function() {
+            var widget = this;
+            var option_sub_menu = widget.sw_opentsdbwidget_action
+                .children('ul#widget-action-main')
+                .children('li#widget-action-options-menu')
+                .children('ul#widget-action-options');
+            option_sub_menu.children('li[data-menu-action="disable_smoothing"]').addClass('nodisplay');
+            option_sub_menu.children('li[data-menu-action="apply_smoothing"]').removeClass('nodisplay');
+            $.each(widget.query_data.metrics, function(key, values) {
+                values.smoothing = false;
+            });
+            widget.resize_graph();
+        },
         resize_graph: function() {
             var widget = this;
             var widget_main = widget.sw_opentsdbwidget_frontmain,
@@ -528,10 +555,22 @@
                 });
                 if (d.axis === "right") {
                     widget.graph.right_axis = true;
-                    widget.graph.data_right.push({axis: d.axis, name: d.name, search_key: d.search_key, values: line_values});
+                    widget.graph.data_right.push({
+                        smoothing: widget.query_data.metrics[d.search_key].smoothing,
+                        axis: d.axis,
+                        name: d.name,
+                        search_key: d.search_key,
+                        values: line_values
+                    });
                 }
                 else {
-                    widget.graph.data_left.push({axis: d.axis, name: d.name, search_key: d.search_key, values: line_values});
+                    widget.graph.data_left.push({
+                        smoothing: widget.query_data.metrics[d.search_key].smoothing,
+                        axis: d.axis,
+                        name: d.name,
+                        search_key: d.search_key,
+                        values: line_values
+                    });
                 }
                 delete(line_values);
             });
@@ -548,7 +587,7 @@
                     .data(widget.graph.data_right)
                     .attr('d', function(d) {
                         var interpolation = d.smoothing ? 'basis' : 'linear';
-                        widget.graph.line.interpolate(interpolation);
+                        widget.graph.line_right.interpolate(interpolation);
                         return widget.graph.line_right(d.values);
                     });
             }
@@ -2096,7 +2135,6 @@
                         name: series,
                         search_key: key_map,
                         axis: axis,
-                        smoothing: smoothing,
                         values: series_data
                     });
                 });
@@ -2233,7 +2271,7 @@
                 if (d.axis === "right") {
                     widget.graph.right_axis = true;
                     widget.graph.data_right.push({
-                        smoothing: d.smoothing,
+                        smoothing: widget.query_data.metrics[d.search_key].smoothing,
                         axis: d.axis,
                         name: d.name,
                         search_key: d.search_key,
@@ -2241,7 +2279,7 @@
                     });
                 } else {
                     widget.graph.data_left.push({
-                        smoothing: d.smoothing,
+                        smoothing: widget.query_data.metrics[d.search_key].smoothing,
                         axis: d.axis,
                         name: d.name,
                         search_key: d.search_key,
@@ -2810,7 +2848,7 @@
                             if (d.axis === "right") {
                                 widget.graph.right_axis = true;
                                 widget.graph.data_right.push({
-                                    smoothing: d.smoothing,
+                                    smoothing: widget.query_data.metrics[d.search_key].smoothing,
                                     axis: d.axis,
                                     name: d.name,
                                     search_key: d.search_key,
@@ -2818,7 +2856,7 @@
                                 });
                             } else {
                                 widget.graph.data_left.push({
-                                    smoothing: d.smoothing,
+                                    smoothing: widget.query_data.metrics[d.search_key].smoothing,
                                     axis: d.axis,
                                     name: d.name,
                                     search_key: d.search_key,
@@ -2891,7 +2929,7 @@
                                 .attr('d', function(d) {
                                     var interpolation = d.smoothing ? 'basis' : 'linear';
                                     widget.graph.line_right.interpolate(interpolation);
-                                    return widget.graph.line(d.values);
+                                    return widget.graph.line_right(d.values);
                                 });
                         }
 
