@@ -495,6 +495,8 @@
             widget.svg.g.selectAll('path.left')
                 .data(widget.graph.data_left)
                 .attr('d', function(d) {
+                    var interpolation = d.smoothing ? 'basis' : 'linear';
+                    widget.graph.line.interpolate(interpolation);
                     return widget.graph.line(d.values);
                 });
 
@@ -502,6 +504,8 @@
                 widget.svg.g.selectAll('.path.right')
                     .data(widget.graph.data_right)
                     .attr('d', function(d) {
+                        var interpolation = d.smoothing ? 'basis' : 'linear';
+                        widget.graph.line.interpolate(interpolation);
                         return widget.graph.line_right(d.values);
                     });
             }
@@ -2545,14 +2549,22 @@
                             .classed(axis_position_class, 1)
                             .attr('d', function(d) {
                                 if (d.axis === "right") {
+                                    var interpolation = d.smoothing ? 'basis' : 'linear';
+                                    widget.graph.line_right.interpolate(interpolation);
                                     return widget.graph.line_right(d.values);
                                 } else {
+                                    var interpolation = d.smoothing ? 'basis' : 'linear';
+                                    widget.graph.line.interpolate(interpolation);
                                     return widget.graph.line(d.values);
                                 }
                             })
                             .attr('data-name', $(this).attr('title'))
                             .style('stroke', function(d) {
-                                return widget.graph.color(widget.graph.legend_map[d.name]);
+                                if (widget.query_data.history_graph.match(/wow/)) {
+                                    return widget.graph.color_wow(widget.graph.legend_map[d.name]);
+                                } else {
+                                    return widget.graph.color(widget.graph.legend_map[d.name]);
+                                }
                             })
                             .style('stroke-width', '3px')
                             .style('pointer-events', 'none');
