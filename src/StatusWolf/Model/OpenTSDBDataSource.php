@@ -247,7 +247,7 @@ class OpenTSDBDataSource implements TimeSeriesDataInterface {
             throw new \InvalidArgumentException('No query found to search on');
         } else {
             // Large datasets suck up extra memory and take longer to return...
-            ini_set('memory_limit', '2G');
+            ini_set('memory_limit', '8G');
             set_time_limit(300);
         }
 
