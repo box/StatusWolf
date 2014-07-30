@@ -2322,6 +2322,11 @@
                     return widget.graph.legend_map[d.name];
                 })
                 .range(swcolors.Wheel_DarkBG[5]);
+            widget.graph.color_wow = d3.scale.ordinal()
+                .domain(function(d) {
+                    return widget.graph.legend_map[d.name];
+                })
+                .range(swcolors.Wheel[1]);
 
             widget.graph.line = d3.svg.line()
                 //.interpolate('linear')
@@ -2394,7 +2399,11 @@
                         return widget.graph.legend_map[d.name];
                     })
                     .style('stroke', function(d) {
-                        return widget.graph.color(widget.graph.legend_map[d.name]);
+                        if (widget.query_data.history_graph.match(/wow/)) {
+                            return widget.graph.color_wow(widget.graph.legend_map[d.name]);
+                        } else {
+                            return widget.graph.color(widget.graph.legend_map[d.name]);
+                        }
                     })
                     .style('pointer-events', 'none');
 
@@ -2418,7 +2427,11 @@
                             return widget.graph.legend_map[d.name];
                         })
                         .style('stroke', function(d) {
-                            return widget.graph.color(widget.graph.legend_map[d.name]);
+                            if (widget.query_data.history_graph.match(/wow/)) {
+                                return widget.graph.color_wow(widget.graph.legend_map[d.name]);
+                            } else {
+                                return widget.graph.color(widget.graph.legend_map[d.name]);
+                            }
                         })
                         .style('pointer-events', 'none');
             }
@@ -2450,14 +2463,22 @@
                     .style('fill', 'none')
                     .style('stroke-width', '1.5px')
                     .style('stroke', function(d) {
-                        return (widget.graph.color(widget.graph.legend_map[d.name]));
+                        if (widget.query_data.history_graph.match(/wow/)) {
+                            return widget.graph.color_wow(widget.graph.legend_map[d.name]);
+                        } else {
+                            return widget.graph.color(widget.graph.legend_map[d.name]);
+                        }
                     })
                     .classed('dot', 1);
             widget.graph.dots.append('text')
                 .attr('x', 0)
                 .attr('y', 0)
                 .style('fill', function(d) {
-                    return (widget.graph.color(widget.graph.legend_map[d.name]));
+                    if (widget.query_data.history_graph.match(/wow/)) {
+                        return widget.graph.color_wow(widget.graph.legend_map[d.name]);
+                    } else {
+                        return widget.graph.color(widget.graph.legend_map[d.name]);
+                    }
                 })
                 .style('font-size', '.71em')
                 .style('text-shadow', '2px 2px 2px #000');
@@ -2482,7 +2503,11 @@
 
             $.each(widget.graph.legend_map, function(series, label) {
                 if (legend.has('span[title="' + label + '"]').length == 0) {
-                    var item_color = widget.graph.color(widget.graph.legend_map[series]);
+                    if (widget.query_data.history_graph.match(/wow/)) {
+                        var item_color = widget.graph.color_wow(widget.graph.legend_map[series]);
+                    } else {
+                        var item_color = widget.graph.color(widget.graph.legend_map[series]);
+                    }
                     legend.append('<span title="' + label + '" class="legend-title" style="color: ' + item_color + '">' + label + '</span>');
                     var name_span = legend.children('span[title="' + label + '"]');
                     if (widget.graph.right_axis == true) {
