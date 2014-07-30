@@ -752,6 +752,12 @@
             $.magnificPopup.close();
         }).on('click', '#confirm-search-save-button', function() {
             save_search_handler(event, my_widget, true);
+        }).on('click', '#save-new-title-button', function() {
+            $('input#save-search-title').attr('value', $('input#save-search-new-title').val());
+            if (typeof my_widget.search_id !== "undefined") {
+                delete my_widget.search_id;
+            }
+            save_search_handler(event, my_widget);
         });
     }
 
