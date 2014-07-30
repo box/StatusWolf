@@ -75,9 +75,20 @@ $sw->register(new Silex\Provider\DoctrineServiceProvider(), array(
     'db.options' => $sw['sw_config.config']['db_options'],
 ));
 
+$sw['logger']->addDebug('Checking DB version against ' . $VERSION);
 $ver_query = $sw['db']->executeQuery("SELECT * FROM sw_version");
 $ver = $ver_query->fetch();
-$sw['version'] = $ver['version'];
+if ($ver['version'] !== $VERSION) {
+    $sw['db']->executeUpdate("UPDATE sw_version SET version = '?' WHERE version = '?'",
+        array(
+            $VERSION,
+            $ver['version']
+        )
+    );
+    $sw['version'] = $VERSION;
+} else {
+    $sw['version'] = $ver['version'];
+}
 
 // Controller service provider
 $sw->register(new \Silex\Provider\ServiceControllerServiceProvider());

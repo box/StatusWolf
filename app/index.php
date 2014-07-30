@@ -11,6 +11,8 @@
  *
  */
 
+$VERSION = '0.9.2';
+
 // For this version, if the new config file format is in place
 // we'll assume the upgrade is complete.
 if (file_exists(__DIR__ . '/../conf/sw_config.json')) {
@@ -150,7 +152,7 @@ if (file_exists(__DIR__ . '/../conf/sw_config.json')) {
             try {
                 file_put_contents(__DIR__ . '/../conf/sw_datasource.json', "{\n    \"datasource\": {\n" . implode($datasources, ",\n") . "\n    }\n}\n");
                 $sw['db']->executeQuery("CREATE TABLE sw_version ( version varchar(11) DEFAULT NULL ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
-                $sw['db']->insert('sw_version', array('version' => '0.9'));
+                $sw['db']->insert('sw_version', array('version' => $VERSION));
             } catch(\Exception $e) {
                 return $sw->json($e->getMessage(), 500);
             }

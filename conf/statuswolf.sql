@@ -110,6 +110,8 @@ CREATE TABLE `sw_version` (
   `version` varchar(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+INSERT INTO sw_version (version) VALUES ('0.9.2');
+
 
 
 # Dump of table users
