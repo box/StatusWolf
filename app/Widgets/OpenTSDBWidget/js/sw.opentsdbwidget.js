@@ -2791,6 +2791,16 @@
                             delete(line_values);
                         });
 
+                        widget.graph.y.domain([
+                            0, (d3.max(widget.graph.data_left, function(d) {
+                                return d3.max(d.values, function(v) {
+                                    return parseFloat(v.value);
+                                })
+                            }) * 1.05)
+                        ]);
+
+                        widget.graph.y_master_domain = widget.graph.y.domain();
+
                         if (widget.graph.right_axis == true) {
                             widget.graph.x.domain([
                                 d3.min(widget.graph.data_left.concat(widget.graph.data_right), function(d) {
@@ -2803,6 +2813,13 @@
                                         return v.date;
                                     })
                                 })
+                            ]);
+                            widget.graph.y1.domain([
+                                0, (d3.max(widget.graph.data_right, function(d) {
+                                    return d3.max(d.values, function(v) {
+                                        return parseFloat(v.value);
+                                    })
+                                }) * 1.05)
                             ]);
                         }
                         else {
@@ -2820,6 +2837,8 @@
                             ]);
 
                         }
+
+                        widget.graph.x_master_domain = widget.graph.x.domain();
 
                         widget.svg.selectAll('path.left')
                             .data(widget.graph.data_left)
