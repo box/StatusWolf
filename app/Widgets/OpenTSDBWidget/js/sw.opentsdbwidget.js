@@ -320,12 +320,18 @@
                 }, 600);
                 setTimeout(function() {
                     widget.sw_opentsdbwidget.removeClass('flipped');
+                    if (widget.sw_opentsdbwidget_frontmain.height() > widget.sw_opentsdbwidget_front.height()) {
+                        widget.resize_graph();
+                    }
                 }, 700);
             }
             else {
                 widget.sw_opentsdbwidget.removeClass('flipped');
                 if ($('#' + widget.element.attr('id')).hasClass('transparent')) {
                     $('#' + widget.element.attr('id')).removeClass('transparent');
+                }
+                if (widget.sw_opentsdbwidget_frontmain.height() > widget.sw_opentsdbwidget_front.height()) {
+                    widget.resize_graph();
                 }
             }
         },
@@ -1265,6 +1271,8 @@
                 $(el).children('input').attr('checked', 'Checked');
                 $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
                 $('ul#time-span-options' + widget_num).html(wow_span_menu);
+                $('ul#tab-list' + widget_num).addClass('hidden');
+                $('#add-metric-button' + widget_num).addClass('hidden');
             } else {
                 var el = $('input[data-target="history-no' + widget_num + '"]').parent('label');
                 $(el).parent('div.toggle-button').addClass('toggle-on');
@@ -1272,6 +1280,8 @@
                 $(el).children('input').attr('checked', 'Checked');
                 $(el).parent('.toggle-button').siblings('.toggle-button').children('label').children('input').attr('checked', null);
                 $('ul#time-span-options' + widget_num).html(long_span_menu);
+                $('ul#tab-list' + widget_num).removeClass('hidden');
+                $('#add-metric-button' + widget_num).removeClass('hidden');
             }
 
             if (query_data.period === "span-search") {
@@ -2144,7 +2154,7 @@
 //            debug_print(downsampled);
 
         },
-        build_graph: function(data, update_graph) {
+        build_graph: function(data) {
 
             var widget = this;
 
@@ -2156,37 +2166,15 @@
             widget.sw_opentsdbwidget_legendbox.css('width', widget.sw_opentsdbwidget_frontmain.innerWidth())
                 .removeClass('hidden');
 
-            if (update_graph) {
-                debug_print('updating graph');
-                var range_start = widget.query_data.end_time - widget.query_data.time_span;
-                $.each(widget.graph.raw_data, function(s, d) {
-                    var point_count = 0;
-                    $.each(data, function(ns, nd) {
-                        if (nd.name === d.name) {
-                            d.values = d.values.concat(nd.values);
-                        }
-                    });
-                    $.each(d, function(i, values) {
-                        if (values.timestamp < range_start) {
-                            point_count++;
-                        } else {
-                            return false;
-                        }
-                    });
-                    d.values.splice(0, point_count);
-                });
+            widget.graph = {};
+            widget.graph.autoupdate_interval = widget.query_data.downsample_master_interval > 1 ? widget.query_data.downsample_master_interval * 60 : 300;
+            widget.graph.margin = {top: 0, right: 5, bottom: 20, left: 45};
+            widget.graph.width = (graphdiv.innerWidth() - widget.graph.margin.left - widget.graph.margin.right);
+            widget.graph.height = (graphdiv.innerHeight() - widget.graph.margin.top - widget.graph.margin.bottom);
 
-            } else {
-                widget.graph = {};
-                widget.graph.autoupdate_interval = widget.query_data.downsample_master_interval > 1 ? widget.query_data.downsample_master_interval * 60 : 300;
-                widget.graph.margin = {top: 0, right: 5, bottom: 20, left: 45};
-                widget.graph.width = (graphdiv.innerWidth() - widget.graph.margin.left - widget.graph.margin.right);
-                widget.graph.height = (graphdiv.innerHeight() - widget.graph.margin.top - widget.graph.margin.bottom);
-
-                widget.graph.legend_map = data.legend_map;
-                delete(data.legend_map);
-                widget.graph.raw_data = data;
-            }
+            widget.graph.legend_map = data.legend_map;
+            delete(data.legend_map);
+            widget.graph.raw_data = data;
             delete(data);
 
             widget.graph.data_left = [];
@@ -2709,11 +2697,7 @@
                 if (widget.query_data.title.length > 0) {
                     widget_string = widget.query_data.title;
                 }
-                if (update_graph) {
-                    debug_print('Widget ' + widget_string + ' refreshed at ' + new Date.now().toTimeString() + ', next refresh in ' + widget.graph.autoupdate_interval / 60 + ' minutes');
-                } else {
-                    debug_print('setting auto-update timer to ' + widget.graph.autoupdate_interval / 60 + ' minutes for widget ' + widget_string + ' at ' + new Date.now().toTimeString());
-                }
+                debug_print('setting auto-update timer to ' + widget.graph.autoupdate_interval / 60 + ' minutes for widget ' + widget_string + ' at ' + new Date.now().toTimeString());
                 widget.autoupdate_timer = setTimeout(function() {
                     widget.update_graph();
                 }, widget.graph.autoupdate_interval * 1000);
@@ -2722,18 +2706,20 @@
         },
         update_graph: function() {
             var widget = this;
-            var last_point_bits = widget.graph.data_left[0].values.slice(-1);
+            var last_point_bits = widget.graph.raw_data[0].values.slice(-1);
             var last_point = last_point_bits.pop();
-            var new_start = last_point.timestamp;
+            var start_offset = widget.query_data.time_span / 10;
+            var new_start = last_point.timestamp - start_offset;
             var new_end = new Date.now().getTime();
             new_end = parseInt(new_end / 1000);
+            debug_print ('old start time: ' + widget.graph.raw_data[0].values[0].timestamp + ' new start time: ' + new_start);
+            debug_print('new end time: ' + new_end + ', old end time: ' + last_point.timestamp);
             if ((new_end - new_start) > widget.query_data.time_span) {
                 new_start = new_end - widget.query_data.time_span;
             }
             widget.query_data.start_time = new_start;
             widget.query_data.end_time = new_end;
             widget.query_data.new_query = false;
-            debug_print(widget.svg.g);
             $.when(widget.opentsdb_search()).then(function(new_data) {
                 $.when(widget.process_timeseries_data(new_data)).then(
                     function(new_data) {
@@ -2742,13 +2728,128 @@
                             widget.graph.data_right = [];
                         }
                         delete(new_data.legend_map);
-                        $.each(new_data, function(s, d) {
-                            $.each(d.values, function(v) {
-                                d.values[v]['date'] = new Date(d.values[v]['timestamp'] * 1000);
+                        debug_print('updating graph');
+                        var range_start = widget.query_data.end_time - widget.query_data.time_span;
+                        debug_print('trim points - start: ' + range_start + ', end: ' + new_start);
+                        $.each(widget.graph.raw_data, function(s, d) {
+                            var start_point_count = 0;
+                            var end_point_count = 0;
+                            $.each(d.values, function(i, v) {
+                                if (v.timestamp < range_start) {
+                                    start_point_count++;
+                                } else if (v.timestamp >= new_start) {
+                                    end_point_count++;
+                                }
+                            });
+                            debug_print('old data length: ' + d.values.length);
+                            debug_print('Trimming ' + start_point_count + ' points from front of line');
+                            d.values.splice(0, start_point_count);
+                            if (end_point_count > 0) {
+                                debug_print('Trimming ' + end_point_count + ' points from end of line');
+                                d.values.splice(-end_point_count);
+                            }
+                            debug_print('new data length: ' + d.values.length);
+                            $.each(new_data, function(ns, nd) {
+                                if (nd.name === d.name) {
+                                    debug_print('adding ' + nd.values.length + ' incoming values');
+                                    d.values = d.values.concat(nd.values);
+                                }
                             });
                         });
-                        debug_print('new data received', new_data);
-                        widget.build_graph(new_data, true);
+                        $.each(widget.graph.raw_data, function(s, d) {
+                            var line_values;
+                            var ds_threshold = 0.5;
+                            if (widget.query_data.metrics[d.search_key].ds_type) {
+                                if (widget.query_data.metrics[d.search_key].ds_multiplier !== "undefined") {
+                                    ds_threshold = (ds_threshold / widget.query_data.metrics[d.search_key].ds_multiplier);
+                                }
+                                line_values = widget.downsample_series(d.values, widget.graph.width * parseFloat(ds_threshold.toPrecision(1)));
+                            } else {
+                                line_values = d.values;
+                            }
+                            $.each(line_values, function(v) {
+                                line_values[v]['date'] = new Date(line_values[v]['timestamp'] * 1000);
+                            });
+                            if (d.axis === "right") {
+                                widget.graph.right_axis = true;
+                                widget.graph.data_right.push({
+                                    smoothing: d.smoothing,
+                                    axis: d.axis,
+                                    name: d.name,
+                                    search_key: d.search_key,
+                                    values: line_values
+                                });
+                            } else {
+                                widget.graph.data_left.push({
+                                    smoothing: d.smoothing,
+                                    axis: d.axis,
+                                    name: d.name,
+                                    search_key: d.search_key,
+                                    values: line_values
+                                });
+                            }
+                            delete(line_values);
+                        });
+
+                        if (widget.graph.right_axis == true) {
+                            widget.graph.x.domain([
+                                d3.min(widget.graph.data_left.concat(widget.graph.data_right), function(d) {
+                                    return d3.min(d.values, function(v) {
+                                        return v.date;
+                                    })
+                                }),
+                                d3.max(widget.graph.data_left.concat(widget.graph.data_right), function(d) {
+                                    return d3.max(d.values, function(v) {
+                                        return v.date;
+                                    })
+                                })
+                            ]);
+                        }
+                        else {
+                            widget.graph.x.domain([
+                                d3.min(widget.graph.data_left, function(d) {
+                                    return d3.min(d.values, function(v) {
+                                        return v.date;
+                                    })
+                                }),
+                                d3.max(widget.graph.data_left, function(d) {
+                                    return d3.max(d.values, function(v) {
+                                        return v.date;
+                                    })
+                                })
+                            ]);
+
+                        }
+
+                        widget.svg.selectAll('path.left')
+                            .data(widget.graph.data_left)
+                            .attr('d', function(d) {
+                                var interpolation = d.smoothing ? 'basis' : 'linear';
+                                widget.graph.line.interpolate(interpolation);
+                                return widget.graph.line(d.values);
+                            });
+
+                        if (widget.graph.right_axis == true) {
+                            widget.svg.g.selectAll('.path.right')
+                                .data(widget.graph.data_right)
+                                .attr('d', function(d) {
+                                    var interpolation = d.smoothing ? 'basis' : 'linear';
+                                    widget.graph.line_right.interpolate(interpolation);
+                                    return widget.graph.line(d.values);
+                                });
+                        }
+
+                        if (widget.query_data['auto_update']) {
+                            var widget_string = widget.sw_opentsdbwidget_containerid;
+                            if (widget.query_data.title.length > 0) {
+                                widget_string = widget.query_data.title;
+                            }
+                            debug_print('Widget ' + widget_string + ' refreshed at ' + new Date.now().toTimeString() + ', next refresh in ' + widget.graph.autoupdate_interval / 60 + ' minutes');
+                            widget.autoupdate_timer = setTimeout(function() {
+                                widget.update_graph();
+                            }, widget.graph.autoupdate_interval * 1000);
+                        }
+
                     }
                 );
             });
