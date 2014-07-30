@@ -129,15 +129,17 @@
                     '<span class="elegant-icons icon-cog"></span></span>' +
                     '<ul class="dropdown-menu sub-menu-item widget-action-options" role="menu">' +
                     '<li data-menu-action="maximize_widget"><span class="maximize-me">Maximize</span></li>' +
+                    '<li class="dropdown"><span>Options</span><span class="elegant-icons arrow-triangle-right"></span>' +
+                    '<ul class="dropdown-menu sub-menu opentsdbwidget-options-menu">' +
+                    '<li data-menu-action="change_downsample_level"><span>Change the downsampling level</span></li>' +
+                    '<li data-menu-action="apply_smoothing"><span>Apply smoothing</span></li>' +
+                    '<li data-menu-action="set_all_spans"><span>Use this time span for all OpenTSDB Widgets</span></li>' +
+                    '<li data-menu-action="set_all_tags_form"><span>Set tags for all OpenTSDB Widgets</span></li>' +
+                    '<li data-menu-action="add_tags_to_all_form"><span>Add tag(s) to all OpenTSDB Widgets</span></li></ul></li>' +
                     '<li data-menu-action="change_title"><span>Change Title</span></li>' +
                     '<li data-menu-action="edit_params"><span>Edit Parameters</span></li>' +
                     '<li data-menu-action="show_graph_data"><span>Show graph data</span></li>' +
                     '<li class="clone-widget" data-parent="' + that.element.attr('id') + '"><span>Clone Widget</span></li>' +
-                    '<li class="dropdown"><span>Options</span><span class="elegant-icons arrow-triangle-right"></span>' +
-                    '<ul class="dropdown-menu sub-menu opentsdbwidget-options-menu">' +
-                    '<li data-menu-action="set_all_spans"><span>Use this time span for all OpenTSDB Widgets</span></li>' +
-                    '<li data-menu-action="set_all_tags_form"><span>Set tags for all OpenTSDB Widgets</span></li>' +
-                    '<li data-menu-action="add_tags_to_all_form"><span>Add tag(s) to all OpenTSDB Widgets</span></li></ul></li>' +
                     '<li data-menu-action="save_search"><span>Save this search</span></li>' +
                     '<li data-menu-action="go_click_handler"><span>Refresh Graph</span></li></ul>')
                 .appendTo(sw_opentsdbwidget_frontmain);
@@ -427,6 +429,41 @@
                         }
                     }
                 }
+            });
+        },
+        change_downsample_level: function() {
+            var widget = this;
+            widget.sw_opentsdbwidget_front.append('<div id="downsample-popup" class="popup mfp-hide">' +
+                '<div id="change-downsample" class="slider"><span class="slider-label">Downsampling Level</span></div>'
+            );
+            $.magnificPopup.open({
+                items: {
+                    src: '#downsample-popup',
+                    type: 'inline'
+                },
+                prependTo: widget.element,
+                preloader: false,
+                removalDelay: 300,
+                mainClass: 'popup-animate',
+                callbacks: {
+                    open: function() {
+                        $('div#change-downsample').slider({
+                            animate: true,
+                            min: 1,
+                            max: 10
+                        });
+                        $('div#change-downsample').css('margin-right', '20px').children('span.ui-slider-handle').text('|||');
+                    },
+                    afterClose: function() {
+                        $('#downsample-popup').remove();
+                    }
+                }
+            });
+            $('#change-downsample').on('slidechange', function() {
+                $.each(widget.query_data.metrics, function(key, values) {
+                    values.ds_multiplier = $('#change-downsample').slider('value');
+                });
+                widget.resize_graph();
             });
         },
         resize_graph: function() {
