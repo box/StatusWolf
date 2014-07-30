@@ -2933,6 +2933,9 @@
                                 });
                         }
 
+                        widget.dot_data = widget.graph.right_axis ? widget.graph.data_left.concat(widget.graph.data_right) : widget.graph.data_left;
+                        widget.svg.selectAll('.dot-container').select('g').data(widget.dot_data);
+
                         if (widget.query_data['auto_update']) {
                             var widget_string = widget.sw_opentsdbwidget_containerid;
                             if (widget.query_data.title.length > 0) {
