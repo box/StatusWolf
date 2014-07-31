@@ -22,9 +22,11 @@
 '            </div>' +
 '            <ul class="dropdown-menu sub-menu" id="load-dashboard-menu-options"></ul>' +
 '        </li>' +
+{% if user_id > 0 %}
 '        <li id="save-dashboard-menu-choice">' +
 '            <span>Save Dashboard</span>' +
 '        </li>' +
+{% endif %}
 '    </ul>' +
 '</div>'
 {% endautoescape %}

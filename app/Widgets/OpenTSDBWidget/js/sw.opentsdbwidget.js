@@ -141,13 +141,17 @@
                     '<li data-menu-action="edit_params"><span>Edit Parameters</span></li>' +
                     '<li data-menu-action="show_graph_data"><span>Show graph data</span></li>' +
                     '<li class="clone-widget" data-parent="' + that.element.attr('id') + '"><span>Clone Widget</span></li>' +
-                    '<li data-menu-action="save_search"><span>Save this search</span></li>' +
+                    '<li data-menu-action="save_search" class="nodisplay"><span>Save this search</span></li>' +
                     '<li data-menu-action="go_click_handler"><span>Refresh Graph</span></li></ul>')
                 .appendTo(sw_opentsdbwidget_frontmain);
             $('li.clone-widget').click(function(event) {
                 event.stopImmediatePropagation();
                 that.clone_widget($(this).attr('data-parent'));
             });
+
+            if (document._session.authenticated) {
+                $('li[data-menu-action="save_search"]').removeClass('nodisplay');
+            }
 
             sw_opentsdbwidget_draghandle = (this.sw_opentsdbwidget_draghandle = $('<span>'))
                 .addClass('widget-drag-handle')

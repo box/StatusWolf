@@ -28,12 +28,14 @@ class DashboardController implements ControllerProviderInterface {
             $username = $user instanceof SWUser ? $user->getUsername() : $user;
             $fullname = $user instanceof SWUser ? $user->getFullName() : '';
             $user_id = $user instanceof SWUser ? $user->getId() : '0';
+            $user_authenticated = $user instanceof SWUser ? true : false;
             $widgets = $sw['get_widgets'];
             $widgets_json = json_encode($widgets);
             return $sw['twig']->render('dashboard.html', array(
                 'username' => $username,
                 'fullname' => $fullname,
                 'user_id' => $user_id,
+                'user_authenticated' => $user_authenticated,
                 'extra_css' => array('dashboard.css',),
                 'extra_js' => array(
                     'sw_lib.js',
@@ -59,6 +61,7 @@ class DashboardController implements ControllerProviderInterface {
             $username = $user instanceof SWUser ? $user->getUsername() : $user;
             $fullname = $user instanceof SWUser ? $user->getFullName() : '';
             $user_id = $user instanceof SWUser ? $user->getId() : '0';
+            $user_authenticated = $user instanceof SWUser ? true : false;
             $widgets = $sw['get_widgets'];
             $widgets_json = json_encode($widgets);
             $query_data = $request->query->all();
@@ -72,6 +75,7 @@ class DashboardController implements ControllerProviderInterface {
                 'username' => $username,
                 'fullname' => $fullname,
                 'user_id' => $user_id,
+                'user_authenticated' => $user_authenticated,
                 'extra_css' => array('dashboard.css',),
                 'extra_js' => array(
                     'sw_lib.js',

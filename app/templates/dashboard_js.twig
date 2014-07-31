@@ -9,6 +9,7 @@
     document._session.dashboard_username = '{{ username }}';
     document._session.dashboard_userid = '{{ user_id }}';
     document._session.dashboard_columns = '{{ app.session.get('columns') ?: '2' }}';
+    document._session.authenticated = {{ user_authenticated ? 1 : 0 }};
 
     sw_debug = {{ sw_debug }};
 

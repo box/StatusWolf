@@ -167,7 +167,9 @@
         $('#adhoc-container').append('<div class="widget-container adhoc-widget"  id="' + widget_id + '" data-widget-type="' + widget_type + '">');
         var widget_div = $('#' + widget_id)[widget_type]();
         $('div.widget-close').remove();
-        $('ul.widget-action-options').children('li.dropdown').remove();
+        $('ul#widget-action-options').children('li[data-menu-action="set_all_spans"]').remove();
+        $('ul#widget-action-options').children('li[data-menu-action="set_all_tags_form"]').remove();
+        $('ul#widget-action-options').children('li[data-menu-action="add_tags_to_all_form"]').remove();
         $('li.clone-widget').remove();
         $('div.saved-searches-menu').remove();
         setTimeout(function() {
@@ -240,7 +242,7 @@
                     if (data.shared_searches[i].user_id === document._session.adhoc_userid) {
                         search_list_options.children('li.menu-section:last').after('<li><a href="/adhoc/' + data.shared_searches[i].datasource + '/saved/' + data.shared_searches[i].id +'"><span>' + data.shared_searches[i].title + '</span></a></li>');
                     } else {
-                        search_list_options.append('<li><a href="/adhoc/' + data.shared_searches[i].datasource + '/saved' + data.shared_searches[i].id + '"><span>' + data.shared_searches[i].title + '</span></a></li>');
+                        search_list_options.append('<li><a href="/adhoc/' + data.shared_searches[i].datasource + '/saved/' + data.shared_searches[i].id + '"><span>' + data.shared_searches[i].title + '</span></a></li>');
                     }
                     menu_length--;
                 }
@@ -400,7 +402,7 @@
                         window.location.href = "/adhoc/" + datasource;
                     },
                     afterClose: function() {
-                        $('#expired-popupe').remove();
+                        $('#expired-popup').remove();
                     }
                 }
             });
@@ -410,7 +412,9 @@
             $('#adhoc-container').append('<div class="widget-container adhoc-widget" id="' + widget_id + '" data-widget-type="' + widget_type + '">');
             var widget_div = $('#' + widget_id)[widget_type]({ query_data: query_data });
             $('div.widget-close').remove();
-            $('ul.widget-action-options').children('li.dropdown').remove();
+            $('ul#widget-action-options').children('li[data-menu-action="set_all_spans"]').remove();
+            $('ul#widget-action-options').children('li[data-menu-action="set_all_tags_form"]').remove();
+            $('ul#widget-action-options').children('li[data-menu-action="add_tags_to_all_form"]').remove();
             $('li.clone-widget').remove();
             setTimeout(function () {
                 $(widget_div).removeClass('transparent');
