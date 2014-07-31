@@ -2963,7 +2963,7 @@
                                 widget.x_pos_ref = i;
                             }
                         }
-                        widget.svg.selectAll('.dot-container').select('g').data(widget.dot_data);
+                        widget.graph.dots.data(widget.dot_data);
 
                         if (widget.query_data['auto_update']) {
                             var widget_string = widget.sw_opentsdbwidget_containerid;
