@@ -148,12 +148,16 @@ swcolors.Sequential = {
 			swcolors.CoolReds[5])
 };
 
+swcolors.WOW = [];
+
+swcolors.WOW[1] = swcolors.Blues[1].concat(swcolors.Reds[1], swcolors.Yellows[5][4]);
+
 swcolors.Wheel = [];
 
 swcolors.Wheel[1] = swcolors.Blues[1].concat(swcolors.Reds[1],
-    swcolors.Yellows[1],
-    swcolors.CoolReds[1],
     swcolors.YellowGreens[1],
+    swcolors.CoolReds[1],
+    swcolors.Yellows[1],
 	swcolors.Magentas[1],
     swcolors.Oranges[1],
     swcolors.Greens[1],
@@ -164,9 +168,9 @@ swcolors.Wheel[1] = swcolors.Blues[1].concat(swcolors.Reds[1],
 
 swcolors.Wheel[2] = swcolors.Wheel[1].concat(swcolors.Blues[2][1],
     swcolors.Reds[2][1],
-    swcolors.Yellows[2][1],
-    swcolors.CoolReds[2][1],
     swcolors.YellowGreens[2][1],
+    swcolors.CoolReds[2][1],
+    swcolors.Yellows[2][1],
 	swcolors.Magentas[2][1],
     swcolors.Oranges[2][1],
     swcolors.Greens[2][1],
@@ -177,9 +181,9 @@ swcolors.Wheel[2] = swcolors.Wheel[1].concat(swcolors.Blues[2][1],
 
 swcolors.Wheel[3] = swcolors.Wheel[2].concat(swcolors.Blues[3][2],
     swcolors.Reds[3][2],
-    swcolors.Yellows[3][2],
-    swcolors.CoolReds[3][2],
     swcolors.YellowGreens[3][2],
+    swcolors.CoolReds[3][2],
+    swcolors.Yellows[3][2],
 	swcolors.Magentas[3][2],
     swcolors.Oranges[3][2],
     swcolors.Greens[3][2],
@@ -190,9 +194,9 @@ swcolors.Wheel[3] = swcolors.Wheel[2].concat(swcolors.Blues[3][2],
 
 swcolors.Wheel[4] = swcolors.Wheel[3].concat(swcolors.Blues[4][3],
     swcolors.Reds[4][3],
-    swcolors.Yellows[4][3],
-    swcolors.CoolReds[4][3],
     swcolors.YellowGreens[4][3],
+    swcolors.CoolReds[4][3],
+    swcolors.Yellows[4][3],
 	swcolors.Magentas[4][3],
     swcolors.Oranges[4][3],
     swcolors.Greens[4][3],
@@ -203,9 +207,9 @@ swcolors.Wheel[4] = swcolors.Wheel[3].concat(swcolors.Blues[4][3],
 
 swcolors.Wheel[5] = swcolors.Wheel[4].concat(swcolors.Blues[5][4],
     swcolors.Reds[5][4],
-    swcolors.Yellows[5][4],
-    swcolors.CoolReds[5][4],
     swcolors.YellowGreens[5][4],
+    swcolors.CoolReds[5][4],
+    swcolors.Yellows[5][4],
 	swcolors.Magentas[5][4],
     swcolors.Oranges[5][4],
     swcolors.Greens[5][4],
