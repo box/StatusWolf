@@ -2506,6 +2506,13 @@
             var point_format = d3.format('.2f');
 
             widget.dot_data = widget.graph.right_axis ? widget.graph.data_left.concat(widget.graph.data_right) : widget.graph.data_left;
+            for (var i = 0; i < widget.dot_data.length; i++) {
+                if (typeof widget.x_pos_ref === "undefined") {
+                    widget.x_pos_ref = i;
+                } else if (widget.dot_data[i].values.length > widget.dot_data[widget.x_pos_ref].values.length) {
+                    widget.x_pos_ref = i;
+                }
+            }
             widget.graph.dots = widget.svg.g.append('g')
                 .attr('class', 'dot-container')
                 .selectAll('g')
@@ -2723,7 +2730,7 @@
                     })
                     .on('mousemove', function() {
                         var x_position = widget.graph.x.invert(d3.mouse(this)[0]),
-                            x_position_index = bisect(widget.dot_data[0].values, x_position);
+                            x_position_index = bisect(widget.dot_data[widget.x_pos_ref].values, x_position);
                         widget.graph.dots.select('circle')
                             .attr('cx', function(d) {
                                 if (x_position_index > d.values.length - 1) {
@@ -2834,6 +2841,12 @@
                         $.each(widget.graph.raw_data, function(s, d) {
                             var line_values;
                             var ds_threshold = 0.5;
+                            if (d.values.length == 0) {
+                                d.values[0] = {
+                                    timestamp: new_end,
+                                    value: 0
+                                }
+                            }
                             if (widget.query_data.metrics[d.search_key].ds_type) {
                                 if (widget.query_data.metrics[d.search_key].ds_multiplier !== "undefined") {
                                     ds_threshold = (ds_threshold / widget.query_data.metrics[d.search_key].ds_multiplier);
@@ -2934,6 +2947,13 @@
                         }
 
                         widget.dot_data = widget.graph.right_axis ? widget.graph.data_left.concat(widget.graph.data_right) : widget.graph.data_left;
+                        for (var i = 0; i < widget.dot_data.length; i++) {
+                            if (typeof widget.x_pos_ref === "undefined") {
+                                widget.x_pos_ref = i;
+                            } else if (widget.dot_data[i].values.length > widget.dot_data[widget.x_pos_ref].values.length) {
+                                widget.x_pos_ref = i;
+                            }
+                        }
                         widget.svg.selectAll('.dot-container').select('g').data(widget.dot_data);
 
                         if (widget.query_data['auto_update']) {
