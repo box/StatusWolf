@@ -2792,7 +2792,14 @@
             var widget = this;
             var last_point_bits = widget.graph.raw_data[0].values.slice(-1);
             var last_point = last_point_bits.pop();
-            var start_offset = widget.query_data.time_span / 10;
+            var start_offset;
+            if (widget.query_data.time_span <= 3600) {
+                start_offset = widget.query_data.time_span * .35;
+            } else if (widget.query_data.time_span > 86400) {
+                start_offset = widget.query_data.timespan * .01;
+            } else {
+                start_offset = widget.query_data.time_span * .1;
+            }
             var new_start = last_point.timestamp - start_offset;
             var new_end = new Date.now().getTime();
             new_end = parseInt(new_end / 1000);
