@@ -566,8 +566,7 @@
                         search_key: d.search_key,
                         values: line_values
                     });
-                }
-                else {
+                } else {
                     widget.graph.data_left.push({
                         smoothing: widget.query_data.metrics[d.search_key].smoothing,
                         axis: d.axis,
@@ -587,7 +586,7 @@
                 });
 
             if (widget.graph.right_axis == true) {
-                widget.svg.g.selectAll('.path.right')
+                widget.svg.g.selectAll('path.right')
                     .data(widget.graph.data_right)
                     .attr('d', function(d) {
                         var interpolation = d.smoothing ? 'basis' : 'linear';
