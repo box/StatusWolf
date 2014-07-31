@@ -2563,15 +2563,17 @@
                 legend.css({
                     '-webkit-columns': 'auto 4', '-moz-columns': 'auto 4', columns: 'auto 4'
                 });
-            }
-            else if (Object.keys(widget.graph.legend_map).length > 6) {
+            } else if (Object.keys(widget.graph.legend_map).length > 6) {
                 legend.css({
                     '-webkit-columns': 'auto 2', '-moz-columns': 'auto 3', columns: 'auto 3'
                 });
-            }
-            else if (Object.keys(widget.graph.legend_map).length > 3) {
+            } else if (Object.keys(widget.graph.legend_map).length > 3) {
                 legend.css({
                     '-webkit-columns': 'auto 2', '-moz-columns': 'auto 2', columns: 'auto 2'
+                });
+            } else {
+                legend.css({
+                    '-webkit-columns': 'auto 1', '-moz-columns': 'auto 1', columns: 'auto 1'
                 });
             }
 
