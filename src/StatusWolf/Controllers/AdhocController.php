@@ -69,6 +69,7 @@ class AdhocController implements ControllerProviderInterface {
                         'status_wolf_colors.js',
                         'lib/jquery.autocomplete.js',
                         'lib/jquery.dataTables.min.js',
+                        'lib/bootstrap-datetimepicker.js'
                     ),
                     'sw_debug' => $sw['sw_config.config']['sw_app']['debug'] ? 1 : 0,
                 ));
@@ -112,6 +113,7 @@ class AdhocController implements ControllerProviderInterface {
                         'lib/md5.js',
                         'lib/jquery.autocomplete.js',
                         'lib/jquery.dataTables.min.js',
+                        'lib/bootstrap-datetimepicker.js'
                     ),
                     'sw_debug' => $sw['sw_config.config']['sw_app']['debug'] ? 1 : 0,
                 ));
@@ -155,6 +157,7 @@ class AdhocController implements ControllerProviderInterface {
                         'lib/md5.js',
                         'lib/jquery.autocomplete.js',
                         'lib/jquery.dataTables.min.js',
+                        'lib/bootstrap-datetimepicker.js'
                     ),
                     'sw_debug' => $sw['sw_config.config']['sw_app']['debug'] ? 1 : 0,
                 ));

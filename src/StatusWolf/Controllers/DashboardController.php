@@ -43,6 +43,7 @@ class DashboardController implements ControllerProviderInterface {
                     'status_wolf_colors.js',
                     'lib/jquery.autocomplete.js',
                     'lib/jquery.dataTables.min.js',
+                    'lib/bootstrap-datetimepicker.js'
                 ),
                 'd3' => $sw['sw_config.config']['graphing']['d3_location'],
                 'widgets' => $widgets,
@@ -80,6 +81,7 @@ class DashboardController implements ControllerProviderInterface {
                     'status_wolf_colors.js',
                     'lib/jquery.autocomplete.js',
                     'lib/jquery.dataTables.min.js',
+                    'lib/bootstrap-datetimepicker.js'
                 ),
                 'd3' => $sw['sw_config.config']['graphing']['d3_location'],
                 'widgets' => $widgets,
