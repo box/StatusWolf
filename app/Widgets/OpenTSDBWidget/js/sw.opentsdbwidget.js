@@ -2404,7 +2404,7 @@
                 .domain(function(d) {
                     return widget.graph.legend_map[d.name];
                 })
-                .range(swcolors.Wheel[1]);
+                .range(swcolors.WOW[1]);
 
             widget.graph.line = d3.svg.line()
                 //.interpolate('linear')
