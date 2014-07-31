@@ -454,6 +454,9 @@
                             max: 10
                         });
                         $('div#change-downsample').css('margin-right', '20px').children('span.ui-slider-handle').text('|||');
+                        if (typeof widget.graph.master_ds_multiplier !== "undefined") {
+                            $('div#change-downsample').slider('value', widget.graph.master_ds_multiplier);
+                        }
                     },
                     afterClose: function() {
                         $('#downsample-popup').remove();
@@ -461,8 +464,9 @@
                 }
             });
             $('#change-downsample').on('slidechange', function() {
+                widget.graph.master_ds_multiplier = $('#change-downsample').slider('value');
                 $.each(widget.query_data.metrics, function(key, values) {
-                    values.ds_multiplier = $('#change-downsample').slider('value');
+                    values.ds_multiplier = widget.graph.master_ds_multiplier;
                 });
                 widget.resize_graph();
             });
@@ -1716,6 +1720,12 @@
 
                     if ($('#smoothing-button' + widget_num + '-1').prop('checked')) {
                         build_metric.smoothing = true;
+                        var options_sub_menu = widget.sw_opentsdbwidget_action
+                            .children('ul#widget-action-main')
+                            .children('li#widget-action-options-menu')
+                            .children('ul#widget-action-options');
+                        options_sub_menu.children('li[data-menu-action="apply_smoothing"]').addClass('nodisplay');
+                        options_sub_menu.children('li[data-menu-action="disable_smoothing"]').removeClass('nodisplay');
                     }
 
                     var search_key = md5(JSON.stringify(build_metric));
