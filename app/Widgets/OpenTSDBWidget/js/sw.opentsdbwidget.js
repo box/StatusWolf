@@ -1649,6 +1649,8 @@
 
                     if ($('#lerp-button' + widget_num + '-' + i).prop('checked')) {
                         build_metric.lerp = true;
+                    } else {
+                        build_metric.lerp = false;
                     }
                     if ($('#y2-button' + widget_num + '-' + i).prop('checked')) {
                         build_metric.y2 = true;
