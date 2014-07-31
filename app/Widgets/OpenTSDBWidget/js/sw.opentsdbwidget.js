@@ -1093,9 +1093,9 @@
                 '<span class="binary-label">Smoothing</span></label></div></td><td></td></tr>' +
 
                 '<tr><td><div id="lerp-button-container" class="hidden widget-form-item menu-label" style="min-width: 155px;">' +
-                '<div class="push-button info-tooltip-right" style="margin-top: 10px; width: 95%;" title="Interpolation should be disabled unless you are absolutely sure that you need it.">' +
-                '<input type="checkbox" id="lerp-button' + tab_tag + '" name="lerp' + tab_tag + '">' +
-                '<label for="lerp-button' + tab_tag + '"><span class="elegant-icons icon-close-alt red"></span>' +
+                '<div class="push-button pushed info-tooltip-right" style="margin-top: 10px; width: 95%;" title="Interpolation should be enabled unless you are absolutely sure that it needs to be turned off for this metric.">' +
+                '<input type="checkbox" id="lerp-button' + tab_tag + '" name="lerp' + tab_tag + '" checked="Checked">' +
+                '<label for="lerp-button' + tab_tag + '"><span class="elegant-icons icon-check-alt green"></span>' +
                 '<span class="binary-label">Interpolation</span></label></div></div></td></tr>');
             if (widget.options.nointerpolation) {
                 $('div#lerp-button-container').removeClass('hidden');
@@ -1421,17 +1421,17 @@
                 $('#active-aggregation-type' + widget_num + '-' + metric_num).text(method_map[metric.agg_type]);
 
                 var lerp_input = $('input#lerp-button' + widget_num + '-' + metric_num);
-                if (metric.lerp && metric.lerp !== "false") {
-                    lerp_input.parent('.push-button').addClass('pushed');
-                    lerp_input.siblings('label').children('span.elegant-icons').addClass('icon-check-alt green').removeClass('icon-check-alt red');
-                    if (!lerp_input.prop('checked')) {
-                        lerp_input.prop('checked', true).attr('checked', 'Checked');
-                    }
-                } else {
+                if (metric.lerp && metric.lerp === "false") {
                     lerp_input.parent('.push-button').removeClass('pushed');
                     lerp_input.siblings('label').children('span.elegant-icons').addClass('icon-close-alt red').removeClass('icon-check-alt green');
                     if (lerp_input.prop('checked')) {
                         lerp_input.prop('checked', false).attr('checked', null);
+                    }
+                } else {
+                    lerp_input.parent('.push-button').addClass('pushed');
+                    lerp_input.siblings('label').children('span.elegant-icons').addClass('icon-check-alt green').removeClass('icon-close-alt red');
+                    if (lerp_input.prop('checked')) {
+                        lerp_input.prop('checked', true).attr('checked', 'Checked');
                     }
                 }
 
@@ -1702,6 +1702,8 @@
 
                     if ($('#lerp-button' + widget_num + '-1').prop('checked')) {
                         build_metric.lerp = true;
+                    } else {
+                        build_metric.lerp = false;
                     }
 
                     if ($('#y2-button' + widget_num + '-1').prop('checked')) {

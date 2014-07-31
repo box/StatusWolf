@@ -271,7 +271,7 @@ class OpenTSDBDataSource implements TimeSeriesDataInterface {
 
                 // Turn off interpolation in OpenTSDB (available as a patch
                 // to OpenTSDB)
-                if (!array_key_exists('lerp', $metric) || (array_key_exists('lerp', $metric) && !$metric['lerp'])) {
+                if (array_key_exists('lerp', $metric) && !$metric['lerp']) {
                     $query_key .= 'nointerpolation:';
                 }
 
