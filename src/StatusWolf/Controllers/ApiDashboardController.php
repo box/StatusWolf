@@ -48,7 +48,7 @@ class ApiDashboardController implements ControllerProviderInterface {
             $user_token = $sw['security']->getToken();
             $user = $user_token->getUser();
             $user_id = $user instanceof SWUser ? $user->getId() : '0';
-            $sql = "SELECT * FROM saved_dashboards WHERE id = ?";
+            $sql = "SELECT sd.*, u.username FROM saved_dashboards sd, users u WHERE sd.id = ? AND u.id=sd.user_id";
             $dashboard_query = $sw['db']->prepare($sql);
             $dashboard_query->bindValue(1, $dashboard_id);
             $dashboard_query->execute();
