@@ -2915,7 +2915,7 @@
 
                         widget.graph.y_master_domain = widget.graph.y.domain();
 
-                        if (widget.graph.right_axis == true) {
+                        if (widget.graph.right_axis) {
                             widget.graph.x.domain([
                                 d3.min(widget.graph.data_left.concat(widget.graph.data_right), function(d) {
                                     return d3.min(d.values, function(v) {
@@ -2962,8 +2962,8 @@
                                 return widget.graph.line(d.values);
                             });
 
-                        if (widget.graph.right_axis == true) {
-                            widget.svg.g.selectAll('.path.right')
+                        if (widget.graph.right_axis) {
+                            widget.svg.g.selectAll('path.right')
                                 .data(widget.graph.data_right)
                                 .attr('d', function(d) {
                                     var interpolation = d.smoothing ? 'basis' : 'linear';
