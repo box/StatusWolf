@@ -2813,7 +2813,7 @@
             if (widget.query_data.time_span <= 3600) {
                 start_offset = widget.query_data.time_span * .35;
             } else if (widget.query_data.time_span > 86400) {
-                start_offset = widget.query_data.timespan * .01;
+                start_offset = widget.query_data.time_span * .01;
             } else {
                 start_offset = widget.query_data.time_span * .1;
             }
