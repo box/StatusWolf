@@ -2972,6 +2972,8 @@
                                 });
                         }
 
+                        widget.svg.g.selectAll('g.x.axis').call(widget.graph.x_axis);
+
                         widget.dot_data = widget.graph.right_axis ? widget.graph.data_left.concat(widget.graph.data_right) : widget.graph.data_left;
                         for (var i = 0; i < widget.dot_data.length; i++) {
                             if (typeof widget.x_pos_ref === "undefined") {
