@@ -326,7 +326,7 @@ class OpenTSDBDataSource implements TimeSeriesDataInterface {
         }
 
         $this->sw['logger']->addDebug(sprintf("Query key build: %s", $query_bits['key']));
-        $opentsdb_query_url = $this->_build_url($api_version, $query_bits['key'], $query_bits['start_time'], $query_bits['end_time']);
+        $opentsdb_query_url = $this->_build_url($query_bits['key'], $query_bits['start_time'], $query_bits['end_time']);
 
         $curl = new Curl($this->sw, $opentsdb_query_url, $this->_opentsdb_config['proxy'], $this->_opentsdb_config['proxy_url']);
 
