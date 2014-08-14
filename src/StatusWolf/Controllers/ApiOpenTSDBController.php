@@ -63,6 +63,11 @@ class ApiOpenTSDBController implements ControllerProviderInterface {
         $controllers->get('/suggest_tags', function(Application $sw, Request $request) {
             $metric = $request->get('metric');
             $opentsdb_config = $sw['sw_config.config']['datasource']['OpenTSDB'];
+            if (in_array('api_version', $opentsdb_config)) {
+                $api_version = $opentsdb_config['api_version'];
+            } else {
+                $api_version = 1;
+            }
 
             if (in_array('url', $opentsdb_config) && is_array($opentsdb_config['url'])) {
                 $tsdb_host = $opentsdb_config['url'][array_rand($opentsdb_config['url'])];
@@ -70,7 +75,11 @@ class ApiOpenTSDBController implements ControllerProviderInterface {
                 throw new InvalidConfigurationException('No OpenTSDB host list found in the datasource config');
             }
 
-            $suggestion_url = 'http://' . $tsdb_host . '/q?start=1h-ago&m=sum:rate:' . $metric . '&json';
+            if ($api_version == 2) {
+                $suggestion_url = 'http://' . $tsdb_host . '/api/query?start=1h-ago&m=sum:rate:' . $metric;
+            } else {
+                $suggestion_url = 'http://' . $tsdb_host . '/q?start=1h-ago&m=sum:rate:' . $metric . '&json';
+            }
             $curl = new Curl($sw, $suggestion_url, $opentsdb_config['proxy'], $opentsdb_config['proxy_url']);
 
             try {
