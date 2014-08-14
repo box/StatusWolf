@@ -1,6 +1,7 @@
 {
     "datasource": {
         "OpenTSDB": {
+            "api_version": 1, // Set to 2 if using OpenTSDB version 2.x
             "enabled": true,
             "type": "ajax",
             "url": [

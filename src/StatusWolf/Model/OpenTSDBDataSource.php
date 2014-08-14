@@ -52,12 +52,19 @@ class OpenTSDBDataSource implements TimeSeriesDataInterface {
     private $_search_key;
 
     /**
-     * The URL for the OpenTSDB API query including a printf-format
+     * The URL for the OpenTSDB v1 API query including a printf-format
      * template string.
-     * e.g. http://opentsdb.example.com:4242/q?start=%s&end=%s%s&s
+     * e.g. http://opentsdb.example.com:4242/q?start=%s&end=%s%s&%s
      * @var string
      */
-    private $_opentsdb_base_url;
+    private $_opentsdb_base_url_v1;
+
+    /**
+     * The URL for the OpenTSDB v2 API query including a printf-format
+     * template string.
+     * e.g. http://opentsdb.example.com:4242/api/query?start=%s&end=%s%s
+     */
+    private $_opentsdb_base_url_v2;
 
     /**
      * OpenTSDB API query start time in OPENTSDB_DATE_FORMAT
@@ -188,7 +195,8 @@ class OpenTSDBDataSource implements TimeSeriesDataInterface {
             $this->opentsdb_query_trim = $this->_opentsdb_config['trim'];
         }
 
-        $this->_opentsdb_base_url = 'http://' . $this->_opentsdb_host . '/q?start=%s&end=%s%s&%s';
+        $this->_opentsdb_base_url_v1 = 'http://' . $this->_opentsdb_host . '/q?start=%s&end=%s%s&%s';
+        $this->_opentsdb_base_url_v2 = 'http://' . $this->_opentsdb_host . '/api/query?start=%s&end=%s%s';
 
     }
 
@@ -204,6 +212,11 @@ class OpenTSDBDataSource implements TimeSeriesDataInterface {
     protected function _build_url($query_key, $start_time = false, $end_time = false) {
 
         $this->_search_key = $query_key;
+        if (in_array('api_version', $this->_opentsdb_config)) {
+            $api_version = $this->_opentsdb_config['api_version'];
+        } else {
+            $api_version = 1;
+        }
 
         if ($end_time) {
             $this->end_timestamp = $end_time - $this->opentsdb_query_trim;
@@ -219,7 +232,11 @@ class OpenTSDBDataSource implements TimeSeriesDataInterface {
         }
         $this->_query_start = date(self::OPENTSDB_DATE_FORMAT, $this->start_timestamp);
 
-        $this->opentsdb_query_url = sprintf($this->_opentsdb_base_url, $this->_query_start, $this->_query_end, $this->_search_key, 'ascii');
+        if ($api_version == 2) {
+            $this->opentsdb_query_url_v2 = sprintf($this->_opentsdb_base_url, $this->_query_start, $this->_query_end, $this->_search_key);
+        } else {
+            $this->opentsdb_query_url_v1 = sprintf($this->_opentsdb_base_url, $this->_query_start, $this->_query_end, $this->_search_key, 'ascii');
+        }
 
         return $this->opentsdb_query_url;
 
@@ -238,9 +255,13 @@ class OpenTSDBDataSource implements TimeSeriesDataInterface {
 
         $search_metrics = array();
         $metric_keys = array();
-        $downsample_interval = array();
-        $downsample_type = array();
         $null_as_zero = array();
+
+        if (in_array('api_version', $this->_opentsdb_config)) {
+            $api_version = $this->_opentsdb_config['api_version'];
+        } else {
+            $api_version = 1;
+        }
 
         if (empty($query_bits)) {
             $this->sw['logger']->addDebug("No query data found");
@@ -305,7 +326,7 @@ class OpenTSDBDataSource implements TimeSeriesDataInterface {
         }
 
         $this->sw['logger']->addDebug(sprintf("Query key build: %s", $query_bits['key']));
-        $opentsdb_query_url = $this->_build_url($query_bits['key'], $query_bits['start_time'], $query_bits['end_time']);
+        $opentsdb_query_url = $this->_build_url($api_version, $query_bits['key'], $query_bits['start_time'], $query_bits['end_time']);
 
         $curl = new Curl($this->sw, $opentsdb_query_url, $this->_opentsdb_config['proxy'], $this->_opentsdb_config['proxy_url']);
 
@@ -326,7 +347,11 @@ class OpenTSDBDataSource implements TimeSeriesDataInterface {
         $data_pull_end = time();
         $pull_time = $data_pull_end - $data_pull_start;
         $this->sw['logger']->addInfo(sprintf("Retrieved metrics from OpenTSDB, total execution time: %d seconds", $pull_time));
-        $opentsdb_data = explode("\n", $raw_time_series_data);
+        if ($api_version == 2) {
+            $opentsdb_data = json_decode($raw_time_series_data);
+        } else {
+            $opentsdb_data = explode("\n", $raw_time_series_data);
+        }
 
         $graph_data = array();
 
@@ -340,33 +365,59 @@ class OpenTSDBDataSource implements TimeSeriesDataInterface {
             $metric_tag_key = '';
         }
 
-        foreach ($opentsdb_data as $line) {
-            if (strlen($line) === 0) {
-                continue;
-            }
-            $data_fields = explode(' ', $line);
-            $metric_name = array_shift($data_fields);
-            $timestamp = array_shift($data_fields);
-            $value = array_shift($data_fields);
-            if ($query_bits['history_graph'] === "no") {
-                if (!empty($data_fields)) {
-                    $metric_tag_key = implode(' ', $data_fields);
-                } else {
+        if ($api_version == 2) {
+            foreach ($opentsdb_data as $response) {
+                $metric_name = $response['metric'];
+                if ($query_bits['history_graph'] === "no") {
                     $metric_tag_key = '';
+                    if (!empty($response['metric']['tags'])) {
+                        $key_string = '';
+                        foreach ($response['metric']['tags'] as $tag => $tag_value) {
+                            $key_string .= $tag . '=' . $tag_value . ' ';
+                        }
+                        $metric_tag_key = trim($key_string);
+                    }
                 }
-            }
-
-            $series_key = $metric_name . ' ' . $metric_tag_key;
-
-            if (($timestamp < $this->start_timestamp) || ($timestamp > $this->end_timestamp)) {
-                continue;
-            }
-
-            if (!isset($graph_data[$series_key])) {
+                $series_key = $metric_name . ' ' . $metric_tag_key;
                 $this->sw['logger']->addDebug(sprintf("Found new series: %s", $series_key));
                 $graph_data[$series_key] = array();
+                foreach ($response['metric']['dps'] as $timestamp => $value) {
+                    if (($timestamp < $this->start_timestamp) || ($timestamp > $this->end_timestamp)) {
+                        continue;
+                    }
+                    $graph_data[$series_key][] = array('timestamp' => $timestamp, 'value' => $value);
+                }
             }
-            $graph_data[$series_key][] = array('timestamp' => $timestamp, 'value' => $value);
+        } else {
+            foreach ($opentsdb_data as $line) {
+                if (strlen($line) === 0) {
+                    continue;
+                }
+                $data_fields = explode(' ', $line);
+                $metric_name = array_shift($data_fields);
+                $timestamp = array_shift($data_fields);
+                $value = array_shift($data_fields);
+                if ($query_bits['history_graph'] === "no") {
+                    if (!empty($data_fields)) {
+                        $metric_tag_key = implode(' ', $data_fields);
+                    }
+                    else {
+                        $metric_tag_key = '';
+                    }
+                }
+
+                $series_key = $metric_name . ' ' . $metric_tag_key;
+
+                if (($timestamp < $this->start_timestamp) || ($timestamp > $this->end_timestamp)) {
+                    continue;
+                }
+
+                if (!isset($graph_data[$series_key])) {
+                    $this->sw['logger']->addDebug(sprintf("Found new series: %s", $series_key));
+                    $graph_data[$series_key] = array();
+                }
+                $graph_data[$series_key][] = array('timestamp' => $timestamp, 'value' => $value);
+            }
         }
 
         $graph_legend = $this->_normalize_legend(array_keys($graph_data), $search_metrics);
