@@ -83,7 +83,7 @@ class ApiOpenTSDBController implements ControllerProviderInterface {
             $curl = new Curl($sw, $suggestion_url, $opentsdb_config['proxy'], $opentsdb_config['proxy_url']);
 
             try {
-                $response_data = json_decode($curl->request());
+                $response_data = json_decode($curl->request(), true);
             } catch(ApiNetworkFetchException $e) {
                 $sw['logger']->addError(sprintf("Failed to retrieve tag suggestions for %s", $metric));
                 $sw['logger']->addError($e->getMessage());
@@ -93,9 +93,15 @@ class ApiOpenTSDBController implements ControllerProviderInterface {
             $suggestion = array();
             $suggestion['metric'] = $metric;
             $suggestion['suggestions'] = array();
-            if (is_object($response_data)) {
-                if (property_exists($response_data, 'etags')) {
-                    $suggestion['suggestions'] = $response_data->etags[0];
+            if ($api_version == 2) {
+                foreach ($response_data[0]['tags'] as $tag => $value) {
+                    $suggestion['suggestions'][] = $tag;
+                }
+            } else {
+                if (is_object($response_data)) {
+                    if (property_exists($response_data, 'etags')) {
+                        $suggestion['suggestions'] = $response_data->etags[0];
+                    }
                 }
             }
 
