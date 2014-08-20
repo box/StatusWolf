@@ -150,7 +150,7 @@ swcolors.Sequential = {
 
 swcolors.WOW = [];
 
-swcolors.WOW[1] = swcolors.Blues[1].concat(swcolors.Reds[1], swcolors.Yellows[5][4]);
+swcolors.WOW[1] = swcolors.Blues[1].concat(swcolors.Yellows[5][2], swcolors.Reds[1]);
 
 swcolors.Wheel = [];
 

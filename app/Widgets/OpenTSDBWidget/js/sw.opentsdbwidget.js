@@ -2157,7 +2157,11 @@
                 });
             }
 
-            var parsed_data = graph_data;
+            if (widget.query_data.history_graph === "wow") {
+                var parsed_data = graph_data.reverse();
+            } else {
+                var parsed_data = graph_data;
+            }
 
             parse_object.resolve(parsed_data);
 
