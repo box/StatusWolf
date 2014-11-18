@@ -570,6 +570,7 @@
                         switch (data.query_info) {
                             case "Title":
                                 $('#dashboard-confirmation-info').empty().append('<span>A dashboard with that name already exists, overwrite?</span>');
+                                $('#save-new-dashboard-button').addClass('hidden');
                                 query_data.dashboard_config.id = data.query_data;
                                 $.magnificPopup.open({
                                     items: {
@@ -583,6 +584,7 @@
                                 return;
                             case "ID":
                                 $('#dashboard-confirmation-info').empty().append('<span>A dashboard with this ID already exists, overwrite?</span>');
+                                $('#save-new-dashboard-button').removeClass('hidden');
                                 $.magnificPopup.open({
                                     items: {
                                         src: '#confirm-dashboard-save-popup',
@@ -637,6 +639,9 @@
 
         $('#confirm-dashboard-save-popup').on('click', '#cancel-confirm-dashboard-save-button', function() {
             $.magnificPopup.close();
+        }).on('click', '#save-new-dashboard-button', function() {
+            query_data.dashboard_config.id = md5('dashboard' + document._session.dashboard_username + new Date.now().getTime());
+            save_dashboard_handler(event, true, query_data.dashboard_config.id);
         }).on('click', '#confirm-dashboard-save-button', function() {
             save_dashboard_handler(event, true, query_data.dashboard_config.id);
         });
