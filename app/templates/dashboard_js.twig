@@ -641,7 +641,7 @@
             $.magnificPopup.close();
         }).on('click', '#save-new-dashboard-button', function() {
             query_data.dashboard_config.id = md5('dashboard' + document._session.dashboard_username + new Date.now().getTime());
-            save_dashboard_handler(event, true, query_data.dashboard_config.id);
+            save_dashboard_handler(event, 0, query_data.dashboard_config.id);
         }).on('click', '#confirm-dashboard-save-button', function() {
             save_dashboard_handler(event, true, query_data.dashboard_config.id);
         });

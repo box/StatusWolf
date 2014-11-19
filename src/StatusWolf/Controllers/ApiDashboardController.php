@@ -97,18 +97,28 @@ class ApiDashboardController implements ControllerProviderInterface {
             }
 
             try {
-                $sw['db']->executeUpdate("REPLACE INTO saved_dashboards VALUES(?, ?, ?, ?, ?, ?)",
-                    array(
-                        $query_data['id'],
-                        $query_data['title'],
-                        $query_data['columns'],
-                        $query_data['user_id'],
-                        $query_data['shared'],
-                        $widgets_string
-                    )
-                );
                 if ($new_dashboard) {
+                    $sw['db']->executeUpdate("INSERT INTO saved_dashboards VALUES(?, ?, ?, ?, ?, ?)",
+                        array(
+                            $query_data['id'],
+                            $query_data['title'],
+                            $query_data['columns'],
+                            $query_data['user_id'],
+                            $query_data['shared'],
+                            $widgets_string
+                        )
+                    );
                     $sw['db']->executeUpdate("INSERT INTO dashboard_rank VALUES(?, 0)", array($query_data['id']));
+                } else {
+                    $sql = "UPDATE saved_dashboards SET title = ?, columns = ?, user_id = ?, shared = ?, widgets = ? WHERE id = ?";
+                    $update_dashboard_query = $sw['db']->prepare($sql);
+                    $update_dashboard_query->bindValue(1, $query_data['title']);
+                    $update_dashboard_query->bindValue(2, $query_data['columns']);
+                    $update_dashboard_query->bindValue(3, $query_data['user_id']);
+                    $update_dashboard_query->bindValue(4, $query_data['shared']);
+                    $update_dashboard_query->bindValue(5, $widgets_string);
+                    $update_dashboard_query->bindValue(6, $query_data['id']);
+                    $update_dashboard_query->execute();
                 }
                 return $sw->json(array('query_result' => 'Success'));
             } catch(\PDOException $e) {
