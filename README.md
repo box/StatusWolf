@@ -1,4 +1,4 @@
-[![Project Status](http://opensource.box.com/badges/active.svg)](http://opensource.box.com/badges)
+[![Project Status](http://opensource.box.com/badges/stable.svg)](http://opensource.box.com/badges)
 
 StatusWolf
 ==========
