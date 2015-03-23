@@ -139,6 +139,7 @@
                     '<li data-menu-action="set_all_tags_form"><span>Set tags for all OpenTSDB Widgets</span></li>' +
                     '<li data-menu-action="add_tags_to_all_form"><span>Add tag(s) to all OpenTSDB Widgets</span></li></ul></li>' +
                     '<li data-menu-action="edit_params"><span>Edit Parameters</span></li>' +
+                    '<li data-menu-action="download_img"><span>Download as image</span></li>' +
                     '<li data-menu-action="show_graph_data"><span>Show graph data</span></li>' +
                     '<li class="clone-widget" data-parent="' + that.element.attr('id') + '"><span>Clone Widget</span></li>' +
                     '<li data-menu-action="save_search" class="nodisplay"><span>Save this search</span></li>' +
@@ -3147,6 +3148,66 @@
             $('#raw-data-table').dataTable().fnDestroy();
             $('#raw-data').remove();
 
+        },
+        download_img: function() {
+		
+			// get current graph and clone it into new div for modification
+            var svg = $(this.sw_opentsdbwidget_containerid + " .graphdiv svg");
+            var newsvg = document.createElement('div');
+            newsvg.setAttribute('id', 'newsvg');
+            newsvg.width = svg.attr("width");
+            newsvg.height = svg.attr("height");
+            document.body.appendChild(newsvg);
+            $( this.sw_opentsdbwidget_containerid + " .graphdiv svg" ).clone().appendTo( "#newsvg" );
+
+			// get new svg with d3 and force some colors for grid and values
+            var svg = d3.select("#newsvg svg")
+                .attr("version", 1.1)
+                .attr("xmlns", "http://www.w3.org/2000/svg");
+            svg.selectAll("line").style("stroke", "rgba(0, 0, 0, 0.1)");
+            svg.selectAll("text").attr("dy", "10px").style("font-size", "10px");
+            svg.selectAll("path").style("fill", "none");
+
+			// add legend with colors (1 by line)
+            var increasingHeight = 0;
+            svg.selectAll("path.line").each( function(d, i) {
+                                var values = d3.select(this);
+                                svg.append("text")
+                                        .text(values.attr('data-name'))
+                                        .style("font-size", "12px")
+                                        .style("font-weight", "normal")
+                                        .style("fill", values.style("stroke"))
+                                        .attr("y", (parseInt(svg.attr("height")) + ((2+i) * 15)))
+                                        .attr("x", 50);
+            });
+			
+			// increase height size of the svg for legend
+            svg.attr("height", parseInt(svg.attr("height")) + (2+i) * 15);
+			
+			// create canvas and import svg as an image
+            var can = document.createElement("canvas");
+            can.width = svg.attr("width");
+            can.height = parseInt(svg.attr("height"));
+            document.body.appendChild(can);
+            var canvas = document.querySelector("canvas"),
+                context = canvas.getContext("2d");
+            var imgsrc = 'data:image/svg+xml;base64,'+ btoa(svg.node().parentNode.innerHTML);
+            var image = new Image;
+            image.src = imgsrc;
+			
+			// force image download
+            image.onload = function() {
+                context.drawImage(image, 0, 0);
+                var canvasdata = canvas.toDataURL("image/png");
+                var a = document.createElement("a");
+                a.download = "graph.png";
+                a.href = canvasdata;
+                document.body.appendChild(a);
+                a.click();
+            };
+
+            document.body.removeChild(can);
+            document.body.removeChild(newsvg);
         }
     })
 }(jQuery));
