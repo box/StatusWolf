@@ -9,7 +9,8 @@ class config(object):
         'EMAIL_DOMAIN': '',
         'CSRF_ENABLED': True,
         'API_ACCESS_DOMAINS': False,
-        'TIMEZONE': 'US/Pacific'
+        'TIMEZONE': 'US/Pacific',
+        'PLUGIN_DIR': 'plugins',
     }
 
     auth = {

@@ -1,6 +1,8 @@
 import logging
 from StatusWolf.config import config
 
+VERSION = '1.0alpha'
+
 # Init logging for the app
 logger = logging.getLogger('statuswolf')
 default_log_handler = logging.FileHandler(config.logging['APP_LOG_FILE'])
