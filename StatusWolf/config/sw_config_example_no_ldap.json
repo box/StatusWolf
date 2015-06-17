@@ -1,0 +1,33 @@
+// Config file must be valid JSON,
+// update the settings as necessary and
+// remove all comment lines.
+{
+    "sw_app": {
+        "debug": false,
+        "installed": true
+    },
+    "db_options": {
+        "driver": "pdo_mysql",
+        "host": "db_host",
+        "dbname": "statuswolf",
+        "user": "db_user",
+        "password": "db_password"
+    },
+    "auth_config": {
+        "with_csrf": true,
+        "users": {
+            "auto_create": false,
+            "default_auth_type": "mysql",
+            "default_role": "ROLE_USER"
+        }
+    },
+    "logging": {
+        "level": "INFO"
+    },
+    "graphing": {
+// Uncomment one of the lines below for your D3 location,
+// remove the other one (and this comment)
+//        "d3_location": "local"
+//        "d3_location": "http://d3js.org/d3.v3.min.js"
+    }
+}
