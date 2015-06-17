@@ -2,9 +2,10 @@ from flask import Flask, render_template, url_for, request, flash, redirect, g, 
 import flask.ext.login as flogin
 import logging
 
-from StatusWolf import default_log_handler
+from StatusWolf import default_log_handler, plugins
 from StatusWolf.config import config
 import StatusWolf.auth as auth
+from StatusWolf.db import swdb
 import StatusWolf.forms as forms
 
 app = Flask(__name__)

@@ -1,23 +1,35 @@
 import json
 import os
 
+from StatusWolf import constants
+
 class config(object):
 
     app = {
         'SECRET_KEY': 'Art3mis',
+        'API_ACCESS_DOMAINS': False,
         'APP_BASE_DIR': '',
         'CLUSTERED': False,
         'CLUSTER_NAME': '',
-        'JOB_MASTER': True,
-        'EMAIL_DOMAIN': '',
         'CSRF_ENABLED': True,
-        'API_ACCESS_DOMAINS': False,
-        'TIMEZONE': 'US/Pacific',
+        'EMAIL_DOMAIN': '',
+        'JOB_MASTER': True,
         'PLUGIN_DIR': 'plugins',
+        'TIMEZONE': 'US/Pacific',
     }
 
     auth = {
         'AUTH_LIB': 'ldap',
+    }
+
+    database = {
+        'TYPE': 'mysql',
+        'DRIVER': None,
+        'DBHOST': '',
+        'DBPORT': '',
+        'DBNAME': 'statuswolf',
+        'DBUSER': '',
+        'DBPASS': '',
     }
 
     datasource = {}
@@ -30,9 +42,9 @@ class config(object):
 
 
 loaded_config = {}
-for config_file in os.listdir('config'):
+for config_file in os.listdir(os.path.join(constants.APP_BASE, 'config')):
     if '.json' in config_file and 'example' not in config_file:
-        cf = open(os.path.join('config', config_file), 'r')
+        cf = open(os.path.join(constants.APP_BASE, 'config', config_file), 'r')
         loaded_config.update(json.load(cf))
 
 for conf_attr in loaded_config:
