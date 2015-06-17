@@ -36,6 +36,19 @@ class Auth(Base):
         )
 
 
+class Rank(Base):
+    __tablename__ = 'dasbhoard_rank'
+
+    id = Column(String(length=32), primary_key=True)
+    count = Column(Integer(length=15), default=0)
+
+    def __repr__(self):
+        return "<Rank(id='{0}', count='{1}')>".format(
+            self.id,
+            self.count
+        )
+
+
 class SavedDashboards(Base):
     __tablename__ = 'saved_dashboards'
 
