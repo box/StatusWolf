@@ -1,0 +1,95 @@
+/*
+ *=======
+ * Mixins
+ *=======
+ */
+
+@mixin sw-radius {
+    -webkit-border-radius: 0 2px 2px 2px;
+    -moz-border-radius: 0 2px 2px 2px;
+    -ms-border-radius: 0 2px 2px 2px;
+    -o-border-radius: 0 2px 2px 2px;
+    border-radius: 0 2px 2px 2px;
+}
+
+@mixin sw-radius-reverse {
+    -webkit-border-radius: 2px 0 2px 2px;
+    -moz-border-radius: 2px 0 2px 2px;
+    -ms-border-radius: 2px 0 2px 2px;
+    -o-border-radius: 2px 0 2px 2px;
+    border-radius: 2px 0 2px 2px;
+}
+
+@mixin sw-radius-top-left {
+    -webkit-border-top-left-radius: 2px;
+    -moz-border-radius-topleft: 2px;
+    border-top-left-radius: 2px;
+}
+
+@mixin sw-radius-top-right {
+    -webkit-border-top-right-radius: 2px;
+    -moz-border-radius-topright: 2px;
+    border-top-right-radius: 2px;
+}
+
+@mixin sw-radius-bottom-left {
+    -webkit-border-bottom-left-radius: 2px;
+    -moz-border-radius-bottomleft: 2px;
+    border-bottom-left-radius: 2px;
+}
+
+@mixin sw-radius-bottom-right {
+    -webkit-border-bottom-right-radius: 2px;
+    -moz-border-radius-bottomright: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+@mixin sw-button-radius {
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    -ms-border-radius: 3px;
+    -o-border-radius: 3px;
+    border-radius: 3px;
+}
+
+@mixin sw-button-radius-left {
+    -webkit-border-radius: 3px 0 0 3px;
+    -moz-border-radius: 3px 0 0 3px;
+    -ms-border-radius: 3px 0 0 3px;
+    -o-border-radius: 3px 0 0 3px;
+    border-radius: 3px 0 0 3px;
+}
+
+@mixin sw-button-radius-right {
+    -webkit-border-radius: 0 3px 3px 0;
+    -moz-border-radius: 0 3px 3px 0;
+    -ms-border-radius: 0 3px 3px 0;
+    -o-border-radius: 0 3px 3px 0;
+    border-radius: 0 3px 3px 0;
+}
+
+@mixin sw-button-radius-bottom {
+    -webkit-border-radius: 0 0 3px 3px;
+    -moz-border-radius: 0 0 3px 3px;
+    -ms-border-radius: 0 0 3px 3px;
+    -o-border-radius: 0 0 3px 3px;
+    border-radius: 0 0 3px 3px;
+}
+
+@mixin sw-shadow {
+    -webkit-box-shadow: 0 0 2px $dropdown_shadow;
+    -moz-box-shadow: 0 0 2px $dropdown_shadow;
+    box-shadow: 0 0 2px $dropdown_shadow;
+}
+
+@mixin sw-no-shadow {
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+}
+
+@mixin sw-base-transitions {
+    -webkit-transition: all 0.25s linear;
+    -moz-transition: all 0.25s linear;
+    transition: all 0.25s linear;
+}

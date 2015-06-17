@@ -1,0 +1,94 @@
+/*
+ *=======
+ * Mixins
+ *=======
+ */
+/*
+ *
+ * Specific styles for the login page
+ *
+ */
+/* line 10, ../sass/login.scss */
+.container {
+  overflow-y: hidden;
+}
+
+/* line 14, ../sass/login.scss */
+.container:after {
+  content: '';
+  background-image: url(../img/Status_Wolf2.png);
+  background-size: 750px;
+  background-repeat: no-repeat;
+  height: 750px;
+  width: 750px;
+  display: block;
+  position: absolute;
+  left: 0;
+  bottom: -300px;
+  opacity: 0.1;
+}
+
+/* line 28, ../sass/login.scss */
+.login-container {
+  height: 175px;
+  width: 300px;
+  position: relative;
+  margin: 10% auto;
+  background-color: gray;
+  -webkit-border-radius: 0 2px 2px 2px;
+  -moz-border-radius: 0 2px 2px 2px;
+  -ms-border-radius: 0 2px 2px 2px;
+  -o-border-radius: 0 2px 2px 2px;
+  border-radius: 0 2px 2px 2px;
+  -webkit-box-shadow: 0 0 2px black;
+  -moz-box-shadow: 0 0 2px black;
+  box-shadow: 0 0 2px black;
+}
+/* line 36, ../sass/login.scss */
+.login-container #sw-login-form {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+/* line 43, ../sass/login.scss */
+.login-box {
+  position: relative;
+  margin-left: 25px;
+  padding-top: 15px;
+}
+
+/* line 49, ../sass/login.scss */
+.login-head {
+  margin-bottom: 20px;
+}
+/* line 51, ../sass/login.scss */
+.login-head h4 {
+  color: #f0f0f0;
+}
+
+/* line 56, ../sass/login.scss */
+.login-main {
+  margin-bottom: 20px;
+}
+
+/* line 60, ../sass/login.scss */
+.login-input {
+  margin: 10px 0 5px 0;
+}
+/* line 62, ../sass/login.scss */
+.login-input input {
+  display: inline-block;
+}
+
+/* line 67, ../sass/login.scss */
+.login-form-buttons {
+  position: relative;
+  width: 100%;
+}
+/* line 70, ../sass/login.scss */
+.login-form-buttons .sw-button {
+  position: absolute;
+  right: 0;
+  margin-right: 30px;
+}

@@ -1,0 +1,99 @@
+@font-face {
+    font-family: 'ElegantIcons';
+    src: url('../fonts/ElegantIcons.eot');
+    src:url('../fonts/ElegantIcons.eot?#iefix') format('embedded-opentype'),
+    url('../fonts/ElegantIcons.woff') format('woff'),
+    url('./fonts/ElegantIcons.ttf') format('truetype'),
+    url('./fonts/ElegantIcons.svg#ElegantIcons') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.elegant-icons {
+    display: inline-block;
+    font-family: 'ElegantIcons';
+}
+
+.arrow-back:before {
+    content: "\4a";
+}
+
+.arrow-carrot-down-alt2:before {
+    content: "\3b";
+}
+
+.arrow-carrot-left-alt2:before {
+    content: "\3c";
+}
+
+.arrow-carrot-right-alt2:before {
+    content: "\3d";
+}
+
+.arrow-carrot-up-alt2:before {
+    content: "\3a";
+}
+
+.arrow-triangle-down:before {
+    content: "\43";
+}
+
+.arrow-triangle-left:before {
+    content: "\44";
+}
+
+.arrow-triangle-right:before {
+    content: "\45";
+}
+
+.arrow-triangle-up:before {
+    content: "\42";
+}
+
+.icon-calendar:before {
+    content: "\e023";
+}
+
+.icon-check:before {
+    content: "\4e";
+}
+
+.icon-check-alt:before {
+    content: "\e052";
+}
+
+.icon-close:before {
+    content: "\4d";
+}
+
+.icon-close-alt:before {
+    content: "\e051";
+}
+
+.icon-cog:before {
+    content: "\e037";
+}
+
+.icon-error-triangle:before {
+    content: "\e063";
+}
+
+.icon-loading:before {
+    content: "\e02d";
+}
+
+.icon-minus-alt2:before {
+    content: "\4f";
+}
+
+.icon-plus:before {
+    content: "\4c";
+}
+
+.icon-plus-alt2:before {
+    content: "\50";
+}
+
+.icon-profile:before {
+    content: "\e08a";
+}

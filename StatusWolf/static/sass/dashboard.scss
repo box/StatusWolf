@@ -1,0 +1,93 @@
+@import 'colors_dark';
+
+.dashboard-columns {
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    text-align: center;
+    font-weight: bold;
+}
+
+#dashboard-list-popup {
+    width: 1100px;
+    height: 600px;
+    table {
+        table-layout: fixed;
+        margin-right: 20px;
+        border-spacing: 0;
+        td {
+            padding: 3px 5px;
+        }
+        th {
+            font-size: 1em;
+            padding: 5px;
+        }
+        th:first-child {
+            width: 55px;
+            min-width: 55px;
+            max-width: 55px;
+        }
+        tr.dashboard-item:hover {
+            background-color: $popup_mfp_bg;
+            cursor: pointer;
+        }
+    }
+    .saved-dashboard-box {
+        display: inline-block;
+        vertical-align: top;
+        height: 100%;
+    }
+    .saved-dashboard-list {
+        line-height: 2em;
+        width: 525px;
+        height: 92%;
+        overflow: auto;
+        vertical-align: top;
+        white-space: nowrap;
+    }
+    #shared-dashboards-list-table {
+        td:nth-child(2) {
+            width: 320px;
+            min-width: 320px;
+            max-width: 320px;
+            overflow: hidden;
+        }
+    }
+}
+
+#failure-popup {
+    max-width: 500px;
+    .failure-error-message {
+        font-size: 0.8em;
+        font-weight: normal;
+    }
+}
+
+#load-dashboard-menu-options {
+    min-width: 500px;
+}
+
+#save-dashboard-popup {
+    h5 {
+        display: inline-block;
+    }
+    .save-dashboard-form-buttons {
+        margin-top: 15px;
+    }
+    .popup-form-data {
+        margin-left: 0;
+        display: inline-block;
+    }
+    #shared-dashboard-button {
+        display: inline-block;
+        margin-left: 10px;
+    }
+}
+
+#dashboard-title {
+    display: inline-block;
+    font-size: 0.8em;
+    line-height: 2em;
+    color: $font_bright;
+    margin-left: 15px;
+}

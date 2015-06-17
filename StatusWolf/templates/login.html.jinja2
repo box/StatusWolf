@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+
+    <title>StatusWolf</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Troyer <disco@box.com">
+
+    <link rel="stylesheet" type="text/css" href="{{ stylesheet_url }}">
+    <link rel="stylesheet" type="text/css" href="{{ login_css_url }}">
+    <link rel="icon" href="/static/img/favicon-96.png">
+
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="container-spacer"></div>
+        <div class="login-container" id="login-container">
+            <div class="login-box" id="login-box">
+                <form id="sw-login-form" method="post" action="/login{{ login_next }}">
+                    {{ form.hidden_tag() }}
+                    {% if auth_error_message %}
+                    <div id="login-error" class="error-flash">Error: {{ auth_error_message }}</div>
+                    {% endif %}
+                    <div class="login-head" id="login-head">
+                        <h4>StatusWolf Login</h4>
+                    </div>
+                    <div class="login-main" id="login-main">
+                        <div class="login-input">
+                            {{ form.username(placeholder="Username") }}
+                        </div>
+                        <div class="login-input">
+                            {{ form.password(placeholder="Password") }}
+                        </div>
+                    </div>
+                    <div class="login-form-buttons">
+                        <button class="sw-button" id="sw-login-cancel">Cancel</button>
+                        <button class="sw-button" id="sw-login-submit">Login</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="{{ jquery }}"></script>
+    <script type="text/javascript" src="{{ bootstrap }}"></script>
+    <script type="text/javascript" src="{{ magnific }}"></script>
+
+    <script type="text/javascript">
+        {{ main_js|safe }}
+    </script>
+
+</body>
+
+</html>

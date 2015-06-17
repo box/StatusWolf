@@ -1,0 +1,75 @@
+@import 'mixins';
+@import 'colors_dark';
+
+/*
+ *
+ * Specific styles for the login page
+ *
+ */
+
+.container {
+    overflow-y: hidden;
+}
+
+.container:after {
+    content: '';
+    background-image: url(../img/Status_Wolf2.png);
+    background-size: 750px;
+    background-repeat: no-repeat;
+    height: 750px;
+    width: 750px;
+    display: block;
+    position: absolute;
+    left: 0;
+    bottom: -300px;
+    opacity: 0.1;
+}
+
+.login-container {
+    height: 175px;
+    width: 300px;
+    position: relative;
+    margin: 10% auto;
+    background-color: $dropdown_bg;
+    @include sw-radius;
+    @include sw-shadow;
+    #sw-login-form {
+        height: 100%;
+        width: 100%;
+        position: relative;
+    }
+}
+
+.login-box {
+    position: relative;
+    margin-left: 25px;
+    padding-top: 15px;
+}
+
+.login-head {
+    margin-bottom: 20px;
+    h4 {
+        color: $font_bright;
+    }
+}
+
+.login-main {
+    margin-bottom: 20px;
+}
+
+.login-input {
+    margin: 10px 0 5px 0;
+    input {
+        display: inline-block;
+    }
+}
+
+.login-form-buttons {
+    position: relative;
+    width: 100%;
+    .sw-button {
+        position: absolute;
+        right: 0;
+        margin-right: 30px;
+    }
+}

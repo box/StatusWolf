@@ -1,0 +1,45 @@
+$body_bg: rgb(48, 48, 48);
+$bodyshade_bg: rgba(205, 205, 205, 0.4);
+
+$input_bg: rgb(205, 205, 205);
+$input_bg_focus: rgb(234, 234, 234);
+$input_border: rgba(205, 205, 205, 0.25);
+$input_border_focus: rgba(64, 64, 64, 0.75);
+
+$button_bg: rgb(64, 64, 64);
+$button_bg_hover: rgb(80, 80, 80);
+$button_bg_pushed: rgb(32, 32, 32);
+$button_border: rgba(234, 234, 234, 0.1);
+$button_border_hover: rgba(24, 24, 24, 0.1);
+$button_border_pushed: rgba(234, 234, 234, 0.25);
+
+$font_default: rgba(234, 234, 234, 0.75);
+$font_bright: rgb(240, 240, 240);
+$font_dark: rgba(24, 24, 24, 0.75);
+$font_dim: rgba(205, 205, 205, 0.25);
+$font_dim_hover: rgb(205, 205, 205);
+$link_default: rgba(205, 205, 205, 0.75);
+$head_default: rgba(205, 205, 205, 0.75);
+
+$dropdown_bg: rgb(128, 128, 128);
+$dropdown_text: rgb(205, 205, 205);
+$dropdown_shadow: rgb(0, 0, 0);
+$dropdown_highlight: rgb(64, 64, 64);
+$dropdown_pointer_border: rgba(0, 0, 0, 0.5);
+
+$menubar_bg: rgb(24, 24, 24);
+$menubar_border: rgba(234, 234, 234, 0.25);
+$menubar_button_border: $button_border;
+$menubar_button_hover: $button_bg;
+$menubar_button_shadow: rgba(5, 5, 5, 0.25);
+$menubar_button_pushed: rgba(80, 80, 80, 0.45);
+
+$popup_bg: rgba(24, 24, 24, 0.9);
+$popup_footer_bg: rgb(32, 32, 32);
+$popup_mfp_bg: rgba(234, 234, 234, 0.25);
+
+$widget_bg: rgb(24, 24, 24);
+$widget_title_bg: rgb(32, 32, 32);
+
+$tab_bg: rgb(48, 48, 48);
+$tab_inactive_bg: rgba(48, 48, 48, 0.5);
