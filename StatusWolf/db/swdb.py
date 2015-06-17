@@ -2,6 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import Boolean, Column, Integer, String, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.exc import MultipleResultsFound
 
 from StatusWolf.config import config
 
@@ -20,6 +21,15 @@ DBURL = DBURL + '://{0}:{1}@{2}/{3}'.format(
 engine = create_engine(DBURL, echo=True)
 Session = sessionmaker(bind=engine)
 Base = declarative_base()
+
+
+class SWDatabaseError(Exception):
+    """
+    Exception class for errors with the database
+
+    """
+    pass
+
 
 class Auth(Base):
     __tablename__ = 'auth'
@@ -115,3 +125,21 @@ class Users(Base):
             self.roles,
             self.auth_source,
         )
+
+
+def check_sw_version(version):
+    """
+    Simple check to validate the app version in the database vs. the
+    version the application has
+
+    """
+    session = Session()
+    query = session.query(Version)
+    try:
+        db_version = query.one()
+    except MultipleResultsFound as e:
+        raise SWDatabaseError(e)
+    if db_version != version:
+        return False
+
+    return True
