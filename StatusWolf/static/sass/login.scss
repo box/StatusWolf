@@ -9,6 +9,7 @@
 
 .container {
     overflow-y: hidden;
+    z-index: 0;
 }
 
 .container:after {
@@ -44,6 +45,7 @@
     position: relative;
     margin-left: 25px;
     padding-top: 15px;
+    z-index: 1000;
 }
 
 .login-head {

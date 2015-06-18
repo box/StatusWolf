@@ -11,9 +11,10 @@
 /* line 10, ../sass/login.scss */
 .container {
   overflow-y: hidden;
+  z-index: 0;
 }
 
-/* line 14, ../sass/login.scss */
+/* line 15, ../sass/login.scss */
 .container:after {
   content: '';
   background-image: url(../img/Status_Wolf2.png);
@@ -28,7 +29,7 @@
   opacity: 0.1;
 }
 
-/* line 28, ../sass/login.scss */
+/* line 29, ../sass/login.scss */
 .login-container {
   height: 175px;
   width: 300px;
@@ -44,51 +45,52 @@
   -moz-box-shadow: 0 0 2px black;
   box-shadow: 0 0 2px black;
 }
-/* line 36, ../sass/login.scss */
+/* line 37, ../sass/login.scss */
 .login-container #sw-login-form {
   height: 100%;
   width: 100%;
   position: relative;
 }
 
-/* line 43, ../sass/login.scss */
+/* line 44, ../sass/login.scss */
 .login-box {
   position: relative;
   margin-left: 25px;
   padding-top: 15px;
+  z-index: 1000;
 }
 
-/* line 49, ../sass/login.scss */
+/* line 51, ../sass/login.scss */
 .login-head {
   margin-bottom: 20px;
 }
-/* line 51, ../sass/login.scss */
+/* line 53, ../sass/login.scss */
 .login-head h4 {
   color: #f0f0f0;
 }
 
-/* line 56, ../sass/login.scss */
+/* line 58, ../sass/login.scss */
 .login-main {
   margin-bottom: 20px;
 }
 
-/* line 60, ../sass/login.scss */
+/* line 62, ../sass/login.scss */
 .login-input {
   margin: 10px 0 5px 0;
 }
-/* line 62, ../sass/login.scss */
+/* line 64, ../sass/login.scss */
 .login-input input {
   display: inline-block;
   width: 90%;
 }
 
-/* line 68, ../sass/login.scss */
+/* line 70, ../sass/login.scss */
 .login-form-buttons {
   position: relative;
   width: 90%;
   text-align: right;
 }
-/* line 72, ../sass/login.scss */
+/* line 74, ../sass/login.scss */
 .login-form-buttons .sw-button {
   position: relative;
   margin: 0;
