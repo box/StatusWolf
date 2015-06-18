@@ -79,16 +79,18 @@
 /* line 62, ../sass/login.scss */
 .login-input input {
   display: inline-block;
+  width: 90%;
 }
 
-/* line 67, ../sass/login.scss */
+/* line 68, ../sass/login.scss */
 .login-form-buttons {
   position: relative;
-  width: 100%;
+  width: 90%;
+  text-align: right;
 }
-/* line 70, ../sass/login.scss */
+/* line 72, ../sass/login.scss */
 .login-form-buttons .sw-button {
-  position: absolute;
-  right: 0;
-  margin-right: 30px;
+  position: relative;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.75);
 }

@@ -1,57 +1,40 @@
-@charset "utf-8";
 /*
  * =======================
  * Animations
  * =======================
  */
 @-webkit-keyframes fadeOut {
-  /* line 7, ../sass/_animations.scss */
   from {
     opacity: 1;
   }
-
-  /* line 8, ../sass/_animations.scss */
   to {
     opacity: 0;
   }
 }
-
 @keyframes fadeOut {
-  /* line 12, ../sass/_animations.scss */
   from {
     opacity: 1;
   }
-
-  /* line 13, ../sass/_animations.scss */
   to {
     opacity: 0;
   }
 }
-
 @-webkit-keyframes fadeIn {
-  /* line 17, ../sass/_animations.scss */
   from {
     opacity: 0;
   }
-
-  /* line 18, ../sass/_animations.scss */
   to {
     opacity: 1;
   }
 }
-
 @keyframes fadeIn {
-  /* line 22, ../sass/_animations.scss */
   from {
     opacity: 0;
   }
-
-  /* line 23, ../sass/_animations.scss */
   to {
     opacity: 1;
   }
 }
-
 /*
  *=======
  * Mixins
@@ -95,7 +78,7 @@ h1, h2, h3, h4, h5, h6 {
   margin: 5px 0;
 }
 
-/* line 38, ../sass/_base.scss */
+/* line 37, ../sass/_base.scss */
 input[type="text"],
 input[type="password"] {
   line-height: 1em;
@@ -116,7 +99,7 @@ input[type="password"] {
   box-shadow: none;
 }
 
-/* line 52, ../sass/_base.scss */
+/* line 51, ../sass/_base.scss */
 input[type="text"]:focus,
 input[type="password"]:focus {
   background-color: #eaeaea;
@@ -663,65 +646,45 @@ ul.sub-menu-item li.dropdown div.menu-arrow-wrapper span.sub-menu-arrow {
 }
 
 @-webkit-keyframes move-spinner {
-  /* line 516, ../sass/_base.scss */
   0% {
     -webkit-transform: rotate(0deg);
   }
-
-  /* line 519, ../sass/_base.scss */
   100% {
     -webkit-transform: rotate(360deg);
   }
 }
-
 @-moz-keyframes move-spinner {
-  /* line 525, ../sass/_base.scss */
   0% {
     -moz-transform: rotate(0deg);
   }
-
-  /* line 528, ../sass/_base.scss */
   100% {
     -moz-transform: rotate(360deg);
   }
 }
-
 @-ms-keyframes move-spinner {
-  /* line 534, ../sass/_base.scss */
   0% {
     -ms-transform: rotate(0deg);
   }
-
-  /* line 537, ../sass/_base.scss */
   100% {
     -ms-transform: rotate(360deg);
   }
 }
-
 @-o-keyframes move-spinner {
-  /* line 543, ../sass/_base.scss */
   0% {
     -o-transform: rotate(0deg);
   }
-
-  /* line 546, ../sass/_base.scss */
   100% {
     -o-transform: rotate(360deg);
   }
 }
-
 @keyframes move-spinner {
-  /* line 552, ../sass/_base.scss */
   0% {
     transform: rotate(0deg);
   }
-
-  /* line 555, ../sass/_base.scss */
   100% {
     transform: rotate(360deg);
   }
 }
-
 /*
  *=================
  * Menu Bar Classes
@@ -1023,7 +986,7 @@ button.mfp-close {
   margin-left: 0;
   display: inline-block;
 }
-/* line 829, ../sass/_base.scss */
+/* line 828, ../sass/_base.scss */
 #save-search-popup #save-search-times-button,
 #save-search-popup #public-search-button {
   display: inline-block;
@@ -1128,7 +1091,7 @@ table.dataTable thead tr th {
   font-weight: normal;
   cursor: pointer;
 }
-/* line 924, ../sass/_base.scss */
+/* line 923, ../sass/_base.scss */
 .dataTables_wrapper .dataTables_paginate .paginate_button.previous,
 .dataTables_wrapper .dataTables_paginate .paginate_button.next {
   display: inline-block;
@@ -1550,7 +1513,6 @@ table.dataTable thead tr th {
   font-weight: normal;
   font-style: normal;
 }
-
 /* line 12, ../sass/_fonts.scss */
 .elegant-icons {
   display: inline-block;

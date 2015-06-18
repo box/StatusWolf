@@ -61,15 +61,17 @@
     margin: 10px 0 5px 0;
     input {
         display: inline-block;
+        width: 90%;
     }
 }
 
 .login-form-buttons {
     position: relative;
-    width: 100%;
+    width: 90%;
+    text-align: right;
     .sw-button {
-        position: absolute;
-        right: 0;
-        margin-right: 30px;
+        position: relative;
+        margin: 0;
+        color: $button_text;
     }
 }
