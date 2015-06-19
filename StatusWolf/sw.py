@@ -19,6 +19,13 @@ if not app.debug:
     app.logger.addHandler(default_log_handler)
 
 
+try:
+    swdb.verify_db()
+except swdb.SWNoTablesError:
+    app.logger.warning('Database is empty, creating the base schema')
+    swdb.create_schema()
+
+
 class SWFormParseError(Exception):
     """
     Exception class for errors parsing incoming form data
