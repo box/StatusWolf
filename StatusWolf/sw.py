@@ -2,7 +2,7 @@ from flask import Flask, render_template, url_for, request, flash, redirect, g, 
 import flask.ext.login as flogin
 import logging
 
-from StatusWolf import default_log_handler, plugins
+from StatusWolf import default_log_handler, plugins, datasources
 from StatusWolf.config import config
 import StatusWolf.auth as auth
 from StatusWolf.db import swdb
@@ -21,9 +21,24 @@ if not app.debug:
 
 try:
     swdb.verify_db()
+    app.logger.debug('Database verification successful')
 except swdb.SWNoTablesError:
     app.logger.warning('Database is empty, creating the base schema')
     swdb.create_schema()
+
+
+datasource_list = datasources.get_datasources()
+loaded_datasources = {}
+disabled_datasources = []
+unconfigured_datasources = {}
+for datasource in datasource_list:
+    if datasource['name'] in config.datasource:
+        if config.datasource[datasource['name']]['enabled']:
+            loaded_datasources[datasource['name']] = datasources.load_datasource(datasource)
+        else:
+            disabled_datasources.append(datasource['name'])
+    else:
+        unconfigured_datasources[datasource['name']] = datasources.load_datasource(datasource)
 
 
 class SWFormParseError(Exception):
