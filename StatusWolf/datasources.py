@@ -10,6 +10,8 @@ def get_datasources():
     datasources = []
     candidates = os.listdir(datasources_dir)
     for candidate in candidates:
+        if '.pyc' in candidate:
+            continue
         location = os.path.join(datasources_dir, candidate)
         if os.path.isdir(location):
             if '__init__.py' in os.listdir(location):
