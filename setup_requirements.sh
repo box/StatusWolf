@@ -46,4 +46,4 @@ rm bootstrap.zip
 ln -s bootstrap.min.js bootstrap.js
 
 # Get DateJS
-/usr/bin/wget https://datejs.googlecode.com/files/date.js
+/usr/bin/wget https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/datejs/date.js
